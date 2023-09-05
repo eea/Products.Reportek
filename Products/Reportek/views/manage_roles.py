@@ -30,8 +30,7 @@ class ManageRoles(BaseAdmin):
     def get_user_localroles(self, username):
         results = []
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        for brain in catalog.searchResults(**
-                dict(meta_type='Report Collection')):
+        for brain in catalog.searchResults(meta_type='Report Collection'):
             coll = brain.getObject()
             local_roles = coll.get_local_roles_for_userid(username)
             if local_roles:

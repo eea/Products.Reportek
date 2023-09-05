@@ -1773,9 +1773,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             catalog = getToolByName(self, DEFAULT_CATALOG, None)
 
             middleware_collections['rw'] += [
-                br.getObject() for br in catalog.searchResults(**
-                    {'meta_type': 'Report Collection',
-                     'id': username})
+                br.getObject() for br in catalog.searchResults(
+                    **{'meta_type': 'Report Collection',
+                       'id': username})
                 if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
@@ -1791,9 +1791,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             collections['Reporter'] = middleware_collections
             local_roles = ['Auditor', 'ClientFG',
                            'ClientODS', 'ClientCARS', 'ClientHDV']
-            local_r_col = catalog.searchResults(**
-                {'meta_type': 'Report Collection',
-                 'local_unique_roles': local_roles})
+            local_r_col = catalog.searchResults(
+                **{'meta_type': 'Report Collection',
+                   'local_unique_roles': local_roles})
 
             auditor = [br.getObject() for br in local_r_col
                        if 'Auditor' in br.local_defined_roles.get(username, [])

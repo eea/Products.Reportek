@@ -468,10 +468,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """ Returns the Feedback objects associated with this document """
         fbs = []
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
-        brains = catalog.searchResults(**
-            dict(meta_type='Report Feedback',
-                 document_id=self.id,
-                 path=self.getParentNode().absolute_url(1)))
+        brains = catalog.searchResults(
+            **dict(meta_type='Report Feedback',
+                   document_id=self.id,
+                   path=self.getParentNode().absolute_url(1)))
         for brain in brains:
             try:
                 fbs.append(brain.getObject())

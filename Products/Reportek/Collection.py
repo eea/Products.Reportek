@@ -268,8 +268,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                                 'roles': [role]
                             }
         # retrieve the local accounts
-        folders = catalog.searchResults(**dict(meta_type=['Report Collection'],
-                                             path=self.absolute_url(1)))
+        folders = catalog.searchResults(
+            **dict(meta_type=['Report Collection'],
+                   path=self.absolute_url(1)))
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
             for member, roles in context.get_local_roles():

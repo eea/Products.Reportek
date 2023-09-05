@@ -316,11 +316,11 @@ class process(CatalogAware, Folder):
         for activity_id in [id for id in ids
                             if id in self.objectIds('Activity')]:
             # fallout all the workitems that have this activity id
-            for wi in catalog.searchResults(**
-                dict(meta_type='Workitem',
-                     process_path=self.absolute_url(1),
-                     activity_id=activity_id,
-                     status=['active', 'inactive'])):
+            for wi in catalog.searchResults(
+                **dict(meta_type='Workitem',
+                       process_path=self.absolute_url(1),
+                       activity_id=activity_id,
+                       status=['active', 'inactive'])):
                 wi_obj = self.Catalog.getobject(wi.data_record_id_)
                 wi_obj.aq_parent.falloutWorkitem(wi.id)
         Folder.manage_delObjects(self, ids)
