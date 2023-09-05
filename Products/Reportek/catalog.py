@@ -7,6 +7,9 @@ reporting.
 """
 import os
 import logging
+import time
+import urllib
+from time import clock as process_time
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.SecurityManagement import getSecurityManager
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
@@ -93,10 +96,24 @@ class RebuildView(BrowserView):
         """ maintenance operations for the catalog """
 
         catalog = self.context
+        elapse = time.time()
+        c_elapse = process_time()
+
         catalog_rebuild(catalog.unrestrictedTraverse('/'))
 
+        elapse = time.time() - elapse
+        c_elapse = process_time() - c_elapse
+
+        msg = (
+            "Catalog Rebuilt\n"
+            "Total time: %s\n"
+            "Total CPU time: %s" % (repr(elapse), repr(c_elapse))
+        )
+        log.info(msg)
+
         self.request.RESPONSE.redirect(
-            catalog.absolute_url() + '/manage_maintenance')
+            catalog.absolute_url() + '/manage_maintenance?manage_tabs_message='
+                + urllib.quote(msg))
 
 
 def walk_folder(folder):

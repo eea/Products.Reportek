@@ -63,7 +63,6 @@ from Products.Reportek.ReportekUserFactoryPlugin import\
     manage_addReportekUserFactoryPluginForm
 from Products.Reportek.caching.config import registry_setup
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
-from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.Reportek.catalog import ReportekCatalog
 from Products.Reportek.RepUtils import getToolByName
 from plone.registry.interfaces import IRegistry
@@ -86,14 +85,14 @@ logger = logging.getLogger("Reportek")
 MessageFactory = MessageFactory('Reportek')
 
 maintenance_options = (
-    ZCatalog.manage_options[:1] +
+    ReportekCatalog.manage_options[:1] +
     ({
         'label': "Maintenance",
         'action': 'manage_maintenance'},
      ) +
-    ZCatalog.manage_options[1:])
+    ReportekCatalog.manage_options[1:])
 
-ZCatalog.manage_options = maintenance_options
+ReportekCatalog.manage_options = maintenance_options
 
 
 def create_reportek_objects(app):
