@@ -119,7 +119,7 @@ class EnvelopeUtils(BaseAdmin):
                 to[act[0]] = self.get_possible_results(act[1])
             workflows[wf][activity] = to
 
-            wks_data[workitem.getPath()] = {
+            wks_data[brain.getPath()] = {
                 'wf_data': {
                     'workflow': wf},
                 'workitem': workitem,
@@ -202,7 +202,7 @@ class EnvelopeUtils(BaseAdmin):
                     envelopes.append({
                         'env': {
                             'url': env.absolute_url(),
-                            'path': env.getPath()
+                            'path': '/'.join(env.getPhysicalPath())
                         },
                         'process': {
                             'url': process_url,
@@ -247,7 +247,7 @@ class EnvelopeUtils(BaseAdmin):
                     envelopes.append({
                         'env': {
                             'url': env.absolute_url(),
-                            'path': env.getPath()
+                            'path': '/'.join(env.getPhysicalPath())
                         },
                         'process': {
                             'url': process.absolute_url(),
@@ -324,7 +324,7 @@ class EnvelopeUtils(BaseAdmin):
             envelopes.append({
                 'env': {
                     'url': env.absolute_url(),
-                    'path': env.getPath()
+                    'path': '/'.join(env.getPhysicalPath())
                 },
                 'process': {
                     'url': process_url,

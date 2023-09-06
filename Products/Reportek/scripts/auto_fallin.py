@@ -68,8 +68,8 @@ def get_envelopes(catalog, df_uris, act_from, act_to):
     for brain in brains:
         wk = brain.getObject()
         env = wk.getParentNode()
-        results[env.getPath()] = {'envelope': env,
-                                  'wk': wk}
+        results['/'.join(env.getPhysicalPath())] = {'envelope': env,
+                                                    'wk': wk}
     return results
 
 

@@ -265,7 +265,8 @@ class RemoteFMEConversionApplication(SimpleItem):
     def get_env_path_tokenized(self, workitem_id):
         """Return tokenized envelope path."""
         workitem = getattr(self, workitem_id)
-        return workitem.getMySelf().getPath().replace('/', '_')[1:]
+        env_path = '/'.join(workitem.getMySelf().getPhysicalPath())
+        return env_path.replace('/', '_')[1:]
 
     def get_env_obligation(self, workitem_id):
         """Return the envelope obligation"""

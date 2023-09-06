@@ -47,7 +47,7 @@ class RecentUploads(BaseAdmin):
                     'reportingdate': env.reportingdate.strftime('%Y-%m-%d'),
                     'country': env.getCountryName(),
                     'title': env.title,
-                    'link': env.getPath(),
+                    'link': '/'.join(env.getPhysicalPath()),
                     'activity': items[-1].activity_id,
                     'status': items[-1].status,
                     'feedbacks': feedbacks,

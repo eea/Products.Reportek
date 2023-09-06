@@ -31,7 +31,7 @@ def update(app):
         parent = aq_parent(envelope)
 
         # Unindex all children
-        children = catalog(path=envelope.getPath())
+        children = catalog(path='/'.join(envelope.getPhysicalPath()))
         for child in children:
             obj = child.getObject()
             obj.unindex_object()
