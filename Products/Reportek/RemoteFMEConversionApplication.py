@@ -709,9 +709,9 @@ class RemoteFMEConversionApplication(SimpleItem):
     def __post_feedback(self, workitem, jobid, messages, inputfile=None,
                         attach=None):
         envelope = self.aq_parent
-        feedback_id = '{0}_{1}'.format(self.app_name, jobid)
+        feedback_id = '{}_{}_{}'.format(self.app_name, jobid, workitem.id)
         if inputfile:
-            feedback_id = 'conversion_log_{}'.format(inputfile)
+            feedback_id = 'conversion_log_{}_{}'.format(inputfile, workitem.id)
         envelope.manage_addFeedback(id=feedback_id, file=attach,
                                     title='%s results' % self.app_name,
                                     activity_id=workitem.activity_id,
@@ -719,7 +719,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     feedbacktext=messages,
                                     document_id=inputfile)
         feedback_ob = getattr(envelope, feedback_id)
-        conv_res_id = 'conversion_log_{}'.format(jobid)
+        conv_res_id = 'conversion_log_{}_{}'.format(jobid, workitem.id)
         for doc_id in envelope.objectIds('Report Document'):
             if conv_res_id in doc_id:
                 doc = getattr(envelope, doc_id)
