@@ -316,16 +316,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         if res.status_code == 200:
             z = StringIO(res.content)
             z.filename = 'resources.zip'
-            add = env.manage_addDDzipfile(file=z)
-            RESULTS = {
-                1: 'SUCCESS',
-                2: 'One or more files have not been added to the envelope'
-            }
-            return (
-                add,
-                RESULTS.get(add,
-                            '''Something went wrong while saving the'''
-                            ''' converted file(s) in the envelope'''))
+            return env.manage_addDDzipfile(file=z, verbose=True)
         else:
             return (
                 res.status_code,
@@ -711,7 +702,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         envelope = self.aq_parent
         feedback_id = '{}_{}_{}'.format(self.app_name, jobid, workitem.id)
         if inputfile:
-            feedback_id = 'conversion_log_{}_{}'.format(inputfile, workitem.id)
+            feedback_id = 'conversion_log_{}_{}'.format(workitem.id, inputfile)
         envelope.manage_addFeedback(id=feedback_id, file=attach,
                                     title='%s results' % self.app_name,
                                     activity_id=workitem.activity_id,
