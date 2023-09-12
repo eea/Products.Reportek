@@ -351,7 +351,14 @@ class RemoteFMEConversionApplication(SimpleItem):
                 res = requests.post(url, params=params,
                                     files=files, headers=headers)
                 if res.status_code == 200:
-                    srv_res = res.json()
+                    try:
+                        srv_res = res.json()
+                    except ValueError as e:
+                        err = ('''Unable to parse FME upload response as '''
+                               '''json: {}'''.format(str(e)))
+                        logger.warning(err)
+                        self.__update_storage(workitem, 'upload',
+                                          err=err, dec_retry=True)
                     if isinstance(srv_res, list):
                         paths = [f.get('name').encode('utf-8')
                                  for f in srv_res]
