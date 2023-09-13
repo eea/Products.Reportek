@@ -358,7 +358,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                '''json: {}'''.format(str(e)))
                         logger.warning(err)
                         self.__update_storage(workitem, 'upload',
-                                          err=err, dec_retry=True)
+                                              err=err, dec_retry=True)
                     if isinstance(srv_res, list):
                         paths = [f.get('name').encode('utf-8')
                                  for f in srv_res]
