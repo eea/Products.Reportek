@@ -46,6 +46,8 @@ from DateTime import DateTime
 from Comment import CommentsManager
 from blob import add_OfsBlobFile
 from AccessControl import ClassSecurityInfo
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 import RepUtils
 import StringIO
 import logging
@@ -62,6 +64,10 @@ def manage_addFeedback(self, id='', title='', feedbacktext='', file=None,
                        REQUEST=None):
     """Adds feedback as a file to a folder."""
 
+    if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+        if REQUEST:
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
     # get the release date of the envelope
     releasedate = self.reportingdate
     # generate id from the release date
@@ -276,6 +282,10 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager,
         """ Upload an attachment to a feedback.
             FIXME: Misnamed method name
         """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            if REQUEST:
+                alsoProvides(REQUEST,
+                             plone.protect.interfaces.IDisableCSRFProtection)
         if filename is None:
             filename = RepUtils.getFilename(file.filename)
         engine = self.getEngine()
