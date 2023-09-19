@@ -676,7 +676,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     def manage_addDDzipfile(self, file='', content_type='', restricted='',
                             required_schema=[], replace_xml=0, disallow='',
-                            REQUEST=None):
+                            verbose=False, REQUEST=None):
         """ Expands a zipfile into a number of Documents.
             For the XML files, checks if the schema is correct for that
             dataflow, meaning the schema is part of the 'required_schema'
@@ -717,14 +717,17 @@ class EnvelopeCustomDataflows(Toolz):
             files_only = [f_id for f_id in zip_file_ids
                           if f_id[-1] != '/' and f_id[-1] != '\\']
             if not files_only:
+                msg = '''The zip file you specified is hierarchical.
+                         It contains folders.\n
+                         Please upload a non-hierarchical structure of
+                         files.'''
                 if REQUEST is not None:
                     return error_message(
-                        self,
-                        'The zip file you specified is hierarchical.'
-                        ' It contains folders.\n'
-                        'Please upload a non-hierarchical structure of files.',
+                        self, msg
                         action='index_html', REQUEST=REQUEST)
                 else:
+                    if verbose:
+                        return 0, msg
                     return 0
             zip_file_ids = files_only
 
@@ -813,8 +816,12 @@ class EnvelopeCustomDataflows(Toolz):
                                            action='./manage_main',
                                            REQUEST=REQUEST)
             elif file_ids_not_uploaded:
+                if verbose:
+                    return 2, msg
                 return 2
             else:
+                if verbose:
+                    return 1, msg
                 return 1
 
         elif REQUEST is not None:
