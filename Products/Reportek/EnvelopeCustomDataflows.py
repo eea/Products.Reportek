@@ -723,7 +723,7 @@ class EnvelopeCustomDataflows(Toolz):
                          files.'''
                 if REQUEST is not None:
                     return error_message(
-                        self, msg
+                        self, msg,
                         action='index_html', REQUEST=REQUEST)
                 else:
                     if verbose:
