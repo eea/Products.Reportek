@@ -787,14 +787,19 @@ class EnvelopeCustomDataflows(Toolz):
                            '''this context!''')
                     failed = True
                 else:
-                    msg = ('''Some files from the zip file were not '''
+                    pzfile_ids = '\n'.join(
+                        ['<li>{}</li>'.format(zf_id.strip('./'))
+                         for zf_id in file_ids_not_uploaded])
+                    msg = ('''The following files were not '''
                            '''uploaded in the envelope because their '''
                            '''schemas are not correct for this dataflow '''
                            '''or certain file types are not allowed in this '''
-                           '''context!''')
+                           '''context: <ul>{}</ul>''').format(pzfile_ids)
             else:
-                msg = ('''The file(s) in this zip archive were successfully '''
-                       '''uploaded in the envelope''')
+                zfile_ids = '\n'.join(['<li>{}</li>'.format(zf_id.strip('./'))
+                                       for zf_id in zip_file_ids])
+                msg = ('''Files successfully uploaded to the envelope:  '''
+                       '''<ul>{}</ul>''').format(zfile_ids)
 
             if REQUEST is not None:
                 if failed:
@@ -804,8 +809,7 @@ class EnvelopeCustomDataflows(Toolz):
                         action='./manage_main', REQUEST=REQUEST)
                 else:
                     errors = []
-                    if (msg != '''The file(s) in this zip archive were '''
-                               '''successfully uploaded in the envelope'''):
+                    if not msg.startswith('Files successfully'):
                         err = {
                             'title': 'WARNING',
                             'description': msg

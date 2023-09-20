@@ -542,12 +542,16 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                     status='failed',
                                                     err=msg, dec_retry=True)
                                             else:
-                                                workitem.addEvent(
-                                                    'Conversion successful')
+                                                msg = ('''Conversion '''
+                                                       '''successful. '''
+                                                       '''{}''').format(
+                                                           dl_res[1]
+                                                       )
+                                                workitem.addEvent(msg)
                                                 self.__post_feedback(
                                                     workitem,
                                                     job_id,
-                                                    'Conversion successful',
+                                                    msg,
                                                     inputfile=inputfile)
                                                 self.__update_storage(
                                                     workitem, 'results',

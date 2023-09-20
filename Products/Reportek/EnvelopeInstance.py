@@ -912,6 +912,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """  """
         application_url = self.getApplicationUrl(workitem_id)
         activity_obj = self.getActivity(workitem_id)
+        self.activateWorkitem(workitem_id, 'openflow_engine')
+
         if application_url:
             args = {'workitem_id': workitem_id}
             if REQUEST:
@@ -929,7 +931,6 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 logger.exception(msg)
                 raise ApplicationException(msg)
 
-        self.activateWorkitem(workitem_id, 'openflow_engine')
         if activity_obj.complete_automatically:
             self.completeWorkitem(workitem_id)
 
