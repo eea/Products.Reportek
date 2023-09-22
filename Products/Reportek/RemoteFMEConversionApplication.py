@@ -535,7 +535,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                     workitem,
                                                     job_id,
                                                     msg,
-                                                    inputfile=inputfile)
+                                                    inputfile=inputfile,
+                                                    content_type='text/html')
                                                 self.__update_storage(
                                                     workitem, 'results',
                                                     jobid=job_id,
@@ -552,7 +553,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                     workitem,
                                                     job_id,
                                                     msg,
-                                                    inputfile=inputfile)
+                                                    inputfile=inputfile,
+                                                    content_type='text/html')
                                                 self.__update_storage(
                                                     workitem, 'results',
                                                     jobid=job_id,
@@ -709,7 +711,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem._p_changed = 1
 
     def __post_feedback(self, workitem, jobid, messages, inputfile=None,
-                        attach=None):
+                        attach=None, content_type='text/plain'):
         envelope = self.aq_parent
         feedback_id = '{}_{}_{}'.format(self.app_name, jobid, workitem.id)
         if inputfile:
@@ -721,6 +723,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     feedbacktext=messages,
                                     document_id=inputfile)
         feedback_ob = getattr(envelope, feedback_id)
+        feedback_ob.content_type = content_type
         conv_res_id = 'conversion_log_{}_{}'.format(jobid, workitem.id)
         for doc_id in envelope.objectIds('Report Document'):
             if conv_res_id in doc_id:
