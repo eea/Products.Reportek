@@ -51,7 +51,8 @@
                          visible python: colls or envs or refs;">
       <form method="post" tal:attributes="action string:${request/URL1}/">
         <div class="filessection">
-          <metal:block use-macro="here/macros/index-headings">
+          <metal:block metal:use-macro="context/macros/index-headings">
+            index-headings
           </metal:block>
           <table style="width: 100%; border: 0" class="collection-table-listing">
             <metal:block use-macro="here/macros/table-heading">

@@ -1,6 +1,7 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from DateTime import DateTime
+from Products.Reportek.reportekcontent import ReportekContent
 from Products.Reportek.RepUtils import xmlEncode
 from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
@@ -9,7 +10,7 @@ from Products.Reportek.RepUtils import parse_uri
 from zope.interface import implements
 
 
-class BaseDelivery(object):
+class BaseDelivery(ReportekContent):
     """BaseDelivery class."""
     implements(IBaseDelivery)
 
@@ -22,6 +23,7 @@ class BaseDelivery(object):
                  country=None, locality=None, descr=None, dataflow_uris=None):
         """ Envelope constructor
         """
+        self.modification_date = DateTime()
         self.year = year
         self.endyear = endyear
         self._check_year_range()

@@ -33,7 +33,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
 from Document import Document
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication

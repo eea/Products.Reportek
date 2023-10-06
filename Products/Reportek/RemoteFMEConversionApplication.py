@@ -29,9 +29,9 @@ from StringIO import StringIO
 import requests
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
-from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 from DateTime import DateTime
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 

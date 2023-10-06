@@ -19,7 +19,7 @@
 # Cornel Nitu, Finsiel Romania
 
 import RepUtils
-import Globals
+from AccessControl.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
 from AccessControl import ClassSecurityInfo
@@ -115,4 +115,4 @@ class QAScript(SimpleItem):
     manage_settings_html = PageTemplateFile('zpt/qa/script_edit', globals())
 
 
-Globals.InitializeClass(QAScript)
+InitializeClass(QAScript)

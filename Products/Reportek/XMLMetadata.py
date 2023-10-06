@@ -21,7 +21,7 @@
 
 from Products.Reportek.RepUtils import parse_uri
 from Products.Reportek.constants import ENGINE_ID
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from xml.sax.saxutils import XMLGenerator

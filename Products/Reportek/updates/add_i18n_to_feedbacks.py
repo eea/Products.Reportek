@@ -41,7 +41,7 @@
 #    in the initial open tag of a match
 import transaction
 from Products.Reportek.locales.poParser import po_load
-from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 import re
 
 __all__ = ['update']

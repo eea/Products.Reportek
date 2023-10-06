@@ -35,7 +35,7 @@ from AccessControl.Permissions import view_management_screens
 from BTrees.OOBTree import TreeSet
 from DateTime import DateTime
 from Document import Document
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from persistent.dict import PersistentDict
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

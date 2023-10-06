@@ -30,7 +30,7 @@ from AccessControl import ClassSecurityInfo, getSecurityManager, Unauthorized
 from OFS.PropertyManager import PropertyManager
 from OFS.ObjectManager import ObjectManager
 from OFS.SimpleItem import SimpleItem
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from DateTime import DateTime
 import StringIO
 __version__ = '$Rev$'[6:-2]

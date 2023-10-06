@@ -5,7 +5,7 @@ from AccessControl.Permissions import view_management_screens
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID, DEFAULT_CATALOG
 from Products.Reportek.RepUtils import getToolByName
 from DataflowMappingsRecord import DataflowMappingsRecord
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 __doc__ = """Container for mappings between dataflows and XML schemas"""

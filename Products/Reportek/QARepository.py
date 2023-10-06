@@ -22,7 +22,7 @@ import shlex
 import subprocess
 
 import constants
-import Globals
+from AccessControl.class_init import InitializeClass
 import QAScript
 import RepUtils
 from AccessControl import ClassSecurityInfo
@@ -304,7 +304,7 @@ class QARepository(Folder):
     index_html = PageTemplateFile('zpt/qa/scripts_index', globals())
 
 
-Globals.InitializeClass(QARepository)
+InitializeClass(QARepository)
 
 
 class QAResult:

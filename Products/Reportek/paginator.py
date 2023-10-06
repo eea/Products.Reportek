@@ -30,7 +30,7 @@
 # Zope imports
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Five.browser import BrowserView
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo
 
 from math import ceil, floor

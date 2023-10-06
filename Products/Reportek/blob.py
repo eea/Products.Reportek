@@ -4,7 +4,7 @@ from gzip import GzipFile
 from StringIO import StringIO
 from time import localtime, strftime, time
 
-import Globals
+from AccessControl.class_init import InitializeClass
 import OFS.SimpleItem as _SimpleItem
 import RepUtils
 from AccessControl import ClassSecurityInfo
@@ -306,7 +306,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
         RESPONSE.redirect(self.absolute_url() + '/manage_workspace')
 
 
-Globals.InitializeClass(OfsBlobFile)
+InitializeClass(OfsBlobFile)
 
 
 def get_content_type(file_or_content):

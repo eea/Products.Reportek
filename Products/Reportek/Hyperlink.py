@@ -22,7 +22,7 @@ from Products.Reportek.CatalogAware import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from OFS.PropertyManager import PropertyManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo
 from DateTime import DateTime
 from App.ImageFile import ImageFile

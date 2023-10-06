@@ -28,7 +28,7 @@ This class is part of the workflow system
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek.CatalogAware import CatalogAware

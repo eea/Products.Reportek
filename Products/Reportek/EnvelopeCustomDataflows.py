@@ -44,7 +44,7 @@ import zip_content
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
 from constants import CONVERTERS_ID
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.Document import error_message, success_message

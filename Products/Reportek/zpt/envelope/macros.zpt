@@ -87,7 +87,8 @@
     <tal:block repeat="item of_interest">
       <metal:block use-macro="here/macros/status">
       </metal:block>
-      <span tal:condition="not:repeat/item/last">,</span>
+      ,
+      <!-- <span tal:condition="not:repeat/item/end">,</span> -->
     </tal:block>
   </tal:block>
   <tal:block condition="python:inactiveW"
@@ -125,11 +126,13 @@
                       </a>
                     </strong>
                     (<span tal:replace="python:item.getActivityDetails('description')"></span>)
-                    <span tal:condition="not:repeat/item/last">, </span>
+                    , 
+                    <!-- <span tal:condition="not:repeat/item/end">, </span> -->
                   </tal:block>
                   <tal:block condition="not:canPull">
                     <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
-                    <span tal:condition="not:repeat/item/last">, </span>
+                    , 
+                    <!-- <span tal:condition="not:repeat/item/end">, </span> -->
                   </tal:block>
                 </div>
               </tal:block>

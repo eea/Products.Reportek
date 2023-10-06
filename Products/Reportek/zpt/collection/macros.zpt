@@ -42,7 +42,7 @@
                     <input type="checkbox" name="ids:list" tal:attributes="value item/id" />
                 </td>
                 <td>
-                    <img tal:attributes="src python: item.icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" />
+                    <img tal:attributes="src nothing" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" />
                 </td>
                 <td>
                     <a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" />

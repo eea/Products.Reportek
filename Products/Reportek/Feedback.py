@@ -41,7 +41,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
 from OFS.PropertyManager import PropertyManager
 from OFS.ObjectManager import ObjectManager
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from DateTime import DateTime
 from Comment import CommentsManager
 from blob import add_OfsBlobFile

@@ -40,20 +40,29 @@ from AccessControl.ImplPython import rolesForPermissionOn
 from AccessControl.SecurityManagement import (getSecurityManager,
                                               newSecurityManager,
                                               setSecurityManager)
-from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
+try:
+    from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
+except ImportError:
+    from AccessControl.User import Super as BaseUnrestrictedUser
 from DateTime import DateTime
+import datetime
 from path import path
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.permissions import reportek_dataflow_admin
-from webdav.common import rfc1123_date
+try:
+    from webdav.common import rfc1123_date
+except ImportError:
+    from App.Common import rfc1123_date
 from Acquisition import aq_get
 from Acquisition import aq_parent
 from Acquisition.interfaces import IAcquirer
 from zope.component import getUtility
 # from zope.datetime import rfc1123_date
 from zope.interface.interfaces import ComponentLookupError
+from z3c.pt.pagetemplate import PageTemplateFile as ChameleonTemplate
+
 
 _marker = []  # Create a new marker object.
 _tool_interface_registry = {}
@@ -947,3 +956,33 @@ def checkPermission(permission, obj):
     if not isinstance(permission, str):
         permission = permission.decode()
     return getSecurityManager().checkPermission(permission, obj)
+
+# pylint: disable=dangerous-default-value
+def load_template(name, context=None, _memo={}):
+    ''' load the main template '''
+    if name not in _memo:
+        tpl = ChameleonTemplate(name)
+
+        if context is not None:
+            bound = tpl.bind(context)
+            _memo[name] = bound
+        else:
+            _memo[name] = tpl
+
+    return _memo[name]
+
+def datify(s):
+    """Get a DateTime object from a string (or anything parsable by DateTime,
+       a datetime.date, a datetime.datetime
+    """
+    if not isinstance(s, DateTime):
+        if s == 'None':
+            s = None
+        elif isinstance(s, datetime.datetime):
+            s = DateTime(s.isoformat())
+        elif isinstance(s, datetime.date):
+            s = DateTime(s.year, s.month, s.day)
+        elif s is not None:
+            s = DateTime(s)
+
+    return s

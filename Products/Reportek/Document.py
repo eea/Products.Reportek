@@ -29,7 +29,7 @@ from os.path import join
 from StringIO import StringIO
 from time import time
 
-import Globals
+from AccessControl.class_init import InitializeClass
 import IconShow
 import RepUtils
 import requests
@@ -39,7 +39,7 @@ from AccessControl import ClassSecurityInfo
 from blob import FileContainer, StorageError
 from constants import ENGINE_ID, QAREPOSITORY_ID
 from DateTime import DateTime
-from Globals import package_home
+from App.Common import package_home
 from interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -890,4 +890,4 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         fc.close()
 
 
-Globals.InitializeClass(Document)
+InitializeClass(Document)

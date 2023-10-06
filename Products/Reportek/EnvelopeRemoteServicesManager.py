@@ -35,7 +35,7 @@ import RepUtils
 from AccessControl import ClassSecurityInfo
 from constants import QAREPOSITORY_ID
 # Zope imports
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException

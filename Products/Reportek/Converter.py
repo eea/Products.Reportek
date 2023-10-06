@@ -26,7 +26,7 @@ import requests
 import os
 import constants
 import RepUtils
-import Globals
+from AccessControl.class_init import InitializeClass
 from copy import deepcopy
 from Products.Reportek.blob import StorageError
 from ZODB.POSException import POSKeyError
@@ -319,4 +319,4 @@ class LocalHttpConverter(Converter):
         return response
 
 
-Globals.InitializeClass(Converter)
+InitializeClass(Converter)

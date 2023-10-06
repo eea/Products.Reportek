@@ -1,7 +1,7 @@
 from App.Dialogs import MessageDialog
 from Products.Reportek.interfaces import IProcess
 from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
-from App.special_dtml import DTMLFile
+# from App.special_dtml import DTMLFile
 from zExceptions import BadRequest
 
 
@@ -23,9 +23,10 @@ def patched_manage_renameForm(self, REQUEST=None, RESPONSE=None):
                 processes.append(oid)
 
     REQUEST.form['processes'] = processes
-    self.renameForm = DTMLFile('dtml/renameForm', globals())
+    import pdb;pdb.set_trace()
+    # self.renameForm = DTMLFile('dtml/renameForm', globals())
 
-    return self.renameForm(self, REQUEST)
+    # return self.renameForm(self, REQUEST)
 
 
 def patched_manage_renameObjects(self, ids=[], new_ids=[],

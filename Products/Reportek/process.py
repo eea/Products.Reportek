@@ -6,7 +6,8 @@ from AccessControl import ClassSecurityInfo
 # Product imports
 from activity import activity
 from DateTime import DateTime
-from Globals import InitializeClass, MessageDialog
+from AccessControl.class_init import InitializeClass
+from App.Dialogs import MessageDialog
 from OFS.Folder import Folder
 from path import path
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

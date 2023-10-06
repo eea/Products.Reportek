@@ -6,6 +6,12 @@
 
   <include package="z3c.caching" file="meta.zcml" />
 
+  <cache:rulesetType
+    name="plone.contentTypes"
+    title="Plone content types"
+    description="Non-container content types"
+    />
+
   <cache:ruleset
     for=".interfaces.IReportekUtilities"
     ruleset="plone.contentTypes"

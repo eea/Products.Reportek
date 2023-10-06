@@ -1,7 +1,7 @@
 # Thanks to Ulrick Eck for the support
 
-import Globals
-from Globals import Persistent
+from AccessControl.class_init import InitializeClass
+from Persistence import Persistent
 from AccessControl import ClassSecurityInfo
 from Products.PageTemplates.Expressions import getEngine
 try:
@@ -37,7 +37,7 @@ class Expression (Persistent):
         return res
 
 
-Globals.InitializeClass(Expression)
+InitializeClass(Expression)
 
 
 def exprNamespace(instance, workitem=None, activity=None, process=None,

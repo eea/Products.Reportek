@@ -34,6 +34,7 @@ from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.config import permission_manage_properties_collections
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.rabbitmq import queue_msg
+from Products.Reportek.reportekcontent import ReportekContent
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
@@ -46,7 +47,7 @@ import requests
 import RepUtils
 import Referral
 import Products
-import Globals
+from AccessControl.class_init import InitializeClass
 import Envelope
 import constants
 from datetime import datetime
@@ -86,7 +87,7 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class BaseCollection(object):
+class BaseCollection(ReportekContent):
     """BaseCollection class."""
     implements(ICollection)
 
@@ -174,19 +175,20 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                 y.append(x)
         return y
 
-    security.declareProtected('View management screens', 'manage_main_inh')
-    manage_main_inh = Folder.manage_main
-    Folder.manage_main._setName('manage_main')
+    ### TODO Zope4 doesn't work zope.pagetemplate package
+    # security.declareProtected('View management screens', 'manage_main_inh')
+    # manage_main_inh = Folder.manage_main
+    # Folder.manage_main._setName('manage_main')
 
-    security.declareProtected('View', 'manage_main')
+    # security.declareProtected('View', 'manage_main')
 
-    def manage_main(self, *args, **kw):
-        """ Define manage main to be context aware """
-        if getSecurityManager().checkPermission(
-                'View management screens', self):
-            return apply(self.manage_main_inh, (self,) + args, kw)
-        else:
-            return apply(self.index_html, (self,) + args, kw)
+    # def manage_main(self, *args, **kw):
+    #     """ Define manage main to be context aware """
+    #     if getSecurityManager().checkPermission(
+    #             'View management screens', self):
+    #         return apply(self.manage_main_inh, (self,) + args, kw)
+    #     else:
+    #         return apply(self.index_html, (self,) + args, kw)
 
     security.declareProtected('Add Collections', 'manage_addCollectionForm')
     manage_addCollectionForm = manage_addCollectionForm
@@ -205,8 +207,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
 
     security.declareProtected('Add Envelopes', 'manage_addReferral')
     manage_addReferral = Referral.manage_addReferral
-
-    macros = PageTemplateFile('zpt/collection/macros', globals()).macros
 
     security.declareProtected('View', 'index_html')
     index_html = PageTemplateFile('zpt/collection/index', globals())
@@ -1186,5 +1186,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
     def restricted(self, value):
         self._restricted = bool(value)
 
+    @property
+    def macros(self):
+        ''' return the template macros '''
+        return RepUtils.load_template('zpt/collection/macros.zpt', self).macros
 
-Globals.InitializeClass(Collection)
+InitializeClass(Collection)

@@ -36,7 +36,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 # product imports
 import constants
-import Globals
+from AccessControl.class_init import InitializeClass
 import Products
 import RepUtils
 import transaction
@@ -2126,4 +2126,4 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return data
 
 
-Globals.InitializeClass(ReportekEngine)
+InitializeClass(ReportekEngine)

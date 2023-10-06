@@ -1,5 +1,9 @@
 from AccessControl import ClassSecurityInfo
-from App.class_init import InitializeClass
+try:
+    from App.class_init import InitializeClass
+except ImportError:
+    from AccessControl.class_init import InitializeClass
+from AccessControl.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IUserFactoryPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin

@@ -6,7 +6,7 @@ from AccessControl import ClassSecurityInfo
 from BTrees.OOBTree import BTree
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

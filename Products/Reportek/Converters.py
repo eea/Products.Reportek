@@ -32,7 +32,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from zExceptions import Redirect
-import Globals
+from AccessControl.class_init import InitializeClass
 
 import Converter
 import constants
@@ -318,4 +318,4 @@ class Converters(Folder):
         return conv(file_url, write_to_response=write_to_response)
 
 
-Globals.InitializeClass(Converters)
+InitializeClass(Converters)

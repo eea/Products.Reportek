@@ -31,11 +31,11 @@ $Id$"""
 
 from Products.Reportek.CatalogAware import CatalogAware
 from OFS.SimpleItem import SimpleItem
-import Globals
+from AccessControl.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from AccessControl import getSecurityManager, ClassSecurityInfo
-import AccessControl.Role
+from OFS import role
 
 # Product imports
 import RepUtils
@@ -91,7 +91,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
             {'label': 'View', 'action': 'index_html',
              'help': ('OFSP', 'Referral_View.stx')},
         ) +
-        AccessControl.Role.RoleManager.manage_options +
+        role.RoleManager.manage_options +
         SimpleItem.manage_options
     )
 
@@ -233,4 +233,4 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
             return self.manage_main(self, REQUEST, manage_tabs_message=message)
 
 
-Globals.InitializeClass(Referral)
+InitializeClass(Referral)

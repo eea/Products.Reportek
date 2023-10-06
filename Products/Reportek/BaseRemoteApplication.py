@@ -1,6 +1,6 @@
 import requests
 from requests.exceptions import ConnectionError
-from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
 from Products.Reportek.exceptions import LocalConversionException

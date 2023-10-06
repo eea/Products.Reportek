@@ -4,7 +4,7 @@ import threading
 import time
 
 import requests
-from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 from config import (DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT,
                     REDIS_DATABASE, REDIS_HOSTNAME, REDIS_PORT)
 from constants import PING_ENVELOPES_REDIS_KEY

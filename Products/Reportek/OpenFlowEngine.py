@@ -31,7 +31,7 @@ from collections import defaultdict
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from ZODB.PersistentMapping import PersistentMapping
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
 import transaction

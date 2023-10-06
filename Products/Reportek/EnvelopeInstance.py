@@ -36,7 +36,7 @@ from constants import ENGINE_ID
 from DateTime import DateTime
 # Product specific imports
 from expression import exprNamespace
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.exceptions import ApplicationException

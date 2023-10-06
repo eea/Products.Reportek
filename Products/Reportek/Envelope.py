@@ -66,8 +66,8 @@ import xlwt
 import transaction
 import OFS.SimpleItem
 import OFS.ObjectManager
-import Globals
-import AccessControl.Role
+from AccessControl.class_init import InitializeClass
+from OFS import role
 from zipfile import BadZipfile
 from exceptions import InvalidPartOfYear
 import tempfile
@@ -267,7 +267,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                 'help': ('OFSP', 'Envelope_View.stx')},
         ) +
         EnvelopeInstance.manage_options +
-        AccessControl.Role.RoleManager.manage_options +
+        role.RoleManager.manage_options +
         OFS.SimpleItem.Item.manage_options
     )
 
@@ -277,8 +277,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     security.declareProtected('Change Envelopes', 'manage_renameForm')
     security.declareProtected('Change Envelopes', 'manage_renameObject')
     security.declareProtected('Change Envelopes', 'manage_renameObjects')
-
-    macros = PageTemplateFile('zpt/envelope/macros', globals()).macros
 
     def __init__(self, process, title, authUser, year, endyear, partofyear,
                  country, locality, descr, dataflow_uris=None):
@@ -567,25 +565,26 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         return self.overview(REQUEST)
 
-    security.declareProtected('View management screens', 'manage_main_inh')
-    manage_main_inh = EnvelopeInstance.manage_main
-    EnvelopeInstance.manage_main._setName('manage_main')
+    ####### TODO: ZOPE4 doesn't work
+    # security.declareProtected('View management screens', 'manage_main_inh')
+    # manage_main_inh = EnvelopeInstance.manage_main
+    # EnvelopeInstance.manage_main._setName('manage_main')
 
-    security.declareProtected('View', 'manage_main')
+    # security.declareProtected('View', 'manage_main')
 
-    def manage_main(self, *args, **kw):
-        """ Define manage main to be context aware """
+    # def manage_main(self, *args, **kw):
+    #     """ Define manage main to be context aware """
 
-        if getSecurityManager().checkPermission('View management screens',
-                                                self):
-            return apply(self.manage_main_inh, (self,) + args, kw)
-        else:
-            # args is a tuple, the first element being the object instance,
-            # the second the REQUEST
-            if len(args) > 1:
-                return apply(self.index_html, (args[1],))
-            else:
-                return apply(self.index_html, ())
+    #     if getSecurityManager().checkPermission('View management screens',
+    #                                             self):
+    #         return apply(self.manage_main_inh, (self,) + args, kw)
+    #     else:
+    #         # args is a tuple, the first element being the object instance,
+    #         # the second the REQUEST
+    #         if len(args) > 1:
+    #             return apply(self.index_html, (args[1],))
+    #         else:
+    #             return apply(self.index_html, ())
 
     security.declareProtected('View', 'getDocuments')
 
@@ -1790,9 +1789,13 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         return self.descr
 
+    @property
+    def macros(self):
+        ''' return the template macros '''
+        return RepUtils.load_template('zpt/envelope/macros.zpt', self).macros
 
 # Initialize the class in order the security assertions be taken into account
-Globals.InitializeClass(Envelope)
+InitializeClass(Envelope)
 
 
 def movedEnvelope(ob, event):

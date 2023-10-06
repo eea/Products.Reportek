@@ -6,7 +6,7 @@ import messages
 import requests
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
