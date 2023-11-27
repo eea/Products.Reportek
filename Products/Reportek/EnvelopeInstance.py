@@ -843,6 +843,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if REQUEST:
                 alsoProvides(REQUEST,
                              plone.protect.interfaces.IDisableCSRFProtection)
+        try:
+            username = REQUEST['AUTHENTICATED_USER'].getUserName()
+        except Exception:
+            username = 'N/A'
+        self.delete_app_jobs(workitem_id)
         workitem_from = getattr(self, workitem_id)
         engine = self.getOpenFlowEngine()
         push_roles = engine.getPushRoles(
@@ -851,12 +856,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.getInstanceProcessId(), activity_id)
         workitem_to = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.linkWorkitems(workitem_id, [workitem_to.id])
-        event = 'fallin to activity ' + activity_id + ' in process ' \
-                + self.process_path + ' (workitem ' + str(workitem_to.id) + ')'
+        event = ('fallin to activity {} in process {} '
+                 '(workitem {}) - {}'.format(activity_id, self.process_path,
+                                             str(workitem_to.id), username))
         workitem_from.addEvent(event)
-        event = 'fallin from activity ' + workitem_from.activity_id + \
-                ' in process ' + self.process_path + \
-                ' (workitem ' + str(workitem_id) + ')'
+        event = ('fallin from activity {} in process {} (workitem {}) '
+                 '- {}'.format(workitem_from.activity_id, self.process_path,
+                               str(workitem_id), username))
         workitem_to.addEvent(event)
         self.manageWorkitemCreation(workitem_to.id)
         if REQUEST:
@@ -1093,15 +1099,15 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if getattr(process, 'restricted', False):
             return True
 
-    security.declareProtected('Reportek Cancel Activity', 'cancel_activity')
-
-    def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
-        """Cancel the current activity"""
+    def delete_app_jobs(self, workitem_id):
+        """Delete jobs associated with the mapped activity"""
         wk = getattr(self, workitem_id)
-
-        if wk.status != 'complete' and len(self.getActiveWorkitems()) > 0:
+        if wk.status != 'complete':
             if wk.activity_id.startswith('Automatic'):
-                qa_prop = getattr(wk, wk.activity_id, None)
+                annotations = wk._metadata()
+                qa_prop = annotations.get(
+                    wk.activity_id,
+                    getattr(wk, wk.activity_id, None))
                 if qa_prop:
                     jobs = qa_prop.get('getResult', {})
                     app_url = self.getApplicationUrl(wk.id)
@@ -1116,7 +1122,17 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     app = self.unrestrictedTraverse(app_url)
                     for job in jobs:
                         app.delete_job(job, workitem_id)
-            else:
+
+    security.declareProtected('Reportek Cancel Activity', 'cancel_activity')
+
+    def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
+        """Cancel the current activity"""
+        wk = getattr(self, workitem_id)
+
+        if wk.status != 'complete' and len(self.getActiveWorkitems()) > 0:
+            r_app = (wk.activity_id.startswith('Automatic')
+                     or wk.activity_id.startswith('FMEConversion'))
+            if not r_app:
                 if REQUEST:
                     REQUEST.SESSION.set('note_content_type', 'text/html')
                     REQUEST.SESSION.set('note_title', 'Error')
@@ -1128,10 +1144,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if wk.wf_status in ['forward', 'hybrid']:
                 fallinto = self.get_viable_cancel_fallin()
                 self.fallinWorkitem(workitem_id=workitem_id,
-                                    activity_id=fallinto)
+                                    activity_id=fallinto,
+                                    REQUEST=REQUEST)
                 if wk.status != 'complete':
-                    self.falloutWorkitem(workitem_id)
-                    self.endFallinWorkitem(workitem_id=workitem_id)
+                    self.falloutWorkitem(workitem_id, REQUEST=REQUEST)
+                    self.endFallinWorkitem(workitem_id=workitem_id,
+                                           REQUEST=REQUEST)
             if REQUEST:
                 if 'DestinationURL' in REQUEST:
                     REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
