@@ -724,7 +724,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     document_id=inputfile)
         feedback_ob = getattr(envelope, feedback_id)
         feedback_ob.content_type = content_type
-        conv_res_id = 'conversion_log_{}_{}'.format(jobid, workitem.id)
+        conv_res_id = 'conversion_log_{}'.format(jobid)
         for doc_id in envelope.objectIds('Report Document'):
             if conv_res_id in doc_id:
                 doc = getattr(envelope, doc_id)
