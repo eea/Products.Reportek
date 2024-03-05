@@ -41,7 +41,7 @@ from persistent.dict import PersistentDict
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
-from Products.Reportek.rabbitmq import send_message_nodqueue
+from Products.Reportek.rabbitmq import queue_msg
 from zope.interface import implements
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
@@ -163,8 +163,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             "envelopeUrl": l_envelope.absolute_url(),
             "uuid": str(wk.UUID)
         }
-        # queue_msg(json.dumps(data, indent=4), self.qarequests)
-        send_message_nodqueue(json.dumps(data, indent=4), self.qarequests)
+        queue_msg(json.dumps(data, indent=4), self.qarequests, dq=False)
+        # send_message_nodqueue(json.dumps(data, indent=4), self.qarequests)
         l_wk_prop['requests']['published'] = DateTime()
 
     def check_uuid(self, workitem_id, uuid_str):
