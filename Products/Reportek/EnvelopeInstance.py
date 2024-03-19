@@ -49,6 +49,9 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.exceptions import ApplicationException
 from Products.Reportek.rabbitmq import queue_msg
+from Products.Reportek.RemoteRabbitMQQAApplication import (
+    RemoteRabbitMQQAApplication,
+)
 from Products.Reportek.RepUtils import getToolByName
 
 try:
@@ -1114,7 +1117,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.wf_status = activity.get_wf_status()
                     self.reindexObject()
                     self.startAutomaticApplication(workitem_id)
-                    if rmq and not activity.getId().startswith("AutomaticQA"):
+                    application_url = self.getApplicationUrl(workitem_id)
+                    application = self.restrictedTraverse(application_url)
+                    if rmq and not isinstance(
+                        application, RemoteRabbitMQQAApplication
+                    ):
                         queue_msg(
                             "{}|{}".format(
                                 self.absolute_url(), self.get_freq(workitem_id)
