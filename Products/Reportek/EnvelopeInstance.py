@@ -159,7 +159,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     security.declareProtected("Use OpenFlow", "getApplicationUrl")
 
     def getApplicationUrl(self, workitem_id):
-        """Return application definition URL relative to instance and workitem"""
+        """Return application definition URL relative to instance and
+        workitem
+        """
         activity = self.getActivity(workitem_id)
         if activity:
             return activity.mapped_application_details()["path"]
@@ -1052,7 +1054,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             except Exception as e:
                 msg = (
                     "ApplicationException while executing: {} "
-                    "for envelope: {}, with workitem_id: {} - Error: {}".format(
+                    "for envelope: {}, with workitem_id: {} - "
+                    "Error: {}".format(
                         application_url, self.absolute_url(), workitem_id, e
                     )
                 )
@@ -1082,7 +1085,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             except Exception as e:
                 msg = (
                     "ApplicationException while executing: {} "
-                    "for envelope: {}, with workitem_id: {} - Error: {}".format(
+                    "for envelope: {}, with workitem_id: {} - "
+                    "Error: {}".format(
                         application_url, self.absolute_url(), workitem_id, e
                     )
                 )
