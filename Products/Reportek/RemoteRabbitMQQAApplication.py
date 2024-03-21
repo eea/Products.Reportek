@@ -29,6 +29,7 @@ import urllib
 
 import requests
 import requests.exceptions
+import transaction
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from BTrees.OOBTree import TreeSet
@@ -157,6 +158,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 REQUEST.set("actor", "openflow_engine")
             self.__finishApplication(workitem_id, REQUEST)
         else:
+            # Commit the transaction before publishing to the queue
+            transaction.commit()
             self.do_request(workitem_id)
         return 1
 
