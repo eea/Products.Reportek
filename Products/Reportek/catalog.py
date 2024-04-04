@@ -5,70 +5,78 @@ maintenance functionalities such as catalog rebuilding and missing objects
 reporting.
 
 """
-import os
+
 import logging
+import os
 import time
 import urllib
 from time import clock as process_time
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl.SecurityManagement import getSecurityManager
-from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
-from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.ZCatalog.ZCatalog import ZCatalog
-from Products.Five.browser import BrowserView
-from OFS.interfaces import IObjectManager
+
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
+from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_base
-from zope.interface import implementer
+from OFS.interfaces import IObjectManager
 from zope.component import queryMultiAdapter
+from zope.interface import implementer
 
-from .indexing import filterTemporaryItems
-from .indexing import getQueue
-from .indexing import processQueue
+from Products.Five.browser import BrowserView
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
+from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.indexer.interfaces import IIndexableObject
 from Products.Reportek.indexer.wrapper import IndexableObjectWrapper
 from Products.Reportek.interfaces import IReportekCatalog
+from Products.Reportek.RepUtils import registerToolInterface
+from Products.ZCatalog.ZCatalog import ZCatalog
+
+from .indexing import filterTemporaryItems, getQueue, processQueue
 
 CATALOG_OPTIMIZATION_DISABLED = os.environ.get(
-    'CATALOG_OPTIMIZATION_DISABLED',
-    'false',
+    "CATALOG_OPTIMIZATION_DISABLED",
+    "false",
 )
-CATALOG_OPTIMIZATION_DISABLED = CATALOG_OPTIMIZATION_DISABLED.lower() in \
-    ('true', 't', 'yes', 'y', '1')
+CATALOG_OPTIMIZATION_DISABLED = CATALOG_OPTIMIZATION_DISABLED.lower() in (
+    "true",
+    "t",
+    "yes",
+    "y",
+    "1",
+)
 
 log = logging.getLogger(__name__)
 
 REPORTEK_META_TYPES = [
-    'Report Collection',
-    'Report Envelope',
-    'Report Document',
-    'Report Feedback',
-    'Report Feedback Comment',
-    'Report Hyperlink',
-    'Repository Referral',
+    "Report Collection",
+    "Report Envelope",
+    "Report Document",
+    "Report Feedback",
+    "Report Feedback Comment",
+    "Report Hyperlink",
+    "Repository Referral",
     # 'Remote Application',
-    'Process',
-    'Activity',
-    'Workitem',
-    'Converter',
-    'QAScript',
-    'Reportek Dataflow Mappings',
-    'Dataflow Mappings Record',
-    'File',
-    'File (Blob)',
+    "Process",
+    "Activity",
+    "Workitem",
+    "Converter",
+    "QAScript",
+    "Reportek Dataflow Mappings",
+    "Dataflow Mappings Record",
+    "File",
+    "File (Blob)",
     # 'XMLRPC Method',
-    'Workflow Engine']
+    "Workflow Engine",
+]
 
 
-def catalog_rebuild(root, catalog='Catalog'):
+def catalog_rebuild(root, catalog="Catalog"):
     import transaction
 
-    catalog = root.unrestrictedTraverse('/'.join([catalog]))
+    catalog = root.unrestrictedTraverse("/".join([catalog]))
 
     def add_to_catalog(ob):
         try:
-            catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
+            catalog.catalog_object(ob, "/".join(ob.getPhysicalPath()))
             # catalog.indexObject(ob)
         except Exception:
             log.warning("Unable to catalog object: {}".format(ob))
@@ -78,47 +86,48 @@ def catalog_rebuild(root, catalog='Catalog'):
         if i % 10000 == 0:
             transaction.savepoint()
             root._p_jar.cacheGC()
-            log.info('savepoint at %d records', i)
+            log.info("savepoint at %d records", i)
         add_to_catalog(ob)
 
 
 class MaintenanceView(BrowserView):
-
     def __call__(self):
         return maintenance.__of__(self.aq_parent)()
 
 
-maintenance = PageTemplateFile('zpt/manage_maintenance.zpt', globals())
+maintenance = PageTemplateFile("zpt/manage_maintenance.zpt", globals())
 
 
 class RebuildView(BrowserView):
     def __call__(self):
-        """ maintenance operations for the catalog """
+        """maintenance operations for the catalog"""
 
         catalog = self.context
         elapse = time.time()
         c_elapse = process_time()
 
-        catalog_rebuild(catalog.unrestrictedTraverse('/'))
+        catalog_rebuild(catalog.unrestrictedTraverse("/"))
 
         elapse = time.time() - elapse
         c_elapse = process_time() - c_elapse
 
-        msg = (
-            "Catalog Rebuilt\n"
-            "Total time: %s\n"
-            "Total CPU time: %s" % (repr(elapse), repr(c_elapse))
+        msg = "Catalog Rebuilt\n" "Total time: %s\n" "Total CPU time: %s" % (
+            repr(elapse),
+            repr(c_elapse),
         )
         log.info(msg)
 
         self.request.RESPONSE.redirect(
-            catalog.absolute_url() + '/manage_maintenance?manage_tabs_message='
-            + urllib.quote(msg))
+            catalog.absolute_url()
+            + "/manage_maintenance?manage_tabs_message="
+            + urllib.quote(msg)
+        )
 
 
 def walk_folder(folder):
-    for idx, ob in folder.ZopeFind(folder, obj_metatypes=REPORTEK_META_TYPES,
-                                   search_sub=0):
+    for idx, ob in folder.ZopeFind(
+        folder, obj_metatypes=REPORTEK_META_TYPES, search_sub=0
+    ):
         yield ob
 
         if IObjectManager.providedBy(ob):
@@ -131,26 +140,26 @@ def listAllowedAdminRolesAndUsers(user):
     sm = getSecurityManager()
     if sm.calledByExecutable():
         eo = sm._context.stack[-1]
-        proxy_roles = getattr(eo, '_proxy_roles', None)
+        proxy_roles = getattr(eo, "_proxy_roles", None)
         if proxy_roles:
             effective_roles = proxy_roles
     result = list(effective_roles)
-    result.append('Anonymous')
-    result.append('user:%s' % user.getId())
+    result.append("Anonymous")
+    result.append("user:%s" % user.getId())
     return result
 
 
 @implementer(IReportekCatalog)
 class ReportekCatalog(ZCatalog):
     id = DEFAULT_CATALOG
-    meta_type = 'Reportek Catalog'
-    zmi_icon = 'fas fa-search'
+    meta_type = "Reportek Catalog"
+    zmi_icon = "fas fa-search"
 
     security = ClassSecurityInfo()
 
-    manage_options = (
-        ZCatalog.manage_options +
-        ({'label': 'Overview', 'action': 'manage_overview'},))
+    manage_options = ZCatalog.manage_options + (
+        {"label": "Overview", "action": "manage_overview"},
+    )
 
     def __init__(self):
         ZCatalog.__init__(self, self.getId())
@@ -160,46 +169,47 @@ class ReportekCatalog(ZCatalog):
         sm = getSecurityManager()
         if sm.calledByExecutable():
             eo = sm._context.stack[-1]
-            proxy_roles = getattr(eo, '_proxy_roles', None)
+            proxy_roles = getattr(eo, "_proxy_roles", None)
             if proxy_roles:
                 effective_roles = proxy_roles
         result = list(effective_roles)
-        result.append('Anonymous')
-        result.append('user:%s' % user.getId())
+        result.append("Anonymous")
+        result.append("user:%s" % user.getId())
         return result
 
     def _convertQuery(self, kw):
         # Convert query to modern syntax
-        for k in 'effective', 'expires':
-            kusage = k + '_usage'
+        for k in "effective", "expires":
+            kusage = k + "_usage"
             if kusage not in kw:
                 continue
             usage = kw[kusage]
-            if not usage.startswith('range:'):
-                raise ValueError('Incorrect usage %s' % repr(usage))
-            kw[k] = {'query': kw[k], 'range': usage[6:]}
+            if not usage.startswith("range:"):
+                raise ValueError("Incorrect usage %s" % repr(usage))
+            kw[k] = {"query": kw[k], "range": usage[6:]}
             del kw[kusage]
 
     def searchResults(self, **kw):
         """
-            Calls catalog.searchResults with extra arguments that
-            limit the results to what the user is allowed to see.
+        Calls catalog.searchResults with extra arguments that
+        limit the results to what the user is allowed to see.
         """
         processQueue()
         user = getSecurityManager().getUser()
-        if kw.get('admin_check'):
-            kw['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(
-                user)
-            kw.pop('admin_check', None)
+        if kw.get("admin_check"):
+            kw["allowedAdminRolesAndUsers"] = listAllowedAdminRolesAndUsers(
+                user
+            )
+            kw.pop("admin_check", None)
             # BDR specific query, return results
             return ZCatalog.searchResults(self, **kw)
-        if kw.get('security') and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+        if kw.get("security") and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
             # This cannot be deployed on BDR yet, as the searchresults will be
             # affected for users with dynamic Owner role.
             # https://taskman.eionet.europa.eu/issues/118846#note-9
-            kw['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
-            kw.pop('security')
-        limit = kw.pop('_limit', None)
+            kw["allowedRolesAndUsers"] = listAllowedAdminRolesAndUsers(user)
+            kw.pop("security")
+        limit = kw.pop("_limit", None)
         results = ZCatalog.searchResults(self, **kw)
         if limit:
             results = list(results)
@@ -225,12 +235,13 @@ class ReportekCatalog(ZCatalog):
         return ZCatalog.searchResults(self, REQUEST, **kw)
 
     def __url(self, ob):
-        return '/'.join(ob.getPhysicalPath())
+        return "/".join(ob.getPhysicalPath())
 
     # manage_catalogFind = DTMLFile('catalogFind', _dtmldir)
 
-    def catalog_object(self, obj, uid=None, idxs=None, update_metadata=1,
-                       pghandler=None):
+    def catalog_object(
+        self, obj, uid=None, idxs=None, update_metadata=1, pghandler=None
+    ):
         # Wraps the object with workflow and accessibility
         # information just before cataloging.
         if IIndexableObject.providedBy(obj):
@@ -240,8 +251,7 @@ class ReportekCatalog(ZCatalog):
             if w is None:
                 # BBB
                 w = IndexableObjectWrapper(obj, self)
-        ZCatalog.catalog_object(self, w, uid, idxs, update_metadata,
-                                pghandler)
+        ZCatalog.catalog_object(self, w, uid, idxs, update_metadata, pghandler)
 
     @security.private
     def indexObject(self, object):
@@ -270,8 +280,9 @@ class ReportekCatalog(ZCatalog):
         # packages like `CMFEditions` check that date to see if the object was
         # modified during the request, which fails when it's only set on commit
         if not CATALOG_OPTIMIZATION_DISABLED:
-            if idxs in (None, []) and \
-                    hasattr(aq_base(object), 'notifyModified'):
+            if idxs in (None, []) and hasattr(
+                aq_base(object), "notifyModified"
+            ):
                 object.notifyModified()
             obj = filterTemporaryItems(object)
             if obj is not None:
@@ -287,15 +298,13 @@ class ReportekCatalog(ZCatalog):
 
     @security.private
     def _indexObject(self, object):
-        """Add to catalog.
-        """
+        """Add to catalog."""
         url = self.__url(object)
         self.catalog_object(object, url)
 
     @security.private
     def _unindexObject(self, object):
-        """Remove from catalog.
-        """
+        """Remove from catalog."""
         url = self.__url(object)
         self.uncatalog_object(url)
 
@@ -321,3 +330,4 @@ class ReportekCatalog(ZCatalog):
 
 
 InitializeClass(ReportekCatalog)
+registerToolInterface(DEFAULT_CATALOG, IReportekCatalog)

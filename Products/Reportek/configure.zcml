@@ -67,7 +67,7 @@
     <include package="plone.keyring" />
     <include package=".caching" />
     <include package=".indexer" />
-    
+
 
     <configure zcml:condition="installed zope.container">
         <subscriber for="Products.Reportek.interfaces.IEnvelope
