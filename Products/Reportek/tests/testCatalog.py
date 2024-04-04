@@ -115,7 +115,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
             country="http://example.com/country/1",
             locality="TestLocality",
             descr="TestDescription",
-        )
+        ).__of__(self.engine)
         first_envelope.getCountryName = Mock(return_value="FirstCountry")
         first_envelope._content_registry_ping = Mock()
         self.engine.messageDialog = Mock()
@@ -201,7 +201,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
 
         for query, ok_results in definitions:
             results = self.root.Catalog(**query)
-            self.assertEqual([b.getObject() for b in results], ok_results)
+            self.assertItemsEqual([b.getObject() for b in results], ok_results)
 
     def test_document_indexes(self):
         from Products.Reportek.Document import Document

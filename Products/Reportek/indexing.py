@@ -3,30 +3,30 @@ from operator import itemgetter
 from threading import local
 from warnings import warn
 
-from Acquisition import aq_base
-from Acquisition import aq_inner
-from Acquisition import aq_parent
+from Acquisition import aq_base, aq_inner, aq_parent
 from transaction import get as getTransaction
 from transaction.interfaces import ISavepointDataManager
 from zope.component import getSiteManager
 from zope.interface import implementer
-from zope.proxy import ProxyBase
-from zope.proxy import non_overridable
+from zope.proxy import ProxyBase, non_overridable
 from zope.publisher.interfaces.browser import IBrowserRequest
 
-from .interfaces import IIndexQueue
-from .interfaces import IIndexQueueProcessor
-from .interfaces import InvalidQueueOperation
-from .interfaces import IPortalCatalogQueueProcessor
 from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.RepUtils import getToolByName
 
+from .interfaces import (
+    IIndexQueue,
+    IIndexQueueProcessor,
+    InvalidQueueOperation,
+    IPortalCatalogQueueProcessor,
+)
 
 # constants for indexing operations
 UNINDEX = -1
 REINDEX = 0
 INDEX = 1
 
-logger = getLogger('Products.CMFCore.indexing')
+logger = getLogger("Products.CMFCore.indexing")
 debug = logger.debug
 
 localQueue = None
@@ -36,23 +36,22 @@ processing = set()
 @implementer(IPortalCatalogQueueProcessor)
 class PortalCatalogProcessor:
     """An index queue processor for the standard portal catalog via
-       the `CatalogMultiplex` and `CMFCatalogAware` mixin classes """
+    the `CatalogMultiplex` and `CMFCatalogAware` mixin classes"""
 
     def index(self, obj, attributes=None):
-        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG)
+        catalog = getToolByName(obj, DEFAULT_CATALOG)
         if catalog is not None:
             catalog._indexObject(obj)
 
     def reindex(self, obj, attributes=None, update_metadata=1):
-        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG)
+        catalog = getToolByName(obj, DEFAULT_CATALOG)
         if catalog is not None:
             catalog._reindexObject(
-                obj,
-                idxs=attributes,
-                update_metadata=update_metadata)
+                obj, idxs=attributes, update_metadata=update_metadata
+            )
 
     def unindex(self, obj):
-        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG)
+        catalog = getToolByName(obj, DEFAULT_CATALOG)
         if catalog is not None:
             catalog._unindexObject(obj)
 
@@ -67,19 +66,19 @@ class PortalCatalogProcessor:
 
     @staticmethod
     def get_dispatcher(obj, name):
-        """ return named indexing method according on the used mixin class """
-        warn('get_dispatcher is deprecated and will be removed in version 2.5')
-        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG)
+        """return named indexing method according on the used mixin class"""
+        warn("get_dispatcher is deprecated and will be removed in version 2.5")
+        catalog = getToolByName(obj, DEFAULT_CATALOG)
         if catalog is None:
             return
-        attr = getattr(catalog, '_{0}'.format(name), None)
+        attr = getattr(catalog, "_{0}".format(name), None)
         if attr is None:
             return
         return attr.__func__
 
 
 def getQueue():
-    """ return a (thread-local) queue object, create one if necessary """
+    """return a (thread-local) queue object, create one if necessary"""
     global localQueue
     if localQueue is None:
         localQueue = IndexQueue()
@@ -87,11 +86,11 @@ def getQueue():
 
 
 def processQueue():
-    """ process the queue (for this thread) immediately """
+    """process the queue (for this thread) immediately"""
     queue = getQueue()
     processed = 0
     if queue.length() and queue not in processing:
-        debug('auto-flushing %d items: %r', queue.length(), queue.getState())
+        debug("auto-flushing %d items: %r", queue.length(), queue.getState())
         try:
             processing.add(queue)
             processed = queue.process()
@@ -101,7 +100,6 @@ def processQueue():
 
 
 class PathProxy(ProxyBase):
-
     def __init__(self, obj):
         super(PathProxy, self).__init__(obj)
         self._old_path = obj.getPhysicalPath()
@@ -112,16 +110,16 @@ class PathProxy(ProxyBase):
 
 
 def wrap(obj):
-    """ the indexing key, i.e. the path to the object in the case of the
-        portal catalog, might have changed while the unindex operation was
-        delayed, for example due to renaming the object;  it was probably not
-        such a good idea to use a key that can change in the first place, but
-        to work around this a proxy object is used, which can provide the
-        original path;  of course, access to other attributes must still be
-        possible, since alternate indexers (i.e. solr etc) might use another
-        unique key, usually the object's uid;  also the inheritence tree
-        must match """
-    if getattr(aq_base(obj), 'getPhysicalPath', None) is None:
+    """the indexing key, i.e. the path to the object in the case of the
+    portal catalog, might have changed while the unindex operation was
+    delayed, for example due to renaming the object;  it was probably not
+    such a good idea to use a key that can change in the first place, but
+    to work around this a proxy object is used, which can provide the
+    original path;  of course, access to other attributes must still be
+    possible, since alternate indexers (i.e. solr etc) might use another
+    unique key, usually the object's uid;  also the inheritence tree
+    must match"""
+    if getattr(aq_base(obj), "getPhysicalPath", None) is None:
         return obj
 
     return PathProxy(obj)
@@ -129,16 +127,15 @@ def wrap(obj):
 
 @implementer(IIndexQueue)
 class IndexQueue(local):
-
     def __init__(self):
         self.queue = []
         self.tmhook = None
 
     def hook(self):
-        """ register a hook into the transaction machinery if that hasn't
-            already been done;  this is to make sure the queue's processing
-            method gets called back just before the transaction is about to
-            be committed """
+        """register a hook into the transaction machinery if that hasn't
+        already been done;  this is to make sure the queue's processing
+        method gets called back just before the transaction is about to
+        be committed"""
         if self.tmhook is None:
             self.tmhook = QueueTM(self).register
         self.tmhook()
@@ -165,20 +162,21 @@ class IndexQueue(local):
         self.queue[:] = state
 
     def length(self):
-        """ return number of currently queued items;  please note that
-            we cannot use `__len__` here as this will cause test failures
-            due to the way objects are compared """
+        """return number of currently queued items;  please note that
+        we cannot use `__len__` here as this will cause test failures
+        due to the way objects are compared"""
         return len(self.queue)
 
     def optimize(self):
         res = {}
         for iop, obj, iattr, imetadata in self.getState():
             hash_id = hash(obj)
-            func = getattr(obj, 'getPhysicalPath', None)
+            func = getattr(obj, "getPhysicalPath", None)
             if callable(func):
                 hash_id = hash_id, func()
-            op, dummy, attr, metadata = res.get(hash_id,
-                                                (0, obj, iattr, imetadata))
+            op, dummy, attr, metadata = res.get(
+                hash_id, (0, obj, iattr, imetadata)
+            )
             # If we are going to delete an item that was added in this
             # transaction, ignore it
             if op == INDEX and iop == UNINDEX:
@@ -194,8 +192,12 @@ class IndexQueue(local):
 
                 # Handle attributes, None means all fields,
                 # and takes precedence
-                if attr and iattr and isinstance(attr, (tuple, list)) and \
-                        isinstance(iattr, (tuple, list)):
+                if (
+                    attr
+                    and iattr
+                    and isinstance(attr, (tuple, list))
+                    and isinstance(iattr, (tuple, list))
+                ):
                     attr = sorted(set(attr).union(iattr))
                 else:
                     attr = []
@@ -205,7 +207,7 @@ class IndexQueue(local):
 
                 res[hash_id] = (op, obj, attr, metadata)
 
-        debug('finished reducing; %d item(s) in queue...', len(res))
+        debug("finished reducing; %d item(s) in queue...", len(res))
         # Sort so unindex operations come first
         self.setState(sorted(res.values(), key=itemgetter(0)))
 
@@ -230,7 +232,7 @@ class IndexQueue(local):
                 else:
                     raise InvalidQueueOperation(op)
             processed += 1
-        debug('finished processing %d items...', processed)
+        debug("finished processing %d items...", processed)
         self.clear()
         return processed
 
@@ -252,21 +254,21 @@ class IndexQueue(local):
 
 
 def filterTemporaryItems(obj, checkId=True):
-    """ check if the item has an acquisition chain set up and is not of
-        temporary nature, i.e. still handled by the `portal_factory`;  if
-        so return it, else return None """
+    """check if the item has an acquisition chain set up and is not of
+    temporary nature, i.e. still handled by the `portal_factory`;  if
+    so return it, else return None"""
     parent = aq_parent(aq_inner(obj))
     if parent is None:
         return None
     if IBrowserRequest.providedBy(parent):
         return None
-    if checkId and getattr(obj, 'getId', None):
+    if checkId and getattr(obj, "getId", None):
         parent = aq_base(parent)
-        if getattr(parent, '__contains__', None) is None:
+        if getattr(parent, "__contains__", None) is None:
             return None
         elif obj.getId() not in parent:
             return None
-    isTemporary = getattr(obj, 'isTemporary', None)
+    isTemporary = getattr(obj, "isTemporary", None)
     if isTemporary is not None:
         try:
             if obj.isTemporary():
@@ -277,7 +279,7 @@ def filterTemporaryItems(obj, checkId=True):
 
 
 class QueueSavepoint:
-    """ transaction savepoints using the IIndexQueue interface """
+    """transaction savepoints using the IIndexQueue interface"""
 
     def __init__(self, queue):
         self.queue = queue
@@ -289,7 +291,7 @@ class QueueSavepoint:
 
 @implementer(ISavepointDataManager)
 class QueueTM(local):
-    """ transaction manager hook for the indexing queue """
+    """transaction manager hook for the indexing queue"""
 
     def __init__(self, queue):
         local.__init__(self)
