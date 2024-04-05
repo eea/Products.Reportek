@@ -30,8 +30,7 @@ from plone.keyring.interfaces import IKeyManager
 from plone.keyring.keymanager import KeyManager
 from plone.registry.interfaces import IRegistry
 from registry import Registry
-from zope.component import getGlobalSiteManager, getSiteManager, getUtility
-from zope.dottedname.resolve import resolve
+from zope.component import getGlobalSiteManager, getUtility
 from zope.i18nmessageid import MessageFactory
 from ZPublisher.BaseRequest import BaseRequest
 
@@ -179,7 +178,7 @@ def create_reportek_objects(app):
         app._setObject(constants.WORKFLOW_ENGINE_ID, workflow)
 
     # Add Catalog
-    catalog = setup_catalog(app)
+    setup_catalog(app)
 
     # Add Reportek Utilities
     try:
@@ -517,7 +516,7 @@ def initialize(context):
             permission="Add Remote Application",
             constructors=(
                 RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,  # noqa
-                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication,
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication  # noqa
             ),  # noqa
             icon="www/qa_application.gif",
         )

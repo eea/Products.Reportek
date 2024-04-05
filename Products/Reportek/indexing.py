@@ -12,7 +12,6 @@ from zope.proxy import ProxyBase, non_overridable
 from zope.publisher.interfaces.browser import IBrowserRequest
 
 from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.Reportek.RepUtils import getToolByName
 
 from .interfaces import (
     IIndexQueue,
