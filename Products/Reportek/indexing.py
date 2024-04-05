@@ -26,7 +26,7 @@ UNINDEX = -1
 REINDEX = 0
 INDEX = 1
 
-logger = getLogger("Products.CMFCore.indexing")
+logger = getLogger("Products.Reportek.indexing")
 debug = logger.debug
 
 localQueue = None
@@ -39,19 +39,19 @@ class PortalCatalogProcessor:
     the `CatalogMultiplex` and `CMFCatalogAware` mixin classes"""
 
     def index(self, obj, attributes=None):
-        catalog = getToolByName(obj, DEFAULT_CATALOG)
+        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG, None)
         if catalog is not None:
             catalog._indexObject(obj)
 
     def reindex(self, obj, attributes=None, update_metadata=1):
-        catalog = getToolByName(obj, DEFAULT_CATALOG)
+        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG, None)
         if catalog is not None:
             catalog._reindexObject(
                 obj, idxs=attributes, update_metadata=update_metadata
             )
 
     def unindex(self, obj):
-        catalog = getToolByName(obj, DEFAULT_CATALOG)
+        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG, None)
         if catalog is not None:
             catalog._unindexObject(obj)
 
@@ -68,7 +68,7 @@ class PortalCatalogProcessor:
     def get_dispatcher(obj, name):
         """return named indexing method according on the used mixin class"""
         warn("get_dispatcher is deprecated and will be removed in version 2.5")
-        catalog = getToolByName(obj, DEFAULT_CATALOG)
+        catalog = obj.unrestrictedTraverse(DEFAULT_CATALOG, None)
         if catalog is None:
             return
         attr = getattr(catalog, "_{0}".format(name), None)
