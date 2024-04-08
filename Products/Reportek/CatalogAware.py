@@ -72,7 +72,9 @@ class CatalogAware(Base):
 
     def reindexObjectSecurity(self, skip_self=False):
         """Reindex security-related indexes on the object."""
-        catalog = self._getCatalogTool()
+        # Get the catalog via traversing to avoid a Storage error
+        # caused by duplicate tcp_begin transaction.
+        catalog = self.unrestrictedTraverse("Catalog", None)
         if catalog is None:
             return
         path = "/".join(self.getPhysicalPath())
