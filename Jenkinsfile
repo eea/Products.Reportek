@@ -158,7 +158,7 @@ pipeline {
   }
 
   post {
-    changed {
+    always {
       script {
         def url = "${env.BUILD_URL}/display/redirect"
         def status = currentBuild.currentResult
