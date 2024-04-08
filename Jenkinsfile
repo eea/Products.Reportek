@@ -174,8 +174,10 @@ pipeline {
         } else if (status == 'FAILURE') {
           color = '#FF0000'
         }
-
-        emailext (subject: '$DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS', body: details)
+        
+        withCredentials([string(credentialsId: 'c-team-email', variable: 'TEAM_EMAIL')]) {
+          emailext (subject: '$DEFAULT_SUBJECT', to: '$TEAM_EMAIL', body: details)
+        }
       }
     }
   }
