@@ -163,11 +163,10 @@ pipeline {
         def url = "${env.BUILD_URL}/display/redirect"
         def status = currentBuild.currentResult
         def subject = "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-        def summary = "${subject} (${url})"
         def details = """<h1>${env.JOB_NAME} - Build #${env.BUILD_NUMBER} - ${status}</h1>
                          <p>Check console output at <a href="${url}">${env.JOB_BASE_NAME} - #${env.BUILD_NUMBER}</a></p>
                       """
-        emailext (subject: '$DEFAULT_SUBJECT', to: 'eea-edw-c-team-alerts@googlegroups.com', body: details)
+        emailext (subject: '$subject', to: 'eea-edw-c-team-alerts@googlegroups.com', body: details)
       }
     }
   }
