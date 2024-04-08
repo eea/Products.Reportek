@@ -175,9 +175,7 @@ pipeline {
           color = '#FF0000'
         }
         
-        withCredentials([string(credentialsId: 'c-team-email', variable: 'TEAM_EMAIL')]) {
-          emailext (subject: '$DEFAULT_SUBJECT', to: '$TEAM_EMAIL', body: details)
-        }
+        emailext (subject: '$DEFAULT_SUBJECT', to: 'eea-edw-c-team-alerts@googlegroups.com', body: details)
       }
     }
   }
