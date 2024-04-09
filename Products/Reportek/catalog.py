@@ -27,7 +27,6 @@ from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.indexer.interfaces import IIndexableObject
 from Products.Reportek.indexer.wrapper import IndexableObjectWrapper
 from Products.Reportek.interfaces import IReportekCatalog
-from Products.Reportek.RepUtils import registerToolInterface
 from Products.ZCatalog.ZCatalog import ZCatalog
 
 from .indexing import filterTemporaryItems, getQueue, processQueue
