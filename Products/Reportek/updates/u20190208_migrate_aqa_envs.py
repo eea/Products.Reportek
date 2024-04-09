@@ -44,7 +44,7 @@ def migrate_aqa_envs(app):
                 brain.getURL(), str(e)), level='ERROR')
         if env and getattr(env, 'status') != 'complete':
             env.wf_status = 'forward'
-            env.reindex_object()
+            env.reindexObject()
             log_msg('Migrated {}'.format(env.absolute_url()))
             transaction.commit()
     return True

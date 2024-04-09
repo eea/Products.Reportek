@@ -8,12 +8,12 @@
     <subscriber for="zope.processlifetime.IDatabaseOpenedWithRoot"
             handler=".startup" />
 
-    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+    <browser:view for="Products.Reportek.interfaces.IReportekCatalog"
             name="manage_maintenance"
             class=".catalog.MaintenanceView"
             permission="zope2.ViewManagementScreens" />
 
-    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+    <browser:view for="Products.Reportek.interfaces.IReportekCatalog"
             name="manage_do_rebuild"
             class=".catalog.RebuildView"
             permission="zope2.ViewManagementScreens" />
@@ -64,9 +64,10 @@
     <include package=".api" />
     <include package="plone.caching" />
     <include package="plone.cachepurging" />
+    <include package="plone.keyring" />
     <include package=".caching" />
     <include package=".indexer" />
-    
+
 
     <configure zcml:condition="installed zope.container">
         <subscriber for="Products.Reportek.interfaces.IEnvelope
@@ -141,6 +142,10 @@
                      zope.lifecycleevent.interfaces.IObjectRemovedEvent"
             handler="Products.Reportek.subscribers.handle_collection_removed_event" />
 
+<!--    <subscriber for="Products.Reportek.interfaces.IEnvelope
+                     Products.Reportek.interfaces.IEnvelopeReleasedEvent"
+            handler="Products.Reportek.subscribers.handle_envelope_released_event" />
+-->
     <i18n:registerTranslations directory="locales" />
 
     <five:registerClass
@@ -155,5 +160,16 @@
             interface="plone.registry.interfaces.IRegistry"
             />
     </class>
+
+  <subscriber
+      for=".interfaces.IReportekContent
+           zope.interface.interfaces.IObjectEvent"
+      handler=".subscribers.handleContentishEvent"
+      />
+
+  <utility
+    provides="Products.Reportek.interfaces.IPortalCatalogQueueProcessor"
+    name="portal-catalog"
+    factory="Products.Reportek.indexing.PortalCatalogProcessor" />
 
 </configure>

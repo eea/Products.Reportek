@@ -54,16 +54,18 @@ from interfaces import IReportekEngine
 from OFS.Folder import Folder
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 from plone.memoize import ram
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
 from Products.Reportek.clamav import AVService
-from Products.Reportek.constants import ECAS_ID
+from Products.Reportek.constants import ECAS_ID, DEFAULT_CATALOG
+from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
 from Toolz import Toolz
-from Products.Reportek.catalog import searchResults
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
@@ -155,7 +157,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     globally_restricted_site = False
     cr_rmq = False
     env_fwd_rmq = False
+    env_fwd_rmq_queue = 'fwd_envelopes'
     col_sync_rmq = False
+    col_sync_rmq_pub = False
     col_role_sync_rmq = False
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         cr_api_url = 'http://cr.eionet.europa.eu/ping'
@@ -351,7 +355,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
         self.env_fwd_rmq = bool(self.REQUEST.get('env_fwd_rmq', False))
+        self.env_fwd_rmq_queue = self.REQUEST.get('env_fwd_rmq_queue',
+                                                  'fwd_envelopes')
         self.col_sync_rmq = bool(self.REQUEST.get('col_sync_rmq', False))
+        self.col_sync_rmq_pub = bool(self.REQUEST.get('col_sync_rmq_pub',
+                                                      False))
         self.col_role_sync_rmq = bool(self.REQUEST.get(
             'col_role_sync_rmq', False))
         if self.cr_api_url:
@@ -579,10 +587,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if company_id:
             sc = getattr(parent_coll, sc_id)
             sc.company_id = company_id
-            sc.reindex_object()
+            sc.reindexObject()
         if not p_allow_c:
             parent_coll.allow_collections = 0
-            parent_coll.reindex_object()
+            parent_coll.reindexObject()
         return sc
 
     def create_fgas_collections(self, ctx, country_uri, company_id, name,
@@ -625,12 +633,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             old_company_id=old_company_id)
         ei = getattr(coll, ei_id)
         ei.company_id = company_id
-        ei.reindex_object()
+        ei.reindexObject()
         bi = getattr(coll, bi_id)
         bi.company_id = company_id
-        bi.reindex_object()
+        bi.reindexObject()
         coll.allow_collections = 0
-        coll.reindex_object()
+        coll.reindexObject()
 
     def update_company_collection(self, company_id, domain, country,
                                   name, old_collection_id=None):
@@ -644,6 +652,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
            domain/country/old_collection_id. It's company_id will be updated.
            If `old_collection_id` does not exist at the expected location
            nothing will happen."""
+
+        # Disable CSRF protection
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(self.REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
@@ -719,7 +732,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             coll.company_id = company_id
             if old_collection_id:
                 coll.old_company_id = old_collection_id
-            coll.reindex_object()
+            coll.reindexObject()
             resp['status'] = 'success'
             resp['message'] = ('Collection %s updated/created succesfully'
                                % coll_path)
@@ -833,8 +846,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog_args = self.get_query_args()
         if not catalog_args:
             return
-
-        envelopes = searchResults(self.Catalog, catalog_args)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        envelopes = catalog.searchResults(**catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
             o = eBrain.getObject()
@@ -851,7 +864,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """
         envelopeObjects = []
         if catalog_args:
-            envelopes = searchResults(self.Catalog, catalog_args)
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
+            envelopes = catalog.searchResults(**catalog_args)
 
             for eBrain in envelopes:
                 obj = eBrain.getObject()
@@ -1002,8 +1016,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'country': country
             }
 
-            catalog = self.Catalog
-            brains = searchResults(catalog, query)
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
+            brains = catalog.searchResults(**query)
             if not brains:
                 message = fail_pattern % (
                     crole,
@@ -1082,7 +1096,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ Loops for all the workitems that are in the 'active','inactive',
             'fallout' status and returns their list
         """
-        catalog = getattr(self, constants.DEFAULT_CATALOG)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
 
         query = {
             'meta_type': 'Workitem',
@@ -1093,7 +1107,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if how == 'desc':
             query['sort_order'] = 'reverse'
 
-        workitems = searchResults(catalog, query)
+        workitems = catalog.searchResults(**query)
 
         if REQUEST is None:
             return [ob.getObject() for ob in workitems]
@@ -1312,11 +1326,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             obligation, including the XML files inside
         """
         reslist = []
-        l_catalog = getattr(self, constants.DEFAULT_CATALOG)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
         l_params = {'meta_type': 'Report Envelope',
                     'dataflow_uris': obligation, 'released': 1}
 
-        for obj in self.__getObjects(searchResults(l_catalog, l_params)):
+        for obj in self.__getObjects(catalog.searchResults(**l_params)):
             res = {'url': obj.absolute_url(0),
                    'title': obj.title,
                    'description': obj.descr,
@@ -1664,11 +1678,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if kwargs[el] in [None, '']]
-        catalog = searchResults(self.Catalog, kwargs)
-        return catalog
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.searchResults(**kwargs)
 
     def getUniqueValuesFor(self, value):
-        return self.Catalog.uniqueValuesFor(value)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.uniqueValuesFor(value)
 
     security.declarePublic('getAvailableLanguages')
 
@@ -1755,11 +1770,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 middleware_collections['ro'] += [
                     col for col in colls.get('ro')
                     if col not in middleware_collections['ro']]
-            catalog = getattr(self, constants.DEFAULT_CATALOG)
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
 
             middleware_collections['rw'] += [
-                br.getObject() for br in searchResults(
-                    catalog, dict(id=username))
+                br.getObject() for br in catalog.searchResults(
+                    **{'meta_type': 'Report Collection',
+                       'id': username})
                 if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
@@ -1775,9 +1791,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             collections['Reporter'] = middleware_collections
             local_roles = ['Auditor', 'ClientFG',
                            'ClientODS', 'ClientCARS', 'ClientHDV']
-            local_r_col = searchResults(catalog,
-                                        dict(meta_type='Report Collection',
-                                             local_unique_roles=local_roles))
+            local_r_col = catalog.searchResults(
+                **{'meta_type': 'Report Collection',
+                   'local_unique_roles': local_roles})
 
             auditor = [br.getObject() for br in local_r_col
                        if 'Auditor' in br.local_defined_roles.get(username, [])
@@ -1807,7 +1823,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ XLS Export for catalog results
         """
         env_objs = []
-
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
         if envelopes:
             envelopes = RepUtils.utConvertToList(envelopes)
             env_objs = [self.unrestrictedTraverse(
@@ -1821,7 +1837,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if self.REQUEST.get('sort_order'):
                     catalog_args['sort_order'] = self.REQUEST['sort_order']
             if catalog_args:
-                brains = searchResults(self.Catalog, catalog_args)
+                brains = catalog.searchResults(**catalog_args)
                 if brains:
                     env_objs = [brain.getObject() for brain in brains]
 
@@ -2090,7 +2106,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         result['action'] = 'modified'
                         result['collection'] = local_c.absolute_url()
                         result['roles'] = roles_info
-                    local_c.reindex_object()
+                    local_c.reindexObject()
                     results.append(result)
         return self.jsonify(results)
 
@@ -2098,7 +2114,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         query = {
             'meta_type': 'Report Collection'
         }
-        brains = searchResults(self.Catalog, query)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        brains = catalog.searchResults(**query)
         data = PersistentMapping()
         for brain in brains:
             data[brain.getPath()] = {

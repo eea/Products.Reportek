@@ -28,7 +28,7 @@ ZopeTestCase.installProduct('PythonScripts')
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 
-class EnvelopeTestCase(BaseTest, ConfigureReportek):
+class EnvelopeTestCase(BaseTest):
 
     def afterSetUp(self):
         super(EnvelopeTestCase, self).afterSetUp()
@@ -366,7 +366,6 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         return StringIO(json.dumps(obj))
 
     def test_openflow_importFromJson(self):
-        self.createStandardCatalog()
         pr_id = u'begin_end_new'
         make_json = partial(self._make_openflow_json, pr_id=pr_id)
         jsonControlObj = json.load(make_json())
@@ -644,9 +643,12 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         NOTE: The id of the application should be the same as the id of the
         activity
         """
-        self.create_cepaa_set(1)
-        current_workitem = self.env1.objectValues('Workitem')[-1]
-        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        test_set_id = 1
+        self.create_cepaa_set(test_set_id)
+        expected_path = "col{}/env{}".format(test_set_id, test_set_id)
+        env = self.app.unrestrictedTraverse(expected_path)
+        current_workitem = env.objectValues('Workitem')[-1]
+        current_application = env.getApplicationUrl(current_workitem.id)
         self.assertEqual(current_application, 'Applications/proc1/act1')
 
     def test_getApplicationUrl_finds_in_Common_folder(self):
@@ -656,14 +658,17 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         NOTE: The id of the application should be the same as the id of the
         activity
         """
-        self.create_cepaa_set(1)
+        test_set_id = 1
+        self.create_cepaa_set(test_set_id)
+        expected_path = "col{}/env{}".format(test_set_id, test_set_id)
+        env = self.app.unrestrictedTraverse(expected_path)
+        current_workitem = env.objectValues('Workitem')[-1]
         self.app.Applications.proc1._delOb('act1')
         app = SimpleItem('act1').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications._setOb('Common', Folder('Common'))
         self.app.Applications.Common._setOb('act1', app)
-        current_workitem = self.env1.objectValues('Workitem')[-1]
-        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        current_application = env.getApplicationUrl(current_workitem.id)
         self.assertEqual(current_application, 'Applications/Common/act1')
 
     def test_getApplicationUrl_proc_folder_has_priority(self):
@@ -673,13 +678,16 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         NOTE: The id of the application should be the same as the id of the
         activity
         """
-        self.create_cepaa_set(1)
+        test_set_id = 1
+        self.create_cepaa_set(test_set_id)
+        expected_path = "col{}/env{}".format(test_set_id, test_set_id)
+        env = self.app.unrestrictedTraverse(expected_path)
+        current_workitem = env.objectValues('Workitem')[-1]
         app = SimpleItem('act1').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications._setOb('Common', Folder('Common'))
         self.app.Applications.Common._setOb('act1', app)
-        current_workitem = self.env1.objectValues('Workitem')[-1]
-        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        current_application = env.getApplicationUrl(current_workitem.id)
         self.assertEqual(current_application, 'Applications/proc1/act1')
 
     def test_getApplicationUrl_finds_application_attribute(self):
@@ -688,12 +696,15 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         in <root>/<Applications Folder>/Common/<activity_id> for an application
         NOTE: This is for backward compatibility
         """
-        self.create_cepaa_set(1)
+        test_set_id = 1
+        self.create_cepaa_set(test_set_id)
+        expected_path = "col{}/env{}".format(test_set_id, test_set_id)
+        env = self.app.unrestrictedTraverse(expected_path)
+        current_workitem = env.objectValues('Workitem')[-1]
         # no matching app in Applications or Applications/Common
         self.app.Applications.proc1._delOb('act1')
-        current_workitem = self.env1.objectValues('Workitem')[-1]
         self.wf.proc1.get('act1').application = 'act1'
-        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        current_application = env.getApplicationUrl(current_workitem.id)
         # WARNING:
         # app path (from the attribute) doesn't have a leading '/' in this case
         # and if we call the application from the envelope context

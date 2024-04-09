@@ -32,7 +32,7 @@ Feedback objects are sub-objects of Report Envelopes.
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.interface import implements
 from zope.event import notify
-from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 from Products.Reportek.interfaces import IFeedback
 from Products.Reportek import constants
@@ -46,6 +46,8 @@ from DateTime import DateTime
 from Comment import CommentsManager
 from blob import add_OfsBlobFile
 from AccessControl import ClassSecurityInfo
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 import RepUtils
 import StringIO
 import logging
@@ -62,6 +64,10 @@ def manage_addFeedback(self, id='', title='', feedbacktext='', file=None,
                        REQUEST=None):
     """Adds feedback as a file to a folder."""
 
+    if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+        if REQUEST:
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
     # get the release date of the envelope
     releasedate = self.reportingdate
     # generate id from the release date
@@ -146,7 +152,7 @@ def manage_addManualQAFeedback(self, id='', title='', feedbacktext='',
     obj = self._getOb(id)
     obj.feedback_status = feedback_status
     obj.message = message
-    obj.reindex_object()
+    obj.reindexObject()
     if REQUEST is not None:
         return self.messageDialog(
             message="The Feedback %s was successfully created!" % id,
@@ -276,6 +282,10 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager,
         """ Upload an attachment to a feedback.
             FIXME: Misnamed method name
         """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            if REQUEST:
+                alsoProvides(REQUEST,
+                             plone.protect.interfaces.IDisableCSRFProtection)
         if filename is None:
             filename = RepUtils.getFilename(file.filename)
         engine = self.getEngine()

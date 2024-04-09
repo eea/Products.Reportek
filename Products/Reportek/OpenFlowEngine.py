@@ -36,8 +36,8 @@ from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
 import transaction
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek import constants
-from Products.Reportek.catalog import searchResults
 import Products
 # from webdav.WriteLockInterface import WriteLockInterface
 
@@ -163,27 +163,28 @@ class OpenFlowEngine(Folder, Toolz):
         else:
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
+        catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
         if removeList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=removeList)):
+            for i in catalog.unrestrictedSearchResults(
+                dict(meta_type='Workitem',
+                     process_path=process_path,
+                     activity_id=removeList)):
                 w = i.getObject()
                 if w and role in w.push_roles:
                     w.push_roles.remove(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         addList = [x for x in activities if x not in old_activities]
         if addList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=addList)):
+            for i in catalog.unrestrictedSearchResults(
+                dict(meta_type='Workitem',
+                     process_path=process_path,
+                     activity_id=addList)):
                 w = i.getObject()
                 if w and role not in w.push_roles:
                     w.push_roles.append(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         if activities:
             if role not in self._activitiesPushableOnRole:
                 self._activitiesPushableOnRole[role] = {}
@@ -244,27 +245,28 @@ class OpenFlowEngine(Folder, Toolz):
         else:
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
+        catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
         if removeList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=removeList)):
+            for i in catalog.unrestrictedSearchResults(
+                dict(meta_type='Workitem',
+                     process_path=process_path,
+                     activity_id=removeList)):
                 w = i.getObject()
                 if w and role in w.pull_roles:
                     w.pull_roles.remove(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         addList = [x for x in activities if x not in old_activities]
         if addList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=addList)):
+            for i in catalog.unrestrictedSearchResults(
+                dict(meta_type='Workitem',
+                     process_path=process_path,
+                     activity_id=addList)):
                 w = i.getObject()
                 if w and role not in w.pull_roles:
                     w.pull_roles.append(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         if activities:
             if role not in self._activitiesPullableOnRole:
                 self._activitiesPullableOnRole[role] = {}
@@ -395,10 +397,10 @@ class OpenFlowEngine(Folder, Toolz):
         """ Finds all workitems from a process in certain statuses
             and sorts them by last modification time
         """
-        ret_list = searchResults(self.Catalog,
-                                 dict(meta_type='Workitem',
-                                      process_path=process_path,
-                                      status=statuses_list))
+        catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
+        ret_list = catalog.unrestrictedSearchResults(
+            dict(meta_type='Workitem', process_path=process_path,
+                 status=statuses_list))
         return RepUtils.utSortByAttr(ret_list, 'bobobase_modification_time')
 
     ##################################################
@@ -800,6 +802,7 @@ class OpenFlowEngine(Folder, Toolz):
         results = []
         engine = self.unrestrictedTraverse(constants.ENGINE_ID, None)
         if engine:
+            catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
             try:
                 p_mapping = self.process_mappings[process_id]
                 dataflow_uris = p_mapping.get('dataflows', [])
@@ -810,7 +813,7 @@ class OpenFlowEngine(Folder, Toolz):
                     'meta_type': 'Report Collection',
                     'dataflow_uris': dataflow_uris
                 }
-                results = searchResults(self.Catalog, query)
+                results = catalog.searchResults(**query)
 
         return results
 
@@ -960,10 +963,13 @@ def handle_application_move_events(obj):
     new_path = ''
 
     if obj.oldParent:
-        old_path = '/'.join([
-            obj.oldParent.absolute_url_path(),
-            obj.oldName
-        ])
+        try:
+            old_path = '/'.join([
+                obj.oldParent.absolute_url_path(),
+                obj.oldName
+            ])
+        except Exception:
+            old_path = ''
 
     if obj.newParent:
         try:
@@ -971,7 +977,7 @@ def handle_application_move_events(obj):
                 obj.newParent.absolute_url_path(),
                 obj.newName
             ])
-        except TypeError:
+        except Exception:
             new_path = ''
 
     match_old = expr.match(old_path)

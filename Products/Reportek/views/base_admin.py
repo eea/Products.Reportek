@@ -4,7 +4,7 @@ from operator import itemgetter
 
 from Products.Five import BrowserView
 from Products.Reportek import config, constants
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.RepUtils import getToolByName
 from zope.browsermenu.menu import getMenu
 
 
@@ -157,9 +157,9 @@ class BaseAdmin(BrowserView):
             query['local_defined_users'] = users
         if path:
             query['path'] = path
-
-        return searchResults(self.context.Catalog, query,
-                             admin_check=self.should_check_permission())
+        query['admin_check'] = self.should_check_permission()
+        catalog = getToolByName(self.context, constants.DEFAULT_CATALOG, None)
+        return catalog.searchResults(**query)
 
     def get_collections(self):
         obligations = self.request.get('dataflow_uris', [])

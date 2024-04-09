@@ -265,7 +265,8 @@ class RemoteFMEConversionApplication(SimpleItem):
     def get_env_path_tokenized(self, workitem_id):
         """Return tokenized envelope path."""
         workitem = getattr(self, workitem_id)
-        return workitem.getMySelf().getPath().replace('/', '_')[1:]
+        env_path = '/'.join(workitem.getMySelf().getPhysicalPath())
+        return env_path.replace('/', '_')[1:]
 
     def get_env_obligation(self, workitem_id):
         """Return the envelope obligation"""
@@ -315,16 +316,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         if res.status_code == 200:
             z = StringIO(res.content)
             z.filename = 'resources.zip'
-            add = env.manage_addDDzipfile(file=z)
-            RESULTS = {
-                1: 'SUCCESS',
-                2: 'One or more files have not been added to the envelope'
-            }
-            return (
-                add,
-                RESULTS.get(add,
-                            '''Something went wrong while saving the'''
-                            ''' converted file(s) in the envelope'''))
+            return env.manage_addDDzipfile(file=z, verbose=True)
         else:
             return (
                 res.status_code,
@@ -359,7 +351,14 @@ class RemoteFMEConversionApplication(SimpleItem):
                 res = requests.post(url, params=params,
                                     files=files, headers=headers)
                 if res.status_code == 200:
-                    srv_res = res.json()
+                    try:
+                        srv_res = res.json()
+                    except ValueError as e:
+                        err = ('''Unable to parse FME upload response as '''
+                               '''json: {}'''.format(str(e)))
+                        logger.warning(err)
+                        self.__update_storage(workitem, 'upload',
+                                              err=err, dec_retry=True)
                     if isinstance(srv_res, list):
                         paths = [f.get('name').encode('utf-8')
                                  for f in srv_res]
@@ -536,20 +535,26 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                     workitem,
                                                     job_id,
                                                     msg,
-                                                    inputfile=inputfile)
+                                                    inputfile=inputfile,
+                                                    content_type='text/html')
                                                 self.__update_storage(
                                                     workitem, 'results',
                                                     jobid=job_id,
                                                     status='failed',
                                                     err=msg, dec_retry=True)
                                             else:
-                                                workitem.addEvent(
-                                                    'Conversion successful')
+                                                msg = ('''Conversion '''
+                                                       '''successful. '''
+                                                       '''{}''').format(
+                                                           dl_res[1]
+                                                       )
+                                                workitem.addEvent(msg)
                                                 self.__post_feedback(
                                                     workitem,
                                                     job_id,
-                                                    'Conversion successful',
-                                                    inputfile=inputfile)
+                                                    msg,
+                                                    inputfile=inputfile,
+                                                    content_type='text/html')
                                                 self.__update_storage(
                                                     workitem, 'results',
                                                     jobid=job_id,
@@ -706,11 +711,11 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem._p_changed = 1
 
     def __post_feedback(self, workitem, jobid, messages, inputfile=None,
-                        attach=None):
+                        attach=None, content_type='text/plain'):
         envelope = self.aq_parent
-        feedback_id = '{0}_{1}'.format(self.app_name, jobid)
+        feedback_id = '{}_{}_{}'.format(self.app_name, jobid, workitem.id)
         if inputfile:
-            feedback_id = 'conversion_log_{}'.format(inputfile)
+            feedback_id = 'conversion_log_{}_{}'.format(workitem.id, inputfile)
         envelope.manage_addFeedback(id=feedback_id, file=attach,
                                     title='%s results' % self.app_name,
                                     activity_id=workitem.activity_id,
@@ -718,6 +723,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     feedbacktext=messages,
                                     document_id=inputfile)
         feedback_ob = getattr(envelope, feedback_id)
+        feedback_ob.content_type = content_type
         conv_res_id = 'conversion_log_{}'.format(jobid)
         for doc_id in envelope.objectIds('Report Document'):
             if conv_res_id in doc_id:
@@ -754,7 +760,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     feedback_ob.message = fb_message
                     feedback_ob.feedback_status = fb_status
                     feedback_ob._p_changed = 1
-                    feedback_ob.reindex_object()
+                    feedback_ob.reindexObject()
 
                 envelope.manage_delObjects([doc.getId()])
                 # Get the file, post if as attachment and delete it afterwards

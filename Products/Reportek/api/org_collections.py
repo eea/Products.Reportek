@@ -1,5 +1,7 @@
 import json
 
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 from Products.Five import BrowserView
 
 
@@ -8,6 +10,9 @@ class OrgCollections(BrowserView):
 
     def create_organisation_folder(self):
         """Create an organisation folder"""
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(self.request,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         country_code = self.request.form.get('country_code')
         obligation_folder_name = self.request.form.get(
@@ -55,6 +60,9 @@ class OrgCollections(BrowserView):
 
     def update_organisation_name(self):
         """Update the title of the organisation folder"""
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(self.request,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         updated = False
         COUNTRY_TO_FOLDER = {

@@ -628,6 +628,10 @@ tr.user-disabled {
   color: orange;
 }
 
+.fb-regerror {
+  color: #936CC9;
+}
+
 .fb-status {
   font-weight: bold;
 }

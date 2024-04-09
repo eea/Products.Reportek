@@ -1,8 +1,8 @@
 from base_admin import BaseAdmin
 from operator import itemgetter
-from Products.Reportek.constants import ENGINE_ID, ECAS_ID
+from Products.Reportek.constants import ENGINE_ID, ECAS_ID, DEFAULT_CATALOG
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.rabbitmq import queue_msg
 
 
@@ -29,8 +29,8 @@ class ManageRoles(BaseAdmin):
 
     def get_user_localroles(self, username):
         results = []
-        for brain in searchResults(self.context.Catalog,
-                                   dict(meta_type='Report Collection')):
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+        for brain in catalog.searchResults(meta_type='Report Collection'):
             coll = brain.getObject()
             local_roles = coll.get_local_roles_for_userid(username)
             if local_roles:
@@ -77,7 +77,7 @@ class ManageRoles(BaseAdmin):
             roles = set(obj.get_local_roles_for_userid(cur_entity))
             roles.add(role)
             obj.manage_setLocalRoles(cur_entity, list(roles))
-            obj.reindex_object()
+            obj.reindexObject()
             # Sync role assignment to associated transfers folder
             if path in self.request.get('sync_transfers', []):
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
@@ -153,7 +153,7 @@ class ManageRoles(BaseAdmin):
             obj.manage_delLocalRoles([entity])
             if roles:
                 obj.manage_setLocalRoles(entity, list(roles))
-            obj.reindex_object()
+            obj.reindexObject()
             # Remove certain roles from transfer folders
             if sync_transfers:
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
@@ -300,8 +300,8 @@ class ManageRoles(BaseAdmin):
         groups = acl_users.getGroups()
         groups = [group[0] for group in groups]
         group_prefixes = tuple({group.split('-')[0] for group in groups})
-
-        brains = searchResults(self.context.Catalog, query)
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+        brains = catalog.searchResults(**query)
         for brain in brains:
             local_defined_users = brain.local_defined_users
             if local_defined_users:
@@ -338,7 +338,7 @@ class ManageRoles(BaseAdmin):
             for path in colls:
                 obj = self.context.unrestrictedTraverse(path)
                 obj.manage_delLocalRoles([member])
-                obj.reindex_object()
+                obj.reindexObject()
                 results.append({
                     'entity': member,
                     'path': path,

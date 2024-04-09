@@ -4,9 +4,11 @@ import json
 from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.Reportek.blob import StorageError
-from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
+from Products.Reportek.constants import (DF_URL_PREFIX,
+                                         ENGINE_ID,
+                                         DEFAULT_CATALOG)
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.RepUtils import getToolByName
 from ZODB.blob import POSKeyError
 
 
@@ -333,8 +335,8 @@ class EnvelopesAPI(BrowserView):
 
         def getbID(b):
             return int(b.id)
-
-        brains = list(searchResults(self.context.Catalog, query))
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+        brains = list(catalog.searchResults(**query))
 
         if children_type == 'Workitem':
             brains.sort(key=getbID)
@@ -460,12 +462,14 @@ class EnvelopesAPI(BrowserView):
         aqc_brains = [brain for brain in fb_brains
                       if brain.title.startswith('AutomaticQA')]
         VALID_FB_STATUSES = [
-            'INFO',
-            'SKIPPED',
-            'OK',
-            'WARNING',
-            'ERROR',
             'BLOCKER'
+            'ERROR',
+            'FAILED',
+            'INFO',
+            'OK',
+            'REGERROR',
+            'SKIPPED',
+            'WARNING',
         ]
 
         for aqc in aqc_brains:
@@ -565,7 +569,8 @@ class EnvelopesAPI(BrowserView):
                 'description': error
             })
         if query:
-            brains = list(searchResults(self.context.Catalog, query))
+            catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+            brains = list(catalog.searchResults(**query))
 
             if len(brains) > self.MAX_RESULTS:
                 error = 'There are too many possible results for your query. '\

@@ -12,19 +12,23 @@
     The instance is <em tal:content="here/status" />.
 
     <tal:block tal:condition="python:here.status=='initiated'">
-      <a tal:attributes="href string:${here/absolute_url}/startInstance?instance_id=${instance_id}" i18n:translate="">Activate</a> it.
+      <a tal:define="href string:${here/absolute_url}/startInstance?instance_id=${instance_id}"
+        tal:attributes="href python: context.get_key_url(href)" i18n:translate="">Activate</a> it.
     </tal:block>
 
     <tal:block tal:condition="python:here.status in ['active', 'initiated', 'running']">
-      <a tal:attributes="href string:${here/absolute_url}/suspendInstance?instance_id=${instance_id}" i18n:translate="">Suspend</a> it.
+      <a tal:define="href string:${here/absolute_url}/suspendInstance?instance_id=${instance_id}"
+        tal:attributes="href python: context.get_key_url(href)" i18n:translate="">Suspend</a> it.
     </tal:block>
 
     <tal:block tal:condition="python:here.status=='suspended'">
-      <a tal:attributes="href string:${here/absolute_url}/resumeInstance?instance_id=${instance_id}" i18n:translate="">Resume</a> it.
+      <a tal:define="href string:${here/absolute_url}/resumeInstance?instance_id=${instance_id}"
+        tal:attributes="href python: context.get_key_url(href)" i18n:translate="">Resume</a> it.
     </tal:block>
 
     <tal:block tal:condition="python:here.status not in ['complete', 'terminated']">
-      <a tal:attributes="href string:${here/absolute_url}/terminateInstance?instance_id=${instance_id}" i18n:translate="">Terminate</a> it.
+      <a tal:define="href string:${here/absolute_url}/terminateInstance?instance_id=${instance_id}"
+        tal:attributes="href python: context.get_key_url(href)" i18n:translate="">Terminate</a> it.
     </tal:block>
   </p>
 
@@ -60,36 +64,53 @@
               Blocked - waiting <strong tal:content="item/blocked" /> arrival/s
             </tal:block>
             <tal:block tal:condition="python:not item.blocked" i18n:translate="">
-              <a tal:attributes="href string:${item/absolute_url}/assignWorkitem?workitem_id=${item/id}&actor=${UserName}" i18n:translate="">AUTO assign</a>
+              <a
+               tal:define="href string:${item/absolute_url}/assignWorkitem?workitem_id=${item/id}&actor=${UserName}" i18n:translate=""
+               tal:attributes="href python: context.get_key_url(href)">AUTO assign</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/unassignWorkitem?workitem_id=${item/id}" i18n:translate="">unassign</a>
+              <a
+               tal:define="href string:${item/absolute_url}/unassignWorkitem?workitem_id=${item/id}" i18n:translate=""
+               tal:attributes="href python: context.get_key_url(href)">unassign</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/activateWorkitem?workitem_id=${item/id}&actor=${UserName}" i18n:translate="">activate</a>
+              <a
+               tal:define="href string:${item/absolute_url}/activateWorkitem?workitem_id=${item/id}&actor=${UserName}" i18n:translate=""
+               tal:attributes="href python: context.get_key_url(href)">activate</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/suspendWorkitem?workitem_id=${item/id}" i18n:translate="">suspend</a>
+              <a
+               tal:define="href string:${item/absolute_url}/suspendWorkitem?workitem_id=${item/id}" i18n:translate=""
+               tal:attributes="href python: context.get_key_url(href)">suspend</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}" i18n:translate="">fallout</a>
+              <a
+               tal:define="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}" i18n:translate=""
+               tal:attributes="href python: context.get_key_url(href)">fallout</a>
             </tal:block>
           </tal:block>
           <tal:block tal:condition="python:item.status=='active'">
-            <a tal:attributes="href string:${item/absolute_url}/completeWorkitem?workitem_id=${item/id}" i18n:translate="">complete</a>
+            <a tal:define="href string:${item/absolute_url}/completeWorkitem?workitem_id=${item/id}" i18n:translate=""
+              tal:attributes="href python: context.get_key_url(href)">complete</a>
             |
-            <a tal:attributes="href string:${item/absolute_url}/inactivateWorkitem?workitem_id=${item/id}" i18n:translate="">inactivate</a>
+            <a tal:define="href string:${item/absolute_url}/inactivateWorkitem?workitem_id=${item/id}" i18n:translate=""
+              tal:attributes="href python: context.get_key_url(href)">inactivate</a>
             |
-            <a tal:attributes="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}" i18n:translate="">fallout</a>
+            <a tal:define="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}" i18n:translate=""
+              tal:attributes="href python: context.get_key_url(href)">fallout</a>
           </tal:block>
           <tal:block tal:condition="python:item.status=='complete'">
             <tal:block tal:condition="python:not (item.activity_id=='End' or item.workitems_to)">
-              <a tal:attributes="href string:${item/absolute_url}/forwardWorkitem?workitem_id=${item/id}" i18n:translate="">forward</a>
+              <a tal:define="href string:${item/absolute_url}/forwardWorkitem?workitem_id=${item/id}" i18n:translate=""
+                tal:attributes="href python: context.get_key_url(href)">forward</a>
             </tal:block>
           </tal:block>
           <tal:block tal:condition="python:item.status=='fallout'">
-              <a tal:attributes="href string:${item/absolute_url}/chooseFallin?workitem_id=${item/id}" i18n:translate="">fallin</a>
+              <a tal:define="href string:${item/absolute_url}/chooseFallin?workitem_id=${item/id}" i18n:translate=""
+                tal:attributes="href python: context.get_key_url(href)">fallin</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/endFallinWorkitem?workitem_id=${item/id}" i18n:translate="">end fallout</a>
+              <a tal:define="href string:${item/absolute_url}/endFallinWorkitem?workitem_id=${item/id}" i18n:translate=""
+                tal:attributes="href python: context.get_key_url(href)">end fallout</a>
           </tal:block>
           <tal:block tal:condition="python:item.status=='suspended'">
-              <a tal:attributes="href string:${item/absolute_url}/resumeWorkitem?workitem_id=${item/id}" i18n:translate="">resume</a>
+              <a tal:define="href string:${item/absolute_url}/resumeWorkitem?workitem_id=${item/id}" i18n:translate=""
+                tal:attributes="href python: context.get_key_url(href)">resume</a>
           </tal:block>
         </td>
       </tr>

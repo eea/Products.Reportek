@@ -37,7 +37,7 @@ def get_rabbitmq_client_settings():
 
 
 @contextmanager
-def get_rabbitmq_conn(queue, context=None):
+def get_rabbitmq_conn(queue, context=None, dq=True):
     """ Context manager to connect to RabbitMQ
     """
 
@@ -48,7 +48,26 @@ def get_rabbitmq_conn(queue, context=None):
                            s.get('username'),
                            s.get('password'))
     rb.open_connection()
-    rb.declare_queue(queue)
+    if dq:
+        rb.declare_queue(queue)
+
+    yield rb
+
+    rb.close_connection()
+
+
+@contextmanager
+def get_rabbitmq_conn_nodqueue(queue, context=None):
+    """ Context manager to connect to RabbitMQ
+    """
+
+    s = get_rabbitmq_client_settings()
+
+    rb = RabbitMQConnector(s.get('hostname'),
+                           s.get('port'),
+                           s.get('username'),
+                           s.get('password'))
+    rb.open_connection()
 
     yield rb
 
@@ -107,11 +126,11 @@ class MessagesDataManager(object):
     def commit(self, txn):
         self._checkTransaction(txn)
 
-        for queue, msg in self.messages:
+        for queue, msg, dq in self.messages:
             count = 0
             for attempt in transaction.manager.attempts():
                 try:
-                    send_message(msg, queue=queue)
+                    send_message(msg, queue=queue, dq=dq)
                     break
                 except Exception as e:
                     count += 1
@@ -132,9 +151,9 @@ class MessagesDataManager(object):
     def sortKey(self):
         return self.__class__.__name__
 
-    def add(self, queue, msg):
+    def add(self, queue, msg, dq=True):
         logger.info("Add msg to queue: %s => %s", msg, queue)
-        self.messages.append((queue, msg))
+        self.messages.append((queue, msg, dq))
 
     def _checkTransaction(self, txn):
         if (txn is not self.txn and self.txn is not None):
@@ -161,15 +180,20 @@ class Savepoint(object):
         self.dm.messages = self.messages[:]
 
 
-def send_message(msg, queue, context=None):
-    with get_rabbitmq_conn(queue=queue, context=context) as conn:
+def send_message(msg, queue, context=None, dq=True):
+    with get_rabbitmq_conn(queue=queue, context=context, dq=dq) as conn:
         conn.send_message(queue, msg)
 
 
-def queue_msg(msg, queue=None):
+def send_message_nodqueue(msg, queue, context=None):
+    with get_rabbitmq_conn_nodqueue(queue=queue, context=context) as conn:
+        conn.send_message(queue, msg)
+
+
+def queue_msg(msg, queue=None, dq=True):
     """ Queues a rabbitmq message in the given queue
     """
 
     _mdm = MessagesDataManager()
     transaction.get().join(_mdm)
-    _mdm.add(queue, msg)
+    _mdm.add(queue, msg, dq=dq)

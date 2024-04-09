@@ -6,20 +6,20 @@
     <include package="collective.monkeypatcher" />
     <include package="collective.monkeypatcher" file="meta.zcml" />
 
-    <monkey:patch description="Patch for Products.ZCatalog"
-      class="Products.ZCatalog.CatalogPathAwareness.CatalogAware"
+<!--    <monkey:patch description="Patch for Products.ZCatalog"
+      class="Products.Reportek.CatalogAware.CatalogAware"
       original="manage_beforeDelete"
       replacement=".patch_products_zcatalog.patched_manage_beforeDelete"
       preserveOriginal="false"
     />
-
-    <monkey:patch description="Patch for Products.ZCatalog catalog_object"
+-->
+<!--    <monkey:patch description="Patch for Products.ZCatalog catalog_object"
       class="Products.ZCatalog.ZCatalog.ZCatalog"
       original="catalog_object"
       replacement=".patch_products_zcatalog.patched_catalog_object"
       preserveOriginal="true"
     />
-
+-->
     <monkey:patch description="Patch manage_renameForm"
       class="OFS.CopySupport.CopyContainer"
       original="manage_renameForm"
@@ -38,6 +38,13 @@
       class="OFS.ObjectManager.ObjectManager"
       original="manage_delObjects"
       replacement=".patch_manage_delObjects.patched_manage_delObjects"
+      preserveOriginal="false"
+    />
+
+    <monkey:patch description="Patch _registered_objects"
+      class="plone.protect.auto.ProtectTransform"
+      original="_registered_objects"
+      replacement=".patch_plone_protect_auto._patched_registered_objects"
       preserveOriginal="false"
     />
 

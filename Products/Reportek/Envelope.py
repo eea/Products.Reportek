@@ -44,6 +44,8 @@ from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
                                zip_content)
+from Products.Reportek.events import (EnvelopeReleasedEvent,
+                                      EnvelopeUnReleasedEvent)
 from Products.PythonScripts.standard import url_quote
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -58,6 +60,8 @@ from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.Permissions import view_management_screens
 from AccessControl import ClassSecurityInfo, Unauthorized
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 import xlwt
 import transaction
 import OFS.SimpleItem
@@ -108,6 +112,10 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     """ Add a new Envelope object with id *id*.
     """
     id = RepUtils.generate_id('env')
+    if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+        if REQUEST:
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
     if not REQUEST:
         actor = self.REQUEST.AUTHENTICATED_USER.getUserName()
     else:
@@ -306,8 +314,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     def get_qa_feedbacks(self):
         """Return a list containing all AutomaticQA feedback objects."""
-        return [rf for rf in self.objectValues('Report Feedback')
-                if getattr(rf, 'title', '').startswith('AutomaticQA')]
+        return (rf for rf in self.objectValues('Report Feedback')
+                if getattr(rf, 'title', '').startswith('AutomaticQA'))
 
     @property
     def has_unknown_qa_result(self):
@@ -316,13 +324,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             in VALID_FB_STATUSES is treated as 'UNKNOWN'.
         """
         VALID_FB_STATUSES = [
-            'INFO',
-            'SKIPPED',
-            'OK',
-            'WARNING',
+            'BLOCKER',
             'ERROR',
             'FAILED',
-            'BLOCKER'
+            'INFO',
+            'OK',
+            'REGERROR',
+            'SKIPPED',
+            'WARNING',
         ]
 
         aqa_fbs = self.get_qa_feedbacks()
@@ -340,7 +349,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         UNACCEPTABLE_FB_STATUSES = [
             'BLOCKER',
             'ERROR',
-            'FAILED'
+            'FAILED',
+            'REGERROR'
         ]
 
         aqa_fbs = self.get_qa_feedbacks()
@@ -366,7 +376,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """Return True if an AutomaticQA feedback has no feedback status."""
         QA_workitems = self.get_qa_workitems()
         if QA_workitems:
-            aqa_fbs = self.get_qa_feedbacks()
+            aqa_fbs = list(self.get_qa_feedbacks())
             if not aqa_fbs:
                 return True
             else:
@@ -416,11 +426,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """
         if self.is_blocked:
             return False
-        completed_automaticQA_workitems = [
-            wi for wi in self.getMySelf().getListOfWorkitems()
-            if wi.activity_id == 'AutomaticQA' and wi.status == 'complete'
-        ]
-        if completed_automaticQA_workitems:
+        completed_automaticQA_workitems = (
+            wi for wi in self.getMySelf().get_qa_workitems()
+            if wi.status == 'complete')
+        if next(completed_automaticQA_workitems, None):
             return True
         else:
             return None
@@ -521,7 +530,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         l_current_actor = REQUEST['AUTHENTICATED_USER'].getUserName()
         l_no_active_workitems = 0
-        for w in self.objectValues('Workitem'):
+        for w in self.getListOfWorkitems():
             if (w.status == 'active' and w.actor != 'openflow_engine'
                 and (w.actor == l_current_actor
                      or getSecurityManager().checkPermission(
@@ -716,9 +725,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             self.released = 1
             self.reportingdate = DateTime()
             # update ZCatalog
-            self.reindex_object()
+            self.reindexObject()
             self._invalidate_zip_cache()
             notify(ObjectModifiedEvent(self))
+            notify(EnvelopeReleasedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
                 message="The envelope has now been released to the public!",
@@ -744,10 +754,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if self.released != 0:
             self.released = 0
             # update ZCatalog
-            self.reindex_object()
+            self.reindexObject()
             transaction.commit()
             logger.debug("UNReleasing Envelope: %s" % self.absolute_url())
             notify(ObjectModifiedEvent(self))
+            notify(EnvelopeUnReleasedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
                 message="The envelope is no longer available to the public!",
@@ -822,7 +833,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         self.locality = locality
         self.descr = descr
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -860,7 +871,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if descr is not None:
             self.descr = descr
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -909,7 +920,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                               'Report Feedback',
                               'Report Hyperlink'])
         self.manage_restrict(ids)
-        self.reindex_object()
+        self.reindexObject()
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
 

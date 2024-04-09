@@ -10,14 +10,11 @@
     <p i18n:translate="">This page displays summary information from all automatic data quality checks for this envelope. If you want to see more detailed results, just follow the "Show more.." links to the individual feedback items.</p>
 
     <div id="detailed-qa"
-      tal:define="fb_objs context/getFeedbackObjects;
-                  feedbacks python: [fb for fb in fb_objs if getattr(fb, 'title', '').startswith('AutomaticQA')];
+      tal:define="feedbacks python: list(context.get_qa_feedbacks());
                   fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
                   seen python: {};
                   u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];
-                  env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml'];
-                  fb_classes python: {'INFO': 'fb-info', 'WARNING': 'fb-warning', 'ERROR': 'fb-error', 'BLOCKER': 'fb-blocker'}">
-
+                  env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml'];">
       <ul tal:condition="python: len(feedbacks) > len(env_fbs)" class="fb-listing">
         <tal:rep tal:repeat="fb_file u_fb_files">
           <li tal:condition="python: fb_file != 'xml'">
@@ -26,7 +23,7 @@
             <ul>
               <li tal:repeat="feedback python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == fb_file]">
                 <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
-                      tal:attributes="class python: fb_classes.get(fb_status)">
+                      tal:attributes="class python: 'fb-{}'.format(fb_status.lower())">
                   <span class="fb-status" tal:content="fb_status"/>:
                   <span tal:define="default python: getattr(feedback, 'title', '').split(':')[-1];
                                     message python: getattr(feedback, 'message');
@@ -44,7 +41,7 @@
         <ul>
           <li tal:repeat="feedback env_fbs">
             <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
-                  tal:attributes="class python: fb_classes.get(fb_status)">
+                  tal:attributes="class python: 'fb-{}'.format(fb_status.lower())">
               <span class="fb-status" tal:content="fb_status"/>:
               <span tal:define="default python: getattr(feedback, 'title', '').split(':')[-1];
                                 message python: getattr(feedback, 'message');

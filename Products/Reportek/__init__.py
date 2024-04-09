@@ -1,4 +1,3 @@
-
 # The contents of this file are subject to the Mozilla Public# License
 # Version 1.1 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of
@@ -21,77 +20,115 @@
 
 
 import logging
-
-from Products.Reportek.config import (DEPLOYMENT_BDR,
-                                      DEPLOYMENT_CDR,
-                                      REDIS_DATABASE,
-                                      REDIS_HOSTNAME,
-                                      REDIS_PORT,
-                                      REPORTEK_DEPLOYMENT)
 from traceback import format_exception_only
 
-from Products.Reportek import Collection
-from Products.Reportek import Converter
-from Products.Reportek import Converters
-from Products.Reportek import DataflowMappings
-from Products.Reportek import OpenFlowEngine
-from Products.Reportek import QARepository
-from Products.Reportek import QAScript
-from Products.Reportek import Referral
-from Products.Reportek import RemoteApplication
-from Products.Reportek import RemoteFMEConversionApplication
-from Products.Reportek import RemoteRESTApplication
-from Products.Reportek import RemoteRestQaApplication
-from Products.Reportek import ReportekAPI
-from Products.Reportek import ReportekEngine
-from Products.Reportek import ReportekUtilities
-from Products.Reportek import constants
-from Products.Reportek import monitoring
 # Zope imports
 import Zope2
-
 from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
-from Products.PluggableAuthService.PluggableAuthService import\
-    registerMultiPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import\
-    ReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import\
-    addReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import\
-    manage_addReportekUserFactoryPluginForm
-from Products.Reportek.caching.config import registry_setup
-from Products.ZCTextIndex.ZCTextIndex import PLexicon
-from Products.ZCatalog.ZCatalog import ZCatalog
+from plone.keyring.interfaces import IKeyManager
+from plone.keyring.keymanager import KeyManager
 from plone.registry.interfaces import IRegistry
 from registry import Registry
-from zope.component import getGlobalSiteManager
-from zope.component import getUtility
+from zope.component import getGlobalSiteManager, getUtility
 from zope.i18nmessageid import MessageFactory
+from ZPublisher.BaseRequest import BaseRequest
+
+from Products.ExtendedPathIndex.ExtendedPathIndex import (
+    ExtendedPathIndex,
+)
+from Products.PluggableAuthService.PluggableAuthService import (
+    registerMultiPlugin,
+)
+from Products.PluginIndexes.DateIndex.DateIndex import DateIndex
+from Products.PluginIndexes.FieldIndex.FieldIndex import FieldIndex
+from Products.PluginIndexes.KeywordIndex.KeywordIndex import (
+    KeywordIndex,
+)
+from Products.Reportek.config import (
+    DEPLOYMENT_BDR,
+    DEPLOYMENT_CDR,
+    REDIS_DATABASE,
+    REDIS_HOSTNAME,
+    REDIS_PORT,
+    REPORTEK_DEPLOYMENT,
+)
+from Products.Reportek import (
+    Collection,
+    Converter,
+    Converters,
+    DataflowMappings,
+    OpenFlowEngine,
+    QARepository,
+    QAScript,
+    Referral,
+    RemoteApplication,
+    RemoteFMEConversionApplication,
+    RemoteRabbitMQQAApplication,
+    RemoteRESTApplication,
+    RemoteRestQaApplication,
+    ReportekAPI,
+    ReportekEngine,
+    ReportekUtilities,
+    constants,
+    monitoring,
+)
+from Products.Reportek.caching.config import registry_setup
+from Products.Reportek.catalog import ReportekCatalog
+from Products.Reportek.interfaces import IReportekCatalog
+from Products.Reportek.ReportekUserFactoryPlugin import (
+    ReportekUserFactoryPlugin,
+    addReportekUserFactoryPlugin,
+    manage_addReportekUserFactoryPluginForm,
+)
+from Products.Reportek.RepUtils import getToolByName
+from Products.ZCTextIndex.ZCTextIndex import PLexicon, ZCTextIndex
+
+# workaround for BaseRequest assuming requests not GET, POST, PURGE as webdav
+BaseRequest.maybe_webdav_client = False
 
 __doc__ = """Reportek __init__ """
-__version__ = '$Rev$'[6:-2]
+__version__ = "$Rev$"[6:-2]
 logger = logging.getLogger("Reportek")
 
 
-# Product imports
-
-
-MessageFactory = MessageFactory('Reportek')
+MessageFactory = MessageFactory("Reportek")
 
 maintenance_options = (
-    ZCatalog.manage_options[:1] +
-    ({
-        'label': "Maintenance",
-        'action': 'manage_maintenance'},
-     ) +
-    ZCatalog.manage_options[1:])
+    ReportekCatalog.manage_options[:1]
+    + ({"label": "Maintenance", "action": "manage_maintenance"},)
+    + ReportekCatalog.manage_options[1:]
+)
 
-ZCatalog.manage_options = maintenance_options
+ReportekCatalog.manage_options = maintenance_options
+
+
+def setup_catalog(app):
+    """Set up the catalog for the given app."""
+    ctool_id = constants.DEFAULT_CATALOG
+    catalog = getToolByName(app, ctool_id, None)
+    if not catalog:
+        catalog = ReportekCatalog()
+        app._setObject(ctool_id, catalog)
+        create_reportek_indexes(catalog)
+    if catalog not in app.objectValues():
+        app._setObject(ctool_id, catalog)
+    tool_obj = catalog
+    gsm = getGlobalSiteManager()
+    if tool_obj is not None and gsm.queryUtility(IReportekCatalog) is None:
+        gsm.registerUtility(tool_obj, IReportekCatalog)
+    catalog.meta_types = [
+        {"name": "FieldIndex", "instance": FieldIndex},
+        {"name": "KeywordIndex", "instance": KeywordIndex},
+        {"name": "DateIndex", "instance": DateIndex},
+        {"name": "ZCTextIndex", "instance": ZCTextIndex},
+        {"name": "ExtendedPathIndex", "instance": ExtendedPathIndex},
+    ]
+
+    return catalog
 
 
 def create_reportek_objects(app):
-
     # Add ReportekEngine instance
     try:
         repo_engine = getattr(app, constants.ENGINE_ID)
@@ -101,11 +138,14 @@ def create_reportek_objects(app):
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         import threading
+
         crPingger = repo_engine.contentRegistryPingger
         if crPingger:
-            pingger = threading.Thread(target=ping_remaining_envelopes,
-                                       name='pingRemainingEnvelopes',
-                                       args=(app, crPingger))
+            pingger = threading.Thread(
+                target=ping_remaining_envelopes,
+                name="pingRemainingEnvelopes",
+                args=(app, crPingger),
+            )
             pingger.setDaemon(True)
             pingger.start()
 
@@ -138,19 +178,15 @@ def create_reportek_objects(app):
         app._setObject(constants.WORKFLOW_ENGINE_ID, workflow)
 
     # Add Catalog
-    try:
-        catalog = getattr(app, constants.DEFAULT_CATALOG)
-    except AttributeError:
-        catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
-        app._setObject(constants.DEFAULT_CATALOG, catalog)
+    setup_catalog(app)
 
     # Add Reportek Utilities
     try:
         reportek_utilities = getattr(app, constants.REPORTEK_UTILITIES)
     except AttributeError:
         reportek_utilities = ReportekUtilities.ReportekUtilities(
-            constants.REPORTEK_UTILITIES,
-            'Reportek Utilities')
+            constants.REPORTEK_UTILITIES, "Reportek Utilities"
+        )
         app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
 
     # Add Reportek API
@@ -158,26 +194,27 @@ def create_reportek_objects(app):
         reportek_api = getattr(app, constants.REPORTEK_API)
     except AttributeError:
         reportek_api = ReportekAPI.ReportekAPI(
-            constants.REPORTEK_API,
-            'Reportek API')
+            constants.REPORTEK_API, "Reportek API"
+        )
         app._setObject(constants.REPORTEK_API, reportek_api)
 
     # Add Registry Management
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         import RegistryManagement
+
         try:
             registry_management = getattr(app, constants.REGISTRY_MANAGEMENT)
         except AttributeError:
             registry_management = RegistryManagement.RegistryManagement(
-                constants.REGISTRY_MANAGEMENT,
-                'FGases registry')
+                constants.REGISTRY_MANAGEMENT, "FGases registry"
+            )
             app._setObject(constants.REGISTRY_MANAGEMENT, registry_management)
 
     # Add portal_registry
     try:
         portal_registry = getattr(app, constants.REGISTRY)
     except AttributeError:
-        portal_registry = Registry(constants.REGISTRY, 'Portal Registry')
+        portal_registry = Registry(constants.REGISTRY, "Portal Registry")
         app._setObject(constants.REGISTRY, portal_registry)
 
     # Register the named utility
@@ -189,69 +226,86 @@ def create_reportek_objects(app):
     # setup registry for caching purposes
     registry_setup(registry)
 
+    # register key manager from plone.keyring
+    km = getattr(app, "key_manager", None)
+    if km is None:
+        km = KeyManager()
+        app.key_manager = km
+        app._p_changed = 1
+        if logger is not None:
+            logger.info("Adding key manager")
+    gsm.registerUtility(km, IKeyManager)
+
 
 def _strip_protocol_domain(full_url):
-    """ Take a full url and return a tuple of path part and protocol+domain
-        part.
+    """Take a full url and return a tuple of path part and protocol+domain
+    part.
     """
-    parts = full_url.split('/')
+    parts = full_url.split("/")
     # domain.domain.domain.../abs/abs
     i = 1
-    if full_url.startswith('http'):
+    if full_url.startswith("http"):
         # http...//domain.domain.domain.../abs/abs
         i = 3
-    return '/'.join(parts[i:]), '/'.join(parts[:i])
+    return "/".join(parts[i:]), "/".join(parts[:i])
 
 
 def ping_remaining_envelopes(app, crPingger):
-    import redis
     import pickle
+
+    import redis
+
     if REDIS_DATABASE and REDIS_HOSTNAME and REDIS_PORT:
         try:
-            rs = redis.Redis(host=REDIS_HOSTNAME,
-                             port=REDIS_PORT,
-                             db=REDIS_DATABASE)
+            rs = redis.Redis(
+                host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DATABASE
+            )
             envPathNames = rs.hkeys(constants.PING_ENVELOPES_REDIS_KEY)
         except Exception as e:
             lines = format_exception_only(e.__class__, e)
             lines.insert(0, "Could not get to redis server")
-            logger.warn('. '.join(lines))
+            logger.warn(". ".join(lines))
             return
 
         for envPathName in envPathNames:
             # get this fresh on every iteration
             envStatus = rs.hget(
-                constants.PING_ENVELOPES_REDIS_KEY, envPathName)
+                constants.PING_ENVELOPES_REDIS_KEY, envPathName
+            )
             envStatus = pickle.loads(envStatus)
-            if not envStatus['op']:
+            if not envStatus["op"]:
                 continue
             envPathOnly, proto_domain = _strip_protocol_domain(envPathName)
             env = app.unrestrictedTraverse(envPathOnly, None)
-            uris = [envPathName + '/rdf']
+            uris = [envPathName + "/rdf"]
             if not env:
-                logger.warning("Envelope {} no longer exists in the zope "
-                               "environment. Setting cr ping argument to "
-                               "'delete'".format(envPathName))
-                envStatus['op'] = 'delete'
+                logger.warning(
+                    "Envelope {} no longer exists in the zope "
+                    "environment. Setting cr ping argument to "
+                    "'delete'".format(envPathName)
+                )
+                envStatus["op"] = "delete"
             else:
                 innerObjsByMetatype = env._getObjectsForContentRegistry()
                 # as we are not called from browser there is no domain part in
                 # the absolute_url
-                uris.extend(proto_domain + '/' + o.absolute_url(1)
-                            for objs in innerObjsByMetatype.values()
-                            for o in objs)
+                uris.extend(
+                    proto_domain + "/" + o.absolute_url(1)
+                    for objs in innerObjsByMetatype.values()
+                    for o in objs
+                )
             crPingger.content_registry_ping(
-                uris, ping_argument=envStatus['op'],
-                envPathName=envPathName)
+                uris, ping_argument=envStatus["op"], envPathName=envPathName
+            )
 
 
 def add_index(name, catalog, meta_type, meta=False):
     if name not in catalog.indexes():
-        if meta_type == 'ZCTextIndex':
+        if meta_type == "ZCTextIndex":
             item_extras = Empty()
             item_extras.doc_attr = name
-            item_extras.index_type = 'Okapi BM25 Rank'
-            item_extras.lexicon_id = 'lexicon'
+            item_extras.index_type = "Okapi BM25 Rank"
+            item_extras.lexicon_id = "lexicon"
             catalog.addIndex(name, meta_type, item_extras)
         else:
             catalog.addIndex(name, meta_type)
@@ -263,65 +317,70 @@ def add_index(name, catalog, meta_type, meta=False):
 
 def add_lexicon(catalog):
     from Products.ZCTextIndex.HTMLSplitter import HTMLWordSplitter
-    from Products.ZCTextIndex.Lexicon import CaseNormalizer
-    from Products.ZCTextIndex.Lexicon import StopWordAndSingleCharRemover
+    from Products.ZCTextIndex.Lexicon import (
+        CaseNormalizer,
+        StopWordAndSingleCharRemover,
+    )
 
     lexicon = PLexicon(
-        'lexicon',
-        'Lexicon',
+        "lexicon",
+        "Lexicon",
         HTMLWordSplitter(),
         CaseNormalizer(),
-        StopWordAndSingleCharRemover()
+        StopWordAndSingleCharRemover(),
     )
-    catalog._setObject('lexicon', lexicon)
+    catalog._setObject("lexicon", lexicon)
 
 
 def create_reportek_indexes(catalog):
-    if not hasattr(catalog, 'lexicon'):
+    if not hasattr(catalog, "lexicon"):
         add_lexicon(catalog)
-    add_index('id', catalog, 'FieldIndex', meta=True)
-    add_index('title', catalog, 'ZCTextIndex', meta=True)
-    add_index('meta_type', catalog, 'FieldIndex', meta=True)
-    add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
-    add_index('activity_id', catalog, 'FieldIndex', meta=True)
-    add_index('actor', catalog, 'FieldIndex', meta=True)
-    add_index('content_type', catalog, 'FieldIndex')
-    add_index('country', catalog, 'FieldIndex', meta=True)
-    add_index('dataflow_uri', catalog, 'FieldIndex', meta=True)
-    add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
-    add_index('getCountryName', catalog, 'FieldIndex', meta=True)
-    add_index('instance_id', catalog, 'FieldIndex')
-    add_index('partofyear', catalog, 'FieldIndex', meta=True)
-    add_index('path', catalog, 'PathIndex')
-    add_index('process_path', catalog, 'FieldIndex')
-    add_index('released', catalog, 'FieldIndex', meta=True)
-    add_index('reportingdate', catalog, 'FieldIndex', meta=True)
-    add_index('status', catalog, 'FieldIndex')
-    add_index('xml_schema_location', catalog, 'FieldIndex')
-    add_index('years', catalog, 'KeywordIndex', meta=True)
-    add_index('local_unique_roles', catalog, 'KeywordIndex')
-    add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
-    add_index('Description', catalog, 'ZCTextIndex', meta=True)
-    add_index('blocker', catalog, 'FieldIndex', meta=True)
-    add_index('feedback_status', catalog, 'FieldIndex', meta=True)
+    add_index("id", catalog, "FieldIndex", meta=True)
+    add_index("title", catalog, "ZCTextIndex", meta=True)
+    add_index("meta_type", catalog, "FieldIndex", meta=True)
+    add_index("bobobase_modification_time", catalog, "DateIndex", meta=True)
+    add_index("activity_id", catalog, "FieldIndex", meta=True)
+    add_index("actor", catalog, "FieldIndex", meta=True)
+    add_index("content_type", catalog, "FieldIndex")
+    add_index("country", catalog, "FieldIndex", meta=True)
+    add_index("dataflow_uri", catalog, "FieldIndex", meta=True)
+    add_index("dataflow_uris", catalog, "KeywordIndex", meta=True)
+    add_index("getCountryName", catalog, "FieldIndex", meta=True)
+    add_index("instance_id", catalog, "FieldIndex")
+    add_index("partofyear", catalog, "FieldIndex", meta=True)
+    add_index("path", catalog, "ExtendedPathIndex")
+    add_index("process_path", catalog, "FieldIndex")
+    add_index("released", catalog, "FieldIndex", meta=True)
+    add_index("reportingdate", catalog, "FieldIndex", meta=True)
+    # add_index('last_released_date', catalog, 'FieldIndex', meta=True)
+    add_index("status", catalog, "FieldIndex")
+    add_index("xml_schema_location", catalog, "FieldIndex")
+    add_index("years", catalog, "KeywordIndex", meta=True)
+    add_index("local_unique_roles", catalog, "KeywordIndex")
+    add_index("local_defined_users", catalog, "KeywordIndex", meta=True)
+    add_index("Description", catalog, "ZCTextIndex", meta=True)
+    add_index("blocker", catalog, "FieldIndex", meta=True)
+    add_index("feedback_status", catalog, "FieldIndex", meta=True)
     # restricted is strictly needed for queries made by cr
-    add_index('restricted', catalog, 'FieldIndex', meta=True)
-    add_index('allowedAdminRolesAndUsers', catalog, 'KeywordIndex', meta=True)
-    add_index('allowedRolesAndUsers', catalog, 'KeywordIndex', meta=True)
-    add_index('wf_status', catalog, 'FieldIndex', meta=True)
-    if 'activation_log' not in catalog.schema():
-        catalog.addColumn('activation_log')
-    if 'local_defined_roles' not in catalog.schema():
-        catalog.addColumn('local_defined_roles')
-    add_index('document_id', catalog, 'FieldIndex')
+    add_index("restricted", catalog, "FieldIndex", meta=True)
+    add_index("allowedAdminRolesAndUsers", catalog, "KeywordIndex", meta=True)
+    add_index("allowedRolesAndUsers", catalog, "KeywordIndex", meta=True)
+    add_index("wf_status", catalog, "FieldIndex", meta=True)
+    if "activation_log" not in catalog.schema():
+        catalog.addColumn("activation_log")
+    if "local_defined_roles" not in catalog.schema():
+        catalog.addColumn("local_defined_roles")
+    add_index("document_id", catalog, "FieldIndex")
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        add_index('get_fgas_activities', catalog, 'FieldIndex', meta=True)
-        add_index('get_fgas_reported_gases', catalog, 'FieldIndex', meta=True)
-        add_index('get_fgas_i_authorisations',
-                  catalog, 'FieldIndex', meta=True)
-        add_index('get_fgas_a_authorisations',
-                  catalog, 'FieldIndex', meta=True)
-        add_index('company_id', catalog, 'FieldIndex', meta=True)
+        add_index("get_fgas_activities", catalog, "FieldIndex", meta=True)
+        add_index("get_fgas_reported_gases", catalog, "FieldIndex", meta=True)
+        add_index(
+            "get_fgas_i_authorisations", catalog, "FieldIndex", meta=True
+        )
+        add_index(
+            "get_fgas_a_authorisations", catalog, "FieldIndex", meta=True
+        )
+        add_index("company_id", catalog, "FieldIndex", meta=True)
 
 
 class Empty:
@@ -330,10 +389,10 @@ class Empty:
 
 def startup(context):
     import transaction
-    app = Zope2.bobo_application()
+
+    app = Zope2.app()
 
     create_reportek_objects(app)
-    create_reportek_indexes(app[constants.DEFAULT_CATALOG])
 
     transaction.commit()
 
@@ -342,27 +401,29 @@ registerMultiPlugin(ReportekUserFactoryPlugin.meta_type)
 
 
 def initialize(context):
-    """ Reportek initializer """
+    """Reportek initializer"""
 
-    from AccessControl.Permissions import view_management_screens
     import blob
+    from AccessControl.Permissions import view_management_screens
 
     context.registerClass(
         QAScript.QAScript,
-        permission='Add QAScripts',
+        permission="Add QAScripts",
         constructors=(
             QAScript.manage_addQAScriptForm,
-            QAScript.manage_addQAScript),
-        icon='www/qascript.gif'
+            QAScript.manage_addQAScript,
+        ),
+        icon="www/qascript.gif",
     )
 
     context.registerClass(
         Converter.Converter,
-        permission='Add Converters',
+        permission="Add Converters",
         constructors=(
             Converter.manage_addConverterForm,
-            Converter.manage_addConverter),
-        icon='www/conv.gif'
+            Converter.manage_addConverter,
+        ),
+        icon="www/conv.gif",
     )
 
     context.registerClass(
@@ -370,8 +431,9 @@ def initialize(context):
         permission=view_management_screens,
         constructors=(
             blob.manage_addOfsBlobFile_html,
-            blob.manage_addOfsBlobFile),
-        icon='www/blobfile.png'
+            blob.manage_addOfsBlobFile,
+        ),
+        icon="www/blobfile.png",
     )
 
     context.registerClass(
@@ -379,9 +441,10 @@ def initialize(context):
         permission=ManageUsers,
         constructors=(
             manage_addReportekUserFactoryPluginForm,
-            addReportekUserFactoryPlugin),
+            addReportekUserFactoryPlugin,
+        ),
         visibility=None,
-        icon='www/openflowEngine.gif'
+        icon="www/openflowEngine.gif",
     )
 
     ###########################################
@@ -390,70 +453,88 @@ def initialize(context):
     try:
         context.registerClass(
             Collection.Collection,
-            permission='Add Collections',
+            permission="Add Collections",
             constructors=(
                 Collection.manage_addCollectionForm,
-                Collection.manage_addCollection),
-            icon='www/collection.gif'
+                Collection.manage_addCollection,
+            ),
+            icon="www/collection.gif",
         )
 
         context.registerClass(
             Referral.Referral,
-            permission='Add Envelopes',
+            permission="Add Envelopes",
             constructors=(
                 Referral.manage_addReferralForm,
-                Referral.manage_addReferral),
-            icon='www/referral.gif'
+                Referral.manage_addReferral,
+            ),
+            icon="www/referral.gif",
         )
 
         context.registerClass(
             RemoteApplication.RemoteApplication,
-            permission='Add Remote Application',
+            permission="Add Remote Application",
             constructors=(
                 RemoteApplication.manage_addRemoteApplicationForm,
-                RemoteApplication.manage_addRemoteApplication),
-            icon='www/qa_application.gif'
+                RemoteApplication.manage_addRemoteApplication,
+            ),
+            icon="www/qa_application.gif",
+        )
+
+        context.registerClass(
+            RemoteRabbitMQQAApplication.RemoteRabbitMQQAApplication,
+            permission="Add Remote Application",
+            constructors=(
+                RemoteRabbitMQQAApplication.manage_addRRMQQAApplicationForm,
+                RemoteRabbitMQQAApplication.manage_addRRMQQAApplication,
+            ),
+            icon="www/qa_application.gif",
         )
 
         context.registerClass(
             RemoteRestQaApplication.RemoteRestQaApplication,
-            permission='Add Remote Application',
+            permission="Add Remote Application",
             constructors=(
                 RemoteRestQaApplication.manage_addRemoteRESTQAApplicationForm,
-                RemoteRestQaApplication.manage_addRemoteRESTQAApplication),
-            icon='www/qa_application.gif'
+                RemoteRestQaApplication.manage_addRemoteRESTQAApplication,
+            ),
+            icon="www/qa_application.gif",
         )
 
         context.registerClass(
             RemoteRESTApplication.RemoteRESTApplication,
-            permission='Add Remote Application',
+            permission="Add Remote Application",
             constructors=(
                 RemoteRESTApplication.manage_addRemoteRESTApplicationForm,
-                RemoteRESTApplication.manage_addRemoteRESTApplication),
-            icon='www/qa_application.gif'
+                RemoteRESTApplication.manage_addRemoteRESTApplication,
+            ),
+            icon="www/qa_application.gif",
         )
 
         context.registerClass(
             RemoteFMEConversionApplication.RemoteFMEConversionApplication,
-            permission='Add Remote Application',
+            permission="Add Remote Application",
             constructors=(
                 RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,  # noqa
-                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication),  # noqa
-            icon='www/qa_application.gif'
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication  # noqa
+            ),  # noqa
+            icon="www/qa_application.gif",
         )
 
         context.registerHelp()
-        context.registerHelpTitle('Zope Help')
+        context.registerHelpTitle("Zope Help")
 
         monitoring.initialize()
 
     except Exception:
+        import string
         import sys
         import traceback
-        import string
+
         type, val, tb = sys.exc_info()
-        sys.stderr.write(string.join(
-            traceback.format_exception(type, val, tb), ''))
+        sys.stderr.write(
+            string.join(traceback.format_exception(type, val, tb), "")
+        )
         del type, val, tb
 
 
@@ -483,7 +564,6 @@ misc_ = {
     "sortnot": ImageFile("www/sortnot.gif", globals()),
     "accepted": ImageFile("www/accepted.gif", globals()),
     "work_in_process": ImageFile("www/work_in_process.gif", globals()),
-
     "Transition.gif": ImageFile("www/Transition.gif", globals()),
     "Activity.gif": ImageFile("www/Activity.gif", globals()),
     "Process.gif": ImageFile("www/Process.gif", globals()),

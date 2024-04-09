@@ -1,6 +1,6 @@
 from Products.Reportek.indexer import indexer
 from zope.interface import Interface
-from Products.Reportek.catalog import _mergedLocalRoles
+from Products.Reportek.RepUtils import _mergedLocalRoles
 from AccessControl.ImplPython import rolesForPermissionOn
 from Products.Reportek.interfaces import (ICollection, IDocument, IEnvelope,
                                           IFeedback, IReportekContent,
@@ -62,6 +62,18 @@ def wk_process_path(obj):
 def env_restricted(obj):
     """Return True if child of restricted collection"""
     return obj.restricted
+
+
+@indexer(IDocument)
+def doc_reportingdate(obj):
+    """Return reportingdate of the envelope"""
+    return obj.reportingdate
+
+
+@indexer(IDocument)
+def doc_released(obj):
+    """Return released status of the envelope"""
+    return obj.released
 
 
 @indexer(Interface)

@@ -97,7 +97,7 @@ class ReferralsUtils(BaseAdmin):
         for item in to_update:
             obj = item.get('obj')
             obj.prop_allowed_referrals = item.get('value')
-            obj.reindex_object()
+            obj.reindexObject()
             updated.append({
                 'rid': item.get('rid'),
                 'newrid': catalog.getrid('/' + obj.absolute_url(1)),

@@ -24,6 +24,7 @@
 """
 from collections import defaultdict
 from DateTime import DateTime
+from plone.protect.utils import addTokenToUrl
 from plone.memoize import ram
 from Products.PythonScripts.standard import html_quote
 from Products.Reportek import constants
@@ -166,12 +167,14 @@ class Toolz:
         return t
 
     def tlzSortByAttr(self, p_obj_list, p_attr, p_sort_order=0):
-        return RepUtils.utSortByAttr(p_obj_list, p_attr, p_sort_order)
+        return RepUtils.utSortObjsListByMethod2(p_obj_list,
+                                                p_attr,
+                                                p_sort_order)
 
     def tlzSortObjsListByMethod(self, p_obj_list, p_attr, p_sort_order=0):
-        return RepUtils.utSortObjsListByMethod(p_obj_list,
-                                               p_attr,
-                                               p_sort_order)
+        return RepUtils.utSortObjsListByMethod2(p_obj_list,
+                                                p_attr,
+                                                p_sort_order)
 
     def truncate(self, text):
         if len(text) <= 80:
@@ -188,3 +191,12 @@ class Toolz:
                 rfind(file_id, '\\'),
                 rfind(file_id, ':')) + 1:]
         return RepUtils.cleanup_id(file_id.strip())
+
+    def get_key_url(self, url):
+        """Returns url with csrf authorization key"""
+        req = self.REQUEST
+        if not url.startswith(req.SERVER_URL) and '://' not in url[:10]:
+            furl = '{}/{}'.format(self.absolute_url(), url)
+            furl = addTokenToUrl(furl, req)
+            return furl.split('{}/'.format(self.absolute_url()))[-1]
+        return addTokenToUrl(url)

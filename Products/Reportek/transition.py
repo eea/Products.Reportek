@@ -31,7 +31,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 
 
 class transition(CatalogAware, SimpleItem):
@@ -73,7 +73,7 @@ class transition(CatalogAware, SimpleItem):
         self.From = From
         self.To = To
         self.description = description
-        self.reindex_object()
+        self.reindexObject()
         if REQUEST:
             REQUEST.RESPONSE.redirect(
                 'manage_editTransitionForm?manage_tabs_message=Saved changes.')

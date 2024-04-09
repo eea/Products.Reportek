@@ -2,8 +2,14 @@
                                  isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
     <ul>
         <li tal:attributes="id python:test(tab=='index_html' or tab=='' or tab is None, 'currenttab', None)"><a href="index_html" i18n:translate="">Overview</a></li>
-        <tal:block tal:condition="python:SecurityManager.checkPermission('Use OpenFlow', here)">
-            <li tal:attributes="id python:test(tab=='worklist', 'currenttab', None)"><a href="worklist" i18n:translate="">Task list</a></li>
+        <tal:block tal:condition="python:SecurityManager.checkPermission('Use OpenFlow', here)"
+            tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                        is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                        is_ods python: df_prefix.format('213') in here.dataflow_uris;
+                        ">
+            <tal:block tal:condition="python: is_fgas or is_ods">
+                <li tal:attributes="id python:test(tab=='worklist', 'currenttab', None)"><a href="worklist" i18n:translate="">Task list</a></li>
+            </tal:block>
         </tal:block>
         <tal:block tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('View', here) and here.company_id">
             <li tal:attributes="id python:test(tab=='other_reports', 'currenttab', None)"><a href="other_reports" i18n:translate="">Other reports</a></li>

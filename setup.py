@@ -29,6 +29,7 @@ setup(name=NAME,
           'path.py',
           'plone.caching',
           'plone.cachepurging',
+          'plone.keyring',
           'plone.memoize',
           'requests',
           'xlwt',
@@ -45,5 +46,6 @@ setup(name=NAME,
           automatic_qa = Products.Reportek.scripts.automatic_qa:main
           auto_fallin = Products.Reportek.scripts.auto_fallin:main
           auto_cleanup = Products.Reportek.scripts.auto_cleanup:main
+          auto_env_cleanup = Products.Reportek.scripts.auto_env_cleanup:main
           """,
       )

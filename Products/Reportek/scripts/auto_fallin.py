@@ -17,6 +17,8 @@ import transaction
 from DateTime import DateTime
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.scripts import get_zope_site
+from Products.Reportek.RepUtils import getToolByName
+
 
 SCHEDULE_START = os.environ.get('SCHEDULE_START', DateTime())
 SCHEDULE_PERIOD = os.environ.get('SCHEDULE_PERIOD', 'daily')
@@ -63,13 +65,13 @@ def get_envelopes(catalog, df_uris, act_from, act_to):
              'dataflow_uris': df_uris,
              'activity_id': act_from,
              'status': ['active', 'inactive']}
-    brains = catalog(query)
+    brains = catalog.searchResults(**query)
     results = {}
     for brain in brains:
         wk = brain.getObject()
         env = wk.getParentNode()
-        results[env.getPath()] = {'envelope': env,
-                                  'wk': wk}
+        results['/'.join(env.getPhysicalPath())] = {'envelope': env,
+                                                    'wk': wk}
     return results
 
 
@@ -120,7 +122,7 @@ def main():
         obls = [df_prefix.format(obl) if not obl.startswith('http') else obl
                 for obl in obls]
         site = get_zope_site()
-        catalog = site.unrestrictedTraverse(DEFAULT_CATALOG, None)
+        catalog = getToolByName(site, DEFAULT_CATALOG, None)
         results = get_envelopes(catalog, obls, args.act_from, args.act_to)
         year_offset = args.env_year_offset
         env_year = DateTime().year()

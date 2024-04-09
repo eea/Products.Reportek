@@ -11,9 +11,10 @@
         <tal:block condition="
           python:item.status == 'inactive' and l_activate_workitem">
           <li>
-            <a tal:define="dest_url python:context.getMySelf().absolute_url()"
+            <a tal:define="dest_url python:context.getMySelf().absolute_url();
+                           href string:activateWorkitem?workitem_id=${item/id}&DestinationURL=${dest_url};"
                tal:attributes="
-               href string:activateWorkitem?workitem_id=${item/id}&DestinationURL=${dest_url}"
+               href python:context.get_key_url(href)"
                title="Activation means you accept
                responsibility for this task.
                Only the person who has activated
@@ -28,12 +29,14 @@
           python:item.status == 'active' and item.actor == current_actor">
             <tal:block condition="python:context.getApplicationUrl(item.id) == ''">
               <li>
-                <a tal:attributes="href string:completeWorkitem?workitem_id=${item/id}"
+                <a tal:define="href string:completeWorkitem?workitem_id=${item/id}"
+                   tal:attributes="href python:context.get_key_url(href)"
                    i18n:translate="">Complete</a>
               </li>
             </tal:block>
             <li>
-              <a tal:attributes="href string:inactivateWorkitem?workitem_id=${item/id}"
+              <a tal:define="href string:inactivateWorkitem?workitem_id=${item/id}"
+                 tal:attributes="href python: context.get_key_url(href)"
                  title="Deactivation keeps the work already
                         done, and makes it possible for
                         someone else to take over the task"

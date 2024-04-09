@@ -72,7 +72,7 @@
            i18n:translate="">History</a>
       <tal:block replace="structure string:</li>"/>
 
-      <tal:block tal:condition="python: [fb for fb in context.getFeedbackObjects()
+      <tal:block tal:condition="python: [fb for fb in context.get_qa_feedbacks()
                                          if getattr(fb, 'feedback_status', None)]">
         <tal:block condition="python:request.get('tab') == 'data_quality'"
                    replace="structure string:<li id='currenttab'>"/>

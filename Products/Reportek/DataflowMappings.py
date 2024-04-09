@@ -2,8 +2,8 @@ from UserList import UserList
 
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
-from constants import DATAFLOW_MAPPINGS, ENGINE_ID
-from Products.Reportek.catalog import searchResults
+from constants import DATAFLOW_MAPPINGS, ENGINE_ID, DEFAULT_CATALOG
+from Products.Reportek.RepUtils import getToolByName
 from DataflowMappingsRecord import DataflowMappingsRecord
 from Globals import InitializeClass
 from OFS.Folder import Folder
@@ -36,23 +36,29 @@ class DataflowMappings(Folder):
     def getEngine(self):
         return getattr(self, ENGINE_ID)
 
-    def get_dataflow_mapping_records(self, dataflow_uris, web_form_only):
+    def get_dataflow_mapping_records(self, dataflow_uris, web_form_only,
+                                     catalog=True):
         """Return the mapping records for the dataflow_uris."""
-        query = {
-            'meta_type': DataflowMappingsRecord.meta_type,
-            'path': '/DataflowMappings'
-        }
-        if dataflow_uris:
-            if isinstance(dataflow_uris, UserList):
-                dataflow_uris = list(dataflow_uris)
-            if isinstance(dataflow_uris, list):
-                query['dataflow_uri'] = dataflow_uris
-            else:
-                query['dataflow_uri'] = [dataflow_uris]
+        if catalog:
+            query = {
+                'meta_type': DataflowMappingsRecord.meta_type,
+                'path': {'query': '/{}'.format(DATAFLOW_MAPPINGS), 'depth': 1}
+            }
+            if dataflow_uris:
+                if isinstance(dataflow_uris, UserList):
+                    dataflow_uris = list(dataflow_uris)
+                if isinstance(dataflow_uris, list):
+                    query['dataflow_uri'] = dataflow_uris
+                else:
+                    query['dataflow_uri'] = [dataflow_uris]
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
+            return catalog.searchResults(**query)
 
-        return searchResults(self.Catalog, query)
+        return (rec for rec in self.objectValues()
+                if rec.dataflow_uri in dataflow_uris)
 
-    def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
+    def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only,
+                                     catalog=True):
         """
         Returns schemas for one or many dataflows
         dataflow_uris - one uri (str) looked after, a list for any uri in it
@@ -61,18 +67,27 @@ class DataflowMappings(Folder):
         returned
         return - list of found schema objects
         """
-        brains = self.get_dataflow_mapping_records(dataflow_uris,
-                                                   web_form_only)
         res = []
-        for brain in brains:
-            for schema in brain.getObject().mapping['schemas']:
-                if not web_form_only or schema['has_webform']:
-                    # yield schema # can't yield here if using dtml; it doesn't
-                    # know how to iterate
-                    res.append(schema)
+        mapping = self.get_dataflow_mapping_records(dataflow_uris,
+                                                    web_form_only,
+                                                    catalog)
+        if catalog:
+            for brain in mapping:
+                for schema in brain.getObject().mapping['schemas']:
+                    if not web_form_only or schema['has_webform']:
+                        # yield schema # can't yield here if using dtml;
+                        # it doesn't know how to iterate
+                        res.append(schema)
+        else:
+            for rec in mapping:
+                for schema in rec.mapping['schemas']:
+                    if not web_form_only or schema['has_webform']:
+                        res.append(schema)
+
         return res
 
-    def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
+    def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False,
+                               catalog=True):
         """
         Returns schemas for one or many dataflows
         dataflow_uris - one uri (str) looked after, a list for any uri in it or
@@ -82,15 +97,15 @@ class DataflowMappings(Folder):
         return - list of found schemas
         """
         schemaObjects = self.getSchemaObjectsForDataflows(
-            dataflow_uris, web_form_only)
+            dataflow_uris, web_form_only, catalog)
         return [schema['url'] for schema in schemaObjects]
 
     def get_webform_url_for_schema(self, schema, dataflow_uris=None,
-                                   web_form_only=False):
+                                   web_form_only=False, catalog=True):
         """Return the webform base url for schema"""
 
         schemaObjects = self.getSchemaObjectsForDataflows(
-            dataflow_uris, web_form_only)
+            dataflow_uris, web_form_only, catalog)
         for schema_obj in schemaObjects:
             if schema_obj.get('url') == schema:
                 return schema_obj.get('wf_edit_url')

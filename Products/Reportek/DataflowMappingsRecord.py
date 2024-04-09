@@ -10,8 +10,9 @@ from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.constants import DEFAULT_CATALOG, DATAFLOW_MAPPINGS
+from Products.Reportek.RepUtils import getToolByName
 from ZODB.PersistentList import PersistentList
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
@@ -34,10 +35,13 @@ class AddForm(BrowserView):
             self.parent.absolute_url() + '/manage_main')
 
     def get_records_by_dataflow(self, dataflow_uri):
-        return searchResults(self.parent.Catalog,
-                             dict(meta_type='Dataflow Mappings Record',
-                                  dataflow_uri=dataflow_uri,
-                                  path='/DataflowMappings'))
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.searchResults(**dict(
+            meta_type='Dataflow Mappings Record',
+            dataflow_uri=dataflow_uri,
+            path={
+                'query': '/{}'.format(DATAFLOW_MAPPINGS),
+                'depth': 1}))
 
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':
@@ -195,7 +199,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             if REQUEST.form.get('update'):
                 self.title = REQUEST.form['title']
                 self.dataflow_uri = REQUEST.form['dataflow_uris']
-                self.reindex_object()
+                self.reindexObject()
                 message_dialog = 'Saved changes.'
             if REQUEST.form.get('update_xls_conversion'):
                 self._xls_conversion = REQUEST.form.get('xls_conversion')

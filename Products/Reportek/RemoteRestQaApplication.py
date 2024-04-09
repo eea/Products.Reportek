@@ -39,6 +39,8 @@ from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
+from Products.Reportek.exceptions import LocalConversionException
+from ZODB.POSException import ConflictError
 from zope.interface import implements
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
@@ -343,6 +345,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         feedback_ob = envelope[feedback_id]
         content = result[1].data
         content_type = result[0]
+        content_type = content_type if content_type else 'text/html'
         if len(content) > FEEDBACKTEXT_LIMIT:
             with tempfile.TemporaryFile() as tmp:
                 tmp.write(content.encode('utf-8'))
@@ -532,7 +535,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 r_files = data.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
+                        e_data = {
+                            'SCRIPT_TITLE': data.get('scriptTitle'),
+                            'feedbackContentType': data.get(
+                                'feedbackContentType', 'text/html')
+                        }
                         r_res = self.handle_remote_file(
                             r_file, l_file_id, p_workitem_id, e_data, p_jobID,
                             restricted=self.get_restricted_status(
@@ -565,64 +572,88 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                         l_filename,
                                         data['scriptTitle']])
 
-                    envelope.manage_addFeedback(
-                        id=feedback_id,
-                        title=fb_title,
-                        activity_id=l_workitem.activity_id,
-                        automatic=1,
-                        document_id=l_file_id,
-                        restricted=self.get_restricted_status(
-                            envelope, l_file_id))
-                    feedback_ob = envelope[feedback_id]
+                    try:
+                        envelope.manage_addFeedback(
+                            id=feedback_id,
+                            title=fb_title,
+                            activity_id=l_workitem.activity_id,
+                            automatic=1,
+                            document_id=l_file_id,
+                            restricted=self.get_restricted_status(
+                                envelope, l_file_id))
 
-                    content = data['feedbackContent']
-                    content_type = data['feedbackContentType']
+                        feedback_ob = envelope[feedback_id]
 
-                    if len(content) > FEEDBACKTEXT_LIMIT:
-                        with tempfile.TemporaryFile() as tmp:
-                            tmp.write(content.encode('utf-8'))
-                            tmp.seek(0)
-                            feedback_ob.manage_uploadFeedback(
-                                tmp,
-                                filename='qa-output')
-                        feedback_attach = feedback_ob.objectValues()[0]
-                        feedback_attach.data_file.content_type = content_type
-                        feedback_ob.feedbacktext = (
-                            'Feedback too large for inline display; '
-                            '<a href="qa-output/view">see attachment</a>.')
-                        feedback_ob.content_type = 'text/html'
+                        content = data['feedbackContent']
+                        content_type = data.get('feedbackContentType')
+                        if not content_type:
+                            content_type = 'text/html'
 
-                    else:
-                        feedback_ob.feedbacktext = content
-                        feedback_ob.content_type = content_type
+                        if len(content) > FEEDBACKTEXT_LIMIT:
+                            with tempfile.TemporaryFile() as tmp:
+                                tmp.write(content.encode('utf-8'))
+                                tmp.seek(0)
+                                feedback_ob.manage_uploadFeedback(
+                                    tmp,
+                                    filename='qa-output')
+                            feedback_attach = feedback_ob.objectValues()[0]
+                            feedback_attach.data_file.content_type = \
+                                content_type
+                            feedback_ob.feedbacktext = (
+                                'Feedback too large for inline display; '
+                                '<a href="qa-output/view">see attachment</a>.')
+                            feedback_ob.content_type = 'text/html'
 
-                    feedback_ob.message = data.get('feedbackMessage', '')
-                    feedback_ob.feedback_status = data.get(
-                        'feedbackStatus', '')
+                        else:
+                            feedback_ob.feedbacktext = content
+                            feedback_ob.content_type = content_type
 
-                    if data['feedbackStatus'] == 'BLOCKER':
-                        l_workitem.blocker = True
+                        feedback_ob.message = data.get('feedbackMessage', '')
+                        fb_status = data.get('feedbackStatus')
+                        fb_status = fb_status if fb_status else 'UNKNOWN'
+                        feedback_ob.feedback_status = fb_status
 
-                    feedback_ob.message = data.get('feedbackMessage', '')
-                    feedback_ob._p_changed = 1
-                    feedback_ob.reindex_object()
+                        if data['feedbackStatus'] == 'BLOCKER':
+                            l_workitem.blocker = True
 
-                    l_getResultDict = {
-                        p_jobID: {
-                            'code': 1,
-                            'fileURL': l_file_url,
-                            'debug': {
-                                'c_executionstatus': code,
-                                'c_feedbackstatus': data.get(
-                                    'feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get(
-                                    'feedbackMessage', 'N/A'),
-                                'c_feedbackcontent_len': len(data.get(
-                                    'feedbackContent', ''))
-                            }
-                        }}
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                   p_getResult=l_getResultDict)
+                        feedback_ob.message = data.get('feedbackMessage', '')
+                        feedback_ob._p_changed = 1
+                        feedback_ob.reindexObject()
+
+                        l_getResultDict = {
+                            p_jobID: {
+                                'code': 1,
+                                'fileURL': l_file_url,
+                                'debug': {
+                                    'c_executionstatus': code,
+                                    'c_feedbackstatus': data.get(
+                                        'feedbackStatus', 'N/A'),
+                                    'c_feedbackmessage': data.get(
+                                        'feedbackMessage', 'N/A'),
+                                    'c_feedbackcontent_len': len(data.get(
+                                        'feedbackContent', ''))
+                                }
+                            }}
+                        self.__manageAutomaticProperty(
+                            p_workitem_id=p_workitem_id,
+                            p_getResult=l_getResultDict)
+                    except ConflictError as err:
+                        # we need to raise this so that it can be retried
+                        l_workitem.addEvent(
+                            'Error while saving results for job #{}. It will'
+                            ' be retried automatically in a few '
+                            'minutes'.format(p_jobID))
+                        transaction.commit()
+                        raise err
+                    except LocalConversionException as err:
+                        # we need to raise this so that it can be retried
+                        l_workitem.addEvent(
+                            'Error while downloading results for job #{}.'
+                            ' It will be retried automatically in a '
+                            'few minutes'.format(p_jobID))
+                        transaction.commit()
+                        raise err
+
             # not ready
             elif code == '1':
                 l_nRetries = int(
