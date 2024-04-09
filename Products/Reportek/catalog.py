@@ -27,7 +27,6 @@ from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.indexer.interfaces import IIndexableObject
 from Products.Reportek.indexer.wrapper import IndexableObjectWrapper
 from Products.Reportek.interfaces import IReportekCatalog
-from Products.Reportek.RepUtils import registerToolInterface
 from Products.ZCatalog.ZCatalog import ZCatalog
 
 from .indexing import filterTemporaryItems, getQueue, processQueue
@@ -330,4 +329,5 @@ class ReportekCatalog(ZCatalog):
 
 
 InitializeClass(ReportekCatalog)
-registerToolInterface(DEFAULT_CATALOG, IReportekCatalog)
+# If we register this tool like below, we're going to end up stale catalog
+# registerToolInterface(DEFAULT_CATALOG, IReportekCatalog)
