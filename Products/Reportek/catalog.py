@@ -330,4 +330,5 @@ class ReportekCatalog(ZCatalog):
 
 
 InitializeClass(ReportekCatalog)
-registerToolInterface(DEFAULT_CATALOG, IReportekCatalog)
+# If we register this tool like below, we're going to end up stale catalog
+# registerToolInterface(DEFAULT_CATALOG, IReportekCatalog)

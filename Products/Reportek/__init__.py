@@ -110,6 +110,13 @@ def setup_catalog(app):
     if not catalog:
         catalog = ReportekCatalog()
         app._setObject(ctool_id, catalog)
+        catalog.meta_types = [
+            {"name": "FieldIndex", "instance": FieldIndex},
+            {"name": "KeywordIndex", "instance": KeywordIndex},
+            {"name": "DateIndex", "instance": DateIndex},
+            {"name": "ZCTextIndex", "instance": ZCTextIndex},
+            {"name": "ExtendedPathIndex", "instance": ExtendedPathIndex},
+        ]
         create_reportek_indexes(catalog)
     if catalog not in app.objectValues():
         app._setObject(ctool_id, catalog)
@@ -117,13 +124,6 @@ def setup_catalog(app):
     gsm = getGlobalSiteManager()
     if tool_obj is not None and gsm.queryUtility(IReportekCatalog) is None:
         gsm.registerUtility(tool_obj, IReportekCatalog)
-    catalog.meta_types = [
-        {"name": "FieldIndex", "instance": FieldIndex},
-        {"name": "KeywordIndex", "instance": KeywordIndex},
-        {"name": "DateIndex", "instance": DateIndex},
-        {"name": "ZCTextIndex", "instance": ZCTextIndex},
-        {"name": "ExtendedPathIndex", "instance": ExtendedPathIndex},
-    ]
 
     return catalog
 

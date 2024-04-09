@@ -52,7 +52,7 @@ class DFMTestCase(BaseUnitTest):
         self.assertEqual(
             [],
             self.mappings.getSchemasForDataflows(
-                obligation, web_form_only=True
+                obligation, web_form_only=True, catalog=False
             ),
         )
 
