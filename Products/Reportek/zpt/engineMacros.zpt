@@ -257,16 +257,17 @@
 <metal:block define-macro="reporter-collections">
   <tal:block
     define="owncolls here/ReportekEngine/getUserCollections;
-                       rep_colls python: owncolls.get('Reporter', {});
-                       rw_colls python: rep_colls.get('rw', []);
-                       ro_colls python: rep_colls.get('ro', []);
-                       audit_colls python: owncolls.get('Auditor', []);
-                       client_colls python: owncolls.get('Client', []);
-                       no_collections python: not rep_colls and not audit_colls and not client_colls;
-                       col_tmap python:{'fgases': 'Fluorinated gases (F-gases) reporting by undertakings (Regulation 2014)',
-                                        'ods': 'Ozone depleting substances (ODS) reporting by undertakings (Article 27)'};
-                       groups python: {col.getPhysicalPath()[-1]: col_tmap.get(col.getPhysicalPath()[-1], col.title) for col in context.objectValues('Report Collection')};
-                       bdr_reg_info python: here.ReportekEngine.BDRRegistryAPI.get_user_details(name);"
+            rep_colls python: owncolls.get('Reporter', {});
+            rw_colls python: rep_colls.get('rw', []);
+            ro_colls python: rep_colls.get('ro', []);
+            audit_colls python: owncolls.get('Auditor', []);
+            client_colls python: owncolls.get('Client', []);
+            no_collections python: not rep_colls and not audit_colls and not client_colls;
+            col_tmap python:{'fgases': 'Fluorinated gases (F-gases) reporting by undertakings (Regulation 2014)',
+                             'ods': 'Ozone depleting substances (ODS) reporting by undertakings (Article 27)'};
+            groups python: {};
+            bdr_reg_info python: here.ReportekEngine.BDRRegistryAPI.get_user_details(name);
+            dummy python: [groups.update({col.getPhysicalPath()[-1]: col_tmap.get(col.getPhysicalPath()[-1], col.title)}) for col in context.objectValues('Report Collection')]"
   >
     <tal:block
       tal:condition="bdr_reg_info"
@@ -288,7 +289,8 @@
     <tal:block
       tal:condition="python: (len(rw_colls) > 0) or no_collections"
       tal:define="dummy python:rw_colls.sort(key=lambda k: k.title_or_id().lower());
-                    rw_group python: {key: [col for col in rw_colls if col.getPhysicalPath()[1] == key] for key in groups}"
+                  rw_group python: {};
+                  dummy python: [rw_group.update({key: [col for col in rw_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
     >
       <h2 i18n:translate="">Click on the link below to start the reporting</h2>
 
@@ -310,7 +312,8 @@
     <tal:block
       tal:condition="python: ro_colls"
       tal:define="dummy python:ro_colls.sort(key=lambda k: '{}{}'.format(k.getCountryCode(), k.title_or_id().lower()));
-                    ro_group python: {key: [col for col in ro_colls if col.getPhysicalPath()[1] == key] for key in groups}"
+                  ro_group python: {};
+                  dummy python: [ro_group.update({key: [col for col in ro_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
     >
       <h2 i18n:translate="">
         Click on the link below to view your archived reporting folders
@@ -336,7 +339,8 @@
       <tal:block
         tal:condition="python: len(audit_colls) > 0"
         tal:define="dummy python:audit_colls.sort(key=lambda k: k.title_or_id().lower());
-                    audit_group python: {key: [col for col in audit_colls if col.getPhysicalPath()[1] == key] for key in groups}"
+                    audit_group python: {};
+                    dummy python: [audit_group.update({key: [col for col in audit_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
       >
         <tal:rep tal:repeat="key python: audit_group.keys()">
           <tal:block tal:condition="python:audit_group.get(key)">
@@ -355,7 +359,8 @@
       <tal:block
         tal:condition="python: len(client_colls) > 0"
         tal:define="dummy python:client_colls.sort(key=lambda k: k.title_or_id().lower());
-                      client_group python: {key: [col for col in client_colls if col.getPhysicalPath()[1] == key] for key in groups}"
+                    client_group python: {};
+                    dummy python: [client_group.update({key: [col for col in client_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
       >
         <tal:rep tal:repeat="key python: client_group.keys()">
           <tal:block tal:condition="python:client_group.get(key)">
@@ -374,20 +379,24 @@
     </tal:block>
 
     <div tal:condition="no_collections">
-      <p>It appears you have no reporting tasks.</p>
-      <p>
+      <p i18n:translate="">It appears you have no reporting tasks.</p>
+      <p i18n:translate="">
         If you are registered as data reporter in the
-        <a href="https://webgate.ec.europa.eu/ods2">European registry</a>
+        <a href="https://webgate.ec.europa.eu/ods2" i18n:translate=""
+          >European registry</a
+        >
         and you still see this message, please:
       </p>
       <ul>
-        <li>
+        <li i18n:translate="">
           try to login again in a few minutes, perhaps using another browser,
           or forcing a page refresh: Ctrl+Shift+R
         </li>
-        <li>
+        <li i18n:translate="">
           contact the
-          <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR helpdesk</a>
+          <a href="mailto:BDR.helpdesk@eea.europa.eu" i18n:translate=""
+            >BDR helpdesk</a
+          >
           to look into the issue
         </li>
       </ul>

@@ -1815,7 +1815,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     l_res.append(
                         [
                             l_id,
-                            "http://rod.eionet.europa.eu/schema.rdf#obligation",
+                            "http://rod.eionet.europa.eu/schema.rdf#obligation",  # noqa
                             str(l_dataflow),
                         ]
                     )
@@ -2417,29 +2417,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             }
 
         return data
-
-    def get_sorted_reporter_collections(self):
-        """Get the collections the user has access to"""
-        username = self.REQUEST["AUTHENTICATED_USER"].getUserName()
-        colls = self.getUserCollections()
-        rep_colls = colls.get("Reporter", {})
-        rw_colls = rep_colls.get("rw", [])
-        ro_colls = rep_colls.get("ro", [])
-        audit_colls = colls.get("Auditor", [])
-        client_colls = colls.get("Client", [])
-        no_collections = not rep_colls and not audit_colls and not client_colls
-        col_tmap = {
-            "fgases": "Fluorinated gases (F-gases) reporting by undertakings (Regulation 2014)",
-            "ods": "Ozone depleting substances (ODS) reporting by undertakings (Article 27)",
-        }
-        root = self.unrestrictedTraverse("/")
-        groups = {
-            col.getPhysicalPath()[-1]: col_tmap.get(
-                col.getPhysicalPath()[-1], col.title
-            )
-            for col in root.objectValues("Report Collection")
-        }
-        bdr_reg_info = self.BDRRegistryAPI.get_user_details(username)
 
 
 Globals.InitializeClass(ReportekEngine)
