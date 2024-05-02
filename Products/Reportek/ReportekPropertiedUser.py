@@ -109,8 +109,8 @@ class ReportekPropertiedUser(PropertiedUser):
             if not ecas_user_id:
                 return False
             if authMiddleware:
-                user = {"username": user_id, "ecas_id": ecas_user_id}
+                userdata = {"username": user_id, "ecas_id": ecas_user_id}
                 return authMiddleware.authorizedUser(
-                    ecas_user_id, base_path, user=user
+                    ecas_user_id, base_path, userdata=userdata
                 )
             return False
