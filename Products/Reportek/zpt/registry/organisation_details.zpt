@@ -112,18 +112,6 @@
         </span>
         <h2 id="persons" i18n:translate="">Reporters</h2>
         <div>
-          <div tal:condition="company/warning" class="legend clearfix">
-            <strong i18n:translate="">Legend</strong>
-            <dl>
-              <dt class="badge match">
-              </dt>
-              <dd i18n:translate="">
-                User can not report yet, because he/she never logged in
-                <a tal:attributes="href view/get_url" i18n:translate="">European registry</a>.
-              </dd>
-            </dl>
-          </div>
-
           <table class="table">
             <thead>
               <tr>
@@ -135,7 +123,7 @@
             </thead>
             <tbody>
               <tal:block repeat="user company/users">
-                <tr tal:attributes="class python: 'temp-warning' if user['warning'] else '' ">
+                <tr>
                   <td tal:content="user/username"></td>
                   <td tal:content="user/first_name"></td>
                   <td tal:content="user/last_name"></td>
