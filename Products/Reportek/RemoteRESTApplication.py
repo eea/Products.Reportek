@@ -193,7 +193,7 @@ class RemoteRESTApplication(SimpleItem):
                         )
                         if resp.status_code == 200:
                             zip_url = re.sub(
-                                "(/)*\\\\", "/", resp.json()["value"]
+                                r"[\\/]+", "/", resp.json()["value"]
                             )
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
