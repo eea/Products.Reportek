@@ -176,7 +176,8 @@ def manage_addManualQAFeedback(
     feedback_status="",
     REQUEST=None,
 ):
-    """Adds a manual QA feedback as a file to a folder. To be used by Managers."""
+    """Adds a manual QA feedback as a file to a folder.
+    To be used by Managers."""
     self.manage_addFeedback(
         id=id,
         title=title,

@@ -29,7 +29,6 @@ import constants
 import Converter
 import Globals
 import requests
-import StringIO
 import xmlrpclib
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
@@ -186,7 +185,7 @@ class Converters(Folder):
         local_converters = []
         remote_converters = []
         # Drop everything up to period.
-        filesuffix = filename[filename.find(".") + 1 :]
+        filesuffix = filename[filename.find(".") + 1:]
         if filesuffix == "":
             filesuffix = "totally-unlikely-suffix."
         # Find in list of local converters

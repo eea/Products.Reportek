@@ -462,7 +462,7 @@ def cookId(file):
                 filename.rfind("\\"),
                 filename.rfind(":"),
             )
-            + 1 :
+            + 1:
         ]
         return id
     return file
