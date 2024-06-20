@@ -462,7 +462,7 @@ def cookId(file):
                 filename.rfind("\\"),
                 filename.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         return id
     return file
@@ -738,9 +738,13 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
 
     Example how to call::
 
-        execute_under_special_role(portal, "Manager",
+        execute_under_special_role(
+            portal,
+            "Manager",
             doSomeNormallyNotAllowedStuff,
-            source_folder, target_folder)
+            source_folder,
+            target_folder,
+        )
 
 
     @param portal: Reference to ISiteRoot object whose access controls used
