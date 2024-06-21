@@ -25,6 +25,7 @@ DEFAULT_CATALOG = 'Catalog'
 # ids of Root objects
 # The name of the engine is hardcoded in DTML files
 ENGINE_ID = 'ReportekEngine'
+FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 WORKFLOW_ENGINE_ID = 'WorkflowEngine'
 CONVERTERS_ID = 'Converters'
 QAREPOSITORY_ID = 'QARepository'

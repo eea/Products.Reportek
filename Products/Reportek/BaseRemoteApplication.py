@@ -5,6 +5,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
 from Products.Reportek.exceptions import LocalConversionException
 from ZODB.POSException import ConflictError
+from Products.Reportek.constants import FEEDBACKTEXT_LIMIT
 
 try:
     from cBytesIO import BytesIO
@@ -13,8 +14,6 @@ except ImportError:
         from BytesIO import BytesIO
     except ImportError:
         from io import BytesIO
-
-FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 
 class BaseRemoteApplication(SimpleItem):
