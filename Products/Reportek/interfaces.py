@@ -85,6 +85,8 @@ class IQAApplication(Interface):
 class IWkMetadata(IAttributeAnnotatable):
     """ Marker interface for metadata wk """
 
+class IFeedbackHistory(IAttributeAnnotatable):
+    """ Marker interface for feedback history """
 
 class IEnvelopeEvent(IObjectEvent):
     """ All Envelope events should inherit from this """

@@ -38,12 +38,14 @@ import RepUtils
 import StringIO
 from AccessControl import ClassSecurityInfo
 from blob import add_OfsBlobFile
+from BTrees.OOBTree import BTree
 from Comment import CommentsManager
 from DateTime import DateTime
 from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
+from zope.annotation.interfaces import IAnnotations
 from zope.event import notify
 from zope.interface import alsoProvides, implements
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -52,10 +54,11 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.Reportek import constants
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.interfaces import IFeedback
+from Products.Reportek.interfaces import IFeedback, IFeedbackHistory
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 
 __version__ = "$Rev$"[6:-2]
+ANNOTATION_KEY = "feedback.history"
 logger = logging.getLogger("Reportek")
 
 manage_addFeedbackForm = PageTemplateFile("zpt/feedback/add", globals())
@@ -247,7 +250,7 @@ class ReportFeedback(
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
     # assertions.
-    implements(IFeedback)
+    implements(IFeedback, IFeedbackHistory)
     security = ClassSecurityInfo()
 
     def __init__(
@@ -275,6 +278,7 @@ class ReportFeedback(
         self.postingdate = DateTime()
         self.message = message
         self.feedback_status = feedback_status
+        self.__history = None
 
     def update_item(self, postingdate=None):
         """If the parameter is provided, updates the postingdate to it
@@ -409,19 +413,20 @@ class ReportFeedback(
                 value = value.get("data", "")
         return value, kwargs
 
-    security.declareProtected("Change Feedback", "manage_editFeedback")
+    security.declareProtected("Change Feedback", "edit")
 
     def edit(self):
         """Edits the properties of the feedback.
         To be used by the FME"""
-        VALID_ATTRS = [
-            "title",
-            "feedback-data",
-            "content_type",
-            "document_id",
-            "feedback_status",
-            "message",
-        ]
+        VALID_ATTRS_MAP = {
+            "title": "title",
+            "feedback-data": "feedbacktext",
+            "content_type": "content_type",
+            "document_id": "document_id",
+            "feedback_status": "feedback_status",
+            "message": "message",
+        }
+        history = {}
         accept = self.REQUEST.environ.get("HTTP_ACCEPT")
         if accept == "application/json":
             if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
@@ -429,14 +434,17 @@ class ReportFeedback(
                     self.REQUEST,
                     plone.protect.interfaces.IDisableCSRFProtection,
                 )
-            self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+            self.REQUEST.RESPONSE.setHeader("Content-Type",
+                                            "application/json")
             res = {}
             data = json.loads(self.REQUEST.get("BODY") or "{}")
             if not isinstance(data, dict):
                 res["result"] = "Fail"
                 res["message"] = "Malformed body"
 
-            for attr in VALID_ATTRS:
+            for attr in VALID_ATTRS_MAP.keys():
+                history[VALID_ATTRS_MAP[attr]] = getattr(
+                    self, VALID_ATTRS_MAP[attr])
                 if attr in data:
                     try:
                         if attr == "feedback-data":
@@ -453,8 +461,10 @@ class ReportFeedback(
                         res["result"] = "Fail"
                         res["message"] = err_msg
                         return json.dumps(res)
+            history['author'] = self.author
+            self.author = self.REQUEST.AUTHENTICATED_USER.getUserName()
             notify(ObjectModifiedEvent(self))
-
+            self.add_to_history(history)
             res["result"] = "Success"
             res["message"] = "Feedback updated"
             return json.dumps(res, indent=4)
@@ -462,6 +472,34 @@ class ReportFeedback(
             self.REQUEST.RESPONSE.redirect(
                 "%s/manage_editFeedbackForm" % self.absolute_url()
             )
+
+    def _history(self, create=True):
+        if getattr(self, '__history', None) is not None:
+            return self.__history
+
+        annotations = IAnnotations(self)
+        history = annotations.get(ANNOTATION_KEY, None)
+        if history is None and create:
+            history = annotations.setdefault(ANNOTATION_KEY, BTree())
+        if history is not None:
+            self.__history = history
+            return self.__history
+
+    def get_history(self):
+        history = self._history(create=False)
+        return history
+
+    def add_to_history(self, history):
+        annotations = self._history()
+        annotations.insert(DateTime().HTML4(), history)
+
+    @property
+    def author(self):
+        return getattr(self, '_author', 'Original author')
+
+    @author.setter
+    def author(self, value):
+        self._author = value
 
     security.declareProtected("Change Feedback", "manage_uploadFeedback")
 
