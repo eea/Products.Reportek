@@ -192,9 +192,11 @@ class RemoteRESTApplication(SimpleItem):
                             params=params,
                         )
                         if resp.status_code == 200:
-                            zip_url = re.sub(
-                                r"[\\/]+", "/", resp.json()["value"]
-                            )
+                            zip_url = re.sub(r'\\', '/', resp.json()["value"])
+                            zip_url = re.sub(r'/+', '/', zip_url)
+                            zip_url = zip_url.replace(
+                                'http:/', 'http://').replace(
+                                'https:/', 'https://')
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
                                 attach = StringIO(resp.content)
