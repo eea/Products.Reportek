@@ -93,7 +93,7 @@ pipeline {
           script {
            try {
               sh '''docker pull eeacms/reportek-base-dr-devel; docker run -i --name="$BUILD_TAG-reportek-base-dr-devel" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr-devel /debug.sh coverage'''
-              sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-base-dr-devel:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
+              sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-devel:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
               stash name: "xunit-reports", includes: "xunit-reports/*.xml"
               sh '''docker cp $BUILD_TAG-reportek-base-dr-devel:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
               stash name: "coverage.xml", includes: "coverage.xml"
