@@ -87,9 +87,11 @@ pipeline {
         )
       }
     }
+
     stage('Tests') {
       steps {
         parallel(
+
           "Tests": {
             node(label: 'docker') {
               script {
@@ -101,6 +103,7 @@ pipeline {
               }
             }
           },
+
           "Coverage": {
             node(label: 'docker') {
               script {
@@ -108,7 +111,7 @@ pipeline {
                   sh '''docker pull eeacms/reportek-base-dr-devel; docker run -i --name="$BUILD_TAG-reportek-base-dr-devel-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr-devel /debug.sh coverage'''
                   sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
-                  sh '''docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''sh '''docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
+                  sh '''docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
                   stash name: "coverage.xml", includes: "coverage.xml"
                 } finally {
                   sh '''docker rm -v $BUILD_TAG-reportek-base-dr-devel-coverage'''
@@ -148,7 +151,6 @@ pipeline {
         }
       }
     }
-
 
     stage('Pull Request') {
       when {
