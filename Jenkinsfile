@@ -8,7 +8,7 @@ pipeline {
     }
 
  stages {
-   
+
     stage('Cosmetics') {
       steps {
         parallel(
@@ -88,6 +88,41 @@ pipeline {
       }
     }
 
+    stage('Tests') {
+      steps {
+        parallel(
+
+          "Tests": {
+            node(label: 'docker') {
+              script {
+                try {
+                    sh '''docker pull eeacms/reportek-base-dr-devel; docker run -i --name="$BUILD_TAG-reportek-base-dr-devel-tests" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr-devel /debug.sh tests'''
+                } finally {
+                    sh '''docker rm -v $BUILD_TAG-reportek-base-dr-devel-tests'''
+                }
+              }
+            }
+          },
+
+          "Coverage": {
+            node(label: 'docker') {
+              script {
+                try {
+                  sh '''docker pull eeacms/reportek-base-dr-devel; docker run -i --name="$BUILD_TAG-reportek-base-dr-devel-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr-devel /debug.sh coverage'''
+                  sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
+                  stash name: "xunit-reports", includes: "xunit-reports/*.xml"
+                  sh '''docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
+                  stash name: "coverage.xml", includes: "coverage.xml"
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-reportek-base-dr-devel-coverage'''
+                }
+                junit 'xunit-reports/*.xml'
+              }
+            }
+          }
+        )
+      }
+    }
 
     stage('Report to SonarQube') {
       steps {
@@ -95,28 +130,27 @@ pipeline {
           script{
             // get the code
             checkout scm
-            // get the result of the tests that were run in a previous Jenkins test 
-            // dir("xunit-reports") {
-            //   unstash "xunit-reports" 
-            // }
+            // get the result of the tests that were run in a previous Jenkins test
+            dir("xunit-reports") {
+               unstash "xunit-reports"
+             }
             // get the result of the cobertura test
-            // unstash "coverage.xml" 
-            // get the sonar-scanner binary location 
+             unstash "coverage.xml"
+            // get the sonar-scanner binary location
             def scannerHome = tool 'SonarQubeScanner';
-            // get the nodejs binary location 
+            // get the nodejs binary location
             def nodeJS = tool 'NodeJS11';
             // run with the SonarQube configuration of API and token
             withSonarQubeEnv('Sonarqube') {
                 // make sure you have the same path to the code as in the coverage report
-                // sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
+                 sh '''sed -i "s|/opt/zope/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
                 // run sonar scanner
-                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./ -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER" 
+                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./ -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
             }
           }
         }
       }
     }
-
 
     stage('Pull Request') {
       when {
@@ -171,5 +205,3 @@ pipeline {
     }
   }
 }
-
-
