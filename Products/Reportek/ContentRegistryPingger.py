@@ -1,7 +1,5 @@
 import logging
-import pickle
 import threading
-import time
 
 import requests
 from BeautifulSoup import BeautifulSoup as bs
@@ -72,12 +70,14 @@ class ContentRegistryPingger(object):
             self._log_ping(success, ping_res, uri, ping_argument)
             if wk:
                 msgs = {
-                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(
+                    True: """CR Ping successful for the {} of """
+                    """{} (HTTP status: {})""".format(
                         ping_argument, uri, http_code
-                    ),  # noqa
-                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(
+                    ),
+                    False: """CR Ping failed for the {} of """
+                    """{} (HTTP status: {})""".format(
                         ping_argument, uri, http_code
-                    ),  # noqa
+                    ),
                 }
                 wk.addEvent(msgs.get(success))
             allOk = allOk and success

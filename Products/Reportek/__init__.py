@@ -20,7 +20,6 @@
 
 
 import logging
-from traceback import format_exception_only
 
 # Zope imports
 import Zope2
@@ -47,7 +46,6 @@ from Products.PluginIndexes.KeywordIndex.KeywordIndex import (
 )
 from Products.Reportek.config import (
     DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
     REPORTEK_DEPLOYMENT,
 )
 from Products.Reportek import (
