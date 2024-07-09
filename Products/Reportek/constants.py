@@ -20,39 +20,38 @@
 
 
 # ZCatalog
-DEFAULT_CATALOG = 'Catalog'
+DEFAULT_CATALOG = "Catalog"
 
 # ids of Root objects
 # The name of the engine is hardcoded in DTML files
-ENGINE_ID = 'ReportekEngine'
+ENGINE_ID = "ReportekEngine"
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
-WORKFLOW_ENGINE_ID = 'WorkflowEngine'
-CONVERTERS_ID = 'Converters'
-QAREPOSITORY_ID = 'QARepository'
-DATAFLOW_MAPPINGS = 'DataflowMappings'
-APPLICATIONS_FOLDER_ID = 'Applications'
-PING_ENVELOPES_REDIS_KEY = 'PingEnvelopesStore'
-REPORTEK_UTILITIES = 'ReportekUtilities'
-REGISTRY = 'portal_registry'
-REGISTRY_MANAGEMENT = 'european_registry'
-REPORTEK_API = 'api'
-ECAS_ID = 'eCas'
-MIGRATION_ID = 'Migrations'
-CUSTOM_DFLOWS = 'custom_dflows.py'
+WORKFLOW_ENGINE_ID = "WorkflowEngine"
+CONVERTERS_ID = "Converters"
+QAREPOSITORY_ID = "QARepository"
+DATAFLOW_MAPPINGS = "DataflowMappings"
+APPLICATIONS_FOLDER_ID = "Applications"
+REPORTEK_UTILITIES = "ReportekUtilities"
+REGISTRY = "portal_registry"
+REGISTRY_MANAGEMENT = "european_registry"
+REPORTEK_API = "api"
+ECAS_ID = "eCas"
+MIGRATION_ID = "Migrations"
+CUSTOM_DFLOWS = "custom_dflows.py"
 
-DF_URL_PREFIX = 'http://rod.eionet.europa.eu/obligations/'
+DF_URL_PREFIX = "http://rod.eionet.europa.eu/obligations/"
 
 # remote servers
-WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
+WEBQ_XML_REPOSITORY = "http://cdr.eionet.europa.eu/xmlexports/groundwater/"
 
 CONTENT_TYPES = {
-    'application/zip': '.zip',
-    'image/png': '.png',
-    'application/vnd.google-earth.kml+xml': '.kml'
+    "application/zip": ".zip",
+    "image/png": ".png",
+    "application/vnd.google-earth.kml+xml": ".kml",
 }
 
 # Mime-types ignored by sentry logger
 IGNORED_MIME_TYPES = [
-    'application/octet-stream',
-    'text/plain',
+    "application/octet-stream",
+    "text/plain",
 ]
