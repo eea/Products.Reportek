@@ -820,7 +820,7 @@ def cleanup_zip_cache(days=7):
                 logger.warning(
                     "Unable to remove file: {} ({})".format(f, str(e))
                 )
-    return removed
+    print "Cleanup done! Removed {} files".format(len(removed))
 
 
 class RemoteApplicationException(Exception):
