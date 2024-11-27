@@ -5,8 +5,10 @@ Changelog
 ---------------------------
 * Change: Develop [olimpiurob]
 
-6.3-dev0 - (unreleased)
+6.3 - (2024-11-27)
 ---------------------------
+* Change: Develop
+  [olimpiurob]
 
 6.2 - (2024-11-04)
 ---------------------------
