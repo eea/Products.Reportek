@@ -232,8 +232,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             job_id = payload.get("jobId")
             l_file_id = urllib.unquote(
                 string.split(
-                    payload.get("documentURL",
-                    payload.get("envelopeUrl")), "/"
+                    payload.get("documentURL", payload.get("envelopeUrl")),
+                    "/"
                 )[-1]
             )
 
