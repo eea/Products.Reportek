@@ -231,7 +231,10 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         else:
             job_id = payload.get("jobId")
             l_file_id = urllib.unquote(
-                string.split(payload.get("documentURL"), "/")[-1]
+                string.split(
+                    payload.get("documentURL", payload.get("envelopeUrl")),
+                    "/"
+                )[-1]
             )
 
             if not act_metadata["getResult"].get(job_id):
