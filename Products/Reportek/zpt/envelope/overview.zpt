@@ -28,7 +28,7 @@
 
       <h1 tal:content="python:context.title_or_id()"></h1>
 
-      <div class="metadata"
+      <div class="metadata">
         <table border="0" cellspacing="2" cellpadding="2">
           <tbody>
             <tr tal:attributes="class python: 'hidden-content' if context.is_fgas() or context.is_ods() or context.is_fgas_verification() else ''">
@@ -99,7 +99,7 @@
                               unknown python: context.has_unknown_qa_result and ok_acceptable;"
                   tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
               </td>
-          </tr>
+            </tr>
             <tr>
               <td colspan="2">
                 <tal:block condition="not:python:context.status in ('running', 'active')">

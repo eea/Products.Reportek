@@ -1781,17 +1781,13 @@ class EnvelopeCustomDataflows(Toolz):
         # Return the transaction year
         key = "TransactionYear"
         # Verification reports have the transaction year stored under 'Year'
-        if self.is_fgas_verification()
+        if self.is_fgas_verification():
             key = "Year"
         metadata = self.get_xml_metadata()
         res = "N/A"
         if metadata:
             ty = metadata.get(key, "N/A")
-            # ODS specific
-            if self.is_ods():
-                res = ty.get("#text")
-            else:
-                res = ty
+            res = ty.get("#text") if self.is_ods() else ty
         return res
 
     def update_envelope_year(self):

@@ -77,13 +77,15 @@
                        name="reportingdate_start:date:ignore_empty"
                        size="12" maxlength="12"
                        tal:attributes="value reportingdate_start | default"
-                       placeholder="YYYY/MM/DD"/>
+                       placeholder="YYYY/MM/DD"
+                       i18n:attributes="placeholder date_format_placeholder"/>
                 <label for="search_reportingdate_end" class="question" i18n:translate="">but before</label>
                 <input type="text" id="search_reportingdate_end"
                        name="reportingdate_end:date:ignore_empty"
                        size="12" maxlength="12"
                        tal:attributes="value reportingdate_end | default"
-                       placeholder="YYYY/MM/DD"/>
+                       placeholder="YYYY/MM/DD"
+                       i18n:attributes="placeholder date_format_placeholder"/>
                 <span class="help-text">(YYYY/MM/DD)</span>
               </td>
             </tr>

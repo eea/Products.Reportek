@@ -10,7 +10,6 @@ from plone.memoize import ram
 from zope.interface import implementer
 
 import Products
-from Products.Reportek.constants import DF_URL_PREFIX
 
 logger = logging.getLogger("Reportek")
 
