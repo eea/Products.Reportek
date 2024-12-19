@@ -86,7 +86,6 @@
                        tal:attributes="value reportingdate_end | default"
                        placeholder="YYYY/MM/DD"
                        i18n:attributes="placeholder date_format_placeholder"/>
-                <span class="help-text">(YYYY/MM/DD)</span>
               </td>
             </tr>
 
