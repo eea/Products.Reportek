@@ -88,11 +88,6 @@ class BaseRegistryAPI(SimpleItem):
 
 class FGASRegistryAPI(BaseRegistryAPI):
     DOMAIN_TO_OBLIGATION_FOLDER = {"FGAS": "fgases", "ODS": "ods"}
-    # TODO: obtain those dynamically rather than hardcode them here
-    DOMAIN_TO_OBLIGATION = {
-        "FGAS": DF_URL_PREFIX + "713",
-        "ODS": DF_URL_PREFIX + "213",
-    }
     COUNTRY_TO_FOLDER = {
         "uk": "gb",
         "uk_gb": "gb",

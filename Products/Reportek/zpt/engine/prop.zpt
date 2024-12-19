@@ -146,7 +146,7 @@
                   tal:attributes="checked python: getattr(here, 'dfm_type', None) == 'dfm_rest'"
                   size="5"
                   value="dfm_rest" /><br />
-                Use XMLRPC Method to retrieve the dataflows
+                Use REST API to retrieve the dataflows
             </p>
             <p class="form-help" i18n:translate="">
                 <label for='dfm_url' i18n:translate=""><strong>Dataflows REST URL</strong></label>

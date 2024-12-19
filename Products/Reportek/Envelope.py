@@ -1630,8 +1630,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                     'reported': self.reportingdate.strftime('%Y-%m-%d'),
                     'files': self.get_files_info(),
                 })
-                if ('http://rod.eionet.europa.eu/obligations/713'
-                        in self.dataflow_uris):
+                engine = getattr(self, ENGINE_ID)
+                domain = engine.get_df_domain(
+                    self.dataflow_uris, 'undertakings')
+                if domain == 'FGAS':
                     acts = self.get_pretty_activities()
                     gases = self.get_fgas_reported_gases()
                     gas_tmpl = (u"Gas name: {}\n"

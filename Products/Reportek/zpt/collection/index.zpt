@@ -12,11 +12,7 @@
                            has_descr python:here.descr!='';
                            has_dataflow_uris python:len(here.dataflow_uris)>0;
                            isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
-                           df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
-                           is_ods python: df_prefix.format('213') in here.dataflow_uris;
-                           is_fgas python: isBdrDeployment and has_dataflow_uris and df_prefix.format('713') in here.dataflow_uris;
-                           is_fgas_ver python: isBdrDeployment and has_dataflow_uris and (df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris);
-                           new_env_label python: 'New data report' if is_fgas else 'New envelope';
+                           new_env_label python: 'New data report' if here.is_fgas() else 'New envelope';
                            ">
 
     <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections or permission_allow_referrals">

@@ -1230,6 +1230,28 @@ class Collection(
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**query)
 
+    def get_domain(self, df_type=None):
+        """Return True if the collection is a FGAS collection"""
+        engine = self.getEngine()
+        if self.company_id and engine:
+            return engine.get_df_domain(self.dataflow_uris, df_type)
+
+        return False
+
+    def is_fgas(self):
+        """Return True if the collection is a FGAS collection"""
+
+        return self.get_domain(df_type="undertakings") == "FGAS"
+
+    def is_fgas_verification(self):
+        """Return True if the collection is a FGAS verification collection"""
+
+        return self.get_domain(df_type="verification") == "FGAS"
+
+    def is_ods(self):
+        """Return True if the collection is an ODS collection"""
+        return self.get_domain(df_type="undertakings") == "ODS"
+
     def is_newest_released(self, env_id):
         """Return True if it's the newest released envelope in context."""
         envs = self.get_released_envelopes()
