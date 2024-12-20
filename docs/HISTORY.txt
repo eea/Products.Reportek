@@ -1,6 +1,10 @@
 Changelog
 =========
 
+6.5 - (2024-12-20)
+---------------------------
+* Change: Merge development [olimpiurob]
+
 6.5-dev0 - (unreleased)
 ---------------------------
 
