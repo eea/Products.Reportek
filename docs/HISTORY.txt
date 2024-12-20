@@ -5,8 +5,10 @@ Changelog
 ---------------------------
 * Change: Merge development [olimpiurob]
 
-6.5-dev0 - (unreleased)
+6.5 - (2024-12-20)
 ---------------------------
+* Change: Merge development
+  [olimpiurob]
 
 6.4 - (2024-11-28)
 ---------------------------
