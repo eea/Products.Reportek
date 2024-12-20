@@ -28,14 +28,10 @@
 
       <h1 tal:content="python:context.title_or_id()"></h1>
 
-      <div class="metadata" 
-        tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
-                    is_ods python: df_prefix.format('213') in here.dataflow_uris;
-                    is_fgas python: df_prefix.format('713') in here.dataflow_uris;
-                    is_fgas_verification python: df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris;">
+      <div class="metadata">
         <table border="0" cellspacing="2" cellpadding="2">
           <tbody>
-            <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
+            <tr tal:attributes="class python: 'hidden-content' if context.is_fgas() or context.is_ods() or context.is_fgas_verification() else ''">
               <th i18n:translate="">Description</th>
               <td tal:content="python:context.descr"></td>
             </tr>
@@ -64,10 +60,10 @@
             </tr>
             <tr>
               <th>
-                <span tal:condition="python: not (is_fgas or is_ods or is_fgas_verification)" i18n:translate="">Period</span>
-                <span tal:condition="python: is_fgas or is_ods or is_fgas_verification" i18n:translate="">Transaction year</span>
+                <span tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())" i18n:translate="">Period</span>
+                <span tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()" i18n:translate="">Transaction year</span>
               </th>
-              <tal:block tal:condition="python: not (is_fgas or is_ods or is_fgas_verification)">
+              <tal:block tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())">
                 <td tal:condition="python:context.endyear == ''"
                     tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)">
                 </td>
@@ -75,7 +71,7 @@
                     tal:content="python:'%s to %s' %(context.year, context.endyear)">
                 </td>
               </tal:block>
-              <tal:block tal:condition="python: is_fgas or is_ods or is_fgas_verification">
+              <tal:block tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()">
                 <td>
                   <span tal:content="context/get_transaction_year"/>
                 </td>
@@ -103,7 +99,7 @@
                               unknown python: context.has_unknown_qa_result and ok_acceptable;"
                   tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
               </td>
-          </tr>
+            </tr>
             <tr>
               <td colspan="2">
                 <tal:block condition="not:python:context.status in ('running', 'active')">
@@ -112,7 +108,7 @@
                       <div class="ds-head">
                         <span i18n:translate="" class="title">Status: </span>
                         <span i18n:translate="">
-                          Envelope is <span i18n:name="status" tal:replace="context/status"></span> 
+                          Envelope is <span i18n:name="status" tal:replace="context/status"></span>
                           <tal:def tal:define="fb_ta python: context.get('feedbackTA');
                                               fb_cor python: context.get('feedbackCoR');
                                               ff_fb python: fb_ta or fb_cor">

@@ -24,6 +24,7 @@ Collections are the basic container objects and are analogous to directories.
 $Id$"""
 
 import json
+import logging
 import operator
 from datetime import datetime
 
@@ -54,6 +55,7 @@ from Products.Reportek.interfaces import ICollection
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
 
+logger = logging.getLogger(__name__)
 __version__ = "$Revision$"[11:-2]
 
 manage_addCollectionForm = PageTemplateFile("zpt/collection/add", globals())
@@ -430,6 +432,45 @@ class Collection(
         return str(
             engine.localities_dict().get(self.country, dummycounty)["iso"]
         )
+
+    security.declareProtected("View", "get_dataflow_uris")
+
+    def get_dataflow_uris(self):
+        """Return a list of dataflow URIs for the collection.
+
+        Returns:
+            list: A list of dataflow URIs. For FGAS collections with
+                terminated dataflows, returns only the active
+                dataflow URI if present in collection's dataflows.
+                Otherwise returns all collection's dataflow URIs.
+        """
+        try:
+            # Get dataflow URIs with a default empty list
+            dataflow_uris = getattr(self, "dataflow_uris", [])
+
+            # If no terminated dataflows, return all dataflow URIs
+            if not self.num_terminated_dataflows():
+                return dataflow_uris
+
+            # Special handling for FGAS collections
+            if self.is_fgas():
+                try:
+                    engine = self.getEngine()
+                    active_dataflow = engine.get_active_df("FGAS")
+
+                    # Return active dataflow if it's in collection's dataflows
+                    if active_dataflow in dataflow_uris:
+                        return [active_dataflow]
+                except AttributeError as e:
+                    logger.error(
+                        "Failed to get active FGAS dataflow: {}".format(
+                            str(e)))
+
+            return dataflow_uris
+
+        except Exception as e:
+            logger.error("Error retrieving dataflow URIs: {}".format(str(e)))
+            return []
 
     security.declarePublic("num_terminated_dataflows")
 
@@ -1229,6 +1270,36 @@ class Collection(
         }
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**query)
+
+    security.declareProtected("View", "get_domain")
+
+    def get_domain(self, df_type=None):
+        """Return True if the collection is a FGAS collection."""
+        engine = self.getEngine()
+        if self.company_id and engine:
+            return engine.get_df_domain(self.dataflow_uris, df_type)
+
+        return False
+
+    security.declareProtected("View", "is_fgas")
+
+    def is_fgas(self):
+        """Return True if the collection is a FGAS collection."""
+
+        return self.get_domain(df_type="undertakings") == "FGAS"
+
+    security.declareProtected("View", "is_fgas_verification")
+
+    def is_fgas_verification(self):
+        """Return True if the collection is a FGAS verification collection."""
+
+        return self.get_domain(df_type="verification") == "FGAS"
+
+    security.declareProtected("View", "is_ods")
+
+    def is_ods(self):
+        """Return True if the collection is an ODS collection."""
+        return self.get_domain(df_type="undertakings") == "ODS"
 
     def is_newest_released(self, env_id):
         """Return True if it's the newest released envelope in context."""

@@ -3,8 +3,7 @@
     <tal:block tal:condition="python: isBdrDeployment and colls">
       <h2 i18n:translate=""
         tal:define="fgas_ver_colls python: [col for col in colls
-                                            if df_prefix.format('764') in col.dataflow_uris
-                                            or df_prefix.format('765') in col.dataflow_uris];
+                                            if col.is_fgas_verification()];
                     are_verification python: len(colls) == len(fgas_ver_colls);
                     col_head python: {True: 'F-gas Regulation Article 19 verification reporting',
                                       False: 'Subcollections'}.get(are_verification)"
@@ -34,9 +33,8 @@
         <tal:rep
             tal:repeat="item colls">
             <tr valign="top"
-                tal:define="is_fgas_verification python: df_prefix.format('764') in item.dataflow_uris or df_prefix.format('765') in item.dataflow_uris;
-                            klass python: 'restricted' if item.restricted else '';
-                            klass python: '{} ver-col'.format(klass) if is_fgas_verification else klass;"
+                tal:define="klass python: 'restricted' if item.restricted else '';
+                            klass python: '{} ver-col'.format(klass) if item.is_fgas_verification() else klass;"
                 tal:attributes="class klass">
                 <td tal:condition="permission_chgcoll">
                     <input type="checkbox" name="ids:list" tal:attributes="value item/id" />
@@ -73,7 +71,7 @@
                 <h2 i18n:translate=""
                     tal:condition="not: colls">Envelopes</h2>
                 <h2 i18n:translate=""
-                    tal:condition="python: is_fgas and getattr(here, 'company_id', None)">F-gas Regulation Article 19 data reporting</h2>
+                    tal:condition="python: here.is_fgas() and getattr(here, 'company_id', None)">F-gas Regulation Article 19 data reporting</h2>
             </td>
         </tr>
         <tr valign="top" tal:repeat="item envs">
@@ -93,7 +91,7 @@
             </td>
             <tal:block tal:condition="envs">
                 <td class="tcenter additional-env-info" tal:condition="isBdrDeployment">
-                    <tal:block tal:condition="python: not is_ods and not is_fgas and not is_fgas_ver">
+                    <tal:block tal:condition="python: not item.is_ods() and not item.is_fgas() and not item.is_fgas_verification()">
                         <span tal:condition="python:item.endyear == ''"
                             tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
                         </span>
@@ -101,7 +99,7 @@
                             tal:content="python:'%s to %s' %(item.year, item.endyear)">
                         </span>
                     </tal:block>
-                    <tal:block tal:condition="python: is_fgas or is_ods or is_fgas_ver">
+                    <tal:block tal:condition="python: item.is_fgas() or item.is_ods() or item.is_fgas_verification()">
                         <span i18n:translate="">See report</span>
                     </tal:block>
                 </td>
@@ -118,7 +116,7 @@
                                              fb_cor python: item.get('feedbackCoR');
                                              ff_fb python: fb_ta or fb_cor;
                                              cur_wk python: item.getListOfWorkitems()[-1]">
-                            <span tal:content="python: cur_wk.activity_id if cur_wk else ''"/> 
+                            <span tal:content="python: cur_wk.activity_id if cur_wk else ''"/>
                             <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
                         </tal:def>
                     </tal:block>

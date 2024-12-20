@@ -122,7 +122,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         actor = REQUEST.AUTHENTICATED_USER.getUserName()
     # finds the (a !) process suited for this envelope
     l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(
-        self.dataflow_uris, self.country)
+        self.get_dataflow_uris(), self.country)
     if l_err_code == 0:
         process = self.unrestrictedTraverse(l_result, None)
     else:
@@ -142,7 +142,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     preliminary_obl = False
 
     engine = getattr(self, ENGINE_ID)
-    for uri in self.dataflow_uris:
+    for uri in self.get_dataflow_uris():
         if uri in engine.preliminary_obligations:
             preliminary_obl = True
 
@@ -169,8 +169,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         return error_response(InvalidPartOfYear,
                               'Invalid Part of Year', REQUEST)
 
-    dataflow_uris = getattr(self, 'dataflow_uris', []
-                            )  # Get it from collection
+    dataflow_uris = self.get_dataflow_uris()
     ob = Envelope(process, title, actor, year, endyear, partofyear,
                   self.country, locality, descr, dataflow_uris)
     ob.id = id
@@ -1630,8 +1629,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                     'reported': self.reportingdate.strftime('%Y-%m-%d'),
                     'files': self.get_files_info(),
                 })
-                if ('http://rod.eionet.europa.eu/obligations/713'
-                        in self.dataflow_uris):
+                engine = getattr(self, ENGINE_ID)
+                domain = engine.get_df_domain(
+                    self.dataflow_uris, 'undertakings')
+                if domain == 'FGAS':
                     acts = self.get_pretty_activities()
                     gases = self.get_fgas_reported_gases()
                     gas_tmpl = (u"Gas name: {}\n"

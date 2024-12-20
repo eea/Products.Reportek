@@ -640,17 +640,86 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             parent_coll.reindexObject()
         return sc
 
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
+    def get_mapped_dfs(self):
+        """Return the domain mapped dfs for fgas and ods."""
+        domain_dfs = {
+            "FGAS": {
+                "undertakings": [
+                    df
+                    for df in self.er_fgas_obligations
+                    if "undertakings" in self.getDataflowTitle(df)
+                ],
+                "verification": [
+                    df
+                    for df in self.er_fgas_obligations
+                    if "verification" in self.getDataflowTitle(df)
+                ],
+            },
+            "ODS": {
+                "undertakings": self.er_ods_obligations,
+            },
+        }
+        return domain_dfs
+
+    security.declareProtected("View", "get_dfs")
+
+    def get_dfs(self, domain, df_type="undertakings"):
+        """Get the list of dataflows for a given domain."""
+        dfs = self.get_mapped_dfs()
+        return dfs[domain][df_type]
+
+    security.declareProtected("View", "get_active_df")
+
+    def get_active_df(self, domain, df_type="undertakings"):
+        """Get the list of active dataflows for a given domain."""
+        return next(
+            (
+                df
+                for df in self.get_dfs(domain, df_type)
+                if not self.isDataflowTerminated(df)
+            ),
+            None,
+        )
+
+    security.declareProtected("View", "get_df_domain")
+
+    def get_df_domain(self, dfs, df_type=None):
+        """Get the domain of a list of dataflows.
+
+        Args:
+            dfs (list): List of dataflow URIs
+            df_type (str, optional): Type of dataflow ('undertakings' or
+            'verification')
+
+        Returns:
+            str: Domain name ('FGAS' or 'ODS') or None if no match found
+        """
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            mapped_dfs = self.get_mapped_dfs()
+            dfs = set(RepUtils.utConvertToList(dfs))
+
+            for domain, domain_types in mapped_dfs.items():
+                if df_type:
+                    # If df_type specified, check only that type
+                    if set(domain_types.get(df_type, [])).intersection(dfs):
+                        return domain
+                else:
+                    # Check all types for the domain
+                    for type_dfs in domain_types.values():
+                        if set(type_dfs).intersection(dfs):
+                            return domain
+
+        return None
+
     def create_fgas_collections(
         self, ctx, country_uri, company_id, name, old_company_id=None
     ):
         # Hardcoded obligations should be fixed and retrieved automatically
-        parent_coll_df = ["http://rod.eionet.europa.eu/obligations/713"]
+        parent_coll_df = self.get_active_df("FGAS")
         eq_imports_df = ["http://rod.eionet.europa.eu/obligations/765"]
         bulk_imports_df = ["http://rod.eionet.europa.eu/obligations/764"]
-        if old_company_id:
-            main_env_id = old_company_id
-        else:
-            main_env_id = company_id
+        main_env_id = old_company_id if old_company_id else company_id
         ctx.manage_addCollection(
             dataflow_uris=parent_coll_df,
             country=country_uri,
@@ -784,11 +853,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         )
                     else:
                         country_folder.manage_addCollection(
-                            dataflow_uris=[
-                                self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[
-                                    domain
-                                ]
-                            ],
+                            dataflow_uris=[self.get_active_df(domain)],
                             country=country_uri,
                             id=company_id,
                             title=name,

@@ -43,7 +43,7 @@ import xmlrpclib
 import zip_content
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
-from constants import CONVERTERS_ID
+from constants import CONVERTERS_ID, ENGINE_ID
 from Globals import InitializeClass
 from Toolz import Toolz
 from XMLInfoParser import SchemaError, detect_single_schema
@@ -1103,7 +1103,7 @@ class EnvelopeCustomDataflows(Toolz):
         envelope and subscribes them to receive notifications to a
         specified event if the parameter is provided
         """
-        engine = self.ReportekEngine
+        engine = getattr(self, ENGINE_ID)
         if engine.UNS_server:
             actors = []
             for w in self.getListOfWorkitems():
@@ -1780,23 +1780,14 @@ class EnvelopeCustomDataflows(Toolz):
     def get_transaction_year(self):
         # Return the transaction year
         key = "TransactionYear"
-        dfs = self.dataflow_uris
-        ver = (
-            "http://rod.eionet.europa.eu/obligations/765" in dfs
-            or "http://rod.eionet.europa.eu/obligations/764" in dfs
-        )
         # Verification reports have the transaction year stored under 'Year'
-        if ver:
+        if self.is_fgas_verification():
             key = "Year"
         metadata = self.get_xml_metadata()
         res = "N/A"
         if metadata:
             ty = metadata.get(key, "N/A")
-            # ODS specific
-            if "http://rod.eionet.europa.eu/obligations/213" in dfs:
-                res = ty.get("#text")
-            else:
-                res = ty
+            res = ty.get("#text") if self.is_ods() else ty
         return res
 
     def update_envelope_year(self):
@@ -1928,6 +1919,36 @@ class EnvelopeCustomDataflows(Toolz):
         rep_id = re.sub(r"(?:19|20)\d{2}", rep_year, old_rep_id)
 
         return rep_id
+
+    security.declareProtected("View", "get_domain")
+
+    def get_domain(self, df_type=None):
+        """Return True if the envelope is a FGAS envelope."""
+        engine = getattr(self, ENGINE_ID)
+        if self.company_id and engine:
+            return engine.get_df_domain(self.dataflow_uris, df_type)
+
+        return False
+
+    security.declareProtected("View", "is_fgas")
+
+    def is_fgas(self):
+        """Return True if the envelope is a FGAS envelope."""
+
+        return self.get_domain(df_type="undertakings") == "FGAS"
+
+    security.declareProtected("View", "is_fgas_verification")
+
+    def is_fgas_verification(self):
+        """Return True if the envelope is a FGAS verification envelope."""
+
+        return self.get_domain(df_type="verification") == "FGAS"
+
+    security.declareProtected("View", "is_ods")
+
+    def is_ods(self):
+        """Return True if the envelope is an ODS envelope."""
+        return self.get_domain(df_type="undertakings") == "ODS"
 
 
 # Initialize the class in order the security assertions be taken into account
