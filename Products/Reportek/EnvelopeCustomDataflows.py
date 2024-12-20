@@ -1920,26 +1920,34 @@ class EnvelopeCustomDataflows(Toolz):
 
         return rep_id
 
+    security.declareProtected("View", "get_domain")
+
     def get_domain(self, df_type=None):
-        """Return True if the envelope is a FGAS envelope"""
+        """Return True if the envelope is a FGAS envelope."""
         engine = getattr(self, ENGINE_ID)
         if self.company_id and engine:
             return engine.get_df_domain(self.dataflow_uris, df_type)
 
         return False
 
+    security.declareProtected("View", "is_fgas")
+
     def is_fgas(self):
-        """Return True if the envelope is a FGAS envelope"""
+        """Return True if the envelope is a FGAS envelope."""
 
         return self.get_domain(df_type="undertakings") == "FGAS"
 
+    security.declareProtected("View", "is_fgas_verification")
+
     def is_fgas_verification(self):
-        """Return True if the envelope is a FGAS verification envelope"""
+        """Return True if the envelope is a FGAS verification envelope."""
 
         return self.get_domain(df_type="verification") == "FGAS"
 
+    security.declareProtected("View", "is_ods")
+
     def is_ods(self):
-        """Return True if the envelope is an ODS envelope"""
+        """Return True if the envelope is an ODS envelope."""
         return self.get_domain(df_type="undertakings") == "ODS"
 
 

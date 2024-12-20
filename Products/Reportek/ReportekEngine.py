@@ -642,7 +642,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
     def get_mapped_dfs(self):
-        """Return the domain mapped dfs for fgas and ods"""
+        """Return the domain mapped dfs for fgas and ods."""
         domain_dfs = {
             "FGAS": {
                 "undertakings": [
@@ -662,13 +662,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         }
         return domain_dfs
 
+    security.declareProtected("View", "get_dfs")
+
     def get_dfs(self, domain, df_type="undertakings"):
-        """Get the list of dataflows for a given domain"""
+        """Get the list of dataflows for a given domain."""
         dfs = self.get_mapped_dfs()
         return dfs[domain][df_type]
 
+    security.declareProtected("View", "get_active_df")
+
     def get_active_df(self, domain, df_type="undertakings"):
-        """Get the list of active dataflows for a given domain"""
+        """Get the list of active dataflows for a given domain."""
         return next(
             (
                 df
@@ -677,6 +681,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             ),
             None,
         )
+
+    security.declareProtected("View", "get_df_domain")
 
     def get_df_domain(self, dfs, df_type=None):
         """Get the domain of a list of dataflows.
