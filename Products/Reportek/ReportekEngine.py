@@ -712,36 +712,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return None
 
-    def create_fgas_collections(
-        self, ctx, country_uri, company_id, name, old_company_id=None
+    def create_ecr_collections(
+        self, ctx, country_uri, company_id, name, domain, old_company_id=None
     ):
-        # Hardcoded obligations should be fixed and retrieved automatically
-        parent_coll_df = self.get_active_df("FGAS")
-        eq_imports_df = ["http://rod.eionet.europa.eu/obligations/765"]
-        bulk_imports_df = ["http://rod.eionet.europa.eu/obligations/764"]
+        parent_coll_df = self.get_active_df(domain)
         main_env_id = old_company_id if old_company_id else company_id
         ctx.manage_addCollection(
             dataflow_uris=parent_coll_df,
             country=country_uri,
             id=main_env_id,
             title=name,
-            allow_collections=1,
-            allow_envelopes=1,
-            descr="",
-            locality="",
-            partofyear="",
-            year="",
-            endyear="",
-            old_company_id=old_company_id,
-        )
-        coll = getattr(ctx, main_env_id)
-        coll.company_id = company_id
-        ei_id = "".join([RepUtils.generate_id("col"), "ei"])
-        coll.manage_addCollection(
-            dataflow_uris=eq_imports_df,
-            country=country_uri,
-            id=ei_id,
-            title="Upload of verification documents (equipment importers)",
             allow_collections=0,
             allow_envelopes=1,
             descr="",
@@ -751,140 +731,104 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             endyear="",
             old_company_id=old_company_id,
         )
-        bi_id = "".join([RepUtils.generate_id("col"), "bi"])
-        coll.manage_addCollection(
-            dataflow_uris=bulk_imports_df,
-            country=country_uri,
-            id=bi_id,
-            title="""Upload of verification documents"""
-            """ (HFC producers and bulk importers)""",
-            allow_collections=0,
-            allow_envelopes=1,
-            descr="",
-            locality="",
-            partofyear="",
-            year="",
-            endyear="",
-            old_company_id=old_company_id,
-        )
-        ei = getattr(coll, ei_id)
-        ei.company_id = company_id
-        ei.reindexObject()
-        bi = getattr(coll, bi_id)
-        bi.company_id = company_id
-        bi.reindexObject()
-        coll.allow_collections = 0
-        coll.reindexObject()
 
     def update_company_collection(
-        self, company_id, domain, country, name, old_collection_id=None
+        self, domain, country, company_id, name, old_collection_id=None
     ):
-        """Update information on an existing old-type collection
-        (say, 'fgas30001') mainly setting it's `company_id`
-        (the id internal to Fgas Portal for instance)
-        If no `old_collection_id` is provided then a new collection will be
-        created with id=company_id=provided `company_id`.
-        If `old_collection_id` is provided, the the collection must exist
-        in the expected path deducted from the
-        domain/country/old_collection_id. It's company_id will be updated.
-        If `old_collection_id` does not exist at the expected location
-        nothing will happen."""
+        """Update or create a company collection.
 
-        # Disable CSRF protection
-        if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
+        Args:
+            domain (str): The domain name
+            country (str): Country code
+            company_id (str): Company identifier
+            name (str): Company name
+            old_collection_id (str, optional): Previous collection ID
+
+        Returns:
+            str: JSON response with status and message
+        """
+        # Disable CSRF protection if available
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
             alsoProvides(
                 self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
             )
 
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
-            resp = {"status": "fail", "message": ""}
+        if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+            return
 
-            coll_path = self.FGASRegistryAPI.buildCollectionPath(
-                domain, country, company_id, old_collection_id
-            )
+        response = self.REQUEST.RESPONSE
+        response.setHeader("Content-Type", "application/json")
 
-            if not coll_path:
-                msg = (
-                    """Cannot form path to collection, with details domain: """
-                    """ %s, country: %s, company_id: %s, old_collection_id: """
-                    """ %s."""
-                    % (domain, country, company_id, old_collection_id)
-                )
-                logger.warning(msg)
-                # return failure (404) to the service calling us
-                self.REQUEST.RESPONSE.setStatus(404)
-                resp["message"] = msg
-                return json.dumps(resp)
+        def create_error_response(message, status_code=404):
+            response.setStatus(status_code)
+            return json.dumps({"status": "fail", "message": message})
 
+        def create_success_response(message):
+            return json.dumps({"status": "success", "message": message})
+
+        # Get collection path
+        coll_path = self.FGASRegistryAPI.buildCollectionPath(
+            domain, country, company_id, old_collection_id
+        )
+
+        if not coll_path:
+            error_msg = (
+                "Cannot form path to collection with details: "
+                "domain: {0}, country: {1}, "
+                "company_id: {2}, old_collection_id: {3}"
+            ).format(domain, country, company_id, old_collection_id)
+            logger.warning(error_msg)
+            return create_error_response(error_msg)
+
+        # Parse path
+        try:
             path_parts = coll_path.split("/")
             obligation_id = path_parts[0]
             country_id = path_parts[1]
-            coll_id = path_parts[2]
-            try:
-                country_folder_path = "/".join([obligation_id, country_id])
-                country_folder = self.restrictedTraverse(country_folder_path)
-            except KeyError:
-                msg = (
-                    """Cannot update collection %s. Path to collection """
-                    """does not exist""" % coll_path
-                )
-                logger.warning(msg)
-                # return 404
-                self.REQUEST.RESPONSE.setStatus(404)
-                resp["message"] = msg
-                return json.dumps(resp)
-
-            coll_id = company_id
-            if old_collection_id:
-                coll_id = old_collection_id
-
-            coll = getattr(country_folder, coll_id, None)
-            if not coll:
-                try:
-                    country_uri = getattr(country_folder, "country", "")
-                    if domain == "FGAS":
-                        self.create_fgas_collections(
-                            country_folder,
-                            country_uri,
-                            company_id,
-                            name,
-                            old_company_id=old_collection_id,
-                        )
-                    else:
-                        country_folder.manage_addCollection(
-                            dataflow_uris=[self.get_active_df(domain)],
-                            country=country_uri,
-                            id=company_id,
-                            title=name,
-                            allow_collections=0,
-                            allow_envelopes=1,
-                            descr="",
-                            locality="",
-                            partofyear="",
-                            year="",
-                            endyear="",
-                            old_company_id=old_collection_id,
-                        )
-                    coll = getattr(country_folder, coll_id)
-                except Exception as e:
-                    msg = "Cannot create collection %s. " % coll_path
-                    logger.warning(msg + str(e))
-                    # return failure (404) to the service calling us
-                    self.REQUEST.RESPONSE.setStatus(404)
-                    resp["message"] = msg
-                    return json.dumps(resp)
-            coll.company_id = company_id
-            if old_collection_id:
-                coll.old_company_id = old_collection_id
-            coll.reindexObject()
-            resp["status"] = "success"
-            resp["message"] = (
-                "Collection %s updated/created succesfully" % coll_path
+            country_folder_path = "{0}/{1}".format(obligation_id, country_id)
+            country_folder = self.restrictedTraverse(country_folder_path)
+        except (IndexError, KeyError) as e:
+            error_msg = (
+                "Cannot update collection {0}. "
+                "Invalid path structure: {1}".format(coll_path, str(e))
             )
-            return json.dumps(resp)
-        else:
-            pass
+            logger.warning(error_msg)
+            return create_error_response(error_msg)
+
+        # Determine collection ID
+        collection_id = old_collection_id or company_id
+        collection = getattr(country_folder, collection_id, None)
+
+        # Create collection if it doesn't exist
+        if not collection:
+            try:
+                country_uri = getattr(country_folder, "country", "")
+                self.create_ecr_collections(
+                    country_folder,
+                    country_uri,
+                    company_id,
+                    name,
+                    domain,
+                    old_company_id=old_collection_id,
+                )
+                collection = getattr(country_folder, collection_id)
+            except Exception as e:
+                error_msg = "Cannot create collection {0}: {1}".format(
+                    coll_path, str(e)
+                )
+                logger.warning(error_msg)
+                return create_error_response(error_msg)
+
+        # Update collection properties
+        collection.company_id = company_id
+        if old_collection_id:
+            collection.old_company_id = old_collection_id
+        collection.reindexObject()
+
+        success_msg = "Collection {0} updated/created successfully".format(
+            coll_path
+        )
+        return create_success_response(success_msg)
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         security.declareProtected("Audit Envelopes", "globalworklist")
