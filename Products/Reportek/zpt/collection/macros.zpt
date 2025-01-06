@@ -34,7 +34,8 @@
             tal:repeat="item colls">
             <tr valign="top"
                 tal:define="klass python: 'restricted' if item.restricted else '';
-                            klass python: '{} ver-col'.format(klass) if item.is_fgas_verification() else klass;"
+                            is_fgas_ver python: isBdrDeployment and item.is_fgas_verification();
+                            klass python: '{} ver-col'.format(klass) if is_fgas_ver else klass;"
                 tal:attributes="class klass">
                 <td tal:condition="permission_chgcoll">
                     <input type="checkbox" name="ids:list" tal:attributes="value item/id" />
