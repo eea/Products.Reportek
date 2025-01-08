@@ -12,8 +12,8 @@
                        isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';">
 
       <tal:block tal:define="hasTerminatedObligations python:here.num_terminated_dataflows()>=1;
-                             fgas_can_create python: here.is_fgas() and here.num_terminated_dataflows() != len(here.dataflow_uris);
-                             canCreateEnvelope python: here.allowed_envelopes() and (not hasTerminatedObligations or fgas_can_create);
+                             bdr_can_create python: (here.is_fgas() or here.is_ods()) and here.num_terminated_dataflows() != len(here.dataflow_uris);
+                             canCreateEnvelope python: here.allowed_envelopes() and (not hasTerminatedObligations or bdr_can_create);
                              engine here/getEngine;">
 
         <tal:block tal:condition="python:not canCreateEnvelope">

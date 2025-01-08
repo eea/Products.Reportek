@@ -439,7 +439,7 @@ class Collection(
         """Return a list of dataflow URIs for the collection.
 
         Returns:
-            list: A list of dataflow URIs. For FGAS collections with
+            list: A list of dataflow URIs. For FGAS or ODS collections with
                 terminated dataflows, returns only the active
                 dataflow URI if present in collection's dataflows.
                 Otherwise returns all collection's dataflow URIs.
@@ -452,19 +452,20 @@ class Collection(
             if not self.num_terminated_dataflows():
                 return dataflow_uris
 
-            # Special handling for FGAS collections
-            if self.is_fgas():
+            # Special handling for FGAS/ODS collections
+            if self.is_fgas() or self.is_ods():
+                domain = "FGAS" if self.is_fgas() else "ODS"
                 try:
                     engine = self.getEngine()
-                    active_dataflow = engine.get_active_df("FGAS")
+                    active_dataflow = engine.get_active_df(domain)
 
                     # Return active dataflow if it's in collection's dataflows
                     if active_dataflow in dataflow_uris:
                         return [active_dataflow]
                 except AttributeError as e:
                     logger.error(
-                        "Failed to get active FGAS dataflow: {}".format(
-                            str(e)))
+                        "Failed to get active FGAS dataflow: {}".format(str(e))
+                    )
 
             return dataflow_uris
 
