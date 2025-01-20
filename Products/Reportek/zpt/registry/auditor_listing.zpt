@@ -34,10 +34,7 @@
 
     <h1 i18n:translate="">Auditors</h1>
 
-    <p i18n:translate="">Auditors registered in <a tal:attributes="href view/get_url_fgas">FGAS</a> and <a tal:attributes="href view/get_url_ods">ODS</a> portals and approved in BDR. Click on an auditor name to see the details and the reporters. Alternatively, export auditors in <a class="export" href="auditors_excel">
-    Excel</a> or <a class="export" href="auditors_json">JSON </a> format.
-    </p>
-
+    <p i18n:translate="">Auditors registered in <a tal:attributes="href view/get_url_fgas">FGAS</a> and <a tal:attributes="href view/get_url_ods">ODS</a> portals and approved in BDR. Click on an auditor name to see the details and the reporters.
     <table id="auditors-table" width="100%">
       <thead>
         <tr>
