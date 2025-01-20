@@ -6,7 +6,7 @@
 if (window.reportek === undefined) {
   var reportek = {
     version: "1.0",
-    utils: {},
+    utils: {}
   };
 }
 
@@ -21,7 +21,7 @@ reportek.utils.fcs = {
     organisation_verification: "/organisation_verification",
     get_stocks: "/get_stocks",
     get_matching_log: "/get_matching_log",
-    get_datasync_log: "/get_datasync_log",
+    get_datasync_log: "/get_datasync_log"
   },
   domain: "FGAS",
 
@@ -44,7 +44,7 @@ reportek.utils.fcs = {
       var href = $(anchors[i]).attr("href");
       $(anchors[i]).attr(
         "href",
-        href.split("?")[0] + "?domain=" + self.domain,
+        href.split("?")[0] + "?domain=" + self.domain
       );
     }
   },
