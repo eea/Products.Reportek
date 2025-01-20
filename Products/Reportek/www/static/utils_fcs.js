@@ -338,20 +338,20 @@ reportek.utils.fcs = {
           iDisplayLength: 20,
           language: {
             processing:
-              "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           ajax: {
             url: self.tbl_endpoint,
             contentType: "application/json",
             type: "GET",
-            dataSrc: "",
+            dataSrc: ""
           },
           processing: true,
           aoColumns: [
             { data: "name" },
             { data: "status" },
             { data: "date_updated" },
-            { data: "date_updated_in_ecr" },
+            { data: "date_updated_in_ecr" }
           ],
           columnDefs: [
             {
@@ -362,25 +362,25 @@ reportek.utils.fcs = {
                 return (
                   "<a href='" +
                   self.base_url +
-                  self.endpoints["auditor_details"] +
+                  self.endpoints.auditor_details +
                   "?id=" +
                   full.auditor_uid +
                   "'>" +
                   data +
                   "</a>"
                 );
-              },
+              }
             },
             {
               width: "20%",
-              targets: 1,
+              targets: 1
             },
             {
               width: "40%",
-              targets: 2,
-            },
+              targets: 2
+            }
           ],
-          order: [[0, "asc"]],
+          order: [[0, "asc"]]
         });
       }
     },
