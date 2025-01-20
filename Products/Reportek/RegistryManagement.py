@@ -107,6 +107,17 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    def get_auditors(self):
+        page = "list"
+        url_prefix = "/".join([self.baseUrl, "auditors"])
+        url = "/".join([url_prefix, page])
+        response = self.do_api_request(
+            url, headers={"Authorization": self.token}
+        )
+
+        if response:
+            return response.json()
+
     def get_stocks(self):
         page = "stocks"
         url = "/".join([self.baseUrl, page])
@@ -129,6 +140,14 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = "/".join(
             [self.baseUrl, "undertaking", domain, company_id, "details"]
         )
+        response = self.do_api_request(
+            url, headers={"Authorization": self.token}
+        )
+        if response:
+            return response.json()
+
+    def get_auditor_details(self, auditor_id):
+        url = "/".join([self.baseUrl, "auditors", auditor_id, "details"])
         response = self.do_api_request(
             url, headers={"Authorization": self.token}
         )
@@ -200,6 +219,16 @@ class FGASRegistryAPI(BaseRegistryAPI):
         response = self.do_api_request(
             url,
             params={"id": company_id},
+            headers={"Authorization": self.token},
+        )
+        if response:
+            return response.json()
+
+    def sync_auditor(self, auditor_id):
+        url = "/".join([self.baseUrl, "sync", "auditors"])
+        response = self.do_api_request(
+            url,
+            params={"uid": auditor_id},
             headers={"Authorization": self.token},
         )
         if response:

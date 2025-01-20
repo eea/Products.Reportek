@@ -28,6 +28,20 @@
       template="zpt/registry/organisation_details.zpt"/>
 
   <browser:page
+      name="auditor_listing"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/auditor_listing.zpt"/>
+
+  <browser:page
+      name="auditor_details"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/auditor_details.zpt"/>
+
+  <browser:page
       name="organisation_details_licences"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"
@@ -75,6 +89,13 @@
       permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies"/>
+
+  <browser:page
+      name="get_auditors"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_auditors"/>
 
   <browser:page
       name="get_stocks"

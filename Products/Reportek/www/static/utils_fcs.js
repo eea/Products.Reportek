@@ -14,7 +14,9 @@ reportek.utils.fcs = {
     base_url: '/european_registry',
     endpoints: {'get_companies': '/get_companies',
                 'get_candidates': '/get_candidates',
+                'get_auditors': '/get_auditors',
                 'organisation_details': '/organisation_details',
+                'auditor_details': '/auditor_details',
                 'organisation_verification': '/organisation_verification',
                 'get_stocks': '/get_stocks',
                 'get_matching_log': '/get_matching_log',
@@ -28,6 +30,7 @@ reportek.utils.fcs = {
       self.companies_url = self.base_url + self.endpoints.companies;
       self.init_companies();
       self.init_matched_companies();
+      self.init_auditors();
       self.init_approval_log();
       self.init_sync_log();
       self.bind_obl_select();
@@ -324,6 +327,60 @@ reportek.utils.fcs = {
               }
             ],
             "order": [[ 0, "asc" ]]
+        });
+      }
+    },
+    init_auditors: function () {
+      var self = reportek.utils.fcs;
+      if ($("#auditors-table").length) {
+        self.tbl_endpoint = self.get_endpoint_url("get_auditors");
+        self.tbl = $("#auditors-table").DataTable({
+          iDisplayLength: 20,
+          language: {
+            processing:
+              "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
+          },
+          ajax: {
+            url: self.tbl_endpoint,
+            contentType: "application/json",
+            type: "GET",
+            dataSrc: ""
+          },
+          processing: true,
+          aoColumns: [
+            { data: "name" },
+            { data: "status" },
+            { data: "date_updated" },
+            { data: "date_updated_in_ecr" }
+          ],
+          columnDefs: [
+            {
+              width: "40%",
+              targets: 0,
+              data: "name",
+              render: function (data, type, full, meta) {
+                return (
+                  "<a href='" +
+                  self.base_url +
+                  self.endpoints.auditor_details +
+                  "?id=" +
+                  full.auditor_uid +
+                  "'>" +
+                  data +
+                  "</a>"
+                );
+              }
+            },
+            {
+              width: "20%",
+              targets: 1
+            },
+            {
+              width: "40%",
+              targets: 2
+            }
+          ],
+          order: [[0, "asc"]]
         });
       }
     },
