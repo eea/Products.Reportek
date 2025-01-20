@@ -162,6 +162,40 @@
   </div>
 </tal:block>
 
+<tal:block metal:define-macro="auditor_details">
+  <div class="pull-left">
+    <table class="table-list">
+      <tr>
+        <th i18n:translate="">Auditor name</th>
+        <td tal:content="auditor/name" />
+      </tr>
+      <tr>
+        <th i18n:translate="">Auditor id</th>
+        <td tal:content="auditor/auditor_uid|nothing" />
+      </tr>
+      <tr>
+        <th i18n:translate="">Status</th>
+        <td tal:content="auditor/status" />
+      </tr>
+      <tr>
+        <th i18n:translate="">Date created (European Registry)</th>
+        <td tal:content="auditor/date_created|nothing" />
+      </tr>
+      <tr>
+        <th i18n:translate="">Date updated (European Registry)</th>
+        <td tal:content="auditor/date_updated|nothing" />
+      </tr>
+      <tr>
+        <th i18n:translate="">Date created (Cache Registry)</th>
+        <td tal:content="auditor/date_created_in_ecr|nothing" />
+      </tr>
+      <tr>
+        <th i18n:translate="">Date updated (Cache Registry)</th>
+        <td tal:content="auditor/date_updated_in_ecr|nothing" />
+      </tr>
+    </table>
+  </div>
+</tal:block>
 <tal:block metal:define-macro="representative_details">
   <table class="table-list">
     <tr>
