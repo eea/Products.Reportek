@@ -166,11 +166,11 @@
   <div class="pull-left">
     <table class="table-list">
       <tr>
-        <th i18n:translate="">Auditor name</th>
+        <th i18n:translate="">Verification company name</th>
         <td tal:content="auditor/name" />
       </tr>
       <tr>
-        <th i18n:translate="">Auditor id</th>
+        <th i18n:translate="">Verification company id</th>
         <td tal:content="auditor/auditor_uid|nothing" />
       </tr>
       <tr>
