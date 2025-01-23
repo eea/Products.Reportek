@@ -16,7 +16,7 @@
       <li><a href="organisation_matching_log" i18n:translate="">Approval log</a></li>
     </ul>
     <ul>
-      <li><a href="auditor_listing" i18n:translate="">Auditors</a></li>
+      <li><a href="auditor_listing" i18n:translate="">Verification companies</a></li>
     </ul>
     <ul>
       <li><a href="data_sync_log" i18n:translate="">Synchronisation history</a></li>

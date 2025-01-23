@@ -49,7 +49,7 @@
               <p class="h4 no-margins" i18n:translate="">Actions:</p>
               <ul>
                 <li>
-                  <a class="org-action" id="sync-action" href="#" i18n:translate="">Sync auditor</a>
+                  <a class="org-action" id="sync-action" href="#" i18n:translate="">Sync verification company</a>
                 </li>
               </ul>
             </form>
