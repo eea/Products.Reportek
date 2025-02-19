@@ -716,9 +716,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self, ctx, country_uri, company_id, name, domain, old_company_id=None
     ):
         parent_coll_df = self.get_active_df(domain)
+        df_uris = (
+            parent_coll_df
+            if isinstance(parent_coll_df, list)
+            else [parent_coll_df]
+        )
         main_env_id = old_company_id if old_company_id else company_id
         ctx.manage_addCollection(
-            dataflow_uris=parent_coll_df,
+            dataflow_uris=df_uris,
             country=country_uri,
             id=main_env_id,
             title=name,
