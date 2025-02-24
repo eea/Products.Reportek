@@ -1275,9 +1275,9 @@ class Collection(
     security.declareProtected("View", "get_domain")
 
     def get_domain(self, df_type=None):
-        """Return True if the collection is a FGAS collection."""
+        """Return the domain type (FGAS or ODS)."""
         engine = self.getEngine()
-        if self.company_id and engine:
+        if engine:
             return engine.get_df_domain(self.dataflow_uris, df_type)
 
         return False
