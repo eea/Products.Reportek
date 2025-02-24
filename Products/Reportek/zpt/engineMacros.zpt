@@ -263,8 +263,8 @@
             audit_colls python: owncolls.get('Auditor', []);
             client_colls python: owncolls.get('Client', []);
             no_collections python: not rep_colls and not audit_colls and not client_colls;
-            col_tmap python:{'fgases': 'Fluorinated gases (F-gases) reporting by undertakings (Regulation 2014)',
-                             'ods': 'Ozone depleting substances (ODS) reporting by undertakings (Article 27)'};
+            col_tmap python:{'fgases': 'Fluorinated gases (F-gases) reporting by undertakings',
+                             'ods': 'Ozone depleting substances (ODS) reporting by undertakings'};
             groups python: {};
             bdr_reg_info python: here.ReportekEngine.BDRRegistryAPI.get_user_details(name);
             dummy python: [groups.update({col.getPhysicalPath()[-1]: col_tmap.get(col.getPhysicalPath()[-1], col.title)}) for col in context.objectValues('Report Collection')]"
