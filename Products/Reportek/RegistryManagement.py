@@ -303,18 +303,19 @@ class FGASRegistryAPI(BaseRegistryAPI):
         either the ecas_id or the username(e-mail) in the ecr."""
         # <ecr_host>/user/companies?username=<username>&ecas_id=<ecas_id>
         url = "{}/user/companies".format(self.baseUrl)
-        if userdata and requests.head(url).status_code != 404:
+        headers = {"Authorization": self.token}
+        if userdata:
             q_params = {
                 "username": userdata.get("username"),
                 "ecas_id": userdata.get("ecas_id"),
             }
             response = self.do_api_request(
-                url, params=q_params, headers={"Authorization": self.token}
+                url, params=q_params, headers=headers
             )
         else:
             url = self.baseUrl + "/user/" + username + "/companies"
             response = self.do_api_request(
-                url, headers={"Authorization": self.token}
+                url, headers=headers
             )
         rep_paths = {}
         paths = []
