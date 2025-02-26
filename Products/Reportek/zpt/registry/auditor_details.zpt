@@ -53,7 +53,7 @@
         <hr/>
 
         <div class="overflow">
-          <metal:details use-macro="here/partials/macros/auditor_details" />
+          <metal:details use-macro="here/partials/macros/auditor-details" />
 
           <!-- Action Form -->
           <div class="box-small no-borders pull-left org-actions">

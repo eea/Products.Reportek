@@ -1,248 +1,275 @@
+<!-- Short Organisation Details Macro -->
 <tal:block metal:define-macro="short_organisation_details">
   <div class="company-header clearfix">
-    <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}" i18n:translate="">
-      <input type="radio" name="cid" tal:attributes="value string:${candidate/company_id}; id string:id_${candidate/company_id}">
+    <label class="btn btn-default pull-left"
+           tal:attributes="for string:id_${candidate/company_id}"
+           i18n:translate="">
+      <input type="radio"
+             name="cid"
+             tal:attributes="value candidate/company_id;
+                           id string:id_${candidate/company_id}">
       Match
     </label>
-    <h3 tal:content="candidate/name"/>
+    <h3 tal:content="candidate/name"></h3>
   </div>
+
   <table class="table-list" tal:condition="candidate">
     <tbody>
-      <tr>
-        <th i18n:translate="">Date registered</th>
-        <td tal:content="candidate/date_registered" />
-      </tr>
-      <tr>
-        <th i18n:translate="">VAT number</th>
-        <td tal:content="candidate/vat_number" />
-      </tr>
-      <tr>
-        <th i18n:translate="">EORI number</th>
-        <td tal:content="candidate/eori|nothing" />
-      </tr>
+      <tal:block tal:define="basic_fields python:[
+          {'label': 'Date registered', 'value': candidate.get('date_registered')},
+          {'label': 'VAT number', 'value': candidate.get('vat_number')},
+          {'label': 'EORI number', 'value': candidate.get('eori', '')},
+          {'label': 'Country', 'value': candidate.get('country')}
+        ]">
+        <tr tal:repeat="field basic_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
+
       <tr>
         <th i18n:translate="">Reporting folder</th>
         <td>
           <a tal:condition="candidate/account"
-            tal:define="domain_folder python: {'FGAS': 'fgases', 'ODS': 'ods'};
+             tal:define="domain_folder python: {'FGAS': 'fgases', 'ODS': 'ods'};
                         domain python: domain_folder.get(request.get('domain', 'FGAS'));
                         coll_path string:/${domain}/${candidate/country_code}/${candidate/account}"
              tal:attributes="href coll_path"
-             tal:content="coll_path" />
+             tal:content="coll_path"></a>
         </td>
       </tr>
-      <tr>
-        <th i18n:translate="">Country</th>
-        <td tal:content="candidate/country" />
-      </tr>
+
       <tr>
         <th i18n:translate="">Website</th>
         <td>
-          <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
-           tal:condition="company/website"
-           tal:content="company/website" />
+          <a tal:condition="company/website"
+             tal:define="website_url python:company.get('website', '#');"
+             tal:attributes="href website_url"
+             tal:content="company/website"></a>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <h3 tal:condition="not: candidate" i18n:translate="">No information about this candidate</h3>
+  <h3 tal:condition="not:candidate"
+      i18n:translate="">No information about this candidate</h3>
 </tal:block>
 
+<!-- Organisation Details Macro -->
 <tal:block metal:define-macro="organisation_details">
   <div class="pull-left">
     <table class="table-list">
-      <tr>
-        <th i18n:translate="">Company name</th>
-        <td tal:content="company/name" />
-      </tr>
+      <!-- Company Information -->
+      <tal:block tal:define="company_fields python:[
+          {'label': 'Company name', 'value': company.get('name')},
+          {'label': 'Company id', 'value': company.get('company_id', '')},
+          {'label': 'Old company id', 'value': company.get('oldcompany_id', '')},
+          {'label': 'Old company account', 'value': company.get('oldcompany_account', '')},
+          {'label': 'Status', 'value': company.get('status')}
+        ]">
+        <tr tal:repeat="field company_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
 
-      <tr>
-        <th i18n:translate="">Company id</th>
-        <td tal:content="company/company_id|nothing" />
-      </tr>
+      <!-- Address Information -->
+      <tal:block tal:define="address_fields python:[
+          {'label': 'Street and number', 'value': '%s %s' % (company['address']['street'], company['address']['number'])},
+          {'label': 'Municipality', 'value': company['address']['city']},
+          {'label': 'Postal code', 'value': company['address']['zipcode']}
+        ]">
+        <tr tal:repeat="field address_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
 
-      <tr>
-        <th i18n:translate="">Old company id</th>
-        <td tal:content="company/oldcompany_id|nothing" />
-      </tr>
-
-      <tr>
-        <th i18n:translate="">Old company account</th>
-        <td tal:content="company/oldcompany_account|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Status</th>
-        <td tal:content="company/status" />
-      </tr>
-
-      <tr>
-        <th i18n:translate="">Street and number</th>
-         <td tal:content="string:${company/address/street} ${company/address/number}" />
-      </tr>
-
-      <tr>
-        <th i18n:translate="">Municipality</th>
-        <td tal:content="company/address/city" />
-      </tr>
-
-      <tr>
-        <th i18n:translate="">Postal code</th>
-        <td tal:content="company/address/zipcode" />
-      </tr>
-
+      <!-- Domain Specific Information -->
       <tr tal:define="domain company/domain">
         <th tal:condition="python: domain == 'ODS'" i18n:translate="">EORI number</th>
         <th tal:condition="python: domain != 'ODS'" i18n:translate="">VAT number</th>
-        <td tal:content="company/vat" />
+        <td tal:content="company/vat"></td>
       </tr>
 
       <tr tal:condition="python: company.get('domain') == 'FGAS'">
         <th i18n:translate="">EORI number</th>
-        <td tal:content="company/eori_number" />
+        <td tal:content="company/eori_number"></td>
       </tr>
 
-      <tr>
-        <th i18n:translate="">Country</th>
-        <td tal:content="company/address/country/name" />
-      </tr>
+      <!-- Additional Details -->
+      <tal:block tal:define="additional_fields python:[
+          {'label': 'Country', 'value': company['address']['country']['name']},
+          {'label': 'Obligation', 'value': company.get('domain')}
+        ]">
+        <tr tal:repeat="field additional_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
 
-      <tr>
-        <th i18n:translate="">Obligation</th>
-        <td tal:content="company/domain" />
-      </tr>
-
+      <!-- Website -->
       <tr>
         <th i18n:translate="">Website</th>
         <td>
-          <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
-             tal:condition="company/website"
-             tal:content="company/website" />
+          <a tal:condition="company/website"
+             tal:define="website_url python:company.get('website', '#');"
+             tal:attributes="href website_url"
+             tal:content="company/website"></a>
         </td>
       </tr>
+
+      <!-- Types and Profiles -->
       <tr>
         <th i18n:translate="">Types</th>
         <td tal:define="types company/types|nothing;
                         types python: types.split(',') if types else [];">
           <ul class="types">
-            <li tal:repeat="type types" tal:content="type"/>
+            <li tal:repeat="type types" tal:content="type"></li>
           </ul>
         </td>
       </tr>
+
       <tr>
         <th i18n:translate="">Business profile</th>
         <td tal:define="profiles company/businessprofile|nothing;
                         profiles python: profiles.split(',') if profiles else [];">
           <ul class="types">
-            <li tal:repeat="profile profiles" tal:content="profile"/>
+            <li tal:repeat="profile profiles" tal:content="profile"></li>
           </ul>
         </td>
       </tr>
-      <tr>
-        <th i18n:translate="">Date created (European Registry)</th>
-        <td tal:content="company/date_created|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date updated (European Registry)</th>
-        <td tal:content="company/date_updated|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date created (Cache Registry)</th>
-        <td tal:content="company/date_created_in_ecr|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date updated (Cache Registry)</th>
-        <td tal:content="company/date_updated_in_ecr|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Reporting checks passed</th>
-        <td tal:content="company/check_passed|nothing" />
-      </tr>
+
+      <!-- Dates and Status -->
+      <tal:block tal:define="date_fields python:[
+          {'label': 'Date created (European Registry)', 'value': company.get('date_created', '')},
+          {'label': 'Date updated (European Registry)', 'value': company.get('date_updated', '')},
+          {'label': 'Date created (Cache Registry)', 'value': company.get('date_created_in_ecr', '')},
+          {'label': 'Date updated (Cache Registry)', 'value': company.get('date_updated_in_ecr', '')},
+          {'label': 'Reporting checks passed', 'value': company.get('check_passed', '')}
+        ]">
+        <tr tal:repeat="field date_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
     </table>
   </div>
 </tal:block>
 
-<tal:block metal:define-macro="auditor_details">
+<!-- Auditor Details Macro -->
+<tal:block metal:define-macro="auditor-details">
   <div class="pull-left">
     <table class="table-list">
+      <!-- Basic Information -->
+      <tal:block tal:define="basic_fields python:[
+          {'label': 'Verification company name', 'value': auditor.get('name')},
+          {'label': 'Verification company id', 'value': auditor.get('auditor_uid', '')}
+        ]">
+        <tr tal:repeat="field basic_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
+
+      <!-- Address Information -->
+      <tal:block tal:define="address_fields python:[
+          {'label': 'Street and number', 'value': '%s %s' % (auditor['address']['street'], auditor['address']['number'])},
+          {'label': 'Municipality', 'value': auditor['address']['city']},
+          {'label': 'Postal code', 'value': auditor['address']['zipcode']},
+          {'label': 'Country', 'value': auditor['address']['country']['name']}
+        ]">
+        <tr tal:repeat="field address_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
+
+      <!-- Website -->
       <tr>
-        <th i18n:translate="">Verification company name</th>
-        <td tal:content="auditor/name" />
+        <th i18n:translate="">Website</th>
+        <td>
+          <a tal:condition="auditor/website"
+             tal:define="website_url python:auditor.get('website', '#');"
+             tal:attributes="href website_url"
+             tal:content="auditor/website"></a>
+        </td>
       </tr>
+
+      <!-- Accreditation Information -->
+      <tal:block tal:define="accred_fields python:[
+          {'label': 'Phone', 'value': auditor.get('phone', '')},
+          {'label': 'ETS Accreditation', 'value': auditor.get('ets_accreditation', '')},
+          {'label': 'MS Accreditation', 'value': auditor.get('ms_accreditation', '')}
+        ]">
+        <tr tal:repeat="field accred_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
+
+      <!-- MS Accreditation Countries -->
       <tr>
-        <th i18n:translate="">Verification company id</th>
-        <td tal:content="auditor/auditor_uid|nothing" />
+        <th i18n:translate="">MS Accreditation issuing countries</th>
+        <td tal:define="countries auditor/ms_accreditation_countries|nothing">
+          <ul>
+            <li tal:repeat="country countries"
+                tal:content="country"></li>
+          </ul>
+        </td>
       </tr>
-      <tr>
-        <th i18n:translate="">Status</th>
-        <td tal:content="auditor/status" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date created (European Registry)</th>
-        <td tal:content="auditor/date_created|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date updated (European Registry)</th>
-        <td tal:content="auditor/date_updated|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date created (Cache Registry)</th>
-        <td tal:content="auditor/date_created_in_ecr|nothing" />
-      </tr>
-      <tr>
-        <th i18n:translate="">Date updated (Cache Registry)</th>
-        <td tal:content="auditor/date_updated_in_ecr|nothing" />
-      </tr>
+
+      <!-- Status and Dates -->
+      <tal:block tal:define="date_fields python:[
+          {'label': 'Status', 'value': auditor.get('status')},
+          {'label': 'Date created (European Registry)', 'value': auditor.get('date_created', '')},
+          {'label': 'Date updated (European Registry)', 'value': auditor.get('date_updated', '')},
+          {'label': 'Date created (Cache Registry)', 'value': auditor.get('date_created_in_ecr', '')},
+          {'label': 'Date updated (Cache Registry)', 'value': auditor.get('date_updated_in_ecr', '')}
+        ]">
+        <tr tal:repeat="field date_fields">
+          <th i18n:translate="" tal:content="field/label"></th>
+          <td tal:content="field/value"></td>
+        </tr>
+      </tal:block>
     </table>
   </div>
 </tal:block>
+
+<!-- Representative Details Macro -->
 <tal:block metal:define-macro="representative_details">
   <table class="table-list">
-    <tr>
-      <th i18n:translate="">Company name</th>
-      <td tal:content="representative/name" />
-    </tr>
+    <!-- Company Information -->
+    <tal:block tal:define="company_fields python:[
+        {'label': 'Company name', 'value': representative.get('name')},
+        {'label': 'Street and number', 'value': '%s %s' % (representative['address']['street'], representative['address']['number'])},
+        {'label': 'Municipality', 'value': representative['address']['city']},
+        {'label': 'Postal code', 'value': representative['address']['zipcode']},
+        {'label': 'VAT number', 'value': representative.get('vatnumber')},
+        {'label': 'Country', 'value': representative['address']['country']['name']}
+      ]">
+      <tr tal:repeat="field company_fields">
+        <th i18n:translate="" tal:content="field/label"></th>
+        <td tal:content="field/value"></td>
+      </tr>
+    </tal:block>
 
-    <tr>
-      <th i18n:translate="">Street and number</th>
-       <td tal:content="string:${representative/address/street} ${representative/address/number}" />
-    </tr>
-
-    <tr>
-      <th i18n:translate="">Municipality</th>
-      <td tal:content="representative/address/city" />
-    </tr>
-
-    <tr>
-      <th i18n:translate="">Postal code</th>
-      <td tal:content="representative/address/zipcode" />
-    </tr>
-
-    <tr>
-      <th i18n:translate="">VAT number</th>
-      <td tal:content="representative/vatnumber" />
-    </tr>
-
-    <tr>
-      <th i18n:translate="">Country</th>
-      <td tal:content="representative/address/country/name" />
-    </tr>
-
-    <tr>
-      <th i18n:translate="">Contact First Name</th>
-      <td tal:content="representative/contact_first_name" />
-    </tr>
-
-    <tr>
-      <th i18n:translate="">Contact Last Name</th>
-      <td tal:content="representative/contact_last_name" />
-    </tr>
+    <!-- Contact Information -->
+    <tal:block tal:define="contact_fields python:[
+        {'label': 'Contact First Name', 'value': representative.get('contact_first_name')},
+        {'label': 'Contact Last Name', 'value': representative.get('contact_last_name')}
+      ]">
+      <tr tal:repeat="field contact_fields">
+        <th i18n:translate="" tal:content="field/label"></th>
+        <td tal:content="field/value"></td>
+      </tr>
+    </tal:block>
 
     <tr>
       <th i18n:translate="">Contact Email Name</th>
       <td>
         <a tal:attributes="href string:mailto:${representative/contact_email}"
-           tal:content="representative/contact_email" />
+           tal:content="representative/contact_email"></a>
       </td>
     </tr>
   </table>
