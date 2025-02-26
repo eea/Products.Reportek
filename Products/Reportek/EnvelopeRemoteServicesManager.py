@@ -528,7 +528,7 @@ class EnvelopeRemoteServicesManager:
             l_dict[l_item] = ""
         return l_dict.keys()
 
-    security.declarePublic("getValidXMLSchemas")
+    security.declareProtected("Change Envelopes", "getValidXMLSchemas")
 
     def getValidXMLSchemas(self, web_form_only=False):
         """The purpose is to know if to put an edit button and a record in
@@ -539,7 +539,7 @@ class EnvelopeRemoteServicesManager:
             self.dataflow_uris, web_form_only=web_form_only
         )
 
-    security.declarePublic("get_webform_for_schema")
+    security.declareProtected("Change Envelopes", "get_webform_for_schema")
 
     def get_webform_for_schema(self, schema):
         mappings_c = self.getDataflowMappingsContainer()
@@ -547,6 +547,8 @@ class EnvelopeRemoteServicesManager:
             schema, self.dataflow_uris, web_form_only=True
         )
         return wf_cust or self.getEngine().webq_before_edit_page
+
+    security.declareProtected("Change Envelopes", "getWebQ_BeforeEditForm_URL")
 
     def getWebQ_BeforeEditForm_URL(self, schema=None, custom_params=False):
         """Retrieves the URL to the edit for of the XML file - if any"""
@@ -575,6 +577,8 @@ class EnvelopeRemoteServicesManager:
         if custom_params:
             return form_url.split("?")[0]
         return form_url
+
+    security.declareProtected("Change Envelopes", "getWebQ_MenuEnvelope_URL")
 
     def getWebQ_MenuEnvelope_URL(self):
         """Retrieves the URL to the edit for of the XML file - if any"""
