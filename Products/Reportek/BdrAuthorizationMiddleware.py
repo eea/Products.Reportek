@@ -42,10 +42,16 @@ class BdrAuthorizationMiddleware(SimpleItem):
         accessiblePaths = self.getUserCollectionPaths(
             username, userdata=userdata, recheck_interval=self.recheck_interval
         )
-        if path in accessiblePaths.get("paths"):
-            return "RW"
-        if path in accessiblePaths.get("prev_paths"):
-            return "RO"
+        for ap in accessiblePaths.get("paths"):
+            if ap in path:
+                return "RW"
+        for ap in accessiblePaths.get("prev_paths"):
+            if ap in path:
+                return "RO"
+        for ap in accessiblePaths.get("audit_paths"):
+            if ap in path:
+                return "AUDIT"
+        return False
 
     def lockDownCollection(self, path, user):
         if path not in self.lockedDownCollections:

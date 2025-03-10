@@ -122,10 +122,13 @@
             <tbody>
               <tr tal:repeat="audit_company auditor/audited_companies">
                 <td>
-                  <a tal:attributes="href string:${here/absolute_url}/organistion_details?domain=${audit_company/undertaking/domain}&id=${audit_company/undertaking/company_id}"
+                  <a tal:attributes="href string:${here/absolute_url}/organisation_details?domain=${audit_company/undertaking/domain}&id=${audit_company/undertaking/company_id}"
                      tal:content="audit_company/undertaking/name" />
                 </td>
-                <td tal:content="audit_company/auditor/name"></td>
+                <td>
+                  <a tal:attributes="href string:mailto:${audit_company/user/email}"
+                     tal:content="string:${audit_company/user/first_name} ${audit_company/user/last_name}" />
+                </td>
                 <td tal:content="python: audit_company['start_date'] or '-'"></td>
                 <td tal:content="python: audit_company['end_date'] or '-'"></td>
                 <td>

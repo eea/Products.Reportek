@@ -10,7 +10,7 @@ from Products.Reportek.RegistryManagement import FGASRegistryAPI
 
 
 class FGASRegistryAPITest(BaseTest):
-    userDetailInput = """
+    userDetailInput = """{"reporter":
     [{"company_id": 1234,
       "name": "Blă Brul",
       "country": "RO",
@@ -25,7 +25,7 @@ class FGASRegistryAPITest(BaseTest):
       "country": "RO",
       "domain": "FGAS",
       "collection_id": null}
-    ]
+    ]}
     """
 
     def afterSetUp(self):
@@ -51,6 +51,7 @@ class FGASRegistryAPITest(BaseTest):
 
         username = "vasile"
         expectedPaths = {
+            "audit_paths": [],
             "paths": ["fgases/ro/fgas30001", "fgases/ro/12345"],
             "prev_paths": ["fgases/gb/fgas30001"],
         }

@@ -1,0 +1,67 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+  </metal:block>
+
+  <metal:block fill-slot="content"
+    tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+                is_manager python:SecurityManager.checkPermission('View management screens', template);">
+    <tal:block tal:condition="context/is_auditable">
+      <div tal:replace="structure python:context.envelope_tabs(tab='envelope_audits')"/>
+      <div class="metadata">
+      <h1 i18n:translate="">Envelope Audits</h1>
+      <p i18n:translate="">This page displays summary information about the existing audits created for this envelope.</p>
+      <br/>
+      </div>
+      <div id="envelope-audits"
+        tal:define="data context/get_audits;
+                    audits python:data.get('verification_envelopes', []);
+                    dummy python:audits.sort(key=lambda x: x.get('start_date', ''), reverse=True)">
+        <fieldset>
+          <legend i18n:translate="">Audits created for this envelope</legend>
+          <span tal:condition="not:audits" i18n:translate="">No audits have been created for this envelope.</span>
+          <table class="table" tal:condition="audits">
+            <thead>
+              <tr>
+                <th i18n:translate="">Verification company</th>
+                <th i18n:translate="">Lead auditor</th>
+                <th i18n:translate="">Auditing rights began at</th>
+                <th i18n:translate="">Auditing rights ended at</th>
+                <th i18n:translate="">Verification envelope</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="audit audits">
+                <td>
+                  <a tal:condition="is_manager"
+                    tal:attributes="href string:/european_registry/auditor_details?id=${audit/auditor/auditor_uid|nothing}"
+                    tal:content="audit/auditor/name|nothing"></a>
+                  <span tal:condition="not: is_manager"
+                    tal:content="audit/auditor/name"></span>
+                  <span tal:condition="not:audit/auditor/name|nothing">
+                    <span i18n:translate="">Unknown</span>
+                  </span>
+                </td>
+                <td>
+                  <a tal:condition="audit/user/email|nothing"
+                    tal:attributes="href string:mailto:${audit/user/email|nothing}"
+                    tal:content="string:${audit/user/first_name|nothing} ${audit/user/last_name|nothing}" />
+                  <span tal:condition="not:audit/user/email|nothing">
+                    <span i18n:translate="">Unknown</span>
+                  </span>
+                </td>
+                <td tal:content="python: audit['start_date'] if 'start_date' in audit else '-'"></td>
+                <td tal:content="python: audit['end_date'] if 'end_date' in audit else '-'"></td>
+                <td>
+                  <a tal:attributes="href string:${audit/verification_envelope_url}"
+                      tal:content="audit/verification_envelope_url" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+      </div>
+    </tal:block>
+  </metal:block>
+</metal:block>
