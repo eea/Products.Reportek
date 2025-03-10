@@ -1,5 +1,4 @@
 from BTrees.OOBTree import OOBTree
-from DateTime import DateTime
 from persistent.dict import PersistentDict
 from zope.annotation.interfaces import IAnnotations
 from zope.component import adapts

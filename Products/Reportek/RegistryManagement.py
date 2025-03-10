@@ -189,7 +189,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             )
 
         try:
-            response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+            response.raise_for_status()  # Raise HTTPError for bad responses
         except HTTPError as e:
             msg = (
                 "API request failed with status code: {},"

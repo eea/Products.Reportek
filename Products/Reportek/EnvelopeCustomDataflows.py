@@ -1965,7 +1965,8 @@ class EnvelopeCustomDataflows(Toolz):
             dict: The result of the audit assignment
 
         Raises:
-            ValueError: If envelope is not auditable or if verification data is invalid
+            ValueError: If envelope is not auditable or if verification data
+            is invalid
         """
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
 

@@ -2034,7 +2034,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declarePublic("get_ecr_content")
 
         def get_ecr_content(self):
-            """Get content accessible to the current user organized by role type."""
+            """Get content accessible to the user organized by role type."""
             if not getattr(self, "REQUEST", None):
                 return []
 

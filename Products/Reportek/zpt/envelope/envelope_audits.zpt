@@ -40,7 +40,7 @@
                   <span tal:condition="not: is_manager"
                     tal:content="audit/auditor/name"></span>
                   <span tal:condition="not:audit/auditor/name|nothing">
-                    Unknown
+                    <span i18n:translate="">Unknown</span>
                   </span>
                 </td>
                 <td>
@@ -48,7 +48,7 @@
                     tal:attributes="href string:mailto:${audit/user/email|nothing}"
                     tal:content="string:${audit/user/first_name|nothing} ${audit/user/last_name|nothing}" />
                   <span tal:condition="not:audit/user/email|nothing">
-                    Unknown
+                    <span i18n:translate="">Unknown</span>
                   </span>
                 </td>
                 <td tal:content="python: audit['start_date'] if 'start_date' in audit else '-'"></td>
