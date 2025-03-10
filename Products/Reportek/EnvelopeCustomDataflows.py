@@ -53,6 +53,7 @@ from zope.contenttype import guess_content_type
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.Document import error_message, success_message
+from Products.Reportek.interfaces import IAudit
 
 # from zipfile import *
 
@@ -124,6 +125,11 @@ class EnvelopeCustomDataflows(Toolz):
     security.declareProtected("Change Envelopes", "manage_addfmeconvfile")
     manage_addfmeconvfile = PageTemplateFile(
         "zpt/envelope/add_fmeconvfile", globals()
+    )
+
+    security.declareProtected("View", "envelope_audits")
+    envelope_audits = PageTemplateFile(
+        "zpt/envelope/envelope_audits", globals()
     )
 
     def _get_xml_files_by_schema(self, schema):
@@ -1949,6 +1955,198 @@ class EnvelopeCustomDataflows(Toolz):
     def is_ods(self):
         """Return True if the envelope is an ODS envelope."""
         return self.get_domain(df_type="undertakings") == "ODS"
+
+    security.declareProtected("Change Envelopes", "assign_auditor")
+
+    def assign_auditor(self):
+        """Create an audit envelope for F-gas verification.
+
+        Returns:
+            dict: The result of the audit assignment
+
+        Raises:
+            ValueError: If envelope is not auditable or if verification data is invalid
+        """
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+
+        if not self.is_fgas_verification():
+            raise ValueError("Envelope is not auditable")
+
+        try:
+            settings = self._load_verification_settings()
+
+            if settings.get("verificationOptions", {}).get("none"):
+                return  # No audit should be performed
+
+            audit_data = self._prepare_audit_data(settings)
+            engine = self.getEngine()
+            return engine.assign_for_audit(audit_data)
+
+        except (ValueError, AttributeError) as e:
+            msg = "Failed to create audit envelope: {}".format(str(e))
+            raise ValueError(msg)
+
+    def _load_verification_settings(self):
+        """Load and parse verification settings.
+
+        Returns:
+            dict: Parsed verification settings
+
+        Raises:
+            ValueError: If settings cannot be parsed
+        """
+        try:
+            return json.loads(self.get_verification_settings())
+        except (ValueError, TypeError) as e:
+            msg = "Failed to parse verification settings: {}".format(str(e))
+            raise ValueError(msg)
+
+    def _prepare_audit_data(self, settings):
+        """Prepare audit data from verification settings.
+
+        Args:
+            settings (dict): The verification settings
+
+        Returns:
+            dict: Prepared audit data
+
+        Raises:
+            ValueError: If required data is missing
+        """
+        ver_options = settings.get("verificationOptions", {})
+
+        data = {
+            "lead_auditor": settings.get("leadAuditorEmail"),
+            "auditor_uid": settings.get("auditor", {}).get("auditor_uid"),
+        }
+
+        if ver_options.get("bulk"):
+            data["bulk_verification"] = True
+        elif ver_options.get("equipment"):
+            data["equipment_verification"] = True
+
+        report_id = settings.get("dataReportId")
+        if not report_id:
+            raise ValueError("Missing dataReportId in verification settings")
+
+        v_col = self.getParentNode()
+        r_col = v_col.getParentNode()
+        report = getattr(r_col, report_id)
+
+        data.update(
+            {
+                "company_id": report.company_id,
+                "domain": report.get_domain(df_type="undertakings"),
+                "reporting_envelope_url": "/".join(report.getPhysicalPath()),
+                "verification_envelope_url": "/".join(self.getPhysicalPath()),
+            }
+        )
+
+        return data
+
+    security.declareProtected("View", "validate_auditor")
+
+    def validate_auditor(self):
+        """Validate the auditor."""
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+
+        engine = self.getEngine()
+        if self.is_fgas_verification():
+            domain = "FGAS"
+        else:
+            domain = self.get_domain(df_type="undertakings")
+        data = {
+            "domain": domain,
+            "company_id": self.company_id,
+        }
+
+        return engine.validate_auditor(**data)
+
+    security.declareProtected("View", "is_auditable")
+
+    def is_auditable(self):
+        """
+        Determines if an envelope is eligible for audit.
+
+        An envelope is auditable if:
+        1. It has been released
+        2. It is an F-gas report (not an audit)
+        3. It has passed acceptance criteria and QA checks
+        4. The engine has auditing enabled
+        5. The envelope uses an active F-gas undertakings dataflow
+
+        Returns:
+            bool: True if the envelope is auditable, False otherwise
+        """
+        if not (self.released and self.is_fgas() and not self.is_audit):
+            return False
+
+        if not (self.is_acceptable() and self.successful_qa):
+            return False
+
+        engine = self.getEngine()
+
+        active_df = engine.get_active_df("FGAS", df_type="undertakings")
+        return active_df in self.dataflow_uris
+
+    security.declareProtected("Change Envelopes", "set_verification_settings")
+
+    def set_verification_settings(self):
+        """
+        Sets the verification settings for the envelope.
+
+        Args:
+            settings (dict): The verification settings to be set.
+
+        Returns:
+            None
+        """
+        import plone.protect.interfaces
+        from zope.interface import alsoProvides
+
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        res = {"success": False, "message": None}
+        data = json.loads(self.REQUEST.get("BODY") or "{}")
+        audit = IAudit(self)
+        try:
+            audit.set_audit_metadata(data)
+        except Exception as e:
+            res["message"] = str(e)
+        res["success"] = True
+        res["message"] = "Settings updated successfully."
+        return json.dumps(res)
+
+    security.declareProtected("View", "get_verification_settings")
+
+    def get_verification_settings(self):
+        """
+        Gets the verification settings for the envelope.
+
+        Returns:
+            dict: The verification settings.
+        """
+        {
+            "selected_data_report_id": "",
+            "bulk_verification": False,
+            "equipment_verification": False,
+            "no_verification": False,
+        }
+        audit = IAudit(self)
+        verification_settings = audit.get_audit_metadata()
+        return json.dumps(verification_settings)
+
+    security.declareProtected("View", "get_audits")
+
+    def get_audits(self):
+        """Get audits for envelope."""
+        if not self.is_fgas() or self.is_audit:
+            raise ValueError("Envelope is not auditable")
+        engine = self.getEngine()
+        return engine.get_ecr_audit_envelopes("/".join(self.getPhysicalPath()))
 
 
 # Initialize the class in order the security assertions be taken into account

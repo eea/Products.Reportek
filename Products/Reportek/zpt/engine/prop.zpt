@@ -312,7 +312,6 @@
                                             selected python: fgas_o[0] in here.er_fgas_obligations"
                             tal:content="python: fgas_o[1]" />
                     </select>
-
                 </p>
                 <p class="form-help" i18n:translate="">
                     <label for='er_ods_obligations' i18n:translate=""><strong>European Registry ODS obligations</strong></label>

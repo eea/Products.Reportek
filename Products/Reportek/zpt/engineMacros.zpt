@@ -254,131 +254,159 @@
   </tal:block>
 </metal:block>
 
-<metal:block define-macro="reporter-collections">
+<metal:block define-macro="ecr-collections">
   <tal:block
-    define="owncolls here/ReportekEngine/getUserCollections;
-            rep_colls python: owncolls.get('Reporter', {});
-            rw_colls python: rep_colls.get('rw', []);
-            ro_colls python: rep_colls.get('ro', []);
-            audit_colls python: owncolls.get('Auditor', []);
-            client_colls python: owncolls.get('Client', []);
-            no_collections python: not rep_colls and not audit_colls and not client_colls;
+    define="user_ct here/ReportekEngine/get_ecr_content;
+            ct python: user_ct.get('ecr', {});
+            rw_colls python: ct.get('rw', []);
+            ro_colls python: ct.get('ro', []);
+            fgas_audit_envs python: ct.get('audit_paths', []);
+            audit_colls python: user_ct.get('Auditor', []);
+            client_colls python: user_ct.get('Client', []);
+            no_content python: not ct and not audit_colls and not client_colls;
             col_tmap python:{'fgases': 'Fluorinated gases (F-gases) reporting by undertakings',
                              'ods': 'Ozone depleting substances (ODS) reporting by undertakings'};
-            groups python: {};
-            bdr_reg_info python: here.ReportekEngine.BDRRegistryAPI.get_user_details(name);
-            dummy python: [groups.update({col.getPhysicalPath()[-1]: col_tmap.get(col.getPhysicalPath()[-1], col.title)}) for col in context.objectValues('Report Collection')]"
+            collections python: context.objectValues('Report Collection');
+            groups python: dict([(col.getPhysicalPath()[-1], col_tmap.get(col.getPhysicalPath()[-1], col.title)) for col in collections]);
+            bdr_reg_info python: here.ReportekEngine.BDRRegistryAPI.get_user_details(name)"
   >
-    <tal:block
-      tal:condition="bdr_reg_info"
-      tal:define="reg_c_info python: [(c.get('company_name'), c.get('registry_url')) for c in bdr_reg_info]"
-    >
-      <h2 i18n:translate="">
-        Click on the link below to access your company registry page
-      </h2>
-      <ul tal:repeat="c_info reg_c_info">
-        <li>
-          <a
-            tal:attributes="href python: c_info[1]"
-            tal:content="python: c_info[0]"
-          />
+    <!-- Registry information section -->
+    <tal:block tal:condition="bdr_reg_info">
+      <h2 i18n:translate="">Click on the link below to access your company registry page</h2>
+      <ul>
+        <li tal:repeat="c_info python: [(c.get('company_name'), c.get('registry_url')) for c in bdr_reg_info]">
+          <a tal:attributes="href python: c_info[1]" tal:content="python: c_info[0]"></a>
           <input type="hidden" tal:attributes="value python: c_info[1]" />
         </li>
       </ul>
     </tal:block>
-    <tal:block
-      tal:condition="python: (len(rw_colls) > 0) or no_collections"
-      tal:define="dummy python:rw_colls.sort(key=lambda k: k.title_or_id().lower());
-                  rw_group python: {};
-                  dummy python: [rw_group.update({key: [col for col in rw_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
-    >
+
+    <!-- Read-write collections section -->
+    <tal:block tal:condition="python: (len(rw_colls) > 0) or no_content">
       <h2 i18n:translate="">Click on the link below to start the reporting</h2>
 
-      <tal:rep tal:repeat="key python: rw_group.keys()">
-        <tal:block tal:condition="python:rw_group.get(key)">
-          <h5 tal:content="python: groups.get(key)" />
-          <ul tal:repeat="col python:rw_group.get(key)">
-            <li>
-              <a
-                tal:attributes="href col/absolute_url"
-                tal:content="col/title"
-              />
-            </li>
-          </ul>
+      <tal:block tal:define="sorted_rw python: sorted(rw_colls, key=lambda k: k.title_or_id().lower());
+                             rw_by_path python: {}">
+        <!-- Group collections by path only once -->
+        <tal:block tal:repeat="col sorted_rw">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: rw_by_path.setdefault(path_key, []).append(col)" />
         </tal:block>
-      </tal:rep>
+
+        <!-- Display grouped collections -->
+        <tal:block tal:repeat="key python: rw_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: rw_by_path[key]">
+                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
     </tal:block>
 
-    <tal:block
-      tal:condition="python: ro_colls"
-      tal:define="dummy python:ro_colls.sort(key=lambda k: '{}{}'.format(k.getCountryCode(), k.title_or_id().lower()));
-                  ro_group python: {};
-                  dummy python: [ro_group.update({key: [col for col in ro_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
-    >
-      <h2 i18n:translate="">
-        Click on the link below to view your archived reporting folders
-      </h2>
-      <tal:rep tal:repeat="key python: ro_group.keys()">
-        <tal:block tal:condition="python:ro_group.get(key)">
-          <h5 tal:content="python: groups.get(key)" />
-          <ul tal:repeat="col python:ro_group.get(key)">
-            <li>
-              <a
-                tal:attributes="href col/absolute_url"
-                tal:content="python: '[ARCHIVE][{}] - {}'.format(col.getCountryCode(), col.title_or_id())"
-              />
-            </li>
-          </ul>
+    <!-- Read-only collections section -->
+    <tal:block tal:condition="python: ro_colls">
+      <h2 i18n:translate="">Click on the link below to view your archived reporting folders</h2>
+
+      <tal:block tal:define="ro_by_path python: {}">
+        <!-- Group and sort collections in one pass -->
+        <tal:block tal:repeat="col python: sorted(ro_colls, key=lambda k: k.getCountryCode() + k.title_or_id().lower())">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: ro_by_path.setdefault(path_key, []).append(col)" />
         </tal:block>
-      </tal:rep>
+
+        <!-- Display grouped collections -->
+        <tal:block tal:repeat="key python: ro_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: ro_by_path[key]">
+                <a tal:attributes="href col/absolute_url"
+                   tal:content="python: '[ARCHIVE][{}] - {}'.format(col.getCountryCode(), col.title_or_id())"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
     </tal:block>
-    <tal:block
-      tal:condition="python: len(audit_colls) > 0 or len(client_colls) > 0"
-    >
+
+    <!-- Audit collections section -->
+    <tal:block tal:condition="python: len(audit_colls) > 0 or len(client_colls) > 0">
       <h2 i18n:translate="">Click on the link below to inspect deliveries</h2>
-      <tal:block
-        tal:condition="python: len(audit_colls) > 0"
-        tal:define="dummy python:audit_colls.sort(key=lambda k: k.title_or_id().lower());
-                    audit_group python: {};
-                    dummy python: [audit_group.update({key: [col for col in audit_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
-      >
-        <tal:rep tal:repeat="key python: audit_group.keys()">
-          <tal:block tal:condition="python:audit_group.get(key)">
-            <h5 tal:content="python: groups.get(key)" />
-            <ul tal:repeat="col python:audit_group.get(key)">
-              <li>
-                <a
-                  tal:attributes="href col/absolute_url"
-                  tal:content="col/title"
-                />
+
+      <tal:block tal:condition="python: len(audit_colls) > 0"
+                 tal:define="audit_by_path python: {}">
+        <!-- Group audit collections -->
+        <tal:block tal:repeat="col python: sorted(audit_colls, key=lambda k: k.title_or_id().lower())">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: audit_by_path.setdefault(path_key, []).append(col)" />
+        </tal:block>
+
+        <!-- Display grouped audit collections -->
+        <tal:block tal:repeat="key python: audit_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: audit_by_path[key]">
+                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
               </li>
             </ul>
           </tal:block>
-        </tal:rep>
-      </tal:block>
-      <tal:block
-        tal:condition="python: len(client_colls) > 0"
-        tal:define="dummy python:client_colls.sort(key=lambda k: k.title_or_id().lower());
-                    client_group python: {};
-                    dummy python: [client_group.update({key: [col for col in client_colls if col.getPhysicalPath()[1] == key]}) for key in groups]"
-      >
-        <tal:rep tal:repeat="key python: client_group.keys()">
-          <tal:block tal:condition="python:client_group.get(key)">
-            <h5 tal:content="python: groups.get(key)" />
-            <ul tal:repeat="col python:client_group.get(key)">
-              <li>
-                <a
-                  tal:attributes="href col/absolute_url"
-                  tal:content="col/title"
-                />
-              </li>
-            </ul>
-          </tal:block>
-        </tal:rep>
+        </tal:block>
       </tal:block>
     </tal:block>
 
-    <div tal:condition="no_collections">
+    <!-- F-Gas audit section -->
+    <tal:block tal:condition="python: len(fgas_audit_envs) > 0">
+      <h2 i18n:translate="">Click on the link below to audit deliveries</h2>
+
+      <tal:block tal:define="fgas_by_path python: {}">
+        <!-- Group F-Gas audit environments -->
+        <tal:block tal:repeat="env python: sorted(fgas_audit_envs, key=lambda k: k.title_or_id().lower())">
+          <tal:block tal:define="path_key python: env.getPhysicalPath()[1];
+                                 dummy python: fgas_by_path.setdefault(path_key, []).append(env)" />
+        </tal:block>
+
+        <!-- Display grouped F-Gas environments -->
+        <tal:block tal:repeat="key python: fgas_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="env python: fgas_by_path[key]">
+                <a tal:attributes="href env/absolute_url" tal:content="env/title"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <!-- Client collections section -->
+    <tal:block tal:condition="python: len(client_colls) > 0"
+               tal:define="client_by_path python: {}">
+      <!-- Group client collections -->
+      <tal:block tal:repeat="col python: sorted(client_colls, key=lambda k: k.title_or_id().lower())">
+        <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                               dummy python: client_by_path.setdefault(path_key, []).append(col)" />
+      </tal:block>
+
+      <!-- Display grouped client collections -->
+      <tal:block tal:repeat="key python: client_by_path.keys()">
+        <tal:block tal:condition="python: key in groups">
+          <h5 tal:content="python: groups[key]" />
+          <ul>
+            <li tal:repeat="col python: client_by_path[key]">
+              <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+            </li>
+          </ul>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <div tal:condition="no_content">
       <p i18n:translate="">It appears you have no reporting tasks.</p>
       <p i18n:translate="">
         If you are registered as data reporter in the

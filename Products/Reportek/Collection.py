@@ -81,7 +81,7 @@ def manage_addCollection(
     """Add a new Collection object"""
     if isinstance(self, Collection) and not self.allow_collections:
         raise ValueError(
-            "The collection does not allow child collections " "to be created."
+            "The collection does not allow child collections to be created."
         )
     if id == "":
         id = RepUtils.generate_id("col")
@@ -1301,6 +1301,75 @@ class Collection(
     def is_ods(self):
         """Return True if the collection is an ODS collection."""
         return self.get_domain(df_type="undertakings") == "ODS"
+
+    security.declareProtected("View", "get_audit_collection")
+
+    def get_audit_collection(self):
+        """Return the audit subcollection."""
+        if not self.is_fgas():
+            return None
+        try:
+            return self.restrictedTraverse("col_fgas_ver")
+        except AttributeError:
+            return None
+
+    security.declareProtected("View", "get_auditable_data_reports")
+
+    def get_auditable_data_reports(self):
+        """Return the auditable data reports."""
+        if not self.is_fgas_verification():
+            return []
+        import plone.protect.interfaces
+        from zope.interface import alsoProvides
+
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
+        # This is a bit weird here, since we expect this to be called
+        # from envelopes from audit collection, which is a
+        # subcollection of the FGAS collection.
+        res = []
+        rep_coll = self.getParentNode()
+        envs = rep_coll.objectValues("Report Envelope")
+        envs = [env for env in envs if env.is_auditable()]
+        MKEYS = [
+            "tr_09C",
+            "tr_09F",
+            "tr_13Bb",
+            "tr_13D",
+            "tr_5C_exempted_CO2e",
+        ]
+        for env in envs:
+            docs = [
+                r
+                for r in env.objectValues("Report Document")
+                if r.content_type == "text/xml"
+            ]
+
+            if not docs:
+                continue
+
+            # asume that there's only one element here
+            doc = docs[0]
+            metadata = doc.metadata
+
+            mdata = {"id": env.id, "title": env.title}
+            for key in MKEYS:
+                try:
+                    if key in metadata:
+                        amount = metadata.get(key, {}).get("Amount")
+                        mdata[key] = (
+                            int(amount) if amount is not None else None
+                        )
+                    else:
+                        mdata[key] = None
+                except (ValueError, KeyError, TypeError):
+                    mdata[key] = None
+            res.append(mdata)
+        return res
+
+    security.declareProtected("View", "is_newest_released")
 
     def is_newest_released(self, env_id):
         """Return True if it's the newest released envelope in context."""

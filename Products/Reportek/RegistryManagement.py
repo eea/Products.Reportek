@@ -1,3 +1,4 @@
+import json
 import logging
 from time import time
 
@@ -7,6 +8,7 @@ from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
+from requests.exceptions import HTTPError
 from zope.interface import implementer
 
 import Products
@@ -117,6 +119,87 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         if response:
             return response.json()
+
+    def check_auditor(self, **kwargs):
+        # /undertaking/[domain]/[company_id]/auditor/[auditor_uid]/check
+        url = "/".join(
+            [
+                self.baseUrl,
+                "undertaking",
+                kwargs.get("domain"),
+                kwargs.get("company_id"),
+                "auditor",
+                kwargs.get("auditor_uid"),
+                "check",
+            ]
+        )
+        response = self.do_api_request(
+            url, headers={"Authorization": self.token}
+        )
+        if response:
+            return response.json()
+
+    def get_audit_envelopes(self, src_env):
+        # /auditors/verification_envelopes/?reporting_envelope_url=/reporting/envelope/url
+        url = "/".join(
+            [
+                self.baseUrl,
+                "auditors/verification_envelopes",
+            ]
+        )
+        params = {"reporting_envelope_url": src_env}
+        response = self.do_api_request(
+            url, headers={"Authorization": self.token}, params=params
+        )
+        if response:
+            return response.json()
+
+    def assign(self, data):
+        # /undertaking/[domain]/[company_id]/auditor/[auditor_uid]/assign/
+        url = "/".join(
+            [
+                self.baseUrl,
+                "undertaking",
+                data.get("domain"),
+                data.get("company_id"),
+                "auditor",
+                data.get("auditor_uid"),
+                "assign/",
+            ]
+        )
+        p_data = {
+            "email": data.get("lead_auditor"),
+            "reporting_envelope_url": data.get("reporting_envelope_url"),
+            "verification_envelope_url": data.get("verification_envelope_url"),
+        }
+
+        response = self.do_api_request(
+            url,
+            data=json.dumps(p_data),
+            method="post",
+            headers={
+                "Authorization": self.token,
+                "Content-Type": "application/json",
+            },
+            raw=True,
+        )
+        if response is None:
+            raise Exception(
+                "API request failed: No response received from the server."
+            )
+
+        try:
+            response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        except HTTPError as e:
+            msg = (
+                "API request failed with status code: {},"
+                "reason: {}, content: {}. ({})".format(
+                    response.status_code, response.reason, response.text, e
+                )
+            )
+            raise Exception(msg)
+
+        return response.json()
 
     def get_stocks(self):
         page = "stocks"
@@ -301,25 +384,20 @@ class FGASRegistryAPI(BaseRegistryAPI):
         The username request is in the process of being deprecated.
         The userdata request is the preferred method which should match
         either the ecas_id or the username(e-mail) in the ecr."""
-        # <ecr_host>/user/companies?username=<username>&ecas_id=<ecas_id>
-        url = "{}/user/companies".format(self.baseUrl)
+        # <ecr_host>/user/companies/v2?username=<username>&ecas_id=<ecas_id>
+        url = "{}/user/companies/v2".format(self.baseUrl)
         headers = {"Authorization": self.token}
         if userdata:
-            q_params = {
-                "username": userdata.get("username"),
-                "ecas_id": userdata.get("ecas_id"),
-            }
             response = self.do_api_request(
-                url, params=q_params, headers=headers
+                url, params=userdata, headers=headers
             )
         else:
             url = self.baseUrl + "/user/" + username + "/companies"
-            response = self.do_api_request(
-                url, headers=headers
-            )
+            response = self.do_api_request(url, headers=headers)
         rep_paths = {}
         paths = []
         prev_paths = []
+        audit_paths = []
 
         def build_paths(c, c_code):
             path = None
@@ -343,30 +421,37 @@ class FGASRegistryAPI(BaseRegistryAPI):
             return path
 
         if response:
-            companies = response.json()
-            for c in companies:
-                c_code = c.get("country")
-                if c.get("representative_country"):
-                    c_code = c.get("representative_country")
-                path = build_paths(c, c_code)
-                if path:
-                    paths.append(path)
-                for lr in c.get("represent_history", []):
-                    lr_address = lr.get("address", {})
-                    lr_c = lr_address.get("country")
-                    if lr_c:
-                        lr_c_code = lr_c.get("code")
-                        prev_path = build_paths(c, lr_c_code)
-                        if self.unrestrictedTraverse(prev_path, None):
+            data = response.json()
+            if "auditor" in data:
+                for auditor in data["auditor"]:
+                    ver = auditor.get("verification_envelope_url")
+                    if ver:
+                        if ver.startswith("/"):
+                            ver = ver.lstrip("/")
+                        audit_paths.append(ver)
+            else:
+                authpaths = data["reporter"]
+                for c in authpaths:
+                    c_code = c.get("country")
+                    if c.get("representative_country"):
+                        c_code = c.get("representative_country")
+                    path = build_paths(c, c_code)
+                    if path:
+                        paths.append(path)
+                    for lr in c.get("represent_history", []):
+                        lr_address = lr.get("address", {})
+                        lr_c = lr_address.get("country")
+                        if lr_c:
+                            lr_c_code = lr_c.get("code")
+                            prev_path = build_paths(c, lr_c_code)
                             prev_paths.append(prev_path)
-                for c_hist in c.get("country_history", []):
-                    path = build_paths(c, c_hist)
-                    if self.unrestrictedTraverse(path, None):
+                    for c_hist in c.get("country_history", []):
+                        path = build_paths(c, c_hist)
                         prev_paths.append(path)
 
         rep_paths["paths"] = paths
         rep_paths["prev_paths"] = prev_paths
-
+        rep_paths["audit_paths"] = audit_paths
         return rep_paths
 
     def existsCompany(self, params, domain="FGAS"):
@@ -716,7 +801,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
     def getCollectionPaths(self, username):
         """Get collections accessible by the user"""
         usr_details = self.get_user_details(username)
-        rep_paths = {"paths": [], "prev_paths": []}
+        rep_paths = {"paths": [], "prev_paths": [], "audit_paths": []}
         if usr_details:
             for res in usr_details:
                 if res.get("has_reporting_folder"):

@@ -108,7 +108,7 @@ manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
 
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
-                       REQUEST=None, previous_delivery=''):
+                       REQUEST=None, previous_delivery='', metadata=None):
     """ Add a new Envelope object with id *id*.
     """
     id = RepUtils.generate_id('env')
@@ -172,6 +172,8 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     dataflow_uris = self.get_dataflow_uris()
     ob = Envelope(process, title, actor, year, endyear, partofyear,
                   self.country, locality, descr, dataflow_uris)
+    if metadata and metadata.get("type") == "audit":
+        ob.is_audit = True
     ob.id = id
     # Get the restricted property from the parent collection
     self._setObject(id, ob)
@@ -215,6 +217,8 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
             }
             return json.dumps(data, indent=4)
         return REQUEST.RESPONSE.redirect(self.absolute_url())
+    elif ob.is_audit:
+        return ob
     else:
         return ob.absolute_url()
 
@@ -310,6 +314,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             return False
         else:
             return getattr(QA_workitems[-1], 'blocker', False)
+
+    @property
+    def is_audit(self):
+        """Returns True if the envelope is an audit envelope."""
+        return getattr(self, '_is_audit', False)
+
+    @is_audit.setter
+    def is_audit(self, value):
+        """Sets the audit status of the envelope."""
+        self._is_audit = bool(value)
 
     def get_qa_feedbacks(self):
         """Return a list containing all AutomaticQA feedback objects."""
@@ -563,7 +577,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                                 'A system error occured and an alert has been'
                                 ' triggered for the administrators!')
                 REQUEST.SESSION.set('status_extra', status_extra)
-
         return self.overview(REQUEST)
 
     security.declareProtected('View management screens', 'manage_main_inh')
