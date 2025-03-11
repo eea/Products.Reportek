@@ -422,7 +422,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         if response:
             data = response.json()
-            if "auditor" in data:
+            if isinstance(data, list):
+                data = {"reporter": data, "auditor": []}
+            if data.get("auditor", []):
                 for auditor in data["auditor"]:
                     ver = auditor.get("verification_envelope_url")
                     if ver:
