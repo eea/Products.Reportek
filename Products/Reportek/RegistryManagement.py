@@ -384,8 +384,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
         The username request is in the process of being deprecated.
         The userdata request is the preferred method which should match
         either the ecas_id or the username(e-mail) in the ecr."""
-        # <ecr_host>/user/companies/v2?username=<username>&ecas_id=<ecas_id>
-        url = "{}/user/companies/v2".format(self.baseUrl)
+        # <ecr_host>/user/companies/v2/?username=<username>&ecas_id=<ecas_id>
+        url = "{}/user/companies/v2/".format(self.baseUrl)
         headers = {"Authorization": self.token}
         if userdata:
             response = self.do_api_request(
