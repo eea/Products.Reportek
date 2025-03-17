@@ -201,6 +201,53 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         return response.json()
 
+    def unassign(self, data):
+        # /undertaking/[domain]/[company_id]/auditor/[auditor_uid]/unassign/
+        url = "/".join(
+            [
+                self.baseUrl,
+                "undertaking",
+                data.get("domain"),
+                data.get("company_id"),
+                "auditor",
+                data.get("auditor_uid"),
+                "unassign/",
+            ]
+        )
+        p_data = {
+            "email": data.get("lead_auditor"),
+            "reporting_envelope_url": data.get("reporting_envelope_url"),
+            "verification_envelope_url": data.get("verification_envelope_url"),
+        }
+
+        response = self.do_api_request(
+            url,
+            data=json.dumps(p_data),
+            method="post",
+            headers={
+                "Authorization": self.token,
+                "Content-Type": "application/json",
+            },
+            raw=True,
+        )
+        if response is None:
+            raise Exception(
+                "API request failed: No response received from the server."
+            )
+
+        try:
+            response.raise_for_status()  # Raise HTTPError for bad responses
+        except HTTPError as e:
+            msg = (
+                "API request failed with status code: {},"
+                "reason: {}, content: {}. ({})".format(
+                    response.status_code, response.reason, response.text, e
+                )
+            )
+            raise Exception(msg)
+
+        return response.json()
+
     def get_stocks(self):
         page = "stocks"
         url = "/".join([self.baseUrl, page])

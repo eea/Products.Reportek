@@ -22,6 +22,15 @@
             <li><a href="envelope_zip" rel="nofollow" title="Download zipped envelope with available files"
                    i18n:attributes="title"
                    i18n:translate="">Zip envelope</a></li>
+            <tal:block tal:condition="context/is_audit_assigned">
+              <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
+                <li tal:condition="python:'Owner' in roles_in_context">
+                  <a href="unassign_auditor" title="Unassign auditor"
+                    i18n:attributes="title"
+                    i18n:translate="">Unassign auditor</a>
+                </li>
+              </tal:def>
+            </tal:block>
           <div tal:replace="structure python:context.activity_operations(REQUEST=context.REQUEST)"/>
         </ul>
       </div>

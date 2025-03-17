@@ -29,6 +29,7 @@
                 <th i18n:translate="">Auditing rights began at</th>
                 <th i18n:translate="">Auditing rights ended at</th>
                 <th i18n:translate="">Verification envelope</th>
+                <th i18n:translate="">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -56,6 +57,15 @@
                 <td>
                   <a tal:attributes="href string:${audit/verification_envelope_url}"
                       tal:content="audit/verification_envelope_url" />
+                </td>
+                <td>
+                  <a
+                    tal:attributes="href string:${audit/verification_envelope_url}/unassign_auditor"
+                     class="btn btn-danger btn-sm"
+                     title="Unassign auditor"
+                     onclick="return confirm('Are you sure you want to unassign this auditor?');"
+                     i18n:attributes="title"
+                     i18n:translate="">Unassign auditor</a>
                 </td>
               </tr>
             </tbody>

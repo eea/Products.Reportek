@@ -2022,6 +2022,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(self.FGASRegistryAPI.assign(data))
 
+        security.declareProtected("View", "assign_for_audit")
+
+        def unassign_for_audit(self, data):
+            """Unassign envelope for audit."""
+            if not getattr(self, "REQUEST", None):
+                return []
+            self.REQUEST.RESPONSE.setStatus(200)
+            return json.dumps(self.FGASRegistryAPI.unassign(data))
+
         security.declareProtected("View", "get_ecr_audit_envelopes")
 
         def get_ecr_audit_envelopes(self, src_env):

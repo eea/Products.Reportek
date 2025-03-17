@@ -1009,12 +1009,8 @@ class Collection(
 
         return json.dumps(res, indent=4)
 
-    security.declareProtected("View", "company_details_short")
-
-    def company_details_short(self):
-        """Return the short company details"""
+    def get_company_details_short(self):
         res = {}
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
             registry = engine.get_registry(self)
@@ -1031,7 +1027,14 @@ class Collection(
                     res = registry.get_company_details_short(
                         self.company_id, domain=domain
                     )
+        return res
 
+    security.declareProtected("View", "company_details_short")
+
+    def company_details_short(self):
+        """Return the short company details"""
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        res = self.get_company_details_short()
         return json.dumps(res, indent=4)
 
     security.declareProtected("View", "company_types")
