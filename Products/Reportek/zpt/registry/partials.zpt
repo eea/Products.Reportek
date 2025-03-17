@@ -211,7 +211,7 @@
       <!-- MS Accreditation Countries -->
       <tr>
         <th i18n:translate="">MS Accreditation issuing countries</th>
-        <td tal:define="countries auditor/ms_accreditation_countries|nothing">
+        <td tal:define="countries auditor/ms_accreditation_issuing_countries|nothing">
           <ul>
             <li tal:repeat="country countries"
                 tal:content="country"></li>
