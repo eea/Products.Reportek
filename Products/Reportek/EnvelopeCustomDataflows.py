@@ -2186,6 +2186,107 @@ class EnvelopeCustomDataflows(Toolz):
         verification_settings = audit.get_audit_metadata()
         return json.dumps(verification_settings)
 
+    security.declareProtected("View", "get_audit_metadata")
+
+    def get_audit_metadata(self):
+        """
+        Gets the audit metadata for the envelope.
+
+        This method retrieves audit-related metadata for F-gas verification
+        envelopes, including report details, audit status, and company
+        information.
+
+        Returns:
+            str: JSON-encoded dictionary containing audit metadata with the
+            following keys:
+                - dataReportUrl: Absolute URL of the report
+                - dataReportTitle: Title of the report
+                - dataReportTransactionYear: Report year
+                - dataReportReleaseDate: Report release date in HTML4 format
+                - assignedToAuditor: Boolean indicating if audit is assigned
+                - company: Dictionary containing company details
+                - (and other audit-specific metadata from IAudit adapter)
+
+                In case of error, returns a dictionary with an 'error' key.
+        """
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+
+        try:
+            if not self.is_fgas_verification():
+                return json.dumps({})
+
+            # Get basic audit metadata
+            try:
+                audit = IAudit(self)
+                audit_metadata = audit.get_audit_metadata()
+            except Exception:
+                logging.error(
+                    "Error getting audit metadata for envelope %s",
+                    self.getId(),
+                )
+                return json.dumps(
+                    {"error": "Could not retrieve audit metadata"}
+                )
+
+            # Get parent nodes
+            try:
+                v_col = self.getParentNode()
+                if not v_col:
+                    return json.dumps(
+                        {"error": "Verification collection not found"}
+                    )
+
+                r_col = v_col.getParentNode()
+                if not r_col:
+                    return json.dumps(
+                        {
+                            "error": "Report collection not found"
+                        }
+                    )
+            except Exception:
+                logging.error(
+                    "Error accessing parent nodes for envelope %s",
+                    self.getId(),
+                )
+                return json.dumps(
+                    {"error": "Could not access parent collections"}
+                )
+
+            # Get report and its details
+            try:
+                report = getattr(r_col, audit_metadata["dataReportId"])
+                if not report:
+                    return json.dumps({"error": "Report not found"})
+
+                # Enhance audit metadata with report details
+                audit_metadata.update(
+                    {
+                        "dataReportUrl": report.absolute_url(),
+                        "dataReportTitle": report.title,
+                        "dataReportTransactionYear": report.year,
+                        "dataReportReleaseDate": report.reportingdate.HTML4(),
+                        "assignedToAuditor": self.is_audit_assigned,
+                        "company": self.get_company_details_short(),
+                    }
+                )
+            except (AttributeError, KeyError):
+                logging.error(
+                    "Error getting report details for envelope %s",
+                    self.getId(),
+                )
+                return json.dumps(
+                    {"error": "Could not retrieve report details"}
+                )
+
+            return json.dumps(audit_metadata)
+
+        except Exception:
+            logging.error(
+                "Unexpected error in get_audit_metadata for envelope %s",
+                self.getId(),
+            )
+            return json.dumps({"error": "An unexpected error occurred"})
+
     security.declareProtected("View", "get_audits")
 
     def get_audits(self):
