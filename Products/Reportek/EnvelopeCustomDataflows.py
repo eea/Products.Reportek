@@ -1958,6 +1958,49 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected("Change Envelopes", "assign_auditor")
 
+    def unassign_auditor(self):
+        """Unassign envelope for F-gas verification.
+
+        Returns:
+            dict: The result of the audit unassignment
+
+        Raises:
+            ValueError: If envelope is not auditable or if unable to unassign
+        """
+        import plone.protect.interfaces
+        from zope.interface import alsoProvides
+
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+
+        if not self.is_fgas_verification():
+            raise ValueError("Envelope is not auditable")
+
+        try:
+            settings = self._load_verification_settings()
+
+            if settings.get("verificationOptions", {}).get("none"):
+                return  # No audit should be performed
+
+            audit_data = self._prepare_audit_data(settings)
+            engine = self.getEngine()
+            res = json.loads(engine.unassign_for_audit(audit_data))
+            if res.get("success"):
+                audit = IAudit(self)
+                audit.set_audit_metadata({})
+                return json.dumps(res)
+            else:
+                raise ValueError("Failed to unassign audit")
+
+        except (ValueError, AttributeError) as e:
+            msg = "Failed to unassign envelope: {}".format(str(e))
+            raise ValueError(msg)
+
+    security.declareProtected("Change Envelopes", "assign_auditor")
+
     def assign_auditor(self):
         """Create an audit envelope for F-gas verification.
 
@@ -1968,6 +2011,13 @@ class EnvelopeCustomDataflows(Toolz):
             ValueError: If envelope is not auditable or if verification data
             is invalid
         """
+        import plone.protect.interfaces
+        from zope.interface import alsoProvides
+
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
 
         if not self.is_fgas_verification():
