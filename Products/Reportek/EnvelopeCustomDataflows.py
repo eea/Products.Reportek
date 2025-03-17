@@ -1984,8 +1984,10 @@ class EnvelopeCustomDataflows(Toolz):
 
             audit_data = self._prepare_audit_data(settings)
             engine = self.getEngine()
-            return engine.unassign_for_audit(audit_data)
-
+            res = json.loads(engine.unassign_for_audit(audit_data))
+            if res.get("success"):
+                self.is_audit_assigned = False
+            return json.dumps(res)
         except (ValueError, AttributeError) as e:
             msg = "Failed to unassign envelope: {}".format(str(e))
             raise ValueError(msg)
@@ -1993,7 +1995,7 @@ class EnvelopeCustomDataflows(Toolz):
     security.declareProtected("Change Envelopes", "assign_auditor")
 
     def assign_auditor(self):
-        """Create an audit envelope for F-gas verification.
+        """Assign an auditor to an envelope for F-gas verification.
 
         Returns:
             dict: The result of the audit assignment
@@ -2022,7 +2024,10 @@ class EnvelopeCustomDataflows(Toolz):
 
             audit_data = self._prepare_audit_data(settings)
             engine = self.getEngine()
-            return engine.assign_for_audit(audit_data)
+            res = json.loads(engine.assign_for_audit(audit_data))
+            if res.get("success"):
+                self.is_audit_assigned = True
+            return json.dumps(res)
 
         except (ValueError, AttributeError) as e:
             msg = "Failed to create audit envelope: {}".format(str(e))
@@ -2120,7 +2125,7 @@ class EnvelopeCustomDataflows(Toolz):
         Returns:
             bool: True if the envelope is auditable, False otherwise
         """
-        if not (self.released and self.is_fgas() and not self.is_audit):
+        if not (self.released and self.is_fgas()):
             return False
 
         if not (self.is_acceptable() and self.successful_qa):
@@ -2185,7 +2190,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     def get_audits(self):
         """Get audits for envelope."""
-        if not self.is_fgas() or self.is_audit:
+        if not self.is_fgas():
             raise ValueError("Envelope is not auditable")
         engine = self.getEngine()
         return engine.get_ecr_audit_envelopes("/".join(self.getPhysicalPath()))
