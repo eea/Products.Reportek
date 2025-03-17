@@ -1982,18 +1982,9 @@ class EnvelopeCustomDataflows(Toolz):
         try:
             settings = self._load_verification_settings()
 
-            if settings.get("verificationOptions", {}).get("none"):
-                return  # No audit should be performed
-
             audit_data = self._prepare_audit_data(settings)
             engine = self.getEngine()
-            res = json.loads(engine.unassign_for_audit(audit_data))
-            if res.get("success"):
-                audit = IAudit(self)
-                audit.set_audit_metadata({})
-                return json.dumps(res)
-            else:
-                raise ValueError("Failed to unassign audit")
+            return engine.unassign_for_audit(audit_data)
 
         except (ValueError, AttributeError) as e:
             msg = "Failed to unassign envelope: {}".format(str(e))
