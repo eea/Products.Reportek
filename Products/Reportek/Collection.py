@@ -1357,7 +1357,13 @@ class Collection(
             doc = docs[0]
             metadata = doc.metadata
 
-            mdata = {"id": env.id, "title": env.title}
+            mdata = {
+                "id": env.id,
+                "url": env.absolute_url(),
+                "title": env.title,
+                "year": env.year,
+                "reportingdate": env.reportingdate.HTML4(),
+            }
             for key in MKEYS:
                 try:
                     if key in metadata:

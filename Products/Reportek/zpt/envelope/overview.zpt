@@ -7,6 +7,38 @@
     <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
     <script type="text/javascript" charset="utf8" src="++resource++static/jquery-3.5.1.min.js"></script>
     <script src="++resource++static/active_status.js"></script>
+    <tal:block tal:condition="isBdrDeployment">
+      <script type="text/javascript">
+        function confirmUnassign(event) {
+          event.preventDefault();
+          if (confirm('Are you sure you want to unassign the auditor?')) {
+            var link = event.target;
+            fetch(link.href, {
+              method: 'GET',
+              credentials: 'same-origin'
+            })
+            .then(function(response) {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(function(data) {
+              if (data.success) {
+                window.location.reload();
+              } else {
+                alert('Failed to unassign auditor: ' + (data.message || 'Unknown error'));
+              }
+            })
+            .catch(function(error) {
+              console.error('Error:', error);
+              alert('An error occurred while trying to unassign the auditor. Please try again or contact support if the problem persists.');
+            });
+          }
+          return false;
+        }
+      </script>
+    </tal:block>
   </metal:block>
   <metal:block fill-slot="content">
     <tal:block condition="python:context.canViewContent()">
@@ -25,9 +57,11 @@
             <tal:block tal:condition="context/is_audit_assigned">
               <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
                 <li tal:condition="python:'Owner' in roles_in_context">
-                  <a href="unassign_auditor" title="Unassign auditor"
-                    i18n:attributes="title"
-                    i18n:translate="">Unassign auditor</a>
+                  <a href="unassign_auditor"
+                     onclick="return confirmUnassign(event)"
+                     title="Unassign auditor"
+                     i18n:attributes="title"
+                     i18n:translate="">Unassign auditor</a>
                 </li>
               </tal:def>
             </tal:block>
