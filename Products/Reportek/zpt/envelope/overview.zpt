@@ -11,7 +11,7 @@
       <script type="text/javascript">
         function confirmUnassign(event) {
           event.preventDefault();
-          if (confirm('Are you sure you want to unassign the auditor?')) {
+          if (confirm('Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established.')) {
             var link = event.target;
             fetch(link.href, {
               method: 'GET',
