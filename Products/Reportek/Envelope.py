@@ -59,7 +59,10 @@ from DateTime import DateTime
 from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.Permissions import view_management_screens
+from AccessControl.requestmethod import requestmethod
 from AccessControl import ClassSecurityInfo, Unauthorized
+from zope.component import getMultiAdapter
+from plone.protect.interfaces import IDisableCSRFProtection
 import plone.protect.interfaces
 from zope.interface import alsoProvides
 import xlwt
@@ -1236,7 +1239,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     manage_addzipfileform = PageTemplateFile('zpt/envelope/add_zip', globals())
 
     security.declareProtected('View', 'envelope_zip')
-
+    @requestmethod("POST")
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
             then zip them and send the result to the user.
@@ -1247,7 +1250,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             zipfile, as in index_html of Document.py due to the partial
             requests that can be made with HTTP
         """
-
+        if not IDisableCSRFProtection.providedBy(REQUEST):
+            authenticator=getMultiAdapter(
+                (self, REQUEST), name=u"authenticator")
+            if not authenticator.verify('envelope_zip'):
+                raise Unauthorized("Unable to verify authenticator")
         if not self.canViewContent():
             raise Unauthorized("Envelope is not available")
 

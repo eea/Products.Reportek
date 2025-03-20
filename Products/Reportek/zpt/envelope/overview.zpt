@@ -51,9 +51,15 @@
                    i18n:attributes="title"
                    i18n:translate="">Add feedback</a></li>
           </tal:block>
-            <li><a href="envelope_zip" rel="nofollow" title="Download zipped envelope with available files"
-                   i18n:attributes="title"
-                   i18n:translate="">Zip envelope</a></li>
+            <li>
+                <form method="POST" action="envelope_zip">
+                    <tal:authenticator tal:define="authenticator context/@@authenticator">
+                      <span tal:replace="structure python: authenticator.authenticator('envelope_zip')"/>
+                    </tal:authenticator>
+                    <button i18n:attributes="title"
+                    i18n:translate="" type="submit" class="btn-ops">Zip envelope</button>
+                </form>
+            </li>
             <tal:block tal:condition="context/is_audit_assigned">
               <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
                 <li tal:condition="python:'Owner' in roles_in_context">

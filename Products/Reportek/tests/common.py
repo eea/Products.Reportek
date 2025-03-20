@@ -270,6 +270,10 @@ class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         # some tests use app.REQUEST and some use root
         self.root = makerequest(self.app, new_environ["_stdout"], new_environ)
         self.app.REQUEST = self.root.REQUEST
+        from plone.protect.interfaces import IDisableCSRFProtection
+        from zope.interface import alsoProvides
+
+        alsoProvides(self.app.REQUEST, IDisableCSRFProtection)
         self.app.REQUEST.AUTHENTICATED_USER = Mock()
         self.app.REQUEST.AUTHENTICATED_USER.getUserName.return_value = "gigel"
         self.root.standard_html_header = ""
