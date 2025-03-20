@@ -11,7 +11,7 @@
       <script type="text/javascript">
         function confirmUnassign(event) {
           event.preventDefault();
-          if (confirm('Are you sure you want to unassign the auditor?')) {
+          if (confirm('Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established.')) {
             var link = event.target;
             fetch(link.href, {
               method: 'GET',
@@ -56,13 +56,14 @@
                     <tal:authenticator tal:define="authenticator context/@@authenticator">
                       <span tal:replace="structure python: authenticator.authenticator('envelope_zip')"/>
                     </tal:authenticator>
-                    <button i18n:attributes="title"
+                    <button i18n:attributes="title" title="Download zipped envelope with available files"
                     i18n:translate="" type="submit" class="btn-ops">Zip envelope</button>
                 </form>
             </li>
             <tal:block tal:condition="context/is_audit_assigned">
               <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
-                <li tal:condition="python:'Owner' in roles_in_context">
+                <span tal:content="roles_in_context"/>
+                <li tal:condition="python:'Owner' in roles_in_context or 'Manager' in roles_in_context">
                   <a href="unassign_auditor"
                      onclick="return confirmUnassign(event)"
                      title="Unassign auditor"
