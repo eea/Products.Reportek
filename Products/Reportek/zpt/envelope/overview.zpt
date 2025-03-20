@@ -62,7 +62,6 @@
             </li>
             <tal:block tal:condition="context/is_audit_assigned">
               <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
-                <span tal:content="roles_in_context"/>
                 <li tal:condition="python:'Owner' in roles_in_context or 'Manager' in roles_in_context">
                   <a href="unassign_auditor"
                      onclick="return confirmUnassign(event)"
