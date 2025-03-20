@@ -1239,6 +1239,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     manage_addzipfileform = PageTemplateFile('zpt/envelope/add_zip', globals())
 
     security.declareProtected('View', 'envelope_zip')
+
     @requestmethod("POST")
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
@@ -1251,7 +1252,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             requests that can be made with HTTP
         """
         if not IDisableCSRFProtection.providedBy(REQUEST):
-            authenticator=getMultiAdapter(
+            authenticator = getMultiAdapter(
                 (self, REQUEST), name=u"authenticator")
             if not authenticator.verify('envelope_zip'):
                 raise Unauthorized("Unable to verify authenticator")

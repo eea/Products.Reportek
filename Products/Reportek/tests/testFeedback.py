@@ -264,11 +264,12 @@ class RemoteApplicationFeedbackTest(BaseUnitTest):
         self.assertEqual(feedback.content_type, "text/html")
 
     def test_feedback_for_file_with_space_chars(self):
+        file_url = "http://example.com/name%20with%20spaces.txt"
         self.remoteapp.the_workitem = Mock(
             the_app={
                 "getResult": {
                     "the_jobid": {
-                        "fileURL": "http://example.com/name%20with%20spaces.txt",
+                        "fileURL": file_url,
                     },
                 }
             }
