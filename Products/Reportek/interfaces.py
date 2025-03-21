@@ -244,3 +244,11 @@ class IReportekCatalogAware(Interface):
         useful optimization if the object itself has just been fully
         reindexed, as there's no need to reindex its security twice.
         """
+
+
+class IAuditAssignedEvent(IEnvelopeEvent):
+    """An envelope was assigned for audit"""
+
+
+class IAuditUnassignedEvent(IEnvelopeEvent):
+    """An envelope was unassigned from audit"""

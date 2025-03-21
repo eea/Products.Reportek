@@ -171,6 +171,18 @@
         handler="Products.Reportek.subscribers.handle_collection_added_event"
     />
 
+    <subscriber
+        for="Products.Reportek.interfaces.IEnvelope
+             Products.Reportek.interfaces.IAuditAssignedEvent"
+        handler="Products.Reportek.subscribers.handle_audit_assigned_event"
+    />
+
+    <subscriber
+        for="Products.Reportek.interfaces.IEnvelope
+             Products.Reportek.interfaces.IAuditUnassignedEvent"
+        handler="Products.Reportek.subscribers.handle_audit_unassigned_event"
+    />
+
 <!--    <subscriber handler="Products.Reportek.subscribers.handle_collection_modified_event" /> -->
 <!--    <subscriber for="Products.Reportek.interfaces.ICollection
                      zope.lifecycleevent.interfaces.IObjectModifiedEvent"
