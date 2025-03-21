@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from time import time
 
 from DateTime import DateTime
@@ -6,6 +7,8 @@ from OFS.interfaces import IObjectWillBeMovedEvent
 from zope.lifecycleevent.interfaces import IObjectAddedEvent, IObjectMovedEvent
 
 from Products.Reportek.constants import ENGINE_ID
+
+logger = logging.getLogger(__name__)
 
 
 def handle_document_removed_event(obj, event):
@@ -56,10 +59,6 @@ def handle_collection_removed_event(obj, event):
             engine._p_changed = True
 
 
-# def handle_envelope_released_event(obj, event):
-#     """test"""
-
-
 def handleContentishEvent(ob, event):
     """Event subscriber for (IObjectEvent) events."""
     if IObjectAddedEvent.providedBy(event):
@@ -72,3 +71,23 @@ def handleContentishEvent(ob, event):
     elif IObjectWillBeMovedEvent.providedBy(event):
         if event.oldParent is not None:
             ob.unindexObject()
+
+
+def handle_audit_assigned_event(obj, event):
+    """Handle envelope audit assignment"""
+    logger.info("Audit assigned for: {}".format(obj.absolute_url()))
+
+
+def handle_audit_unassigned_event(obj, event):
+    """Handle envelope audit unassignment"""
+    try:
+        obl_process = obj.unrestrictedTraverse(obj.process_path)
+        if obl_process and obj.status != "complete":
+            end_act = obl_process.end
+            wk = obj.getListOfWorkitems()[-1]
+            obj.falloutWorkitem(wk.id)
+            obj.fallinWorkitem(wk.id, end_act)
+            obj.endFallinWorkitem(wk.id)
+            logger.info("Audit unassigned for: {}".format(obj.absolute_url()))
+    except Exception as e:
+        logger.error("Error completing audit envelope: {}".format(e))

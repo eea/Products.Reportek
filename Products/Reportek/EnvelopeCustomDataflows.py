@@ -44,15 +44,18 @@ import zip_content
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from Acquisition import aq_base
 from constants import CONVERTERS_ID, ENGINE_ID
+from DateTime import DateTime
 from Globals import InitializeClass
 from Toolz import Toolz
 from XMLInfoParser import SchemaError, detect_single_schema
 from zip_content import ZZipFile
 from zope.contenttype import guess_content_type
+from zope.event import notify
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.Document import error_message, success_message
+from Products.Reportek.events import AuditAssignedEvent, AuditUnassignedEvent
 from Products.Reportek.interfaces import IAudit
 
 # from zipfile import *
@@ -1987,6 +1990,13 @@ class EnvelopeCustomDataflows(Toolz):
             res = json.loads(engine.unassign_for_audit(audit_data))
             if res.get("success"):
                 self.is_audit_assigned = False
+                audit_info = self.audit_info
+                audit_info["audit_end_date"] = DateTime().strftime(
+                    "%d %b %Y %H:%M"
+                )
+                self.audit_info = audit_info
+                notify(AuditUnassignedEvent(self))
+            self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(res)
         except (ValueError, AttributeError) as e:
             msg = "Failed to unassign envelope: {}".format(str(e))
@@ -2027,6 +2037,13 @@ class EnvelopeCustomDataflows(Toolz):
             res = json.loads(engine.assign_for_audit(audit_data))
             if res.get("success"):
                 self.is_audit_assigned = True
+                audit_info = self._extract_audit_info(settings)
+                audit_info["audit_start_date"] = DateTime().strftime(
+                    "%d %b %Y %H:%M"
+                )
+                audit_info["audit_end_date"] = None
+                self.audit_info = audit_info
+                notify(AuditAssignedEvent(self))
             return json.dumps(res)
 
         except (ValueError, AttributeError) as e:
@@ -2090,6 +2107,51 @@ class EnvelopeCustomDataflows(Toolz):
         )
 
         return data
+
+    def _extract_audit_info(self, data):
+        auditor = data.get("auditor", {})
+        address = auditor.get("address", {})
+        lead_auditor_email = data.get("leadAuditorEmail", "")
+
+        address_fields = ["street", "number", "city", "zipcode"]
+        address_parts = [
+            address.get(field)
+            for field in address_fields
+            if address.get(field)
+        ]
+        if address.get("country", {}).get("name"):
+            address_parts.append(address["country"]["name"])
+
+        lead_auditor = next(
+            (
+                user.get("username")
+                for user in auditor.get("users", [])
+                if user.get("email") == lead_auditor_email
+            ),
+            "",
+        )
+
+        lead_auditor_name = next(
+            (
+                "{0} {1}".format(
+                    user.get("first_name", ""), user.get("last_name", "")
+                )
+                for user in auditor.get("users", [])
+                if user.get("email") == lead_auditor_email
+            ),
+            "",
+        )
+
+        audit_info = {
+            "auditor_uid": auditor.get("auditor_uid", ""),
+            "auditor_name": auditor.get("name", ""),
+            "auditor_address": ", ".join(address_parts),
+            "lead_auditor": lead_auditor,
+            "lead_auditor_email": lead_auditor_email,
+            "lead_auditor_name": lead_auditor_name,
+        }
+
+        return audit_info
 
     security.declareProtected("View", "validate_auditor")
 

@@ -324,6 +324,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """Set the is_audit_assigned status of the envelope."""
         self._is_audit_assigned = bool(value)
 
+    @property
+    def audit_info(self):
+        """Returns short audit info if the envelope"""
+        return getattr(self, '_audit_info', {})
+
+    @audit_info.setter
+    def audit_info(self, value):
+        """Set the audit_info of the envelope."""
+        self._audit_info = value
+
     def get_qa_feedbacks(self):
         """Return a list containing all AutomaticQA feedback objects."""
         return (rf for rf in self.objectValues('Report Feedback')

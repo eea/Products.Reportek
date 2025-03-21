@@ -138,17 +138,35 @@
                 <td tal:content="python: context.reportingdate.strftime('%d %b %Y %H:%M')" />
               </tr>
             </tal:block>
-            <tr tal:condition="isBdrDeployment">
-              <th i18n:translate="">Acceptability status</th>
-              <td tal:define="statuses
-                                 python:{
-                                      True: 'Data delivery is acceptable',
-                                      False: 'Data delivery is not acceptable',};
-                              ok_acceptable python: context.is_acceptable() and context.successful_qa;
-                              unknown python: context.has_unknown_qa_result and ok_acceptable;"
-                  tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
-              </td>
-            </tr>
+            <tal:block tal:condition="isBdrDeployment">
+              <tr>
+                <th i18n:translate="">Acceptability status</th>
+                <td tal:define="statuses
+                                  python:{
+                                        True: 'Data delivery is acceptable',
+                                        False: 'Data delivery is not acceptable',};
+                                ok_acceptable python: context.is_acceptable() and context.successful_qa;
+                                unknown python: context.has_unknown_qa_result and ok_acceptable;"
+                    tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
+                </td>
+              </tr>
+              <tal:block tal:condition="python: context.audit_info">
+                <tr tal:define="a_info context/audit_info;
+                                auditor_uid python: a_info.get('auditor_uid', '');
+                                auditor_name python: a_info.get('auditor_name', '');
+                                auditor_address python: a_info.get('auditor_address', '');
+                                audit_end_date python: a_info.get('audit_end_date', '');
+                                audit_start_date python: a_info.get('audit_start_date', '');
+                                v_action python: {True: 'granted', False: 'revoked'}.get(context.is_audit_assigned);
+                                t_date python: audit_start_date if context.is_audit_assigned else audit_end_date">
+                  <th i18n:translate="">Auditor assignment status</th>
+                  <td
+                    tal:define="fgas_ver_status python: 'An assignment of this envelope to auditor {}, {}, {} has been {} on {}.'.format(auditor_uid, auditor_name, auditor_address, v_action, t_date)"
+                    tal:content="python: fgas_ver_status">
+                  </td>
+                </tr>
+              </tal:block>
+            </tal:block>
             <tr>
               <td colspan="2">
                 <tal:block condition="not:python:context.status in ('running', 'active')">
