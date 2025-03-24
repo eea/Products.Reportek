@@ -110,10 +110,6 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         "zpt/envelope/manage_history", globals()
     )
 
-    # History of the envelope for all users
-    security.declareProtected("View", "history_section")
-    history_section = PageTemplateFile("zpt/envelope/history", globals())
-
     security.declareProtected("Manage OpenFlow", "chooseFallin")
     chooseFallin = PageTemplateFile("zpt/envelope/choose_fallin", globals())
 
@@ -974,14 +970,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         workitem_to = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.linkWorkitems(workitem_id, [workitem_to.id])
         event = (
-            "fallin to activity {} in process {} " "(workitem {}) - {}".format(
+            "fallin to activity {} in process {} (workitem {}) - {}".format(
                 activity_id, self.process_path, str(workitem_to.id), username
             )
         )
         workitem_from.addEvent(event)
         event = (
-            "fallin from activity {} in process {} (workitem {}) "
-            "- {}".format(
+            "fallin from activity {} in process {} (workitem {}) - {}".format(
                 workitem_from.activity_id,
                 self.process_path,
                 str(workitem_id),

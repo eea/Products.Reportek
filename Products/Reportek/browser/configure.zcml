@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser">
+
+    <browser:page
+        for="Products.Reportek.interfaces.IEnvelope"
+        name="history_section"
+        class=".browser.EnvelopeHistoryView"
+        template="../zpt/envelope/history.zpt"
+        permission="zope2.View"
+        />
+
+</configure>
