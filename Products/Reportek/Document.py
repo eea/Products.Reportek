@@ -284,6 +284,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     security.declareProtected("View", "__str__")
     security.declarePrivate("data_file")
 
+    macros = PageTemplateFile("zpt/document/macros", globals()).macros
+
     meta_type = "Report Document"
 
     ################################
