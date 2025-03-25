@@ -57,7 +57,7 @@
           </div>
         </div>
       </div>
-      <div 
+      <div
         class="ds-footer">
         <div id="status-controls" class="hidden-content">
           <input type="checkbox" value="selected" id="toggle_history" class="toggle__input">
@@ -144,3 +144,14 @@
     </div>
   </tal:block>
 </tal:block>
+
+<metal:workitem_info define-macro="workitem_info">
+  <strong tal:condition="info/activity_name"
+          tal:content="info/activity_name"></strong>
+  <strong tal:condition="info/is_renamed"
+          tal:content="string:${info/activity_id} (activity renamed or missing)"
+          style="color:red;"></strong>
+  (<span tal:replace="string:${info/status} ${info/date}"></span>
+   <span tal:condition="python:info.get('actor') not in ['', 'Anonymous User', 'openflow_engine']"
+         tal:content="string: by ${info/actor}"></span>)
+</metal:workitem_info>

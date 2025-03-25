@@ -71,6 +71,7 @@
     <include file="permissions.zcml" />
     <include file="dataflow_mappings.zcml" />
     <include file="views.zcml" />
+    <include file="browser/configure.zcml" />
     <include package=".patches" />
     <include package=".api" />
     <include package="plone.caching" />
