@@ -2152,7 +2152,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         collections["ro"].append(obj)
                     else:
                         collections["audit_paths"].append(obj)
-                except:
+                except Exception:
                     logger.warning("Cannot traverse path: %s", normalized_path)
 
             return collections
