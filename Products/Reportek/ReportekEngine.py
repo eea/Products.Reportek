@@ -88,6 +88,10 @@ __doc__ = """
 
 logger = logging.getLogger("Reportek")
 
+BDR_ROLE_AUDITOR = "Auditor"
+BDR_CLIENT_ROLES = ("ClientFG", "ClientODS", "ClientCARS", "ClientHDV")
+BDR_LOCAL_ROLES = (BDR_ROLE_AUDITOR,) + BDR_CLIENT_ROLES
+
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """Stores generic attributes for Reportek"""
@@ -2039,32 +2043,32 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 return {}
             return self.FGASRegistryAPI.get_audit_envelopes(src_env)
 
-        # make it accessible from browser
         security.declarePublic("get_ecr_content")
 
         def get_ecr_content(self):
             """Get content accessible to the user organized by role type."""
             if not getattr(self, "REQUEST", None):
-                return []
+                return {}
 
             self._disable_csrf()
 
-            collections = {}
             username = self.REQUEST["AUTHENTICATED_USER"].getUserName()
-
-            # Get ECR authorized collections
-            collections["ecr"] = self._get_ecr_collections(username)
-
-            # Get local role collections
-            local_r_col = self._get_local_role_collection_brains(username)
-            collections["Auditor"] = self._get_auditor_collections(
-                username, local_r_col
-            )
-            collections["Client"] = self._get_client_collections(
-                username, local_r_col
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
+            local_role_collections = self._get_local_role_collection_brains(
+                username, catalog
             )
 
-            return collections
+            return {
+                "ecr": self._get_ecr_collections(username, catalog),
+                "Auditor": self._get_auditor_collections(
+                    username, local_role_collections
+                ),
+                "Client": self._get_client_collections(
+                    username, local_role_collections
+                ),
+            }
+
+        security.declarePrivate("_disable_csrf")
 
         def _disable_csrf(self):
             """Disable CSRF protection if the interface is available."""
@@ -2074,35 +2078,35 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     plone.protect.interfaces.IDisableCSRFProtection,
                 )
 
-        def _get_ecr_collections(self, username):
+        security.declarePrivate("_get_ecr_collections")
+
+        def _get_ecr_collections(self, username, catalog):
             """Get collections where the user has Reporter access."""
             middleware_collections = {"rw": [], "ro": [], "audit_paths": []}
 
-            # Get ECAS user ID
-            ecas = self.unrestrictedTraverse("/acl_users/" + constants.ECAS_ID)
+            ecas = self.unrestrictedTraverse(
+                "/acl_users/%s" % constants.ECAS_ID
+            )
             ecas_user_id = ecas.getEcasUserId(username)
 
-            # Add collections from auth middleware
             if ecas_user_id:
                 self._add_auth_middleware_collections(
                     username, ecas_user_id, middleware_collections
                 )
 
-            # Add personal collections
-            catalog = getToolByName(self, DEFAULT_CATALOG, None)
             self._add_personal_collections(
                 username, catalog, middleware_collections
             )
-
-            # Add BDR registry collections
             self._add_bdr_registry_collections(
                 username, middleware_collections
             )
 
             return middleware_collections
 
+        security.declarePrivate("_add_auth_middleware_collections")
+
         def _add_auth_middleware_collections(
-            self, username, ecas_user_id, middleware_collections
+            self, username, ecas_user_id, collections
         ):
             """Add collections from authentication middleware."""
             userdata = {"username": username, "ecas_id": ecas_user_id}
@@ -2111,26 +2115,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 userdata=userdata,
                 recheck_interval=self.authMiddleware.recheck_interval,
             )
-            colls = self._get_collections_from_paths(user_paths)
 
-            middleware_collections["rw"] += [
-                col
-                for col in colls.get("rw")
-                if col not in middleware_collections["rw"]
-            ]
-            middleware_collections["ro"] += [
-                col
-                for col in colls.get("ro")
-                if col not in middleware_collections["ro"]
-            ]
-            middleware_collections["audit_paths"] += [
-                col
-                for col in colls.get("audit_paths")
-                if col not in middleware_collections["audit_paths"]
-            ]
+            new_collections = self._get_collections_from_paths(user_paths)
+
+            for access_type in ("rw", "ro", "audit_paths"):
+                existing = collections[access_type]
+                new_items = new_collections.get(access_type, [])
+                collections[access_type].extend(
+                    [col for col in new_items if col not in existing]
+                )
+
+        security.declarePrivate("_get_collections_from_paths")
 
         def _get_collections_from_paths(self, paths):
-            """Exactly matching the original get_colls function."""
+            """Convert paths to collection objects."""
             acc_paths = list(
                 set(
                     paths.get("paths", [])
@@ -2138,91 +2136,85 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     + paths.get("audit_paths", [])
                 )
             )
-            colls = {"rw": [], "ro": [], "audit_paths": []}
-            for colPath in acc_paths:
-                path = (
-                    str(colPath)
-                    if colPath.startswith("/")
-                    else "/{}".format(str(colPath))
-                )
+
+            collections = {"rw": [], "ro": [], "audit_paths": []}
+
+            for path in acc_paths:
+                normalized_path = str(path)
+                if not normalized_path.startswith("/"):
+                    normalized_path = "/%s" % normalized_path
+
                 try:
-                    if colPath in paths.get("paths", []):
-                        colls["rw"].append(self.unrestrictedTraverse(path))
-                    elif colPath in paths.get("prev_paths", []):
-                        colls["ro"].append(self.unrestrictedTraverse(path))
+                    obj = self.unrestrictedTraverse(normalized_path)
+                    if path in paths.get("paths", []):
+                        collections["rw"].append(obj)
+                    elif path in paths.get("prev_paths", []):
+                        collections["ro"].append(obj)
                     else:
-                        colls["audit_paths"].append(
-                            self.unrestrictedTraverse(path)
-                        )
-                except Exception:
-                    logger.warning("Cannot traverse path: %s" % path)
+                        collections["audit_paths"].append(obj)
+                except:
+                    logger.warning("Cannot traverse path: %s", normalized_path)
 
-            return colls
+            return collections
 
-        def _add_personal_collections(
-            self, username, catalog, middleware_collections
-        ):
+        security.declarePrivate("_add_personal_collections")
+
+        def _add_personal_collections(self, username, catalog, collections):
             """Add user's personal collections."""
-            middleware_collections["rw"] += [
-                br.getObject()
-                for br in catalog.searchResults(
-                    **{"meta_type": "Report Collection", "id": username}
-                )
-                if not br.getObject() in middleware_collections["rw"]
-            ]
+            query = {"meta_type": "Report Collection", "id": username}
+            brains = catalog.searchResults(**query)
 
-        def _add_bdr_registry_collections(
-            self, username, middleware_collections
-        ):
+            for brain in brains:
+                obj = brain.getObject()
+                if obj not in collections["rw"]:
+                    collections["rw"].append(obj)
+
+        security.declarePrivate("_add_bdr_registry_collections")
+
+        def _add_bdr_registry_collections(self, username, collections):
             """Add collections from the BDR registry."""
             user_paths = self.BDRRegistryAPI.getCollectionPaths(username)
-            colls = self._get_collections_from_paths(user_paths)
+            new_collections = self._get_collections_from_paths(user_paths)
 
-            middleware_collections["rw"] += [
-                col
-                for col in colls.get("rw")
-                if col not in middleware_collections["rw"]
-            ]
-            middleware_collections["ro"] += [
-                col
-                for col in colls.get("ro")
-                if col not in middleware_collections["ro"]
-            ]
+            for access_type in ("rw", "ro"):
+                existing = collections[access_type]
+                new_items = new_collections.get(access_type, [])
+                collections[access_type].extend(
+                    [col for col in new_items if col not in existing]
+                )
 
-        def _get_local_role_collection_brains(self, username):
+        security.declarePrivate("_get_local_role_collection_brains")
+
+        def _get_local_role_collection_brains(self, username, catalog):
             """Get collection brain objects where the user has local roles."""
-            catalog = getToolByName(self, DEFAULT_CATALOG, None)
-            local_roles = [
-                "Auditor",
-                "ClientFG",
-                "ClientODS",
-                "ClientCARS",
-                "ClientHDV",
-            ]
+            query = {
+                "meta_type": "Report Collection",
+                "local_unique_roles": list(BDR_LOCAL_ROLES),
+            }
+            return catalog.searchResults(**query)
 
-            return catalog.searchResults(
-                **{
-                    "meta_type": "Report Collection",
-                    "local_unique_roles": local_roles,
-                }
-            )
+        security.declarePrivate("_get_auditor_collections")
 
         def _get_auditor_collections(self, username, local_r_col):
             """Get collections where the user has Auditor role."""
-            return [
-                br.getObject()
-                for br in local_r_col
-                if "Auditor" in br.local_defined_roles.get(username, [])
-                and len(br.getPath().split("/")) == 3
-            ]
+            result = []
+            for brain in local_r_col:
+                if (
+                    BDR_ROLE_AUDITOR
+                    in brain.local_defined_roles.get(username, [])
+                    and len(brain.getPath().split("/")) == 3
+                ):
+                    result.append(brain.getObject())
+            return result
+
+        security.declarePrivate("_get_client_collections")
 
         def _get_client_collections(self, username, local_r_col):
             """Get collections where the user has Client roles."""
 
             def is_client(l_roles):
                 """Exactly matching the original is_client function."""
-                c_roles = ["ClientFG", "ClientODS", "ClientCARS", "ClientHDV"]
-                return [role for role in l_roles if role in c_roles]
+                return [role for role in l_roles if role in BDR_CLIENT_ROLES]
 
             return [
                 br.getObject()
