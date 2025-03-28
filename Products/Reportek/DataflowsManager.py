@@ -147,7 +147,7 @@ class DataflowsManager:
     def dataflow_table(self):
         """ """
         try:
-            return map(inline_replace, self.dataflow_rod())
+            return [inline_replace(x) for x in self.dataflow_rod()]
         except Exception:
             msg = (
                 """Reporting Obligations Database is temporarily"""
@@ -155,6 +155,7 @@ class DataflowsManager:
             )
             raise ServiceTemporarilyUnavailableException(msg)
 
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def dataflow_dict(self):
         """Converts the dataflow table into a dictionary"""
         l_dfdict = {}
