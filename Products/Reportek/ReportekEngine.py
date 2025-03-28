@@ -1977,6 +1977,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declarePublic("getAvailableLanguages")
 
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
     def getAvailableLanguages(self):
         """Get avalilable languages as their .mo files are found in
         locales/<ln_code> folders map them to their localized name.
@@ -2042,6 +2043,39 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if not getattr(self, "REQUEST", None):
                 return {}
             return self.FGASRegistryAPI.get_audit_envelopes(src_env)
+
+        security.declareProtected("View", "get_collection_mappings")
+
+        @ram.cache(lambda *args: time() // (60 * 60 * 12))
+        def get_collection_mappings(self):
+            """Cache collection groups mapping for 12 hours"""
+
+            site_root = self.restrictedTraverse("/")
+            collections = site_root.objectValues("Report Collection")
+            col_tmap = {
+                "fgases": "Fluorinated gases (F-gases) reporting by undertakings",
+                "ods": "Ozone depleting substances (ODS) reporting by undertakings",
+                "col_fgas_ver": "Fluorinated gases (F-gases) verification (bulk and/or equipment/products)",
+            }
+            groups = {
+                col.getPhysicalPath()[-1]: col_tmap.get(
+                    col.getPhysicalPath()[-1], col.title
+                )
+                for col in collections
+            }
+            return {"groups": groups, "col_tmap": col_tmap}
+
+        security.declareProtected("View", "group_collections_by_path")
+
+        def group_collections_by_path(self, collections):
+            """Group and sort collections by path"""
+            by_path = {}
+            for col in sorted(
+                collections, key=lambda k: k.title_or_id().lower()
+            ):
+                path_key = col.getPhysicalPath()[1]
+                by_path.setdefault(path_key, []).append(col)
+            return by_path
 
         security.declarePublic("get_ecr_content")
 

@@ -255,22 +255,24 @@
 </metal:block>
 
 <metal:block define-macro="ecr-collections">
-  <tal:block
-    define="user_ct here/ReportekEngine/get_ecr_content;
-            ct python: user_ct.get('ecr', {});
-            rw_colls python: ct.get('rw', []);
-            ro_colls python: ct.get('ro', []);
-            fgas_audit_envs python: ct.get('audit_paths', []);
-            audit_colls python: user_ct.get('Auditor', []);
-            client_colls python: user_ct.get('Client', []);
-            no_content python: not ct and not audit_colls and not client_colls;
-            col_tmap python:{'fgases': 'Fluorinated gases (F-gases) reporting by undertakings',
-                             'ods': 'Ozone depleting substances (ODS) reporting by undertakings',
-                             'col_fgas_ver': 'Fluorinated gases (F-gases) verification (bulk and/or equipment/products)'};
-            collections python: context.objectValues('Report Collection');
-            groups python: dict([(col.getPhysicalPath()[-1], col_tmap.get(col.getPhysicalPath()[-1], col.title)) for col in collections]);
-            bdr_reg_info python: here.ReportekEngine.BDRRegistryAPI.get_user_details(name)"
-  >
+  <tal:block define="engine here/ReportekEngine;
+                     user_ct engine/get_ecr_content;
+                     ct python: user_ct.get('ecr', {});
+                     rw_colls python: ct.get('rw', []);
+                     ro_colls python: ct.get('ro', []);
+                     fgas_audit_envs python: ct.get('audit_paths', []);
+                     audit_colls python: user_ct.get('Auditor', []);
+                     client_colls python: user_ct.get('Client', []);
+                     no_content python: not ct and not audit_colls and not client_colls;
+                     mappings engine/get_collection_mappings;
+                     groups python:mappings['groups'];
+                     col_tmap python:mappings['col_tmap'];
+                     rw_by_path python:engine.group_collections_by_path(rw_colls);
+                     ro_by_path python:engine.group_collections_by_path(ro_colls);
+                     audit_by_path python:engine.group_collections_by_path(audit_colls);
+                     client_by_path python:engine.group_collections_by_path(client_colls);
+                     fgas_by_path python:engine.group_collections_by_path(fgas_audit_envs);
+                     bdr_reg_info python: engine.BDRRegistryAPI.get_user_details(name)">
     <!-- Registry information section -->
     <tal:block tal:condition="bdr_reg_info">
       <h2 i18n:translate="">Click on the link below to access your company registry page</h2>
