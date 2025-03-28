@@ -2053,9 +2053,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             site_root = self.restrictedTraverse("/")
             collections = site_root.objectValues("Report Collection")
             col_tmap = {
-                "fgases": "Fluorinated gases (F-gases) reporting by undertakings",
-                "ods": "Ozone depleting substances (ODS) reporting by undertakings",
-                "col_fgas_ver": "Fluorinated gases (F-gases) verification (bulk and/or equipment/products)",
+                "fgases": (
+                    "Fluorinated gases (F-gases) reporting by undertakings"
+                ),
+                "ods": (
+                    "Ozone depleting substances (ODS) reporting by undertakings"
+                ),
+                "col_fgas_ver": (
+                    "Fluorinated gases (F-gases) verification "
+                    "(bulk and/or equipment/products)"
+                ),
             }
             groups = {
                 col.getPhysicalPath()[-1]: col_tmap.get(
