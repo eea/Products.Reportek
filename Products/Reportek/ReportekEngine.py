@@ -2057,7 +2057,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     "Fluorinated gases (F-gases) reporting by undertakings"
                 ),
                 "ods": (
-                    "Ozone depleting substances (ODS) reporting by undertakings"
+                    "Ozone depleting substances (ODS) reporting by "
+                    "undertakings"
                 ),
                 "col_fgas_ver": (
                     "Fluorinated gases (F-gases) verification "
