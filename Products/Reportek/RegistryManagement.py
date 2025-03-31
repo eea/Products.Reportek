@@ -477,6 +477,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     if ver:
                         if ver.startswith("/"):
                             ver = ver.lstrip("/")
+                        if isinstance(ver, unicode):
+                            ver = ver.encode("utf-8")
                         audit_paths.append(ver)
             else:
                 authpaths = data["reporter"]
@@ -501,6 +503,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         rep_paths["paths"] = paths
         rep_paths["prev_paths"] = prev_paths
         rep_paths["audit_paths"] = audit_paths
+
         return rep_paths
 
     def existsCompany(self, params, domain="FGAS"):

@@ -283,22 +283,17 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def is_active_for_me(self, REQUEST=None):
         """returns >0 if there is an active workitem for that person"""
-        if REQUEST:
-            actor = REQUEST.AUTHENTICATED_USER.getUserName()
-        else:
-            actor = ""
-        for item in self.objectValues("Workitem"):
-            if item.status == "active" and (
-                item.actor == actor or item.actor == ""
-            ):
-                return 1
-        return 0
+        actor = REQUEST.AUTHENTICATED_USER.getUserName() if REQUEST else ""
+        for item in self.getActiveWorkitems():
+            if item.actor in (actor, ""):
+                return True
+        return False
 
     security.declareProtected("Use OpenFlow", "getActiveWorkitems")
 
     def getActiveWorkitems(self):
         """returns all active workitems"""
-        return [wk for wk in self.getListOfWorkitems(status="active")]
+        return self.getListOfWorkitems(status="active")
 
     security.declareProtected("View", "getListOfWorkitems")
 
@@ -306,21 +301,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Returns all workitems given a list of statuses
         If the status is not provided, all workitems are returned
         """
+        workitems = self.objectValues("Workitem")
         if status is None:
-            return self.objectValues("Workitem")
-        else:
-            if isinstance(status, list):
-                return [
-                    x
-                    for x in self.objectValues("Workitem")
-                    if x.status in status
-                ]
-            else:
-                return [
-                    x
-                    for x in self.objectValues("Workitem")
-                    if x.status == status
-                ]
+            return workitems
+
+        statuses = set(status) if isinstance(status, list) else set([status])
+        return [x for x in workitems if x.status in statuses]
 
     def setPriority(self, value):
         self.priority = value
