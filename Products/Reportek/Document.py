@@ -1005,8 +1005,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                 REQUEST=REQUEST,
                             )
 
-                        if not all(isinstance(tag, basestring) and tag.strip()
-                                    for tag in tags):
+                        def is_valid_tag(tag):
+                            """Check if a tag is a non-empty string."""
+                            return isinstance(tag, basestring) and tag.strip()
+
+                        if not all(is_valid_tag(tag) for tag in tags):
                             return error_message(
                                 self,
                                 "All tags must be non-empty strings",
