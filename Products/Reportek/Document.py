@@ -1006,7 +1006,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                             )
 
                         if not all(isinstance(tag, basestring) and tag.strip()
-                                for tag in tags):
+                                    for tag in tags):
                             return error_message(
                                 self,
                                 "All tags must be non-empty strings",
@@ -1059,8 +1059,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                        requested tag paths
                     """
                     return (len(current_path) <= len(tag_path) and
-                        all(cp == tp for cp, tp in zip(
-                            current_path, tag_path)))
+                            all(cp == tp for cp, tp in zip(
+                                current_path, tag_path)))
 
                 def filter_content(content, current_path=None):
                     """Recursively filter content based on tag
@@ -1086,11 +1086,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                 continue
 
                             is_match = (key in simple_tags or
-                                    any(
-                                        new_path == path
-                                        for path in path_tags))
+                                        any(
+                                            new_path == path
+                                            for path in path_tags))
                             is_parent = any(check_path(new_path, path)
-                                        for path in path_tags)
+                                            for path in path_tags)
                             should_traverse = bool(simple_tags or is_parent)
 
                             # Add matched content
@@ -1098,8 +1098,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                 filtered[key] = value
 
                             # Process nested content if needed
-                            if should_traverse and isinstance(
-                                value, (dict, list)):
+                            is_dl = isinstance(value, (dict, list))
+                            if should_traverse and is_dl:
                                 nested = filter_content(value, new_path)
                                 if nested:
                                     if key not in filtered:
