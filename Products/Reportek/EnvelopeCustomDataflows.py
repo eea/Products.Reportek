@@ -1848,7 +1848,7 @@ class EnvelopeCustomDataflows(Toolz):
 
             acts = self.get_pretty_activities()
             if acts:
-                nil_report = True if "NIL-Report" in acts else False
+                nil_report = True if "NIL Report" in acts else False
             envs = [env.getObject() for env in self.get_released_envelopes()]
             envs = [
                 env
@@ -2300,11 +2300,7 @@ class EnvelopeCustomDataflows(Toolz):
 
                 r_col = v_col.getParentNode()
                 if not r_col:
-                    return json.dumps(
-                        {
-                            "error": "Report collection not found"
-                        }
-                    )
+                    return json.dumps({"error": "Report collection not found"})
             except Exception:
                 logging.error(
                     "Error accessing parent nodes for envelope %s",

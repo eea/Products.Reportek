@@ -161,7 +161,7 @@
                                 t_date python: audit_start_date if context.is_audit_assigned else audit_end_date">
                   <th i18n:translate="">Auditor assignment status</th>
                   <td
-                    tal:define="fgas_ver_status python: 'An assignment of this envelope to auditor {}, {}, {} has been {} on {}.'.format(auditor_uid, auditor_name, auditor_address, v_action, t_date)"
+                    tal:define="fgas_ver_status python: 'An assignment of this envelope to auditor {}, {}, {} (lead auditor: {}, {}) has been {} on {}.'.format(auditor_uid, auditor_name, auditor_address, lead_auditor_name, lead_auditor_email, v_action, t_date)"
                     tal:content="python: fgas_ver_status">
                   </td>
                 </tr>
