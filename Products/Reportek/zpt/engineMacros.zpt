@@ -365,23 +365,21 @@
     <tal:block tal:condition="python: len(fgas_audit_envs) > 0">
       <h2 i18n:translate="">Click on the link below to audit deliveries</h2>
 
-      <tal:block tal:define="fgas_by_path python: {}">
-        <!-- Group F-Gas audit environments -->
-        <tal:block tal:repeat="env python: sorted(fgas_audit_envs, key=lambda k: k.title_or_id().lower())">
-          <tal:block tal:define="path_key python: 'col_fgas_ver' if 'col_fgas_ver' in env.getPhysicalPath() else env.getPhysicalPath()[1];
-                                 dummy python: fgas_by_path.setdefault(path_key, []).append(env)" />
+      <tal:block tal:define="fgas_by_company python: {}">
+        <!-- Group F-Gas audit environments by company name -->
+        <tal:block tal:repeat="env python: sorted(fgas_audit_envs, key=lambda k: k.get_zope_company_meta()[0].lower() if k.get_zope_company_meta()[0] else '')">
+          <tal:block tal:define="company_name python: env.get_zope_company_meta()[0] or 'Unknown Company';
+                                 dummy python: fgas_by_company.setdefault(company_name, []).append(env)" />
         </tal:block>
 
-        <!-- Display grouped F-Gas environments -->
-        <tal:block tal:repeat="key python: fgas_by_path.keys()">
-          <tal:block tal:condition="python: key in col_tmap">
-            <h5 tal:content="python: col_tmap[key]" />
-            <ul>
-              <li tal:repeat="env python: fgas_by_path[key]">
-                <a tal:attributes="href env/absolute_url" tal:content="env/title"></a>
-              </li>
-            </ul>
-          </tal:block>
+        <!-- Display grouped F-Gas environments by company -->
+        <tal:block tal:repeat="company_name python: sorted(fgas_by_company.keys())">
+          <h5 tal:content="company_name" />
+          <ul>
+            <li tal:repeat="env python: sorted(fgas_by_company[company_name], key=lambda t: t.reportingdate, reverse=True)">
+              <a tal:attributes="href env/absolute_url" tal:content="env/title"></a>
+            </li>
+          </ul>
         </tal:block>
       </tal:block>
     </tal:block>
