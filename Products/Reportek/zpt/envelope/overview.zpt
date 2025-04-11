@@ -155,6 +155,8 @@
                                 auditor_uid python: a_info.get('auditor_uid', '');
                                 auditor_name python: a_info.get('auditor_name', '');
                                 auditor_address python: a_info.get('auditor_address', '');
+                                lead_auditor_name python: a_info.get('lead_auditor_name', '');
+                                lead_auditor_email python: a_info.get('lead_auditor_email', '');
                                 audit_end_date python: a_info.get('audit_end_date', '');
                                 audit_start_date python: a_info.get('audit_start_date', '');
                                 v_action python: {True: 'granted', False: 'revoked'}.get(context.is_audit_assigned);
