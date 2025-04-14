@@ -39,7 +39,7 @@
       <div class="ds-head">
         <span i18n:translate="" class="title">Status: </span>
         <span tal:content="python: item.getActivityDetails('title')"/>
-        <tal:block condition="python:item.actor != 'openflow_engine' and item.actor != username"
+        <tal:block condition="python:item.actor != 'openflow_engine'"
           i18n:translate="">
           <span> - activated by </span><span tal:replace="item/actor" i18n:name="username">username</span>
         </tal:block>
