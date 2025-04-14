@@ -2250,7 +2250,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected("View", "get_audit_metadata")
 
-    def get_audit_metadata(self):
+    def get_audit_metadata(self, output="json"):
         """
         Gets the audit metadata for the envelope.
 
@@ -2258,9 +2258,15 @@ class EnvelopeCustomDataflows(Toolz):
         envelopes, including report details, audit status, and company
         information.
 
+        Args:
+            output (str): Format of the output - 'json' for JSON string or
+                          'dict' for Python dictionary.
+
         Returns:
-            str: JSON-encoded dictionary containing audit metadata with the
-            following keys:
+            Mixed: If output='json', returns a JSON-encoded string.
+                  If output='dict', returns a Python dictionary.
+
+            The returned data contains the following keys:
                 - dataReportUrl: Absolute URL of the report
                 - dataReportTitle: Title of the report
                 - dataReportTransactionYear: Report year
@@ -2271,11 +2277,12 @@ class EnvelopeCustomDataflows(Toolz):
 
                 In case of error, returns a dictionary with an 'error' key.
         """
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        if output == "json":
+            self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
 
         try:
             if not self.is_fgas_verification():
-                return json.dumps({})
+                return {} if output == "dict" else json.dumps({})
 
             # Get basic audit metadata
             try:
@@ -2286,35 +2293,50 @@ class EnvelopeCustomDataflows(Toolz):
                     "Error getting audit metadata for envelope %s",
                     self.getId(),
                 )
-                return json.dumps(
-                    {"error": "Could not retrieve audit metadata"}
+                error_data = {"error": "Could not retrieve audit metadata"}
+                return (
+                    error_data if output == "dict" else json.dumps(error_data)
                 )
 
             # Get parent nodes
             try:
                 v_col = self.getParentNode()
                 if not v_col:
-                    return json.dumps(
-                        {"error": "Verification collection not found"}
+                    error_data = {"error": "Verification collection not found"}
+                    return (
+                        error_data
+                        if output == "dict"
+                        else json.dumps(error_data)
                     )
 
                 r_col = v_col.getParentNode()
                 if not r_col:
-                    return json.dumps({"error": "Report collection not found"})
+                    error_data = {"error": "Report collection not found"}
+                    return (
+                        error_data
+                        if output == "dict"
+                        else json.dumps(error_data)
+                    )
             except Exception:
                 logging.error(
                     "Error accessing parent nodes for envelope %s",
                     self.getId(),
                 )
-                return json.dumps(
-                    {"error": "Could not access parent collections"}
+                error_data = {"error": "Could not access parent collections"}
+                return (
+                    error_data if output == "dict" else json.dumps(error_data)
                 )
 
             # Get report and its details
             try:
                 report = getattr(r_col, audit_metadata["dataReportId"])
                 if not report:
-                    return json.dumps({"error": "Report not found"})
+                    error_data = {"error": "Report not found"}
+                    return (
+                        error_data
+                        if output == "dict"
+                        else json.dumps(error_data)
+                    )
 
                 # Enhance audit metadata with report details
                 audit_metadata.update(
@@ -2332,18 +2354,24 @@ class EnvelopeCustomDataflows(Toolz):
                     "Error getting report details for envelope %s",
                     self.getId(),
                 )
-                return json.dumps(
-                    {"error": "Could not retrieve report details"}
+                error_data = {"error": "Could not retrieve report details"}
+                return (
+                    error_data if output == "dict" else json.dumps(error_data)
                 )
 
-            return json.dumps(audit_metadata)
+            return (
+                audit_metadata
+                if output == "dict"
+                else json.dumps(audit_metadata)
+            )
 
         except Exception:
             logging.error(
                 "Unexpected error in get_audit_metadata for envelope %s",
                 self.getId(),
             )
-            return json.dumps({"error": "An unexpected error occurred"})
+            error_data = {"error": "An unexpected error occurred"}
+            return error_data if output == "dict" else json.dumps(error_data)
 
     security.declareProtected("View", "get_audits")
 
