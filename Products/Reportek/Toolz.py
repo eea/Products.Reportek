@@ -200,3 +200,19 @@ class Toolz:
             furl = addTokenToUrl(furl, req)
             return furl.split('{}/'.format(self.absolute_url()))[-1]
         return addTokenToUrl(url)
+
+    def merge_dicts_recursive(self, dict1, dict2):
+        """
+        Recursively merge dict2 into dict1.
+        If a key exists in both and both values are dicts, merge those dicts.
+        If a key exists in both but values aren't both dicts, dict2's value overwrites dict1's.
+        """
+        result = dict(dict1)  # Create a copy of dict1
+        for k, v in dict2.iteritems():
+            # If both values are dicts, merge them recursively
+            if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+                result[k] = self.merge_dicts_recursive(result[k], v)
+            # Otherwise just overwrite with value from dict2
+            else:
+                result[k] = v
+        return result
