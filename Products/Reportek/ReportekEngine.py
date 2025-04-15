@@ -716,28 +716,70 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return None
 
-    def create_fgas_ver_col(self, ctx, name, old_company_id=None):
-        col_id = "col_fgas_ver"  # Hardcoded value here
-        ctx.allow_collections = 1
-        df_uris = [self.get_active_df("FGAS", df_type="verification")]
+    def create_fgas_ver_col(self, ctx, old_company_id=None):
+        """Creates verification collections for FGAS.
+        We'll look for a verification_metadata_override script in the ctx,
+        that could be used to override/append what we have in v_metadata.
+        The objective is to be able to disable the creation of Verification
+        collections for active obligations if desired.
+        """
+        v_metadata = {
+            "http://rod.eionet.europa.eu/obligations/764": {
+                "title": (
+                    "Upload of verification documents "
+                    "(HFC producers and bulk importers)"
+                ),
+                "id": "".join([RepUtils.generate_id("col"), "bi"]),
+            },
+            "http://rod.eionet.europa.eu/obligations/765": {
+                "title": (
+                    "Upload of verification documents (equipment importers)"
+                ),
+                "id": "".join([RepUtils.generate_id("col"), "ei"]),
+            },
+            "http://rod.eionet.europa.eu/obligations/870": {
+                "title": (
+                    "Verification (bulk and/or equipment/products) "
+                    "under Regulation (EU) 2024/573"
+                ),
+                "id": "col_fgas_ver",
+            },
+        }
 
-        ctx.manage_addCollection(
-            dataflow_uris=df_uris,
-            country=ctx.country,
-            id=col_id,
-            title=name,
-            allow_collections=0,
-            allow_envelopes=1,
-            descr="",
-            locality="",
-            partofyear="",
-            year="",
-            endyear="",
-            old_company_id=old_company_id,
-        )
-        col = getattr(ctx, col_id)
-        col.company_id = ctx.company_id
-        col.reindexObject()
+        if hasattr(ctx, "verification_metadata_override"):
+            try:
+                v_metadata.update(
+                    getattr(ctx, "verification_metadata_override")()
+                )
+            except Exception as e:
+                logger.error(
+                    "Unable to load verification metadata override:"
+                    " {}".format(str(e))
+                )
+        ctx.allow_collections = 1
+        df_uris = [
+            df
+            for df in self.get_active_df("FGAS", df_type="verification")
+            if not v_metadata.get(df, {}).get("disabled", "False")
+        ]
+        for df_uri in df_uris:
+            ctx.manage_addCollection(
+                dataflow_uris=[df_uri],
+                country=ctx.country,
+                id=v_metadata.get(df_uri).get("id"),
+                title=v_metadata.get(df_uri).get("title"),
+                allow_collections=0,
+                allow_envelopes=1,
+                descr="",
+                locality="",
+                partofyear="",
+                year="",
+                endyear="",
+                old_company_id=old_company_id,
+            )
+            col = getattr(ctx, v_metadata.get(df_uri).get("id"))
+            col.company_id = ctx.company_id
+            col.reindexObject()
         ctx.allow_collections = 0
         ctx.reindexObject()
 
@@ -767,11 +809,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         )
         if domain == "FGAS":
             c_col = getattr(ctx, main_col_id)
-            title = (
-                "Verification (bulk and/or equipment/products) under "
-                "Regulation (EU) 2024/573"
-            )
-            self.create_fgas_ver_col(c_col, title, old_company_id)
+            self.create_fgas_ver_col(c_col, old_company_id)
 
     def update_company_collection(
         self, domain, country, company_id, name, old_collection_id=None
