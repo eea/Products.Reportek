@@ -676,7 +676,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected("View", "get_active_df")
 
     def get_active_df(self, domain, df_type="undertakings"):
-        """Get the list of active dataflows for a given domain."""
+        """Return the first active df for domain."""
         return next(
             (
                 df
@@ -748,20 +748,25 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         if hasattr(ctx, "verification_metadata_override"):
             try:
-                v_metadata.update(
-                    getattr(ctx, "verification_metadata_override")()
+                override = getattr(ctx, "verification_metadata_override")()
+                v_metadata = self.merge_dicts_recursive(
+                    v_metadata,
+                    override,
                 )
             except Exception as e:
                 logger.error(
-                    "Unable to load verification metadata override:"
-                    " {}".format(str(e))
+                    "Unable to load verification metadata override: {}".format(
+                        str(e)
+                    )
                 )
         ctx.allow_collections = 1
         df_uris = [
             df
-            for df in self.get_active_df("FGAS", df_type="verification")
-            if not v_metadata.get(df, {}).get("disabled", "False")
+            for df in self.get_dfs("FGAS", "verification")
+            if not self.isDataflowTerminated(df)
+            and not v_metadata.get(df, {}).get("disabled", False)
         ]
+
         for df_uri in df_uris:
             ctx.manage_addCollection(
                 dataflow_uris=[df_uri],
@@ -807,7 +812,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             endyear="",
             old_company_id=old_company_id,
         )
-        if domain == "FGAS":
+        if str(domain.lower()) == "fgas":
             c_col = getattr(ctx, main_col_id)
             self.create_fgas_ver_col(c_col, old_company_id)
 
