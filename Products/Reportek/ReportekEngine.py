@@ -770,23 +770,28 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             and df not in existing_dataflows
         ]
         for df_uri in df_uris:
-            ctx.manage_addCollection(
-                dataflow_uris=[df_uri],
-                country=ctx.country,
-                id=v_metadata.get(df_uri).get("id"),
-                title=v_metadata.get(df_uri).get("title"),
-                allow_collections=0,
-                allow_envelopes=1,
-                descr="",
-                locality="",
-                partofyear="",
-                year="",
-                endyear="",
-                old_company_id=old_company_id,
-            )
-            col = getattr(ctx, v_metadata.get(df_uri).get("id"))
-            col.company_id = ctx.company_id
-            col.reindexObject()
+            try:
+                ctx.manage_addCollection(
+                    dataflow_uris=[df_uri],
+                    country=ctx.country,
+                    id=v_metadata.get(df_uri).get("id"),
+                    title=v_metadata.get(df_uri).get("title"),
+                    allow_collections=0,
+                    allow_envelopes=1,
+                    descr="",
+                    locality="",
+                    partofyear="",
+                    year="",
+                    endyear="",
+                    old_company_id=old_company_id,
+                )
+                col = getattr(ctx, v_metadata.get(df_uri).get("id"))
+                col.company_id = ctx.company_id
+                col.reindexObject()
+            except Exception as e:
+                logger.warning(
+                    "Unable to create collection: {}".format(str(e))
+                )
         ctx.allow_collections = 0
         ctx.reindexObject()
 
