@@ -21,8 +21,6 @@ APPLIES_TO = [
 
 FGAS_OBL_ID = 'http://rod.eionet.europa.eu/obligations/868'
 FGAS_VER_OBL_ID = 'http://rod.eionet.europa.eu/obligations/870'
-FGAS_VER_COL_ID = 'col_fgas_ver'
-FGAS_VER_TITLE = 'Verification (bulk and/or equipment/products) under Regulation (EU) 2024/573'
 
 def log_msg(msg, level='INFO'):
     lvl = {
@@ -59,7 +57,7 @@ def add_new_fgas_ver_col(app):
                     continue
                 obj = brain.getObject()
                 if obj.company_id:
-                    engine.create_fgas_ver_col(obj, FGAS_VER_TITLE)
+                    engine.create_fgas_ver_col(obj)
                     print "Created FGAS verification collection for: {}".format(obj.absolute_url())
                     logger.info(
                         'Added FGAS verification collection to: %s',

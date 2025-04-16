@@ -760,13 +760,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     )
                 )
         ctx.allow_collections = 1
+        existing = ctx.objectValues("Report Collection")
+        existing_dataflows = set("".join(vc.dataflow_uris) for vc in existing)
         df_uris = [
             df
             for df in self.get_dfs("FGAS", "verification")
             if not self.isDataflowTerminated(df)
             and not v_metadata.get(df, {}).get("disabled", False)
+            and df not in existing_dataflows
         ]
-
         for df_uri in df_uris:
             ctx.manage_addCollection(
                 dataflow_uris=[df_uri],
