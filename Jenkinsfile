@@ -12,7 +12,9 @@ pipeline {
    
     stage('Cosmetics') {
       when {
-        not buildingTag()
+        not {
+          buildingTag()
+        }
       }
       steps {
         parallel(
@@ -63,7 +65,9 @@ pipeline {
 
     stage('Code') {
       when {
-        not buildingTag()
+        not {
+          buildingTag()
+        }
       }
       steps {
         parallel(
@@ -97,9 +101,10 @@ pipeline {
 
     stage('Tests') {
       when {
-        not buildingTag()
-      }
-      steps {
+        not {
+          buildingTag()
+        }
+      }      steps {
         parallel(
 
           "Tests": {
@@ -136,9 +141,10 @@ pipeline {
 
     stage('Report to SonarQube') {
       when {
-        not buildingTag()
-      }
-      steps {
+        not {
+          buildingTag()
+        }
+      }      steps {
         node(label: 'docker') {
           script{
             // get the code
