@@ -144,7 +144,8 @@ pipeline {
         not {
           buildingTag()
         }
-      }      steps {
+      }
+      steps {
         node(label: 'docker') {
           script{
             // get the code
