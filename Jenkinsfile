@@ -9,7 +9,11 @@ pipeline {
 
  stages {
 
+   
     stage('Cosmetics') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         parallel(
 
@@ -58,6 +62,9 @@ pipeline {
     }
 
     stage('Code') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         parallel(
 
@@ -89,6 +96,9 @@ pipeline {
     }
 
     stage('Tests') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         parallel(
 
@@ -125,6 +135,9 @@ pipeline {
     }
 
     stage('Report to SonarQube') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         node(label: 'docker') {
           script{
