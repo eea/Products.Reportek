@@ -59,7 +59,6 @@ from DateTime import DateTime
 from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.Permissions import view_management_screens
-from AccessControl.requestmethod import requestmethod
 from AccessControl import ClassSecurityInfo, Unauthorized
 from zope.component import getMultiAdapter
 from plone.protect.interfaces import IDisableCSRFProtection
@@ -1324,12 +1323,13 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         if cached_zip_path.isfile():
             with cached_zip_path.open('rb') as data_file:
-                return stream_response(RESPONSE, data_file,
-                                    response_zip_name, 'application/x-zip')
+                return stream_response(
+                    RESPONSE, data_file, response_zip_name,
+                    'application/x-zip')
         return None
 
-    def _create_zip_file(
-        self, public_docs, zip_type, response_zip_name, RESPONSE):
+    def _create_zip_file(self, public_docs, zip_type, response_zip_name,
+                         RESPONSE):
         """Create the zip file with documents and metadata."""
         zip_cache = get_zip_cache()
         envelope_path = '/'.join(self.getPhysicalPath())
@@ -1361,13 +1361,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                 else:
                     # Save to cache if file is large enough
                     if (os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD and
-                        ZIP_CACHE_ENABLED):
+                            ZIP_CACHE_ENABLED):
                         os.link(tmpfile.name, cached_zip_path)
 
                     # Stream the response
                     tmpfile.seek(0)
-                    return stream_response(RESPONSE, tmpfile,
-                                        response_zip_name, 'application/x-zip')
+                    return stream_response(
+                        RESPONSE, tmpfile, response_zip_name,
+                        'application/x-zip')
 
     def _add_documents_to_zip(self, zip_file, documents):
         """Add document files to the zip archive."""
