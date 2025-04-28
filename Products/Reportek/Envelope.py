@@ -59,7 +59,6 @@ from DateTime import DateTime
 from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.Permissions import view_management_screens
-from AccessControl.requestmethod import requestmethod
 from AccessControl import ClassSecurityInfo, Unauthorized
 from zope.component import getMultiAdapter
 from plone.protect.interfaces import IDisableCSRFProtection
@@ -1250,7 +1249,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     security.declareProtected('View', 'envelope_zip')
 
-    @requestmethod("POST")
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
             then zip them and send the result to the user.
@@ -1261,98 +1259,163 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             zipfile, as in index_html of Document.py due to the partial
             requests that can be made with HTTP
         """
-        if not IDisableCSRFProtection.providedBy(REQUEST):
-            authenticator = getMultiAdapter(
-                (self, REQUEST), name=u"authenticator")
-            if not authenticator.verify('envelope_zip'):
-                raise Unauthorized("Unable to verify authenticator")
+        # Verify access permissions
+        self._check_zip_access(REQUEST)
+
+        # Collect and categorize documents
+        public_docs, restricted_docs = self._get_accessible_documents()
+
+        # Determine zip type and filename based on document restrictions
+        is_restricted = bool(restricted_docs)
+        zip_type = 'all' if is_restricted else 'public'
+        response_zip_name = self.getId() + (
+            '-all.zip' if is_restricted else '.zip')
+
+        # Try to get from cache first
+        cached_response = self._get_cached_zip(
+            zip_type, response_zip_name, RESPONSE)
+        if cached_response:
+            return cached_response
+
+        # Create and return the zip file
+        return self._create_zip_file(
+            public_docs, zip_type, response_zip_name, RESPONSE)
+
+    def _check_zip_access(self, REQUEST):
+        """Verify user has permission to access the zip file."""
+        if REQUEST.method == 'POST':
+            # For POST requests, require CSRF protection
+            if not IDisableCSRFProtection.providedBy(REQUEST):
+                authenticator = getMultiAdapter(
+                    (self, REQUEST), name=u"authenticator")
+                if not authenticator.verify('envelope_zip'):
+                    raise Unauthorized("Unable to verify authenticator")
+        else:
+            # For GET requests, explicitly check that the user is authenticated
+            if REQUEST['AUTHENTICATED_USER'].getUserName() == 'Anonymous User':
+                raise Unauthorized(
+                    "Authentication required for this operation")
+
+        # For both GET and POST, verify user can view the content
         if not self.canViewContent():
             raise Unauthorized("Envelope is not available")
 
+    def _get_accessible_documents(self):
+        """Return lists of accessible and restricted documents."""
         public_docs = []
         restricted_docs = []
 
+        security_manager = getSecurityManager()
         for doc in self.objectValues('Report Document'):
-            if getSecurityManager().checkPermission('View', doc):
+            if security_manager.checkPermission('View', doc):
                 public_docs.append(doc)
             else:
                 restricted_docs.append(doc)
 
+        return public_docs, restricted_docs
+
+    def _get_cached_zip(self, zip_type, response_zip_name, RESPONSE):
+        """Try to retrieve the zip file from cache."""
         zip_cache = get_zip_cache()
         envelope_path = '/'.join(self.getPhysicalPath())
-        if restricted_docs:
-            flag = 'all'
-            response_zip_name = self.getId() + '-all.zip'
-        else:
-            flag = 'public'
-            response_zip_name = self.getId() + '.zip'
-        cache_key = zip_content.encode_zip_name(envelope_path, flag)
+        cache_key = zip_content.encode_zip_name(envelope_path, zip_type)
         cached_zip_path = zip_cache / cache_key
 
         if cached_zip_path.isfile():
             with cached_zip_path.open('rb') as data_file:
-                return stream_response(RESPONSE, data_file,
-                                       response_zip_name, 'application/x-zip')
+                return stream_response(
+                    RESPONSE, data_file, response_zip_name,
+                    'application/x-zip')
+        return None
+
+    def _create_zip_file(self, public_docs, zip_type, response_zip_name,
+                         RESPONSE):
+        """Create the zip file with documents and metadata."""
+        zip_cache = get_zip_cache()
+        envelope_path = '/'.join(self.getPhysicalPath())
+        cache_key = zip_content.encode_zip_name(envelope_path, zip_type)
+        cached_zip_path = zip_cache / cache_key
 
         with tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)\
                 as tmpfile:
             with ZipFile(mode="w", compression=ZIP_DEFLATED, allowZip64=True)\
                     as outzd:
                 try:
-                    for doc in public_docs:
-                        outzd.write_iter(
-                            doc.getId(),
-                            RepUtils.iter_file_data(doc.data_file.open()))
+                    # Add document files to zip
+                    self._add_documents_to_zip(outzd, public_docs)
 
-                    for fdbk in self.objectValues('Report Feedback'):
-                        if getSecurityManager().checkPermission('View', fdbk):
-                            outzd.writestr(
-                                '%s.html' % fdbk.getId(),
-                                zip_content.get_feedback_content(fdbk))
+                    # Add feedback files to zip
+                    self._add_feedback_to_zip(outzd)
 
-                            for attachment in fdbk.objectValues(
-                                ['File',
-                                 'File (Blob)']):
-                                if attachment.meta_type == 'File (Blob)':
-                                    outzd.write_iter(
-                                        attachment.getId(),
-                                        RepUtils.iter_file_data(
-                                            attachment.data_file.open()))
-                                else:
-                                    outzd.write_iter(
-                                        attachment.getId(),
-                                        RepUtils.iter_ofs_file_data(
-                                            attachment))
-                    metadata = {
-                        'feedbacks.html': zip_content.get_feedback_list,
-                        'metadata.txt': zip_content.get_metadata_content,
-                        'README.txt': zip_content.get_readme_content,
-                        'history.txt': zip_content.get_history_content
-                    }
-                    # write metadata files
-                    for meta in metadata:
-                        outzd.writestr(meta, metadata[meta](self))
+                    # Add metadata files to zip
+                    self._add_metadata_to_zip(outzd)
 
-                    # write to temporary file before streaming the response
-                    # otherwise we wont have the needed content length
+                    # Write the zip data to the temporary file
                     for data in outzd:
                         tmpfile.write(data)
 
                 except Exception as e:
                     raise ValueError(
-                        '''An error occurred while preparing the zip '''
-                        '''file. {}'''.format(str(e)))
-
+                        'An error occurred while preparing '
+                        'the zip file. {}'.format(str(e)))
                 else:
-                    # only save cache file if greater than threshold
-                    if (os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD
-                            and ZIP_CACHE_ENABLED):
+                    # Save to cache if file is large enough
+                    if (os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD and
+                            ZIP_CACHE_ENABLED):
                         os.link(tmpfile.name, cached_zip_path)
 
+                    # Stream the response
                     tmpfile.seek(0)
-                    return stream_response(RESPONSE, tmpfile,
-                                           response_zip_name,
-                                           'application/x-zip')
+                    return stream_response(
+                        RESPONSE, tmpfile, response_zip_name,
+                        'application/x-zip')
+
+    def _add_documents_to_zip(self, zip_file, documents):
+        """Add document files to the zip archive."""
+        for doc in documents:
+            zip_file.write_iter(
+                doc.getId(),
+                RepUtils.iter_file_data(doc.data_file.open())
+            )
+
+    def _add_feedback_to_zip(self, zip_file):
+        """Add feedback content to the zip archive."""
+        security_manager = getSecurityManager()
+
+        for feedback in self.objectValues('Report Feedback'):
+            if security_manager.checkPermission('View', feedback):
+                # Add the feedback content as HTML
+                zip_file.writestr(
+                    '{}.html'.format(feedback.getId()),
+                    zip_content.get_feedback_content(feedback)
+                )
+
+                # Add feedback attachments
+                for attachment in feedback.objectValues(
+                        ['File', 'File (Blob)']):
+                    if attachment.meta_type == 'File (Blob)':
+                        zip_file.write_iter(
+                            attachment.getId(),
+                            RepUtils.iter_file_data(
+                                attachment.data_file.open())
+                        )
+                    else:
+                        zip_file.write_iter(
+                            attachment.getId(),
+                            RepUtils.iter_ofs_file_data(attachment)
+                        )
+
+    def _add_metadata_to_zip(self, zip_file):
+        """Add metadata files to the zip archive."""
+        metadata = {
+            'feedbacks.html': zip_content.get_feedback_list,
+            'metadata.txt': zip_content.get_metadata_content,
+            'README.txt': zip_content.get_readme_content,
+            'history.txt': zip_content.get_history_content
+        }
+
+        for filename, content_generator in metadata.items():
+            zip_file.writestr(filename, content_generator(self))
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """
