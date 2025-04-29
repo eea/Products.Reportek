@@ -151,7 +151,7 @@
     <div class="vertical-align" tal:define="host options/host;
                                             deployment python: host.split('.')[0].split('-')[0].upper();
                                             d_title python: {'CDR': 'Central Data Repository (CDR)', 'BDR': 'Data Reporting for Business (BDR)', 'MDR': 'Mediterranean Data Repository (MDR)'}.get(deployment);
-                                            contact python: {'CDR': 'helpdesk@eionet.europa.eu', 'MDR': 'helpdesk@eionet.europa.eu', 'BDR': 'BDR.helpdesk@eea.europa.eu'}.get(deployment);
+                                            contact python: {'CDR': 'ServiceDesk@eea.europa.eu', 'MDR': 'ServiceDesk@eea.europa.eu', 'BDR': 'BDR.helpdesk@eea.europa.eu'}.get(deployment);
                                             ">
 
       <div style="text-align: center;">
