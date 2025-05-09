@@ -155,3 +155,38 @@
    <span tal:condition="python:info.get('actor') not in ['', 'Anonymous User', 'openflow_engine']"
          tal:content="string: by ${info/actor}"></span>)
 </metal:workitem_info>
+
+<metal:block define-macro="captcha_form">
+  <h1 tal:condition="not:options/no_title|nothing" tal:content="options/title|string:CAPTCHA Verification"></h1>
+  <p tal:condition="not:options/no_description|nothing" tal:content="options/description|string:To continue, please complete the CAPTCHA verification below:"></p>
+
+  <form method="POST" tal:attributes="action options/form_action">
+    <input type="hidden" name="_authenticator"
+           tal:attributes="value here/@@authenticator/token" />
+
+    <!-- Extra hidden fields -->
+    <tal:block tal:condition="exists:options/hidden_fields">
+      <tal:hidden tal:repeat="field options/hidden_fields">
+        <input type="hidden"
+               tal:attributes="name field/name;
+                               value field/value" />
+      </tal:hidden>
+    </tal:block>
+
+    <p tal:replace="structure here/@@captcha/image_tag" />
+
+    <div>
+      <label for="captcha" i18n:translate="">Enter text shown above:</label>
+      <input type="text" name="captcha" id="captcha" />
+    </div>
+
+    <div>
+      <input type="submit"
+             tal:attributes="value options/submit_label|string:Continue" />
+    </div>
+
+    <p tal:condition="options/captcha_error|nothing"
+       tal:content="options/captcha_error"
+       style="color: red"></p>
+  </form>
+</metal:block>

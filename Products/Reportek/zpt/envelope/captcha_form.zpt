@@ -1,0 +1,18 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="head">
+    <title i18n:translate="">Download ZIP - CAPTCHA verification</title>
+  </metal:block>
+  <metal:block fill-slot="content">
+    <div tal:replace="structure python:context.envelope_tabs()"/>
+    <div id="operations">
+        <ul>
+          <li>
+            <a tal:attributes="href context/absolute_url" i18n:translate="">Go back to envelope</a>
+          </li>
+        </ul>
+    </div>
+    <metal:block use-macro="here/macros/captcha_form">
+      <!-- Pass options through without defining any new slot content -->
+    </metal:block>
+  </metal:block>
+</metal:block>
