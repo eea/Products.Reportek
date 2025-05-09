@@ -176,7 +176,7 @@
     <p tal:replace="structure here/@@captcha/image_tag" />
 
     <div>
-      <label for="captcha">Enter text shown above:</label>
+      <label for="captcha" i18n:translate="">Enter text shown above:</label>
       <input type="text" name="captcha" id="captcha" />
     </div>
 

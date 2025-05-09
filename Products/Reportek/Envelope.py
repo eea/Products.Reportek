@@ -1292,6 +1292,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             public_docs, zip_type, response_zip_name, RESPONSE)
 
     security.declareProtected('View', 'verify_captcha')
+
     def verify_captcha(self, REQUEST):
         """Verify CAPTCHA input from request
 
@@ -1315,9 +1316,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         return captcha_view.verify(captcha_value)
 
     security.declareProtected('View', 'show_captcha_form')
+
     def show_captcha_form(self, REQUEST, form_action, captcha_error=None,
-                         title=None, description=None, submit_label=None,
-                         hidden_fields=None):
+                          title=None, description=None, submit_label=None,
+                          hidden_fields=None):
         """Show a captcha form that can be reused across the application
 
         Args:
@@ -1342,8 +1344,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             'form_action': form_action,
             'submit_label': submit_label or 'Continue',
             'title': title or 'CAPTCHA Verification',
-            'description': description or ('To continue, please complete the '
-                'CAPTCHA verification below:'),
+            'description': description or (
+                'To continue, please complete the '
+                'CAPTCHA verification below:'
+            ),
             'no_title': title is None,
             'no_description': description is None
         }
@@ -1357,6 +1361,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         return template.__of__(self)(**options)
 
     security.declareProtected('View', 'captcha_zipform')
+
     def captcha_zipform(self, REQUEST, captcha_error=None):
         """Show a captcha form for anonymous users"""
         return self.show_captcha_form(

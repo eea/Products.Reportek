@@ -1,6 +1,6 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="head">
-    <title>Download ZIP - CAPTCHA verification</title>
+    <title i18n:translate="">Download ZIP - CAPTCHA verification</title>
   </metal:block>
   <metal:block fill-slot="content">
     <div tal:replace="structure python:context.envelope_tabs()"/>
