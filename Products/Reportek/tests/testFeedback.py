@@ -27,6 +27,12 @@ class MockResponse:
 class FeedbackTestCase(BaseTest, ConfigureReportek):
     def afterSetUp(self):
         super(FeedbackTestCase, self).afterSetUp()
+        from AccessControl import getSecurityManager
+
+        self.login()
+        user = getSecurityManager().getUser()
+        self.app.REQUEST["AUTHENTICATED_USER"] = user
+
         # Disable CSRF protection for tests
         alsoProvides(self.app.REQUEST, IDisableCSRFProtection)
         self.createStandardDependencies()

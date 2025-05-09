@@ -1250,17 +1250,27 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     security.declareProtected('View', 'envelope_zip')
 
     def envelope_zip(self, REQUEST, RESPONSE):
-        """ Go through the envelope and find all the external documents
-            then zip them and send the result to the user.
-            It is meant for humans, so it's ok to only allow them to download
-            envelopes they need to work on (e.g. reporters) or are released.
+        """ Create and serve a ZIP file containing envelope documents.
 
-            fixme: It is not impossible that the client only wants part of the
-            zipfile, as in index_html of Document.py due to the partial
-            requests that can be made with HTTP
+        Creates a ZIP archive of the envelope's documents and metadata,
+        with permission checks and caching for better performance.
+
+        Args:
+            REQUEST: The HTTP request object
+            RESPONSE: The HTTP response object
+
+        Returns:
+            HTTP response with ZIP file or CAPTCHA verification form
+
+        Note:
+            Anonymous users must complete CAPTCHA verification
+            Authenticated users must pass CSRF protection for POST requests
         """
         # Verify access permissions
-        self._check_zip_access(REQUEST)
+        captcha_html = self._check_zip_access(REQUEST)
+        if captcha_html is not None:
+            # Return captcha form for unauthenticated users
+            return captcha_html
 
         # Collect and categorize documents
         public_docs, restricted_docs = self._get_accessible_documents()
@@ -1281,24 +1291,113 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         return self._create_zip_file(
             public_docs, zip_type, response_zip_name, RESPONSE)
 
+    security.declareProtected('View', 'verify_captcha')
+    def verify_captcha(self, REQUEST):
+        """Verify CAPTCHA input from request
+
+        Returns:
+            bool: True if CAPTCHA is valid or not required, False otherwise
+        """
+        user = getattr(REQUEST, 'AUTHENTICATED_USER', None)
+        username = user.getUserName() if user else 'Anonymous User'
+        is_anonymous = username == 'Anonymous User'
+
+        # Only verify for anonymous users
+        if not is_anonymous:
+            return True
+
+        # Only verify for POST requests
+        if REQUEST.method != 'POST':
+            return False
+
+        captcha_value = REQUEST.get('captcha', '')
+        captcha_view = getMultiAdapter((self, REQUEST), name=u"captcha")
+        return captcha_view.verify(captcha_value)
+
+    security.declareProtected('View', 'show_captcha_form')
+    def show_captcha_form(self, REQUEST, form_action, captcha_error=None,
+                         title=None, description=None, submit_label=None,
+                         hidden_fields=None):
+        """Show a captcha form that can be reused across the application
+
+        Args:
+            REQUEST: The request object
+            form_action: The form action URL
+            captcha_error: Optional error message
+            title: Optional custom title
+            description: Optional custom description
+            submit_label: Optional custom submit button label
+            hidden_fields: Optional list of dicts with name/value pairs for
+            hidden fields
+
+        Returns:
+            rendered template
+        """
+        REQUEST.RESPONSE.setHeader('Content-Type', 'text/html; charset=utf-8')
+
+        template = PageTemplateFile('zpt/envelope/captcha_form.zpt', globals())
+
+        # Bind variables
+        options = {
+            'form_action': form_action,
+            'submit_label': submit_label or 'Continue',
+            'title': title or 'CAPTCHA Verification',
+            'description': description or ('To continue, please complete the '
+                'CAPTCHA verification below:'),
+            'no_title': title is None,
+            'no_description': description is None
+        }
+
+        if hidden_fields:
+            options['hidden_fields'] = hidden_fields
+
+        if captcha_error:
+            options['captcha_error'] = captcha_error
+
+        return template.__of__(self)(**options)
+
+    security.declareProtected('View', 'captcha_zipform')
+    def captcha_zipform(self, REQUEST, captcha_error=None):
+        """Show a captcha form for anonymous users"""
+        return self.show_captcha_form(
+            REQUEST,
+            form_action=self.absolute_url() + '/envelope_zip',
+            captcha_error=captcha_error,
+            title='Download ZIP - CAPTCHA verification',
+            description=('To download this ZIP file, please complete the'
+                         ' CAPTCHA verification below:'),
+            submit_label='Download ZIP'
+        )
+
     def _check_zip_access(self, REQUEST):
         """Verify user has permission to access the zip file."""
+        user = getattr(REQUEST, 'AUTHENTICATED_USER', None)
+        username = user.getUserName() if user else 'Anonymous User'
+        is_anonymous = username == 'Anonymous User'
+
+        # First check if user can view the content at all
+        if not self.canViewContent():
+            raise Unauthorized("Envelope is not available")
+
         if REQUEST.method == 'POST':
-            # For POST requests, require CSRF protection
-            if not IDisableCSRFProtection.providedBy(REQUEST):
+            # For POST requests from anonymous users, verify CAPTCHA
+            if is_anonymous:
+                if not self.verify_captcha(REQUEST):
+                    return self.captcha_zipform(
+                        REQUEST, "Incorrect CAPTCHA. Please try again.")
+            # For all other POST requests, require CSRF protection
+            elif not IDisableCSRFProtection.providedBy(REQUEST):
                 authenticator = getMultiAdapter(
                     (self, REQUEST), name=u"authenticator")
                 if not authenticator.verify('envelope_zip'):
                     raise Unauthorized("Unable to verify authenticator")
         else:
-            # For GET requests, explicitly check that the user is authenticated
-            if REQUEST['AUTHENTICATED_USER'].getUserName() == 'Anonymous User':
-                raise Unauthorized(
-                    "Authentication required for this operation")
+            # For GET requests, show CAPTCHA form for anonymous users
+            if is_anonymous:
+                return self.captcha_zipform(REQUEST)
 
-        # For both GET and POST, verify user can view the content
-        if not self.canViewContent():
-            raise Unauthorized("Envelope is not available")
+        # If we get here, access is allowed
+        return None
 
     def _get_accessible_documents(self):
         """Return lists of accessible and restricted documents."""

@@ -52,7 +52,7 @@
                    i18n:translate="">Add feedback</a></li>
           </tal:block>
             <li>
-                <form method="POST" action="envelope_zip">
+                <form method="GET" action="envelope_zip">
                     <tal:authenticator tal:define="authenticator context/@@authenticator">
                       <span tal:replace="structure python: authenticator.authenticator('envelope_zip')"/>
                     </tal:authenticator>

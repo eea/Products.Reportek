@@ -309,14 +309,19 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         request = BaseTest.create_mock_request()
         self.root = makerequest(self._plain_root, StringIO())
         request = self.root.REQUEST
-        request.AUTHENTICATED_USER = Mock()
+        request["AUTHENTICATED_USER"] = Mock()
         response = request.RESPONSE
         response._data = StringIO()
         response.write = response._data.write
         return request
 
     def download_zip(self, envelope):
-        envelope.REQUEST = BaseTest.create_mock_request()
+        envelope.REQUEST = self.app.REQUEST
+        from AccessControl import getSecurityManager
+
+        self.login()
+        user = getSecurityManager().getUser()
+        envelope.REQUEST["AUTHENTICATED_USER"] = user
         alsoProvides(envelope.REQUEST, IDisableCSRFProtection)
         rv = download_envelope_zip(envelope)
         return zipfile.ZipFile(rv)
