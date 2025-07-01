@@ -716,7 +716,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return None
 
-    def create_fgas_ver_col(self, ctx, old_company_id=None):
+    def create_fgas_ver_col(self, ctx, company_id, old_company_id=None):
         """Creates verification collections for FGAS.
         We'll look for a verification_metadata_override script in the ctx,
         that could be used to override/append what we have in v_metadata.
@@ -786,7 +786,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     old_company_id=old_company_id,
                 )
                 col = getattr(ctx, v_metadata.get(df_uri).get("id"))
-                col.company_id = ctx.company_id
+                col.company_id = company_id
                 col.reindexObject()
             except Exception as e:
                 logger.warning(
@@ -821,7 +821,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         )
         if str(domain.lower()) == "fgas":
             c_col = getattr(ctx, main_col_id)
-            self.create_fgas_ver_col(c_col, old_company_id)
+            self.create_fgas_ver_col(c_col, company_id, old_company_id)
 
     def update_company_collection(
         self, domain, country, company_id, name, old_collection_id=None
