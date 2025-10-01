@@ -2134,7 +2134,8 @@ class EnvelopeCustomDataflows(Toolz):
         lead_auditor_name = next(
             (
                 "{0} {1}".format(
-                    user.get("first_name", ""), user.get("last_name", "")
+                    user.get("first_name", "").encode("utf-8"),
+                    user.get("last_name", "").encode("utf-8"),
                 )
                 for user in auditor.get("users", [])
                 if user.get("email") == lead_auditor_email
