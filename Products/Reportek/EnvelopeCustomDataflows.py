@@ -1959,6 +1959,134 @@ class EnvelopeCustomDataflows(Toolz):
         """Return True if the envelope is an ODS envelope."""
         return self.get_domain(df_type="undertakings") == "ODS"
 
+    security.declareProtected("Change Envelopes", "delete_files")
+
+    def delete_files(self):
+        """Delete files in the verification envelope."""
+        import plone.protect.interfaces
+        from zope.interface import alsoProvides
+
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        res = {"success": False, "message": ""}
+
+        if not self.is_fgas_verification():
+            self.REQUEST.RESPONSE.setStatus(403)
+            res["message"] = (
+                "Forbidden: Envelope is not a verification envelope."
+            )
+            return json.dumps(res)
+
+        try:
+            username = self.REQUEST.AUTHENTICATED_USER.getUserName()
+            if username == "Anonymous User":
+                raise ValueError("Anonymous users cannot perform this action.")
+        except (AttributeError, ValueError):
+            self.REQUEST.RESPONSE.setStatus(401)
+            res["message"] = (
+                "Unauthorized: You must be logged in to perform this action."
+            )
+            return json.dumps(res)
+
+        is_lead_auditor = username == self.audit_info.get("lead_auditor_email")
+        is_audit_in_progress = not self.audit_info.get("audit_end_date")
+
+        if not (is_lead_auditor and is_audit_in_progress):
+            self.REQUEST.RESPONSE.setStatus(403)
+            res["message"] = (
+                "Forbidden: Files can only be deleted by the lead auditor, "
+                "during the audit period."
+            )
+            return json.dumps(res)
+
+        try:
+            body = self.REQUEST.get("BODY", "{}")
+            data = json.loads(body)
+            files_param = data.get("files")
+
+            files_to_delete = []
+            delete_ids = []
+            if isinstance(files_param, basestring):
+                files_to_delete = [files_param]
+            elif isinstance(files_param, list):
+                files_to_delete = files_param
+            elif files_param is None:
+                files_to_delete = []
+            else:
+                err = (
+                    "'files' parameter must be a string or a list of strings."
+                )
+                raise ValueError(err)
+
+            validated_ids = []
+            for f_id in files_to_delete:
+                if not isinstance(f_id, basestring):
+                    err = (
+                        "Invalid item in 'files' list: all items must "
+                        "be strings."
+                    )
+                    raise ValueError(err)
+
+                if "/" in f_id or "\\" in f_id:
+                    raise ValueError("Invalid character in file ID.")
+
+                validated_ids.append(f_id)
+
+            files_to_delete = validated_ids
+
+        except (ValueError, TypeError) as e:
+            self.REQUEST.RESPONSE.setStatus(400)
+            conversion_log.error(
+                "Invalid request format: %s",
+                str(e),
+                exc_info=True,
+            )
+            res["message"] = "Invalid request: " + str(e)
+            return json.dumps(res)
+
+        if not files_to_delete:
+            res["success"] = True
+            res["message"] = "No files were specified for deletion."
+            return json.dumps(res)
+
+        try:
+            delete_ids = []
+            for f_id in files_to_delete:
+                obj = getattr(self, f_id, None)
+                if obj is None:
+                    raise KeyError("File with ID '{}' not found.".format(f_id))
+                if getattr(obj, "meta_type", None) == "Report Document":
+                    delete_ids.append(f_id)
+
+            if not delete_ids:
+                res["success"] = True
+                res["message"] = "No matching files were found to delete."
+                return json.dumps(res)
+
+            self.manage_delObjects(ids=delete_ids)
+            res["success"] = True
+            res["message"] = "Successfully deleted {} file(s).".format(
+                len(delete_ids)
+            )
+
+        except KeyError as e:
+            self.REQUEST.RESPONSE.setStatus(404)
+            err = str(e)
+            conversion_log.warning("Could not delete files: %s", err)
+            res["message"] = err
+
+        except Exception as e:
+            conversion_log.error(
+                "Error deleting files in envelope: %s", str(e), exc_info=True
+            )
+            self.REQUEST.RESPONSE.setStatus(500)
+            res["message"] = "An unexpected error occurred on the server."
+
+        return json.dumps(res)
+
     security.declareProtected("Change Envelopes", "assign_auditor")
 
     def unassign_auditor(self):
