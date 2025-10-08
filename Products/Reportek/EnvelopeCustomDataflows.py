@@ -2065,8 +2065,7 @@ class EnvelopeCustomDataflows(Toolz):
                 res["success"] = True
                 res["message"] = "No matching files were found to delete."
                 return json.dumps(res)
-
-            self.manage_delObjects(ids=delete_ids)
+            self.manage_delObjects(ids=delete_ids[:])
             res["success"] = True
             res["message"] = "Successfully deleted {} file(s).".format(
                 len(delete_ids)
