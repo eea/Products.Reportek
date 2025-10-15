@@ -36,10 +36,10 @@ import plone.protect.interfaces
 import RepUtils
 import transaction
 from AccessControl import ClassSecurityInfo
-from constants import QAREPOSITORY_ID
 
 # Zope imports
-from Globals import InitializeClass
+from AccessControl.class_init import InitializeClass
+from constants import QAREPOSITORY_ID
 from zope.interface import alsoProvides
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

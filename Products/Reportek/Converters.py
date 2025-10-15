@@ -27,7 +27,6 @@ import re
 
 import constants
 import Converter
-import Globals
 import requests
 import xmlrpclib
 from AccessControl import ClassSecurityInfo
@@ -77,15 +76,15 @@ class Converters(Folder):
     manage_addConverter = Converter.manage_addConverter
 
     security.declareProtected(view_management_screens, "index_html")
-    index_html = PageTemplateFile("zpt/converters/index", globals())
+    index_html = PageTemplateFile("zpt/converters/index")
 
     security.declareProtected(
         view_management_screens, "manage_converters_html"
     )
-    manage_converters_html = PageTemplateFile("zpt/converters/edit", globals())
+    manage_converters_html = PageTemplateFile("zpt/converters/edit")
 
     security.declareProtected(view_management_screens, "remote_converters")
-    remote_converters = PageTemplateFile("zpt/converters/remote", globals())
+    remote_converters = PageTemplateFile("zpt/converters/remote")
 
     def __init__(self):
         """ """
@@ -185,7 +184,7 @@ class Converters(Folder):
         local_converters = []
         remote_converters = []
         # Drop everything up to period.
-        filesuffix = filename[filename.find(".") + 1:]
+        filesuffix = filename[filename.find(".") + 1 :]
         if filesuffix == "":
             filesuffix = "totally-unlikely-suffix."
         # Find in list of local converters
@@ -359,4 +358,6 @@ class Converters(Folder):
         return conv(file_url, write_to_response=write_to_response)
 
 
-Globals.InitializeClass(Converters)
+from AccessControl.class_init import InitializeClass
+
+InitializeClass(Converters)

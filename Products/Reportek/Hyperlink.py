@@ -18,17 +18,20 @@
 # Contributor(s):
 # Soren Roug, EEA
 
-from Products.Reportek.CatalogAware import CatalogAware
-from OFS.SimpleItem import SimpleItem
-from OFS.PropertyManager import PropertyManager
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
-from DateTime import DateTime
-from App.ImageFile import ImageFile
-import RepUtils
-from time import time
 import string
+from time import time
+
+import RepUtils
+from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
+from App.ImageFile import ImageFile
+from DateTime import DateTime
+from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import SimpleItem
+
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.CatalogAware import CatalogAware
+
 __doc__ = """
       Hyperlink product module.
       The Hyperlink is kept as an object along with the Documents
@@ -37,10 +40,10 @@ __doc__ = """
       $Id$
 """
 
-manage_addHyperlinkForm = PageTemplateFile('zpt/hyperlink/add', globals())
+manage_addHyperlinkForm = PageTemplateFile("zpt/hyperlink/add", globals())
 
 
-def manage_addHyperlink(self, id='', title='', hyperlinkurl='', REQUEST=None):
+def manage_addHyperlink(self, id="", title="", hyperlinkurl="", REQUEST=None):
     """Adds hyperlink as a file to a folder."""
 
     # generate id from the release date
@@ -48,12 +51,16 @@ def manage_addHyperlink(self, id='', title='', hyperlinkurl='', REQUEST=None):
     if not id:
         id = hyperlinkurl
     if id:
-        while len(id) > 0 and id[-1] == '/':
+        while len(id) > 0 and id[-1] == "/":
             id = id[:-1]
-        id = id[max(string.rfind(id, '/'),
-                    string.rfind(id, '\\'),
-                    string.rfind(id, ':')
-                    )+1:]
+        id = id[
+            max(
+                string.rfind(id, "/"),
+                string.rfind(id, "\\"),
+                string.rfind(id, ":"),
+            )
+            + 1 :
+        ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
 
@@ -62,28 +69,27 @@ def manage_addHyperlink(self, id='', title='', hyperlinkurl='', REQUEST=None):
 
     if REQUEST is not None:
         return self.messageDialog(
-            message="The Hyperlink %s was successfully created!" % self.id)
+            message="The Hyperlink %s was successfully created!" % self.id
+        )
 
 
-class ReportHyperlink(CatalogAware,
-                      SimpleItem,
-                      PropertyManager
-                      ):
+class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     """A Hyperlink allows indexing and conversions."""
 
-    meta_type = 'Report Hyperlink'
-    icon = 'misc_/Reportek/hyperlink_gif'
+    meta_type = "Report Hyperlink"
+    icon = "misc_/Reportek/hyperlink_gif"
 
     # what management options are there?
     manage_options = (
-        PropertyManager.manage_options +
-        ({'label': 'View',  'action': 'index_html'}, ) +
-        SimpleItem.manage_options
+        PropertyManager.manage_options
+        + ({"label": "View", "action": "index_html"},)
+        + SimpleItem.manage_options
     )
 
-    _properties = ({'id': 'title', 'type': 'string', 'mode': 'w'},
-                   {'id': 'hyperlinkurl', 'type': 'string', 'mode': 'w'},
-                   )
+    _properties = (
+        {"id": "title", "type": "string", "mode": "w"},
+        {"id": "hyperlinkurl", "type": "string", "mode": "w"},
+    )
 
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
@@ -94,34 +100,38 @@ class ReportHyperlink(CatalogAware,
     # Init method                  #
     ################################
 
-    def __init__(self, id, title='', hyperlinkurl=''):
-        """ Initialize a new Hyperlink instance
-        """
+    def __init__(self, id, title="", hyperlinkurl=""):
+        """Initialize a new Hyperlink instance"""
         self.id = id
         self.title = title
         self.hyperlinkurl = hyperlinkurl
         self._upload_time = time()
 
     # Compatibility with Document
-    security.declarePublic('icon_gif')
+    security.declarePublic("icon_gif")
     icon_gif = ImageFile("www/hyperlink.gif", globals())
     # icon_gif = ImageFile("www/hyperlink_big.gif", globals())
 
-    security.declarePublic('upload_time')
+    security.declarePublic("upload_time")
 
     def upload_time(self):
-        """ Return the upload time
-        """
+        """Return the upload time"""
         return DateTime(self._upload_time)
 
     def size(self):
-        return ''
+        return ""
 
-    security.declareProtected('Change Envelopes', 'manage_editHyperlink')
+    security.declareProtected("Change Envelopes", "manage_editHyperlink")
 
-    def manage_editHyperlink(self, title='', hyperlinkurl='',
-                             applyRestriction='', restricted='', REQUEST=None):
-        """ Edits the properties """
+    def manage_editHyperlink(
+        self,
+        title="",
+        hyperlinkurl="",
+        applyRestriction="",
+        restricted="",
+        REQUEST=None,
+    ):
+        """Edits the properties"""
         self.title = title
         self.hyperlinkurl = hyperlinkurl
         if applyRestriction:
@@ -132,42 +142,44 @@ class ReportHyperlink(CatalogAware,
         if REQUEST is not None:
             return self.messageDialog(
                 message="The properties of %s have been changed!" % self.id,
-                action=REQUEST['HTTP_REFERER'])
+                action=REQUEST["HTTP_REFERER"],
+            )
 
-    security.declareProtected('View', 'index_html')
-    index_html = PageTemplateFile('zpt/hyperlink/index', globals())
+    security.declareProtected("View", "index_html")
+    index_html = PageTemplateFile("zpt/hyperlink/index", globals())
 
-    security.declareProtected('Change Envelopes', 'manage_editHyperlinkForm')
+    security.declareProtected("Change Envelopes", "manage_editHyperlinkForm")
     manage_editHyperlinkForm = PageTemplateFile(
-        'zpt/hyperlink/edit', globals())
+        "zpt/hyperlink/edit", globals()
+    )
 
-    security.declareProtected('Change Envelopes', 'manage_restrictDocument')
+    security.declareProtected("Change Envelopes", "manage_restrictDocument")
 
     def manage_restrictDocument(self, REQUEST=None):
-        """ Restrict access to this file
-        """
+        """Restrict access to this file"""
         self.manage_restrict(ids=[self.id])
         if REQUEST:
             return self.messageDialog(
                 message="File restricted to public.",
-                action=REQUEST['HTTP_REFERER'])
+                action=REQUEST["HTTP_REFERER"],
+            )
 
-    security.declareProtected('Change Envelopes', 'manage_unrestrictDocument')
+    security.declareProtected("Change Envelopes", "manage_unrestrictDocument")
 
     def manage_unrestrictDocument(self, REQUEST=None):
-        """ Remove access restriction for this file
-        """
+        """Remove access restriction for this file"""
         self.manage_unrestrict(ids=[self.id])
         if REQUEST:
             return self.messageDialog(
                 message="Document released to public.",
-                action=REQUEST['HTTP_REFERER'])
+                action=REQUEST["HTTP_REFERER"],
+            )
 
-    security.declarePublic('isRestricted')
+    security.declarePublic("isRestricted")
 
     def isRestricted(self):
-        """ Returns 1 if the file is restricted, 0 otherwise """
-        if self.acquiredRolesAreUsedBy('View'):
+        """Returns 1 if the file is restricted, 0 otherwise"""
+        if self.acquiredRolesAreUsedBy("View"):
             return 0
         return 1
 

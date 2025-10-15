@@ -20,7 +20,7 @@
 # Miruna Badescu, Finsiel Romania
 
 
-""" transition class
+"""transition class
 
 This class is part of the workflow system
 
@@ -28,23 +28,24 @@ This class is part of the workflow system
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
+
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
 
 
 class transition(CatalogAware, SimpleItem):
-    """ Links two activities """
+    """Links two activities"""
 
-    manage_options = ({'label': 'Properties',
-                       'action': 'manage_editTransitionForm'},
-                      {'label': 'View', 'action': 'index_html'},
-                      ) + SimpleItem.manage_options
+    manage_options = (
+        {"label": "Properties", "action": "manage_editTransitionForm"},
+        {"label": "View", "action": "index_html"},
+    ) + SimpleItem.manage_options
 
-    def __init__(self, id, From, To, condition='', description=''):
+    def __init__(self, id, From, To, condition="", description=""):
         if id == "":
-            self.id = '%s_%s' % (From, To)
+            self.id = "%s_%s" % (From, To)
         else:
             self.id = id
         self.From = From
@@ -54,21 +55,23 @@ class transition(CatalogAware, SimpleItem):
 
     security = ClassSecurityInfo()
 
-    security.declareProtected('Manage OpenFlow', 'manage_editTransitionForm')
+    security.declareProtected("Manage OpenFlow", "manage_editTransitionForm")
     manage_editTransitionForm = PageTemplateFile(
-        'zpt/Workflow/transition_edit.zpt', globals())
+        "zpt/Workflow/transition_edit.zpt", globals()
+    )
 
-#   security.declareProtected('Use OpenFlow', 'index_html')
+    #   security.declareProtected('Use OpenFlow', 'index_html')
     index_html = PageTemplateFile(
-        'zpt/Workflow/transition_index.zpt', globals())
+        "zpt/Workflow/transition_index.zpt", globals()
+    )
 
-    meta_type = 'Transition'
-    icon = 'misc_/Reportek/Transition.gif'
+    meta_type = "Transition"
+    icon = "misc_/Reportek/Transition.gif"
 
-    security.declareProtected('Manage OpenFlow', 'edit')
+    security.declareProtected("Manage OpenFlow", "edit")
 
     def edit(self, condition, From, To, description, REQUEST=None):
-        """  """
+        """ """
         self.condition = condition
         self.From = From
         self.To = To
@@ -76,7 +79,8 @@ class transition(CatalogAware, SimpleItem):
         self.reindexObject()
         if REQUEST:
             REQUEST.RESPONSE.redirect(
-                'manage_editTransitionForm?manage_tabs_message=Saved changes.')
+                "manage_editTransitionForm?manage_tabs_message=Saved changes."
+            )
 
 
 InitializeClass(transition)

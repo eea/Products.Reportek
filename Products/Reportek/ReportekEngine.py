@@ -32,7 +32,6 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 # product imports
 import constants
-import Globals
 import plone.protect.interfaces
 import RepUtils
 import requests
@@ -40,11 +39,13 @@ import transaction
 import xlwt
 import xmlrpclib
 from AccessControl import ClassSecurityInfo, SpecialUsers, getSecurityManager
+from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
 from AccessControl.SecurityManagement import (
     newSecurityManager,
     setSecurityManager,
 )
+from App.Common import package_home
 from config import DEPLOYMENT_BDR, DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
 from CountriesManager import CountriesManager
 from DataflowsManager import DataflowsManager
@@ -202,7 +203,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.UNS_notification_types = ["Envelope release", "Envelope revoke"]
 
     security.declareProtected(view_management_screens, "index_html")
-    index_html = PageTemplateFile("zpt/engine_index", globals())
+    index_html = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engine_index.zpt")
+    )
 
     # Setters for the Dataflows and Country Manager properties
     @DataflowsManager.dfm_type.setter
@@ -303,7 +306,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return data
 
-    _manage_properties = PageTemplateFile("zpt/engine/prop", globals())
+    _manage_properties = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engine/prop.zpt")
+    )
 
     security.declareProtected(view_management_screens, "manage_properties")
 
@@ -950,22 +955,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected("View", "getSearchResults")
         security.declareProtected("View", "getUniqueValuesFor")
 
-    globalworklist = PageTemplateFile("zpt/engineGlobalWorklist", globals())
-    searchfeedbacks = PageTemplateFile("zpt/engineSearchFeedbacks", globals())
-    resultsfeedbacks = PageTemplateFile(
-        "zpt/engineResultsFeedbacks", globals()
+    globalworklist = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineGlobalWorklist.zpt")
     )
-    recent = PageTemplateFile("zpt/engineRecentUploads", globals())
-    recent_released = PageTemplateFile("zpt/engineRecentReleased", globals())
-    searchxml = PageTemplateFile("zpt/engineSearchXml", globals())
-    resultsxml = PageTemplateFile("zpt/engineResultsXml", globals())
+    searchfeedbacks = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineSearchFeedbacks.zpt")
+    )
+    resultsfeedbacks = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineResultsFeedbacks.zpt")
+    )
+    recent = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineRecentUploads.zpt")
+    )
+    recent_released = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineRecentReleased.zpt")
+    )
+    searchxml = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineSearchXml.zpt")
+    )
+    resultsxml = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engineResultsXml.zpt")
+    )
 
     security.declarePublic("languages_box")
-    languages_box = PageTemplateFile("zpt/languages_box", globals())
+    languages_box = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/languages_box.zpt")
+    )
 
-    _searchdataflow = PageTemplateFile("zpt/searchdataflow", globals())
+    _searchdataflow = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/searchdataflow.zpt")
+    )
 
-    search_dataflow = PageTemplateFile("zpt/search_dataflow", globals())
+    search_dataflow = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/search_dataflow.zpt")
+    )
 
     def get_query_args(self):
         """Make a Catalog query object from the form in the REQUEST"""
@@ -1290,7 +1313,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return {"root": tree, "rows": rows}
 
     security.declareProtected("View", "sitemap")
-    sitemap = PageTemplateFile("zpt/engine/sitemap", globals())
+    sitemap = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engine/sitemap.zpt")
+    )
 
     security.declarePublic("getWebQURL")
 
@@ -1599,14 +1624,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected("View", "subscriptions_html")
     subscriptions_html = PageTemplateFile(
-        "zpt/engine/subscriptions", globals()
+        os.path.join(package_home(globals()), "zpt/engine/subscriptions.zpt")
     )
 
     security.declareProtected("View", "uns_settings")
-    uns_settings = PageTemplateFile("zpt/engine/unsinterface", globals())
+    uns_settings = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engine/unsinterface.zpt")
+    )
 
     _migration_table = PageTemplateFile(
-        "zpt/engine/migration_table", globals()
+        os.path.join(package_home(globals()), "zpt/engine/migration_table.zpt")
     )
 
     security.declareProtected("View management screens", "migration_table")
@@ -1995,7 +2022,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """displays a message dialog"""
         return self.message_dialog(message=message, action=action)
 
-    message_dialog = PageTemplateFile("zpt/message_dialog", globals())
+    message_dialog = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/message_dialog.zpt")
+    )
 
     security.declarePublic("getEnvelopeByURL")
 
@@ -2660,4 +2689,4 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return data
 
 
-Globals.InitializeClass(ReportekEngine)
+InitializeClass(ReportekEngine)

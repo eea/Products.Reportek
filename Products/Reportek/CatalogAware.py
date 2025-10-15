@@ -17,6 +17,7 @@ import logging
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from Acquisition import aq_base
+from DateTime import DateTime
 from ExtensionClass import Base
 from zope.component import queryUtility
 from zope.interface import implementer
@@ -96,7 +97,7 @@ class CatalogAware(Base):
                 # Can happen only when using
                 # catalog-getObject-raises off in Zope 2.8
                 logger.warning(
-                    "reindexObjectSecurity: Cannot get %s from " "catalog",
+                    "reindexObjectSecurity: Cannot get %s from catalog",
                     brain_path,
                 )
                 continue
@@ -104,6 +105,12 @@ class CatalogAware(Base):
             ob.reindexObject(idxs=self._cmf_security_indexes)
             if s is None:
                 ob._p_deactivate()
+
+    def bobobase_modification_time(self):
+        """Zope 4 no longer has bobobase_modification_time
+        Move this somewhere else
+        """
+        return DateTime(self._p_mtime)
 
 
 InitializeClass(CatalogAware)

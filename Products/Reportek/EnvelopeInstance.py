@@ -34,12 +34,12 @@ import plone.protect.interfaces
 
 # Zope imports
 from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.class_init import InitializeClass
 from constants import ENGINE_ID
 from DateTime import DateTime
 
 # Product specific imports
 from expression import exprNamespace
-from Globals import InitializeClass
 from OFS.Folder import Folder
 from workitem import workitem
 from zope.interface import alsoProvides

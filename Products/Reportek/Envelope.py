@@ -41,6 +41,7 @@ from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
                                       ZIP_CACHE_ENABLED,
                                       ZIP_CACHE_THRESHOLD,
                                       permission_manage_properties_envelopes)
+from OFS.role import RoleManager
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
                                zip_content)
@@ -68,7 +69,8 @@ import xlwt
 import transaction
 import OFS.SimpleItem
 import OFS.ObjectManager
-import Globals
+from App.Common import package_home
+from AccessControl.class_init import InitializeClass
 import AccessControl.Role
 from zipfile import BadZipfile
 from exceptions import InvalidPartOfYear
@@ -106,7 +108,7 @@ def error_response(exc, message, REQUEST):
     raise exc(message)
 
 
-manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
+manage_addEnvelopeForm = PageTemplateFile(os.path.join(package_home(globals()), 'zpt/envelope/add.zpt'))
 
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
@@ -268,7 +270,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                 'help': ('OFSP', 'Envelope_View.stx')},
         ) +
         EnvelopeInstance.manage_options +
-        AccessControl.Role.RoleManager.manage_options +
+        RoleManager.manage_options +
         OFS.SimpleItem.Item.manage_options
     )
 
@@ -279,7 +281,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     security.declareProtected('Change Envelopes', 'manage_renameObject')
     security.declareProtected('Change Envelopes', 'manage_renameObjects')
 
-    macros = PageTemplateFile('zpt/envelope/macros', globals()).macros
+    macros = PageTemplateFile('zpt/envelope/macros.zpt', globals()).macros
 
     def __init__(self, process, title, authUser, year, endyear, partofyear,
                  country, locality, descr, dataflow_uris=None):
@@ -531,7 +533,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     # then he should be redirected to the special work page
     # But he should still be able to see the overview page.
     security.declareProtected('View', 'overview')
-    overview = PageTemplateFile('zpt/envelope/overview', globals())
+    overview = PageTemplateFile('zpt/envelope/overview.zpt', globals())
 
     security.declareProtected('View', 'index_html')
 
@@ -589,7 +591,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     security.declareProtected('View management screens', 'manage_main_inh')
     manage_main_inh = EnvelopeInstance.manage_main
-    EnvelopeInstance.manage_main._setName('manage_main')
 
     security.declareProtected('View', 'manage_main')
 
@@ -634,32 +635,32 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     security.declareProtected('View', 'documents_section')
     documents_section = PageTemplateFile(
-        'zpt/envelope/documents_section', globals())
+        'zpt/envelope/documents_section.zpt', globals())
 
     security.declareProtected('View', 'documents_pagination')
     documents_pagination = PageTemplateFile(
-        'zpt/envelope/documents_pagination', globals())
+        'zpt/envelope/documents_pagination.zpt', globals())
 
     security.declareProtected('View', 'documents_management_section')
     documents_management_section = PageTemplateFile(
-        'zpt/envelope/documentsmanagement_section', globals())
+        'zpt/envelope/documentsmanagement_section.zpt', globals())
 
     security.declareProtected('View', 'feedback_section')
     feedback_section = PageTemplateFile(
-        'zpt/envelope/feedback_section', globals())
+        'zpt/envelope/feedback_section.zpt', globals())
 
     security.declareProtected('View', 'envelope_tabs')
-    envelope_tabs = PageTemplateFile('zpt/envelope/tabs', globals())
+    envelope_tabs = PageTemplateFile("zpt/envelope/tabs.zpt", globals())
 
     security.declareProtected('Change Envelopes', 'manage_prop')
-    manage_prop = PageTemplateFile('zpt/envelope/properties', globals())
+    manage_prop = PageTemplateFile('zpt/envelope/properties.zpt', globals())
 
     security.declareProtected('Change Envelopes', 'envelope_previous')
     envelope_previous = PageTemplateFile(
-        'zpt/envelope/earlierreleases', globals())
+        'zpt/envelope/earlierreleases.zpt', globals())
 
     security.declareProtected('View', 'data_quality')
-    data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
+    data_quality = PageTemplateFile('zpt/envelope/data_quality.zpt', globals())
 
     security.declareProtected('Use OpenFlow', 'get_current_workitem')
 
@@ -1228,7 +1229,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     manage_addManualQAFeedback = Feedback.manage_addManualQAFeedback
     security.declareProtected('Add Feedback', 'manage_deleteFeedbackForm')
     manage_deleteFeedbackForm = PageTemplateFile(
-        'zpt/feedback/delete', globals())
+        'zpt/feedback/delete.zpt', globals())
 
     security.declareProtected('Change Envelopes', 'manage_addDocumentForm')
     manage_addDocumentForm = Document.manage_addDocumentForm
@@ -1245,7 +1246,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     ##################################################
 
     security.declareProtected('Add Envelopes', 'manage_addzipfileform')
-    manage_addzipfileform = PageTemplateFile('zpt/envelope/add_zip', globals())
+    manage_addzipfileform = PageTemplateFile(
+        'zpt/envelope/add_zip.zpt', globals())
 
     security.declareProtected('View', 'envelope_zip')
 
@@ -1900,11 +1902,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     security.declareProtected('Change Feedback', 'envelope_status')
     envelope_status = PageTemplateFile(
-        'zpt/envelope/statuses_section', globals())
+        'zpt/envelope/statuses_section.zpt', globals())
 
     security.declareProtected('Change Feedback', 'envelope_status_bulk')
     envelope_status_bulk = PageTemplateFile(
-        'zpt/envelope/statusesbulk', globals())
+        'zpt/envelope/statusesbulk.zpt', globals())
 
     security.declareProtected('Change Feedback', 'getEnvelopeDocuments')
 
@@ -1987,7 +1989,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
 
 # Initialize the class in order the security assertions be taken into account
-Globals.InitializeClass(Envelope)
+InitializeClass(Envelope)
 
 
 def movedEnvelope(ob, event):

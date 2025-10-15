@@ -8,40 +8,40 @@
 
   <cache:ruleset
     for=".interfaces.IReportekUtilities"
-    ruleset="plone.contentTypes"
+    ruleset="reportek_contentTypes"
   />
   <cache:ruleset
       for=".interfaces.IBaseDelivery"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
   <cache:ruleset
       for=".interfaces.IReportekEngine"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
 
   <cache:ruleset
       for="zope.pagetemplate.interfaces.IPageTemplate"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
 
   <cache:ruleset
       for=".interfaces.IFeedback"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
 
   <cache:ruleset
       for=".interfaces.ICollection"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
 
   <cache:ruleset
       for=".interfaces.IDocument"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
 
   <cache:ruleset
       for=".interfaces.IWorkitem"
-      ruleset="plone.contentTypes"
+      ruleset="reportek_contentTypes"
   />
 
   <browser:menu

@@ -26,11 +26,11 @@ $Id$"""
 import json
 import logging
 import operator
+import os
 from datetime import datetime
 
 import constants
 import Envelope
-import Globals
 import Referral
 import RepUtils
 import requests
@@ -38,6 +38,7 @@ from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import change_permissions, manage_users
 from AccessControl.requestmethod import requestmethod
 from Acquisition import aq_base
+from App.Common import package_home
 from DateTime import DateTime
 from OFS.Folder import Folder
 from Toolz import Toolz
@@ -58,7 +59,9 @@ from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
 logger = logging.getLogger(__name__)
 __version__ = "$Revision$"[11:-2]
 
-manage_addCollectionForm = PageTemplateFile("zpt/collection/add", globals())
+manage_addCollectionForm = PageTemplateFile(
+    os.path.join(package_home(globals()), "zpt/collection/add.zpt")
+)
 
 
 def manage_addCollection(
@@ -232,7 +235,6 @@ class Collection(
 
     security.declareProtected("View management screens", "manage_main_inh")
     manage_main_inh = Folder.manage_main
-    Folder.manage_main._setName("manage_main")
 
     security.declareProtected("View", "manage_main")
 
@@ -263,23 +265,33 @@ class Collection(
     security.declareProtected("Add Envelopes", "manage_addReferral")
     manage_addReferral = Referral.manage_addReferral
 
-    macros = PageTemplateFile("zpt/collection/macros", globals()).macros
+    macros = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/collection/macros.zpt")
+    ).macros
 
     security.declareProtected("View", "index_html")
-    index_html = PageTemplateFile("zpt/collection/index", globals())
-
-    security.declareProtected("Change Collections", "manage_prop")
-    manage_prop = PageTemplateFile("zpt/collection/prop", globals())
-
-    _get_users_list = PageTemplateFile("zpt/collection/users", globals())
-
-    security.declareProtected("View", "company_details")
-    company_details = PageTemplateFile(
-        "zpt/collection/company_details", globals()
+    index_html = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/collection/index.zpt")
     )
 
+    security.declareProtected("Change Collections", "manage_prop")
+    manage_prop = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/collection/prop.zpt")
+    )
+
+    _get_users_list = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/collection/users.zpt")
+    )
+
+    security.declareProtected("View", "company_details")
+    company_details = PageTemplateFile("zpt/collection/company_details")
+
     security.declareProtected("View", "other_reports")
-    other_reports = PageTemplateFile("zpt/collection/other_reports", globals())
+    other_reports = PageTemplateFile(
+        os.path.join(
+            package_home(globals()), "zpt/collection/other_reports.zpt"
+        )
+    )
 
     def local_defined_roles(self):
         return self.__ac_local_roles__
@@ -594,10 +606,14 @@ class Collection(
             )
 
     security.declareProtected("Use OpenFlow", "worklist")
-    worklist = PageTemplateFile("zpt/collection/worklist", globals())
+    worklist = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/collection/worklist.zpt")
+    )
 
     security.declareProtected("View", "collection_tabs")
-    collection_tabs = PageTemplateFile("zpt/collection/tabs", globals())
+    collection_tabs = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/collection/tabs.zpt")
+    )
 
     security.declarePublic("getWorkitemsForWorklist")
 
@@ -733,7 +749,9 @@ class Collection(
             message=message, action=action, params=params
         )
 
-    message_dialog = PageTemplateFile("zpt/message_dialog", globals())
+    message_dialog = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/message_dialog.zpt")
+    )
 
     security.declareProtected(change_permissions, "manage_addLocalRoles")
 
@@ -1423,4 +1441,6 @@ class Collection(
         self._restricted = bool(value)
 
 
-Globals.InitializeClass(Collection)
+from AccessControl.class_init import InitializeClass
+
+InitializeClass(Collection)

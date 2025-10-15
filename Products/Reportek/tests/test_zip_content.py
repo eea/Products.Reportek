@@ -1,20 +1,21 @@
+import hashlib
+
 from common import BaseUnitTest
-from path import path
 from mock import patch
-import md5
+from path import path
 
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
 
-FILE1_NAME = 'sample.xls'
+FILE1_NAME = "sample.xls"
 FILE1_CRC = 811920726
-FILE2_NAME = 'plant_catalog.xml'
+FILE2_NAME = "plant_catalog.xml"
 FILE2_CRC = 2392975974
-FILE3_NAME = 'excel-examples.xls'
+FILE3_NAME = "excel-examples.xls"
 
 
 class TestZZipFile(BaseUnitTest):
     def setUp(self):
-        self.inputZipPath = path(__file__).parent.abspath() / 'zipMany.zip'
+        self.inputZipPath = path(__file__).parent.abspath() / "zipMany.zip"
         # fh = open(self.inputZipPath)
         # self.zf = ZZipFile(fh)
 
@@ -83,7 +84,7 @@ class TestZZipFile(BaseUnitTest):
         content = zf.read(100)
         self.assertEqual(len(content), 100)
         content2 = zf.read(100000000)
-        self.assertEqual(len(content)+len(content2), zi.file_size)
+        self.assertEqual(len(content) + len(content2), zi.file_size)
 
     def test_read_seek(self):
         zf = ZZipFile(self.inputZipPath)
@@ -97,27 +98,26 @@ class TestZZipFile(BaseUnitTest):
 
 
 class TestZZipFileRaw(BaseUnitTest):
-
     fileInfo = {
         FILE1_NAME: {
-            'crc': FILE1_CRC,
-            'md5': '08622548dff82bedd1b5f6fa35ef7782',
-            'rawlen': 180602,
+            "crc": FILE1_CRC,
+            "md5": "08622548dff82bedd1b5f6fa35ef7782",
+            "rawlen": 180602,
         },
         FILE2_NAME: {
-            'crc': FILE2_CRC,
-            'md5': 'e1539a4a5372de24f7939244aecf8033',
-            'rawlen': 97859,
+            "crc": FILE2_CRC,
+            "md5": "e1539a4a5372de24f7939244aecf8033",
+            "rawlen": 97859,
         },
         FILE3_NAME: {
-            'crc': None,
-            'md5': '7b571c0bede259ddad5f9c83557584f5',
-            'rawlen': 96554,
+            "crc": None,
+            "md5": "7b571c0bede259ddad5f9c83557584f5",
+            "rawlen": 96554,
         },
     }
 
     def setUp(self):
-        self.inputZipPath = path(__file__).parent.abspath() / 'zipMany.zip'
+        self.inputZipPath = path(__file__).parent.abspath() / "zipMany.zip"
 
     def test_raw_open_zip_fd(self):
         fh = open(self.inputZipPath)
@@ -159,7 +159,7 @@ class TestZZipFileRaw(BaseUnitTest):
         zf.setcurrentfile(fileInZip)
         self.assertTrue(zf.allowRaw)
 
-        with patch('Products.Reportek.zip_content.ZIP_DEFLATED', new=47):
+        with patch("Products.Reportek.zip_content.ZIP_DEFLATED", new=47):
             zf.setcurrentfile(fileInZip)
             self.assertFalse(zf.allowRaw)
         # can't do same thing with testing encryption bail out
@@ -175,8 +175,9 @@ class TestZZipFileRaw(BaseUnitTest):
             zf.setcurrentfile(fileInZip)
             rawContent = zf.read()
             self.assertEqual(
-                len(rawContent), self.fileInfo[fileInZip]['rawlen'])
-            h = md5.md5(rawContent)
-            self.assertEqual(h.hexdigest(), self.fileInfo[fileInZip]['md5'])
+                len(rawContent), self.fileInfo[fileInZip]["rawlen"]
+            )
+            h = hashlib.md5(rawContent)
+            self.assertEqual(h.hexdigest(), self.fileInfo[fileInZip]["md5"])
 
         zf.close()

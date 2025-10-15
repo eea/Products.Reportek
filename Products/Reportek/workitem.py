@@ -4,10 +4,10 @@ from time import time
 
 import constants
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from BTrees.OOBTree import BTree
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
-from Globals import InitializeClass
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
 from zope.annotation.interfaces import IAnnotations

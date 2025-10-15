@@ -26,9 +26,9 @@ import re
 
 import requests
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
-from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from StringIO import StringIO
 from zope.interface import implements
@@ -192,11 +192,11 @@ class RemoteRESTApplication(SimpleItem):
                             params=params,
                         )
                         if resp.status_code == 200:
-                            zip_url = re.sub(r'\\', '/', resp.json()["value"])
-                            zip_url = re.sub(r'/+', '/', zip_url)
+                            zip_url = re.sub(r"\\", "/", resp.json()["value"])
+                            zip_url = re.sub(r"/+", "/", zip_url)
                             zip_url = zip_url.replace(
-                                'http:/', 'http://').replace(
-                                'https:/', 'https://')
+                                "http:/", "http://"
+                            ).replace("https:/", "https://")
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
                                 attach = StringIO(resp.content)

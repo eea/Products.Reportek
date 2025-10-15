@@ -25,10 +25,10 @@ import json
 import logging
 import os
 import string
+import sys
 from os.path import join
 from time import time
 
-import Globals
 import IconShow
 import plone.protect.interfaces
 import RepUtils
@@ -36,16 +36,16 @@ import requests
 import transaction
 import xmltodict
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
+from App.Common import package_home, rfc1123_date
 
 # Product imports
 from blob import FileContainer, StorageError
 from constants import ENGINE_ID, QAREPOSITORY_ID
 from DateTime import DateTime
-from Globals import package_home
 from interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
 from StringIO import StringIO
-from webdav.common import rfc1123_date
 from XMLInfoParser import SchemaError, detect_schema
 from zExceptions import Redirect
 from zip_content import ZZipFile, ZZipFileRaw
@@ -81,7 +81,7 @@ ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
 logger = logging.getLogger("Reportek")
 
-manage_addDocumentForm = PageTemplateFile("zpt/document/add", globals())
+manage_addDocumentForm = PageTemplateFile("zpt/document/add")
 
 
 def error_message(ctx, message, action=None, REQUEST=None):
@@ -179,7 +179,7 @@ def manage_addDocument(
                 string.rfind(id, "\\"),
                 string.rfind(id, ":"),
             )
-            + 1:
+            + 1 :
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
@@ -285,7 +285,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     security.declareProtected("View", "__str__")
     security.declarePrivate("data_file")
 
-    macros = PageTemplateFile("zpt/document/macros", globals()).macros
+    import os
+
+    from App.Common import package_home
+
+    macros = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/document/macros.zpt")
+    ).macros
 
     meta_type = "Report Document"
 
@@ -471,7 +477,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def icon_gif(self, REQUEST, RESPONSE):
         """Return an icon for the file's MIME-Type"""
-        filename = join(package_home(globals()), self.getIconPath())
+        filename = join(package_home(__name__), self.getIconPath())
         content_type = "image/gif"
         file_size = os.path.getsize(filename)
         file_mtime = os.path.getmtime(filename)
@@ -577,7 +583,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     # Below there are the two forms for the document operations
     # The second one contains links to the file editing (regular upload
     # or editing with external editors e.g. XForms)
-    _manage_template = PageTemplateFile("zpt/document/manage", globals())
+    _manage_template = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/document/manage.zpt")
+    )
 
     security.declareProtected("View", "get_possible_conversions")
 
@@ -673,7 +681,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return self.manage_document(REQUEST=REQUEST, manage_and_edit=True)
 
     security.declareProtected("View", "flash_document")
-    flash_document = PageTemplateFile("zpt/document/flashview", globals())
+    flash_document = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/document/flashview.zpt")
+    )
 
     def flash_document_js(self):
         if (
@@ -726,7 +736,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     # Protected management methods #
     ################################
     # Management Interface
-    _manage_main_template = PageTemplateFile("zpt/document/edit", globals())
+    _manage_main_template = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/document/edit.zpt")
+    )
 
     def manage_main(self, REQUEST=None):
         """ """
@@ -814,7 +826,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
         self.hash = file_hash.hexdigest()
 
-    manage_uploadForm = PageTemplateFile("zpt/document/upload", globals())
+    manage_uploadForm = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/document/upload.zpt")
+    )
 
     def manage_file_upload(
         self, file="", content_type="", REQUEST=None, preserve_mtime=False
@@ -990,7 +1004,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                 REQUEST=REQUEST,
                             )
 
-                        tags = body_json.get('tags')
+                        tags = body_json.get("tags")
                         if not tags:
                             return error_message(
                                 self,
@@ -1038,9 +1052,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 except Exception, e:
                     logger.exception("Error parsing XML content")
                     return error_message(
-                        self,
-                        "Error parsing XML: %s" % str(e),
-                        REQUEST=REQUEST
+                        self, "Error parsing XML: %s" % str(e), REQUEST=REQUEST
                     )
 
             if tags:
@@ -1050,8 +1062,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 for tag in tags:
                     tag = tag.strip()
                     if "/" in tag:
-                        parts = [p.strip() for p in tag.split("/")
-                                 if p.strip()]
+                        parts = [
+                            p.strip() for p in tag.split("/") if p.strip()
+                        ]
                         if parts:
                             path_tags.append(parts)
                     elif tag:
@@ -1059,15 +1072,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
                 def check_path(current_path, tag_path):
                     """Check if current path matches any of the
-                       requested tag paths
+                    requested tag paths
                     """
-                    return (len(current_path) <= len(tag_path) and
-                            all(cp == tp for cp, tp in zip(
-                                current_path, tag_path)))
+                    return len(current_path) <= len(tag_path) and all(
+                        cp == tp for cp, tp in zip(current_path, tag_path)
+                    )
 
                 def filter_content(content, current_path=None):
                     """Recursively filter content based on tag
-                       paths/simple tags
+                    paths/simple tags
                     """
                     if current_path is None:
                         current_path = []
@@ -1088,12 +1101,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                     filtered[key] = value
                                 continue
 
-                            is_match = (key in simple_tags or
-                                        any(
-                                            new_path == path
-                                            for path in path_tags))
-                            is_parent = any(check_path(new_path, path)
-                                            for path in path_tags)
+                            is_match = key in simple_tags or any(
+                                new_path == path for path in path_tags
+                            )
+                            is_parent = any(
+                                check_path(new_path, path)
+                                for path in path_tags
+                            )
                             should_traverse = bool(simple_tags or is_parent)
 
                             # Add matched content
@@ -1152,4 +1166,4 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             )
 
 
-Globals.InitializeClass(Document)
+InitializeClass(Document)

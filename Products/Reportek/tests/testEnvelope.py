@@ -9,7 +9,7 @@ from Products.Reportek import OpenFlowEngine
 from OFS.SimpleItem import SimpleItem
 from OFS.Folder import Folder
 import json
-import md5
+import hashlib
 from zope.lifecycleevent import ObjectMovedEvent
 from functools import partial
 from mock import Mock, patch
@@ -181,7 +181,7 @@ class EnvelopeTestCase(BaseTest):
         # test unicode
         script1.write(u"return 'blâ'")
         expected_type1 = script1.meta_type
-        expected_checksum1 = md5.md5(
+        expected_checksum1 = hashlib.md5(
             script1.read().encode('utf-8')).hexdigest()
 
         folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
@@ -190,7 +190,7 @@ class EnvelopeTestCase(BaseTest):
         # test string with non ascii chars
         script2.ZPythonScript_edit(params='', body="return 'blâ'")
         expected_type2 = script2.meta_type
-        expected_checksum2 = md5.md5(script2.read()).hexdigest()
+        expected_checksum2 = hashlib.md5(script2.read()).hexdigest()
 
         wfe.addApplication('script1', script1.absolute_url(1))
         wfe.addApplication('script2', script2.absolute_url(1))

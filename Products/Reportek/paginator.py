@@ -28,12 +28,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Zope imports
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Five.browser import BrowserView
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
-
 from math import ceil, floor
+
+from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
+
+from Products.Five.browser import BrowserView
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 
 class InvalidPage(Exception):
@@ -49,8 +50,9 @@ class EmptyPage(InvalidPage):
 
 
 class Paginator(object):
-    def __init__(self, object_list, per_page, orphans=0,
-                 allow_empty_first_page=True):
+    def __init__(
+        self, object_list, per_page, orphans=0, allow_empty_first_page=True
+    ):
         self.object_list = object_list
         self.per_page = per_page
         self.orphans = orphans
@@ -62,14 +64,14 @@ class Paginator(object):
         try:
             number = int(number)
         except ValueError:
-            raise PageNotAnInteger('That page number is not an integer')
+            raise PageNotAnInteger("That page number is not an integer")
         if number < 1:
-            raise EmptyPage('That page number is less than 1')
+            raise EmptyPage("That page number is less than 1")
         if number > self.num_pages:
             if number == 1 and self.allow_empty_first_page:
                 pass
             else:
-                raise EmptyPage('That page contains no results')
+                raise EmptyPage("That page contains no results")
         return number
 
     def page(self, number):
@@ -92,6 +94,7 @@ class Paginator(object):
                 # (i.e. is of type list).
                 self._count = len(self.object_list)
         return self._count
+
     count = property(_get_count)
 
     def _get_num_pages(self):
@@ -103,6 +106,7 @@ class Paginator(object):
                 hits = max(1, self.count - self.orphans)
                 self._num_pages = int(ceil(hits / float(self.per_page)))
         return self._num_pages
+
     num_pages = property(_get_num_pages)
 
     def _get_page_range(self):
@@ -111,6 +115,7 @@ class Paginator(object):
         a template for loop.
         """
         return range(1, self.num_pages + 1)
+
     page_range = property(_get_page_range)
 
     security = ClassSecurityInfo()
@@ -129,7 +134,7 @@ class Page(object):
         self.paginator = paginator
 
     def __repr__(self):
-        return '<Page %s of %s>' % (self.number, self.paginator.num_pages)
+        return "<Page %s of %s>" % (self.number, self.paginator.num_pages)
 
     def has_next(self):
         return self.number < self.paginator.num_pages
@@ -351,33 +356,34 @@ class DiggPaginator(ExPaginator):
     1 2 ... 96 97 98 99 100
 
     # padding: default value
-    >>> DiggPaginator(range(1,1000), 10, body=10).padding
+    >>> DiggPaginator(range(1, 1000), 10, body=10).padding
     4
 
     # padding: automatic reduction
-    >>> DiggPaginator(range(1,1000), 10, body=5).padding
+    >>> DiggPaginator(range(1, 1000), 10, body=5).padding
     2
-    >>> DiggPaginator(range(1,1000), 10, body=6).padding
+    >>> DiggPaginator(range(1, 1000), 10, body=6).padding
     2
 
     # padding: sanity check
-    >>> DiggPaginator(range(1,1000), 10, body=5, padding=3)
+    >>> DiggPaginator(range(1, 1000), 10, body=5, padding=3)
     Traceback (most recent call last):
     ValueError: padding too large for body (max 2)
     """
 
     def __init__(self, *args, **kwargs):
-        self.body = kwargs.pop('body', 10)
-        self.tail = kwargs.pop('tail', 2)
-        self.align_left = kwargs.pop('align_left', False)
+        self.body = kwargs.pop("body", 10)
+        self.tail = kwargs.pop("tail", 2)
+        self.align_left = kwargs.pop("align_left", False)
         # TODO: make the default relative to body?
-        self.margin = kwargs.pop('margin', 4)
+        self.margin = kwargs.pop("margin", 4)
         # validate padding value
-        max_padding = int(ceil(self.body/2.0)-1)
-        self.padding = kwargs.pop('padding', min(4, max_padding))
+        max_padding = int(ceil(self.body / 2.0) - 1)
+        self.padding = kwargs.pop("padding", min(4, max_padding))
         if self.padding > max_padding:
             raise ValueError(
-                'padding too large for body (max %d)' % max_padding)
+                "padding too large for body (max %d)" % max_padding
+            )
         super(DiggPaginator, self).__init__(*args, **kwargs)
 
     def page(self, number, *args, **kwargs):
@@ -389,18 +395,27 @@ class DiggPaginator(ExPaginator):
         number = int(number)  # we know this will work
 
         # easier access
-        num_pages, body, tail, padding, margin = \
-            self.num_pages, self.body, self.tail, self.padding, self.margin
+        num_pages, body, tail, padding, margin = (
+            self.num_pages,
+            self.body,
+            self.tail,
+            self.padding,
+            self.margin,
+        )
 
         # put active page in middle of main range
-        main_range = map(int, [
-            floor(number-body/2.0)+1,  # +1 = shift odd body to right
-            floor(number+body/2.0)])
+        main_range = map(
+            int,
+            [
+                floor(number - body / 2.0) + 1,  # +1 = shift odd body to right
+                floor(number + body / 2.0),
+            ],
+        )
         # adjust bounds
         if main_range[0] < 1:
-            main_range = map(abs(main_range[0]-1).__add__, main_range)
+            main_range = map(abs(main_range[0] - 1).__add__, main_range)
         if main_range[1] > num_pages:
-            main_range = map((num_pages-main_range[1]).__add__, main_range)
+            main_range = map((num_pages - main_range[1]).__add__, main_range)
 
         # Determine leading and trailing ranges; if possible and appropriate,
         # combine them with the main range, in which case the resulting main
@@ -417,17 +432,17 @@ class DiggPaginator(ExPaginator):
         #     1 2 3 [4] 5 ... 99 100
         # If it were not for this adjustment, both cases would result in the
         # first output, regardless of the padding value.
-        if main_range[0] <= tail+margin:
+        if main_range[0] <= tail + margin:
             leading = []
-            main_range = [1, max(body, min(number+padding, main_range[1]))]
+            main_range = [1, max(body, min(number + padding, main_range[1]))]
             main_range[0] = 1
         else:
-            leading = range(1, tail+1)
+            leading = range(1, tail + 1)
         # basically same for trailing range, but not in ``left_align`` mode
         if self.align_left:
             trailing = []
         else:
-            if main_range[1] >= num_pages-(tail+margin)+1:
+            if main_range[1] >= num_pages - (tail + margin) + 1:
                 trailing = []
                 if not leading:
                     # ... but handle the special case of neither leading nor
@@ -437,11 +452,14 @@ class DiggPaginator(ExPaginator):
                     main_range = [1, num_pages]
                 else:
                     main_range = [
-                        min(num_pages-body+1,
-                            max(number-padding, main_range[0])),
-                        num_pages]
+                        min(
+                            num_pages - body + 1,
+                            max(number - padding, main_range[0]),
+                        ),
+                        num_pages,
+                    ]
             else:
-                trailing = range(num_pages-tail+1, num_pages+1)
+                trailing = range(num_pages - tail + 1, num_pages + 1)
 
         # finally, normalize values that are out of bound; this basically
         # fixes all the things the above code screwed up in the simple case
@@ -450,13 +468,13 @@ class DiggPaginator(ExPaginator):
 
         # make the result of our calculations available as custom ranges
         # on the ``Page`` instance.
-        page.main_range = range(main_range[0], main_range[1]+1)
+        page.main_range = range(main_range[0], main_range[1] + 1)
         page.leading_range = leading
         page.trailing_range = trailing
-        page.page_range = reduce(lambda x, y: x+((x and y) and [False])+y,
-                                 [page.leading_range,
-                                  page.main_range,
-                                  page.trailing_range])
+        page.page_range = reduce(
+            lambda x, y: x + ((x and y) and [False]) + y,
+            [page.leading_range, page.main_range, page.trailing_range],
+        )
 
         page.__class__ = DiggPage
         return page
@@ -470,10 +488,16 @@ InitializeClass(DiggPaginator)
 
 class DiggPage(Page):
     def __str__(self):
-        return " ... ".join(filter(None, [
-                            " ".join(map(str, self.leading_range)),
-                            " ".join(map(str, self.main_range)),
-                            " ".join(map(str, self.trailing_range))]))
+        return " ... ".join(
+            filter(
+                None,
+                [
+                    " ".join(map(str, self.leading_range)),
+                    " ".join(map(str, self.main_range)),
+                    " ".join(map(str, self.trailing_range)),
+                ],
+            )
+        )
 
     security = ClassSecurityInfo()
     security.setDefaultAccess("allow")
@@ -483,9 +507,8 @@ InitializeClass(DiggPage)
 
 
 class PaginationView(BrowserView):
-
     def __call__(self, **kwargs):
         return pagination.__of__(self.aq_parent)(**kwargs)
 
 
-pagination = PageTemplateFile('zpt/envelope/documents_pagination', globals())
+pagination = PageTemplateFile("zpt/envelope/documents_pagination", globals())

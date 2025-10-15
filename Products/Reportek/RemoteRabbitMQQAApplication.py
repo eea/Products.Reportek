@@ -31,11 +31,11 @@ import requests
 import requests.exceptions
 import transaction
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from BTrees.OOBTree import TreeSet
 from DateTime import DateTime
 from Document import Document
-from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from persistent.dict import PersistentDict
 from zope.interface import implements
@@ -232,8 +232,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             job_id = payload.get("jobId")
             l_file_id = urllib.unquote(
                 string.split(
-                    payload.get("documentURL", payload.get("envelopeUrl")),
-                    "/"
+                    payload.get("documentURL", payload.get("envelopeUrl")), "/"
                 )[-1]
             )
 

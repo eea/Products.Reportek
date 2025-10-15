@@ -44,12 +44,12 @@ from AccessControl.SecurityManagement import (
     newSecurityManager,
     setSecurityManager,
 )
-from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
+from AccessControl.users import UnrestrictedUser as BaseUnrestrictedUser
 from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
 from DateTime import DateTime
 from path import path
-from webdav.common import rfc1123_date
+from App.Common import rfc1123_date
 from zope.component import getUtility
 
 # from zope.datetime import rfc1123_date

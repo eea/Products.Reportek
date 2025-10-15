@@ -29,38 +29,59 @@ Referrals are obsolete. It is better to use an Envelope with a hyperlink in it.
 
 $Id$"""
 
-from Products.Reportek.CatalogAware import CatalogAware
-from OFS.SimpleItem import SimpleItem
-import Globals
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.RepUtils import DFlowCatalogAware
-from AccessControl import getSecurityManager, ClassSecurityInfo
 import AccessControl.Role
 
 # Product imports
 import RepUtils
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.class_init import InitializeClass
 from CountriesManager import CountriesManager
+from OFS.role import RoleManager
+from OFS.SimpleItem import SimpleItem
+
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseDelivery import BaseDelivery
+from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.RepUtils import DFlowCatalogAware
 
-manage_addReferralForm = PageTemplateFile('zpt/referral/add', globals())
+manage_addReferralForm = PageTemplateFile("zpt/referral/add", globals())
 
 
-def manage_addReferral(self, title, descr, referral_url, year, endyear,
-                       partofyear, country, locality, dataflow_uris,
-                       REQUEST=None):
-    """ Add a new Referral object with id *id*. """
+def manage_addReferral(
+    self,
+    title,
+    descr,
+    referral_url,
+    year,
+    endyear,
+    partofyear,
+    country,
+    locality,
+    dataflow_uris,
+    REQUEST=None,
+):
+    """Add a new Referral object with id *id*."""
     id = RepUtils.generate_id("ref")
     try:
         year = int(year)
     except Exception:
-        year = ''
+        year = ""
     try:
         endyear = int(endyear)
     except Exception:
-        endyear = ''
+        endyear = ""
 
-    ob = Referral(title, descr, referral_url, year, endyear, partofyear,
-                  country, locality, dataflow_uris)
+    ob = Referral(
+        title,
+        descr,
+        referral_url,
+        year,
+        endyear,
+        partofyear,
+        country,
+        locality,
+        dataflow_uris,
+    )
     ob.id = id
     ob.released = 1
     self._setObject(id, ob)
@@ -71,13 +92,15 @@ def manage_addReferral(self, title, descr, referral_url, year, endyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
-               DFlowCatalogAware):
-    """ Referrals are basic objects that provide a standard
-        interface for object management. Referral objects also implement
-        a management interface and can have arbitrary properties.
+class Referral(
+    CatalogAware, SimpleItem, CountriesManager, BaseDelivery, DFlowCatalogAware
+):
+    """Referrals are basic objects that provide a standard
+    interface for object management. Referral objects also implement
+    a management interface and can have arbitrary properties.
     """
-    meta_type = 'Repository Referral'
+
+    meta_type = "Repository Referral"
 
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
@@ -86,22 +109,45 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
 
     manage_options = (
         (
-            {'label': 'Properties', 'action': 'manage_prop',
-             'help': ('Reportek', 'Referral_Properties.stx')},
-            {'label': 'View', 'action': 'index_html',
-             'help': ('OFSP', 'Referral_View.stx')},
-        ) +
-        AccessControl.Role.RoleManager.manage_options +
-        SimpleItem.manage_options
+            {
+                "label": "Properties",
+                "action": "manage_prop",
+                "help": ("Reportek", "Referral_Properties.stx"),
+            },
+            {
+                "label": "View",
+                "action": "index_html",
+                "help": ("OFSP", "Referral_View.stx"),
+            },
+        )
+        + RoleManager.manage_options
+        + SimpleItem.manage_options
     )
 
-    def __init__(self, title, descr, referral_url, year, endyear, partofyear,
-                 country, locality, dataflow_uris):
+    def __init__(
+        self,
+        title,
+        descr,
+        referral_url,
+        year,
+        endyear,
+        partofyear,
+        country,
+        locality,
+        dataflow_uris,
+    ):
         """Referral constructor."""
-        BaseDelivery.__init__(self, title=title, year=year, endyear=endyear,
-                              partofyear=partofyear, country=country,
-                              locality=locality, descr=descr,
-                              dataflow_uris=dataflow_uris)
+        BaseDelivery.__init__(
+            self,
+            title=title,
+            year=year,
+            endyear=endyear,
+            partofyear=partofyear,
+            country=country,
+            locality=locality,
+            descr=descr,
+            dataflow_uris=dataflow_uris,
+        )
         self.referral_url = referral_url
 
     def get_reportingdate(self):
@@ -109,81 +155,95 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
 
     reportingdate = property(get_reportingdate)
 
-    security.declarePrivate('get_first_accept')
+    security.declarePrivate("get_first_accept")
 
     def get_first_accept(self):
-        """ Figures out which type of content the webbrowser prefers
-            If it is 'application/rdf+xml', then send RDF
+        """Figures out which type of content the webbrowser prefers
+        If it is 'application/rdf+xml', then send RDF
         """
-        s = self.REQUEST.get_header('HTTP_ACCEPT', '*/*')
-        segs = s.split(',')
-        firstseg = segs[0].split(';')
+        s = self.REQUEST.get_header("HTTP_ACCEPT", "*/*")
+        segs = s.split(",")
+        firstseg = segs[0].split(";")
         return firstseg[0].strip()
 
-    security.declareProtected('View', 'index_html')
-    index_html = PageTemplateFile('zpt/referral/index', globals())
+    security.declareProtected("View", "index_html")
+    index_html = PageTemplateFile("zpt/referral/index", globals())
 
-    security.declareProtected('View', 'referral_tabs')
-    referral_tabs = PageTemplateFile('zpt/referral/tabs', globals())
+    security.declareProtected("View", "referral_tabs")
+    referral_tabs = PageTemplateFile("zpt/referral/tabs", globals())
 
-    security.declareProtected('Change Collections', 'manage_prop')
-    manage_prop = PageTemplateFile('zpt/referral/prop', globals())
+    security.declareProtected("Change Collections", "manage_prop")
+    manage_prop = PageTemplateFile("zpt/referral/prop", globals())
 
-    security.declareProtected('View', 'manage_main')
+    security.declareProtected("View", "manage_main")
 
     def manage_main(self, *args, **kw):
-        """ Define manage main to be context aware """
-#       manage_main_inh = Referral.inheritedAttribute ("manage_main")
+        """Define manage main to be context aware"""
+        #       manage_main_inh = Referral.inheritedAttribute ("manage_main")
 
-        if getSecurityManager().checkPermission('View management screens',
-                                                self):
+        if getSecurityManager().checkPermission(
+            "View management screens", self
+        ):
             return apply(self.manage_prop, (self,) + args, kw)
         else:
             return apply(self.index_html, (self,) + args, kw)
 
-    security.declareProtected('View', 'get_custom_delivery_rdf_meta')
+    security.declareProtected("View", "get_custom_delivery_rdf_meta")
 
     def get_custom_delivery_rdf_meta(self):
         """Return custom content type metadata for RDF export."""
         res = []
-        res.append('<link>%s</link>' % RepUtils.xmlEncode(self.referral_url))
-        res.append('<hasFile rdf:resource="%s"/>' %
-                   RepUtils.xmlEncode(self.referral_url))
+        res.append("<link>%s</link>" % RepUtils.xmlEncode(self.referral_url))
+        res.append(
+            '<hasFile rdf:resource="%s"/>'
+            % RepUtils.xmlEncode(self.referral_url)
+        )
 
         return res
 
-    security.declareProtected('View', 'get_export_data')
+    security.declareProtected("View", "get_export_data")
 
-    def get_export_data(self, format='xls'):
-        """ Return data for export
-        """
+    def get_export_data(self, format="xls"):
+        """Return data for export"""
         env_data = BaseDelivery.get_export_data(self, format=format)
-        if getSecurityManager().checkPermission('View', self):
-            if format == 'xls':
-                env_data.update({
-                    'released': self.released,
-                    'reported': self.reportingdate.strftime('%Y-%m-%d'),
-                    'files': []
-                })
+        if getSecurityManager().checkPermission("View", self):
+            if format == "xls":
+                env_data.update(
+                    {
+                        "released": self.released,
+                        "reported": self.reportingdate.strftime("%Y-%m-%d"),
+                        "files": [],
+                    }
+                )
 
         return env_data
 
-    security.declareProtected('Change Collections', 'manage_editReferral')
+    security.declareProtected("Change Collections", "manage_editReferral")
 
-    def manage_editReferral(self, title, descr, referral_url,
-                            year, endyear, partofyear, country, locality,
-                            dataflow_uris=[], REQUEST=None):
-        """ Manage the edited values """
+    def manage_editReferral(
+        self,
+        title,
+        descr,
+        referral_url,
+        year,
+        endyear,
+        partofyear,
+        country,
+        locality,
+        dataflow_uris=[],
+        REQUEST=None,
+    ):
+        """Manage the edited values"""
         self.title = title
         self.referral_url = referral_url
         try:
             self.year = int(year)
         except Exception:
-            self.year = ''
+            self.year = ""
         try:
             self.endyear = int(endyear)
         except Exception:
-            self.endyear = ''
+            self.endyear = ""
         self.partofyear = partofyear
         self.country = country
         self.locality = locality
@@ -199,15 +259,25 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
             # self,REQUEST,manage_tabs_message=message)
             return self.messageDialog(
                 message="The properties of %s have been changed!" % self.id,
-                action='./manage_main')
+                action="./manage_main",
+            )
 
-    security.declareProtected('Change Collections', 'manage_changeReferral')
+    security.declareProtected("Change Collections", "manage_changeReferral")
 
-    def manage_changeReferral(self, title=None, referral_url=None,
-                              year=None, endyear=None, partofyear=None,
-                              country=None, locality=None, descr=None,
-                              dataflow_uris=None, REQUEST=None):
-        """ Manage the edited values """
+    def manage_changeReferral(
+        self,
+        title=None,
+        referral_url=None,
+        year=None,
+        endyear=None,
+        partofyear=None,
+        country=None,
+        locality=None,
+        descr=None,
+        dataflow_uris=None,
+        REQUEST=None,
+    ):
+        """Manage the edited values"""
         if title is not None:
             self.title = title
         if referral_url is not None:
@@ -233,4 +303,4 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
             return self.manage_main(self, REQUEST, manage_tabs_message=message)
 
 
-Globals.InitializeClass(Referral)
+InitializeClass(Referral)

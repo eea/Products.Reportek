@@ -22,47 +22,51 @@
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
-from Products.Reportek.CatalogAware import CatalogAware
+
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
+from Products.Reportek.CatalogAware import CatalogAware
 
 
 class activity(CatalogAware, SimpleItem):
-    """ Each activity is responsible for doing something and then forwarding
-    the instance """
+    """Each activity is responsible for doing something and then forwarding
+    the instance"""
 
-    meta_type = 'Activity'
-    icon = 'misc_/Reportek/Activity.gif'
+    meta_type = "Activity"
+    icon = "misc_/Reportek/Activity.gif"
 
-    manage_options = ({'label': 'Properties', 'action': 'manage_editForm'},
-                      {'label': 'View', 'action': 'index_html'},
-                      ) + SimpleItem.manage_options
+    manage_options = (
+        {"label": "Properties", "action": "manage_editForm"},
+        {"label": "View", "action": "index_html"},
+    ) + SimpleItem.manage_options
 
     security = ClassSecurityInfo()
 
-    def __init__(self,
-                 id,
-                 split_mode='and',
-                 join_mode='and',
-                 self_assignable=1,
-                 start_mode=0,
-                 bundle_mode=0,
-                 finish_mode=1,
-                 subflow='',
-                 push_application='',
-                 application='',
-                 parameters='{}',
-                 title='',
-                 description='',
-                 kind='standard',
-                 complete_automatically=1):
-        """ constructor """
+    def __init__(
+        self,
+        id,
+        split_mode="and",
+        join_mode="and",
+        self_assignable=1,
+        start_mode=0,
+        bundle_mode=0,
+        finish_mode=1,
+        subflow="",
+        push_application="",
+        application="",
+        parameters="{}",
+        title="",
+        description="",
+        kind="standard",
+        complete_automatically=1,
+    ):
+        """constructor"""
         self.id = id
-        self.split_mode = split_mode        # 'and', 'xor'
-        self.join_mode = join_mode          # 'and', 'xor'
+        self.split_mode = split_mode  # 'and', 'xor'
+        self.join_mode = join_mode  # 'and', 'xor'
         self.self_assignable = self_assignable
         self.start_mode = start_mode
         self.bundle_mode = bundle_mode
@@ -79,30 +83,33 @@ class activity(CatalogAware, SimpleItem):
         # the workitem will be completed if this parameter is true
         self.complete_automatically = complete_automatically
 
-    security.declareProtected('Manage OpenFlow', 'manage_editForm')
+    security.declareProtected("Manage OpenFlow", "manage_editForm")
     manage_editForm = PageTemplateFile(
-        'zpt/Workflow/activity_edit.zpt', globals())
+        "zpt/Workflow/activity_edit.zpt", globals()
+    )
 
-    index_html = PageTemplateFile('zpt/Workflow/activity_index.zpt', globals())
+    index_html = PageTemplateFile("zpt/Workflow/activity_index.zpt", globals())
 
-    security.declareProtected('Manage OpenFlow', 'edit')
+    security.declareProtected("Manage OpenFlow", "edit")
 
-    def edit(self,
-             split_mode=None,
-             join_mode=None,
-             self_assignable=None,
-             start_mode=None,
-             bundle_mode=None,
-             finish_mode=None,
-             subflow=None,
-             push_application=None,
-             application=None,
-             title=None,
-             description=None,
-             kind=None,
-             complete_automatically=None,
-             REQUEST=None):
-        """ changes the activity settings """
+    def edit(
+        self,
+        split_mode=None,
+        join_mode=None,
+        self_assignable=None,
+        start_mode=None,
+        bundle_mode=None,
+        finish_mode=None,
+        subflow=None,
+        push_application=None,
+        application=None,
+        title=None,
+        description=None,
+        kind=None,
+        complete_automatically=None,
+        REQUEST=None,
+    ):
+        """changes the activity settings"""
         # mode refers to the kind of routing the instance has to undergo
         # and it is either 'and' or 'xor'
         if split_mode:
@@ -142,9 +149,10 @@ class activity(CatalogAware, SimpleItem):
         self.reindexObject()
         if REQUEST:
             REQUEST.RESPONSE.redirect(
-                'manage_editForm?manage_tabs_message=Saved changes.')
+                "manage_editForm?manage_tabs_message=Saved changes."
+            )
 
-    security.declareProtected('Manage OpenFlow', 'title_or_id')
+    security.declareProtected("Manage OpenFlow", "title_or_id")
 
     def title_or_id(self):
         """ """
@@ -154,9 +162,9 @@ class activity(CatalogAware, SimpleItem):
             return self.id
 
     def get_mapped_application(self):
-        app_url = self.mapped_application_details()['path']
-        if not app_url.startswith('/'):
-            app_url = '/{}'.format(app_url)
+        app_url = self.mapped_application_details()["path"]
+        if not app_url.startswith("/"):
+            app_url = "/{}".format(app_url)
         return self.unrestrictedTraverse(app_url, None)
 
     def mapped_application_details(self):
@@ -164,17 +172,22 @@ class activity(CatalogAware, SimpleItem):
         engine = getattr(root, constants.WORKFLOW_ENGINE_ID)
         proc = self.aq_parent
 
-        resp = {'path': "",
-                'parent_url': "",
-                'missing': None,
-                'mapped_by_path': None}
+        resp = {
+            "path": "",
+            "parent_url": "",
+            "missing": None,
+            "mapped_by_path": None,
+        }
 
         mapped_by_path = False
 
         # check in Applications/Common/
         try:
-            app_path = '%s/%s/%s' % (constants.APPLICATIONS_FOLDER_ID,
-                                     'Common', self.id)
+            app_path = "%s/%s/%s" % (
+                constants.APPLICATIONS_FOLDER_ID,
+                "Common",
+                self.id,
+            )
             application = root.unrestrictedTraverse(app_path)
             if application and not mapped_by_path:
                 mapped_by_path = True
@@ -183,8 +196,11 @@ class activity(CatalogAware, SimpleItem):
 
         # check in Applications/proc_name/
         try:
-            app_path = '%s/%s/%s' % (constants.APPLICATIONS_FOLDER_ID,
-                                     proc.id, self.id)
+            app_path = "%s/%s/%s" % (
+                constants.APPLICATIONS_FOLDER_ID,
+                proc.id,
+                self.id,
+            )
             application = root.unrestrictedTraverse(app_path)
             if application:
                 mapped_by_path = True
@@ -193,17 +209,19 @@ class activity(CatalogAware, SimpleItem):
 
         if mapped_by_path:
             resp.update(
-                {'path': application.absolute_url(1),
-                 'parent_url': application.aq_parent.absolute_url(),
-                 'missing': False,
-                 'mapped_by_path': mapped_by_path}
+                {
+                    "path": application.absolute_url(1),
+                    "parent_url": application.aq_parent.absolute_url(),
+                    "missing": False,
+                    "mapped_by_path": mapped_by_path,
+                }
             )
             return resp
 
         # check in activity.application
         elif self.application:
             if engine._applications.get(self.application):
-                app_path = engine._applications[self.application]['url']
+                app_path = engine._applications[self.application]["url"]
             try:
                 application = root.unrestrictedTraverse(app_path)
                 resp.update(
@@ -215,87 +233,96 @@ class activity(CatalogAware, SimpleItem):
                     # e.g.:
                     # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
                     # and context.getMySelf() will work in this case
-                    {'path': application.absolute_url(1),
-                     'parent_url': application.aq_parent.absolute_url(),
-                     'missing': False,
-                     'mapped_by_path': mapped_by_path}
+                    {
+                        "path": application.absolute_url(1),
+                        "parent_url": application.aq_parent.absolute_url(),
+                        "missing": False,
+                        "mapped_by_path": mapped_by_path,
+                    }
                 )
             except KeyError:
                 application = None
                 resp.update(
-                    {'path': app_path,
-                     'parent_url': None,
-                     'missing': True,
-                     'mapped_by_path': mapped_by_path}
+                    {
+                        "path": app_path,
+                        "parent_url": None,
+                        "missing": True,
+                        "mapped_by_path": mapped_by_path,
+                    }
                 )
             finally:
                 return resp
         else:
-            resp['mapped_by_path'] = False
+            resp["mapped_by_path"] = False
             return resp
 
     def getIncomingTransitionsNumber(self):
-        """ returns all the process transition objects that go to the
-            specified activity
+        """returns all the process transition objects that go to the
+        specified activity
         """
-        return len([tr for tr in self.aq_parent.objectValues('Transition')
-                    if tr.To == self.id])
+        return len(
+            [
+                tr
+                for tr in self.aq_parent.objectValues("Transition")
+                if tr.To == self.id
+            ]
+        )
 
-    security.declareProtected('Manage OpenFlow', 'isAutoStart')
+    security.declareProtected("Manage OpenFlow", "isAutoStart")
 
     def isAutoStart(self):
-        """ returns true if the activity start mode is automatic"""
-        return self.start_mode and self.kind == 'standard'
+        """returns true if the activity start mode is automatic"""
+        return self.start_mode and self.kind == "standard"
 
-    security.declareProtected('Manage OpenFlow', 'isBundled')
+    security.declareProtected("Manage OpenFlow", "isBundled")
 
     def isBundled(self):
-        """ returns true if the activity start mode is automatic"""
-        return getattr(self, 'bundle_mode', 0) and self.kind == 'standard'
+        """returns true if the activity start mode is automatic"""
+        return getattr(self, "bundle_mode", 0) and self.kind == "standard"
 
-    security.declareProtected('Manage OpenFlow', 'isSelfAssignable')
+    security.declareProtected("Manage OpenFlow", "isSelfAssignable")
 
     def isSelfAssignable(self):
-        """ returns true if the activity is assignable to self"""
-        return self.self_assignable and self.kind == 'standard'
+        """returns true if the activity is assignable to self"""
+        return self.self_assignable and self.kind == "standard"
 
-    security.declareProtected('Manage OpenFlow', 'isAutoFinish')
+    security.declareProtected("Manage OpenFlow", "isAutoFinish")
 
     def isAutoFinish(self):
-        """ returns true if the activity finish mode is automatic"""
+        """returns true if the activity finish mode is automatic"""
         return self.finish_mode == 1
 
-    security.declareProtected('Manage OpenFlow', 'isStandard')
+    security.declareProtected("Manage OpenFlow", "isStandard")
 
     def isStandard(self):
-        """ returns true if the activity is of 'standard' kind """
-        return self.kind == 'standard'
+        """returns true if the activity is of 'standard' kind"""
+        return self.kind == "standard"
 
-    security.declareProtected('Manage OpenFlow', 'isSubflow')
+    security.declareProtected("Manage OpenFlow", "isSubflow")
 
     def isSubflow(self):
-        """ returns true if the activity is a subflow  """
-        return self.subflow != ''
+        """returns true if the activity is a subflow"""
+        return self.subflow != ""
 
-    security.declareProtected('Manage OpenFlow', 'isDummy')
+    security.declareProtected("Manage OpenFlow", "isDummy")
 
     def isDummy(self):
-        """ returns true if the activity is a dummy  """
-        return self.kind == 'dummy'
+        """returns true if the activity is a dummy"""
+        return self.kind == "dummy"
 
-    security.declareProtected('Manage OpenFlow', 'isAutoPush')
+    security.declareProtected("Manage OpenFlow", "isAutoPush")
 
     def isAutoPush(self):
-        """ returns true if the activity push mode is automatic"""
-        return self.push_application and self.kind == 'standard'
+        """returns true if the activity push mode is automatic"""
+        return self.push_application and self.kind == "standard"
 
     def get_wf_status(self):
         mapped_app = self.get_mapped_application()
         if isinstance(mapped_app, BaseRemoteApplication):
-            return getattr(mapped_app, '_wf_state_type', 'forward')
+            return getattr(mapped_app, "_wf_state_type", "forward")
         elif isinstance(mapped_app, PageTemplateFile):
-            return 'manual'
-        return 'forward'
+            return "manual"
+        return "forward"
 
 
 InitializeClass(activity)

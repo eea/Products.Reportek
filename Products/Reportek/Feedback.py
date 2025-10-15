@@ -37,11 +37,11 @@ import plone.protect.interfaces
 import RepUtils
 import StringIO
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from blob import add_OfsBlobFile
 from BTrees.OOBTree import BTree
 from Comment import CommentsManager
 from DateTime import DateTime
-from Globals import InitializeClass
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
@@ -434,8 +434,7 @@ class ReportFeedback(
                     self.REQUEST,
                     plone.protect.interfaces.IDisableCSRFProtection,
                 )
-            self.REQUEST.RESPONSE.setHeader("Content-Type",
-                                            "application/json")
+            self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
             res = {}
             data = json.loads(self.REQUEST.get("BODY") or "{}")
             if not isinstance(data, dict):
@@ -444,7 +443,8 @@ class ReportFeedback(
 
             for attr in VALID_ATTRS_MAP.keys():
                 history[VALID_ATTRS_MAP[attr]] = getattr(
-                    self, VALID_ATTRS_MAP[attr])
+                    self, VALID_ATTRS_MAP[attr]
+                )
                 if attr in data:
                     try:
                         if attr == "feedback-data":
@@ -461,7 +461,7 @@ class ReportFeedback(
                         res["result"] = "Fail"
                         res["message"] = err_msg
                         return json.dumps(res)
-            history['author'] = self.author
+            history["author"] = self.author
             self.author = self.REQUEST.AUTHENTICATED_USER.getUserName()
             notify(ObjectModifiedEvent(self))
             self.add_to_history(history)
@@ -474,7 +474,7 @@ class ReportFeedback(
             )
 
     def _history(self, create=True):
-        if getattr(self, '__history', None) is not None:
+        if getattr(self, "__history", None) is not None:
             return self.__history
 
         annotations = IAnnotations(self)
@@ -495,7 +495,7 @@ class ReportFeedback(
 
     @property
     def author(self):
-        return getattr(self, '_author', 'Original author')
+        return getattr(self, "_author", "Original author")
 
     @author.setter
     def author(self, value):

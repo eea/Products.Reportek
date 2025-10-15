@@ -42,10 +42,10 @@ import transaction
 import xmlrpclib
 import zip_content
 from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
 from constants import CONVERTERS_ID, ENGINE_ID
 from DateTime import DateTime
-from Globals import InitializeClass
 from Toolz import Toolz
 from XMLInfoParser import SchemaError, detect_single_schema
 from zip_content import ZZipFile
