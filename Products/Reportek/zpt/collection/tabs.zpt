@@ -2,12 +2,8 @@
                                  isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
     <ul>
         <li tal:attributes="id python:test(tab=='index_html' or tab=='' or tab is None, 'currenttab', None)"><a href="index_html" i18n:translate="">Overview</a></li>
-        <tal:block tal:condition="python:SecurityManager.checkPermission('Use OpenFlow', here)"
-            tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
-                        is_fgas python: df_prefix.format('713') in here.dataflow_uris;
-                        is_ods python: df_prefix.format('213') in here.dataflow_uris;
-                        ">
-            <tal:block tal:condition="python: is_fgas or is_ods">
+        <tal:block tal:condition="python:SecurityManager.checkPermission('Use OpenFlow', here)">
+            <tal:block tal:condition="python: here.is_fgas() or here.is_ods()">
                 <li tal:attributes="id python:test(tab=='worklist', 'currenttab', None)"><a href="worklist" i18n:translate="">Task list</a></li>
             </tal:block>
         </tal:block>
@@ -34,10 +30,8 @@
                         ods_allowed python: is_manager or is_ods_client;
                         cars_allowed python: is_manager or is_cars_client;
                         df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
-                        is_ods python: df_prefix.format('213') in here.dataflow_uris;
-                        is_fgas python: df_prefix.format('713') in here.dataflow_uris;
                         is_cars python: df_prefix.format('655') in here.dataflow_uris or df_prefix.format('665') in here.dataflow_uris;
-                        allowed python: is_ods and ods_allowed or is_fgas and fgas_allowed or is_cars and cars_allowed;">
+                        allowed python: here.is_ods() and ods_allowed or here.is_fgas() and fgas_allowed or is_cars and cars_allowed;">
             <tal:block tal:condition="python: allowed">
                 <li tal:attributes="id python:test(tab=='transfers', 'currenttab', None)">
                     <a tal:define="tr_url python: '/'.join(['/transfers', here.absolute_url(1)])" tal:attributes="href tr_url" i18n:translate="">Transfers</a>

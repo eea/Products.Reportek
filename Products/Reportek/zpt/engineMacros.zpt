@@ -1,100 +1,122 @@
 <metal:block define-macro="obligationsSelect">
   <tal:def tal:define="u python:context.getUniqueValuesFor('dataflow_uris');">
-  <select size="15" id="dataflows" name="dataflow_uris"
-          tal:define="sort_by python:(('SOURCE_TITLE', 'nocase', 'asc'),
+    <select
+      size="15"
+      id="dataflows"
+      name="dataflow_uris"
+      tal:define="sort_by python:(('SOURCE_TITLE', 'nocase', 'asc'),
                                       ('TITLE', 'nocase', 'asc'));
                       currentsource string:'';
                       values python:context.ReportekEngine.dataflow_table();
                       dummy python:values.sort(key=lambda k, u=u: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));"
-          tal:attributes="size obligation_select_size | default">
-          <span tal:content="values"/>
-    <option value="" i18n:translate="">Any obligation</option>
-    <tal:block repeat="value values">
-      <tal:block
+      tal:attributes="size obligation_select_size | default"
+    >
+      <span tal:content="values" />
+      <option value="" i18n:translate="">Any obligation</option>
+      <tal:block repeat="value values">
+        <tal:block
           define="flip python:repeat['value'].start or
                   value['SOURCE_TITLE']!=values[repeat['value'].index-1]['SOURCE_TITLE'];
                   source_title python:value['SOURCE_TITLE'][:60] + ' ...' if len(value['SOURCE_TITLE'])>60
                   else value['SOURCE_TITLE']"
-          condition="python: value.get('uri') in u">
-          <tal:block condition="python:flip and not repeat['value'].start"
-                     content="structure string:</optgroup>" />
-          <tal:block condition="flip"
-                     content='structure string:<optgroup label="${source_title}">'/>
-              <tal:block define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];
-                                 given_selected obligation_selected | nothing">
-              <option tal:attributes="value value/uri;
+          condition="python: value.get('uri') in u"
+        >
+          <tal:block
+            condition="python:flip and not repeat['value'].start"
+            content="structure string:</optgroup>"
+          />
+          <tal:block
+            condition="flip"
+            content='structure string:<optgroup label="${source_title}">'
+          />
+          <tal:block
+            define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];
+                                 given_selected obligation_selected | nothing"
+          >
+            <option
+              tal:attributes="value value/uri;
                                       label text;
                                       class python: 'terminated' if value.get('terminated')=='1' else '';
                                       selected python: value['uri'] == given_selected;"
-                      tal:content="text"/>
-              </tal:block>
+              tal:content="text"
+            />
           </tal:block>
-    </tal:block>
-    <tal:block content="structure string:</optgroup>" />
-  </select>
+        </tal:block>
+      </tal:block>
+      <tal:block content="structure string:</optgroup>" />
+    </select>
   </tal:def>
 </metal:block>
 
-
 <metal:block define-macro="xmlSchemaSelect">
-    <select
-      size="15" id="xml_schema_location" name="xml_schema_location"
-      tal:define="values python:context.getUniqueValuesFor('xml_schema_location');">
-      <tal:block repeat="value values">
-        <option tal:attributes="value value;" tal:content="value"/>
-      </tal:block>
-    </select>
+  <select
+    size="15"
+    id="xml_schema_location"
+    name="xml_schema_location"
+    tal:define="values python:context.getUniqueValuesFor('xml_schema_location');"
+  >
+    <tal:block repeat="value values">
+      <option tal:attributes="value value;" tal:content="value" />
+    </tal:block>
+  </select>
 </metal:block>
-
 
 <metal:block define-macro="partOfYearSelect">
   <select id="partofyear" name="partofyear" class="select2-enabled">
     <option value="" i18n:translate="">Any part of year</option>
-    <option tal:define="given_value partofyear_selected | nothing;"
-            tal:repeat="value here/ReportekEngine/partofyear_table"
-            i18n:translate=""
-            tal:attributes="value value;
+    <option
+      tal:define="given_value partofyear_selected | nothing;"
+      tal:repeat="value here/ReportekEngine/partofyear_table"
+      i18n:translate=""
+      tal:attributes="value value;
                             selected python: value == given_value;"
-            tal:content="python: here.reporting_year_labels.get(value)">
-        part_of_year
+      tal:content="python: here.reporting_year_labels.get(value)"
+    >
+      part_of_year
     </option>
   </select>
 </metal:block>
-
 
 <metal:block define-macro="countrySelect">
   <select id="country" name="country" class="select2-enabled">
     <option></option>
-    <option tal:define="values python:context.localities_table;
+    <option
+      tal:define="values python:context.localities_table;
                         given_value country_selected | nothing;"
-            tal:repeat="value values"
-            i18n:translate=""
-            tal:attributes="value value/uri;
+      tal:repeat="value values"
+      i18n:translate=""
+      tal:attributes="value value/uri;
                             selected python: value['uri'] == given_value"
-            tal:content="value/name" >
-        country
+      tal:content="value/name"
+    >
+      country
     </option>
   </select>
 </metal:block>
 
-
 <metal:block define-macro="formInputFields">
-  <input type="hidden" name="sort_on" value="reportingdate"/>
-  <input type="hidden" name="sort_order" value="reverse"/>
-  <input type="submit" value="Submit Query" i18n:attributes="value btn-submi-query"/>
+  <input type="hidden" name="sort_on" value="reportingdate" />
+  <input type="hidden" name="sort_order" value="reverse" />
+  <input
+    type="submit"
+    value="Submit Query"
+    i18n:attributes="value btn-submi-query"
+  />
   <input type="reset" value="Reset fields" />
 </metal:block>
 
-
-<metal:block define-macro="resultsTable"
+<metal:block
+  define-macro="resultsTable"
   tal:define="std modules/Products.PythonScripts.standard;
-              url_quote nocall: std/url_quote;">
-
-<metal:block define-slot="previous_link">
-<a href="previousbatch" tal:define="p batch/previous"
-                        tal:condition="p"
-                        i18n:translate=""
-                        tal:attributes="href python:'?query_start=%s&'
+              url_quote nocall: std/url_quote;"
+>
+  <metal:block define-slot="previous_link">
+    <a
+      href="previousbatch"
+      tal:define="p batch/previous"
+      tal:condition="p"
+      i18n:translate=""
+      tal:attributes="href python:'?query_start=%s&'
                                                     'batch_size=%s&'
                                                     'dataflow_uris=%s&'
                                                     'xml_schema_location=%s&'
@@ -119,39 +141,45 @@
                                                           request.get('release_status', ''),
                                                           url_quote(request.get('reportingdate_start', '')),
                                                           url_quote(request.get('reportingdate_end', '')),
-                                                          )">
-    (Previous <span tal:replace="p/length">n</span> results)
-</a>
-</metal:block>
+                                                          )"
+    >
+      (Previous <span tal:replace="p/length">n</span> results)
+    </a>
+  </metal:block>
 
-
-<table class="sortable">
-  <thead>
-    <tr>
-        <metal:block define-slot="resultsTableHead"/>
-    </tr>
-  </thead>
-  <tbody>
-      <tal:block repeat="result batch">
-      <tr tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''">
-        <tal:comment content="nothing" i18n:translate="">
-        if result has getObject, then it is a brain, fetch the object
-        else it probably is an already fetched object - return function
-        that returns the initial object back
-        </tal:comment>
-        <tal:block define="obj python: getattr(result, 'getObject', lambda: result)()">
-          <metal:block define-slot="resultsTableRowFormat"/>
-        </tal:block>
+  <table class="sortable">
+    <thead>
+      <tr>
+        <metal:block define-slot="resultsTableHead" />
       </tr>
-    </tal:block>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <tal:block repeat="result batch">
+        <tr
+          tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''"
+        >
+          <tal:comment content="nothing" i18n:translate="">
+            if result has getObject, then it is a brain, fetch the object else
+            it probably is an already fetched object - return function that
+            returns the initial object back
+          </tal:comment>
+          <tal:block
+            define="obj python: getattr(result, 'getObject', lambda: result)()"
+          >
+            <metal:block define-slot="resultsTableRowFormat" />
+          </tal:block>
+        </tr>
+      </tal:block>
+    </tbody>
+  </table>
 
-<metal:block define-slot="next_link">
-    <a href="nextbatch" tal:define="n batch/next"
-                        tal:condition="n"
-                        i18n:translate=""
-                        tal:attributes="href python:'?query_start=%s&'
+  <metal:block define-slot="next_link">
+    <a
+      href="nextbatch"
+      tal:define="n batch/next"
+      tal:condition="n"
+      i18n:translate=""
+      tal:attributes="href python:'?query_start=%s&'
                                                     'batch_size=%s&'
                                                     'dataflow_uris=%s&'
                                                     'xml_schema_location=%s&'
@@ -176,11 +204,11 @@
                                                           request.get('release_status', ''),
                                                           url_quote(request.get('reportingdate_start', '')),
                                                           url_quote(request.get('reportingdate_end', '')),
-                                                          )">
-         (Next <span tal:replace="n/length">n</span> results)
+                                                          )"
+    >
+      (Next <span tal:replace="n/length">n</span> results)
     </a>
-</metal:block>
-
+  </metal:block>
 </metal:block>
 
 <metal:block metal:define-macro="select2-obligations">
@@ -188,34 +216,221 @@
     tal:define="placeholder placeholder | nothing;
                 multiple multiple | nothing;
                 disabled disabled | nothing;
-                empty_select empty_select | nothing;">
-    <select id="obligations"
-     tal:define="klass python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';
+                empty_select empty_select | nothing;"
+  >
+    <select
+      id="obligations"
+      tal:define="klass python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';
                  name python: 'dataflow_uris:list' if multiple else 'dataflow_uris';"
-     tal:attributes="class klass;
+      tal:attributes="class klass;
                      multiple multiple;
                      disabled disabled;
                      data-placeholder placeholder;
-                     name name">
+                     name name"
+    >
       <option tal:condition="empty_select"></option>
-      <tal:block define="req_uris python: request.get('dataflow_uris', []);
+      <tal:block
+        define="req_uris python: request.get('dataflow_uris', []);
                          req_uris python: req_uris if isinstance(req_uris, list) else [req_uris];
                          req_obl req_obl|request/obligations|context/dataflow_uris|req_uris;
                          rod_data rod_data | context/api/@@assigned_obligations | options/context/api/@@assigned_obligations;"
-                 repeat="instrument python:sorted(rod_data.keys())">
+        repeat="instrument python:sorted(rod_data.keys())"
+      >
         <optgroup tal:attributes="label instrument">
           <tal:block repeat="obl python:rod_data[instrument]">
-            <option tal:define="prefix python: instrument.split();
+            <option
+              tal:define="prefix python: instrument.split();
                                 prefix python: prefix[:2] if len(prefix) >= 2 else prefix[:1];
                                 prefix python: ' '.join(prefix)"
               tal:attributes="value obl/uri;
                               class python:'terminated' if obl['terminated'] == '1' else nothing;
                               selected python:obl['uri'] in req_obl"
-              tal:content="string:[${prefix}] ${obl/title}">
-            </option>
+              tal:content="string:[${prefix}] ${obl/title}"
+            ></option>
           </tal:block>
         </optgroup>
       </tal:block>
     </select>
+  </tal:block>
+</metal:block>
+
+<metal:block define-macro="ecr-collections">
+  <tal:block define="engine here/ReportekEngine;
+                     user_ct engine/get_ecr_content;
+                     ct python: user_ct.get('ecr', {});
+                     rw_colls python: ct.get('rw', []);
+                     ro_colls python: ct.get('ro', []);
+                     fgas_audit_envs python: ct.get('audit_paths', []);
+                     audit_colls python: user_ct.get('Auditor', []);
+                     client_colls python: user_ct.get('Client', []);
+                     no_content python: not ct and not audit_colls and not client_colls;
+                     mappings engine/get_collection_mappings;
+                     groups python:mappings['groups'];
+                     col_tmap python:mappings['col_tmap'];
+                     rw_by_path python:engine.group_collections_by_path(rw_colls);
+                     ro_by_path python:engine.group_collections_by_path(ro_colls);
+                     audit_by_path python:engine.group_collections_by_path(audit_colls);
+                     client_by_path python:engine.group_collections_by_path(client_colls);
+                     fgas_by_path python:engine.group_collections_by_path(fgas_audit_envs);
+                     bdr_reg_info python: engine.BDRRegistryAPI.get_user_details(name)">
+    <!-- Registry information section -->
+    <tal:block tal:condition="bdr_reg_info">
+      <h2 i18n:translate="">Click on the link below to access your company registry page</h2>
+      <ul>
+        <li tal:repeat="c_info python: [(c.get('company_name'), c.get('registry_url')) for c in bdr_reg_info]">
+          <a tal:attributes="href python: c_info[1]" tal:content="python: c_info[0]"></a>
+          <input type="hidden" tal:attributes="value python: c_info[1]" />
+        </li>
+      </ul>
+    </tal:block>
+
+    <!-- Read-write collections section -->
+    <tal:block tal:condition="python: (len(rw_colls) > 0) or no_content">
+      <h2 i18n:translate="">Click on the link below to start the reporting</h2>
+
+      <tal:block tal:define="sorted_rw python: sorted(rw_colls, key=lambda k: k.title_or_id().lower());
+                             rw_by_path python: {}">
+        <!-- Group collections by path only once -->
+        <tal:block tal:repeat="col sorted_rw">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: rw_by_path.setdefault(path_key, []).append(col)" />
+        </tal:block>
+
+        <!-- Display grouped collections -->
+        <tal:block tal:repeat="key python: rw_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: rw_by_path[key]">
+                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <!-- Read-only collections section -->
+    <tal:block tal:condition="python: ro_colls">
+      <h2 i18n:translate="">Click on the link below to view your archived reporting folders</h2>
+
+      <tal:block tal:define="ro_by_path python: {}">
+        <!-- Group and sort collections in one pass -->
+        <tal:block tal:repeat="col python: sorted(ro_colls, key=lambda k: k.getCountryCode() + k.title_or_id().lower())">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: ro_by_path.setdefault(path_key, []).append(col)" />
+        </tal:block>
+
+        <!-- Display grouped collections -->
+        <tal:block tal:repeat="key python: ro_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: ro_by_path[key]">
+                <a tal:attributes="href col/absolute_url"
+                   tal:content="python: '[ARCHIVE][{}] - {}'.format(col.getCountryCode(), col.title_or_id())"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <!-- Audit collections section -->
+    <tal:block tal:condition="python: len(audit_colls) > 0">
+      <h2 i18n:translate="">Click on the link below to inspect deliveries</h2>
+
+      <tal:block tal:define="audit_by_path python: {}">
+        <!-- Group audit collections -->
+        <tal:block tal:repeat="col python: sorted(audit_colls, key=lambda k: k.title_or_id().lower())">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: audit_by_path.setdefault(path_key, []).append(col)" />
+        </tal:block>
+
+        <!-- Display grouped audit collections -->
+        <tal:block tal:repeat="key python: audit_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: audit_by_path[key]">
+                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <!-- F-Gas audit section -->
+    <tal:block tal:condition="python: len(fgas_audit_envs) > 0">
+      <h2 i18n:translate="">Click on the link below to audit deliveries</h2>
+
+      <tal:block tal:define="fgas_by_company python: {}">
+        <!-- Group F-Gas audit environments by company name -->
+        <tal:block tal:repeat="env python: sorted(fgas_audit_envs, key=lambda k: k.get_zope_company_meta()[0].lower() if k.get_zope_company_meta()[0] else '')">
+          <tal:block tal:define="company_name python: env.get_zope_company_meta()[0] or 'Unknown Company';
+                                 dummy python: fgas_by_company.setdefault(company_name, []).append(env)" />
+        </tal:block>
+
+        <!-- Display grouped F-Gas environments by company -->
+        <tal:block tal:repeat="company_name python: sorted(fgas_by_company.keys())">
+          <h5 tal:content="company_name" />
+          <ul>
+            <li tal:repeat="env python: sorted(fgas_by_company[company_name], key=lambda t: t.reportingdate, reverse=True)">
+              <a tal:attributes="href env/absolute_url" tal:content="env/title"></a>
+            </li>
+          </ul>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <!-- Client collections section -->
+    <tal:block tal:condition="python: len(client_colls) > 0">
+      <h2 i18n:translate="">Click on the link below to inspect deliveries</h2>
+
+      <tal:block tal:define="client_by_path python: {}">
+        <!-- Group client collections -->
+        <tal:block tal:repeat="col python: sorted(client_colls, key=lambda k: k.title_or_id().lower())">
+          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: client_by_path.setdefault(path_key, []).append(col)" />
+        </tal:block>
+
+        <!-- Display grouped client collections -->
+        <tal:block tal:repeat="key python: client_by_path.keys()">
+          <tal:block tal:condition="python: key in groups">
+            <h5 tal:content="python: groups[key]" />
+            <ul>
+              <li tal:repeat="col python: client_by_path[key]">
+                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+              </li>
+            </ul>
+          </tal:block>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+
+    <div tal:condition="no_content">
+      <p i18n:translate="">It appears you have no reporting tasks.</p>
+      <p i18n:translate="">
+        If you are registered as data reporter in the
+        <a href="https://webgate.ec.europa.eu/ods2" i18n:translate=""
+          >European registry</a
+        >
+        and you still see this message, please:
+      </p>
+      <ul>
+        <li i18n:translate="">
+          try to login again in a few minutes, perhaps using another browser,
+          or forcing a page refresh: Ctrl+Shift+R
+        </li>
+        <li i18n:translate="">
+          contact the
+          <a href="mailto:BDR.helpdesk@eea.europa.eu" i18n:translate=""
+            >BDR helpdesk</a
+          >
+          to look into the issue
+        </li>
+      </ul>
+    </div>
   </tal:block>
 </metal:block>

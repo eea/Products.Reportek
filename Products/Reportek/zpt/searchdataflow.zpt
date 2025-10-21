@@ -1,288 +1,387 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="head">
-    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <!-- Consolidated CSS -->
+    <link rel="stylesheet" href="++resource++static/select2-3.5.0/select2.css"/>
+    <link rel="stylesheet" href="++resource++static/style.css"/>
 
-    <script type="text/javascript" charset="utf8"
-          src="++resource++static/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" charset="utf8"
-          src="++resource++static/searchdataflow.js"></script>
-    <script src="++resource++static/select2-3.5.0/select2.js"></script>
-    <script src="++resource++static/reportek.js"></script>
+    <!-- Consolidated JavaScript -->
+    <script type="text/javascript" src="++resource++static/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="++resource++static/searchdataflow.js"></script>
+    <script type="text/javascript" src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script type="text/javascript" src="++resource++static/reportek.js"></script>
   </metal:block>
 
   <metal:block fill-slot="content">
-    <tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
-    <div class="searchdataflow">
-      <h1 tal:condition="isBdrDeployment" i18n:translate="">
-        Search the Business Data Repository
-      </h1>
-      <h1 tal:condition="not:isBdrDeployment" i18n:translate="">
-        Search the Central Data Repository
-      </h1>
-
-      <form id="frmSearch" action="searchdataflow" method="get">
-        <table class="formtable rform-table"
-          tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
-                     obligation_selected options/dataflow_uris | nothing;
-                     years options/years | nothing;
-                     reportingdate_start python: test(options.get('reportingdate_start'), options.get('reportingdate_start', DateTime(1,1,1)).strftime('%Y/%m/%d'), '');
-                     reportingdate_end python: test(options.get('reportingdate_end'), options.get('reportingdate_end', DateTime(1,1,1)).strftime('%Y/%m/%d'), '');
-                     partofyear_selected options/partofyear | nothing;
-                     country_selected options/country | nothing;
-                     status options/release_status | string:released;
-                     sort_on options/sort_on | string:reportingdate;
-                     sort_order options/sort_order | string:reverse;
-                           ">
-          <tr>
-            <th><label for="dataflow_uris" class="question" i18n:translate="">Obligation</label></th>
-            <td class="select-container" style="width:100%;"
-              tal:define="placeholder string:Any obligation;
-                          empty_select python: True">
-              <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
-            </td>
-          </tr>
-          <tr>
-            <th><label for="search_years" class="question" i18n:translate="">Covering Year</label></th>
-            <td>
-              <input type="text" id="search_years" name="years:int:ignore_empty"
-                     size="4" maxlength="4" value=""
-                     tal:attributes="value years | default"/>
-            </td>
-          </tr>
-          <tr>
-            <th><label for="partofyear" class="question" i18n:translate="">Part of year</label></th>
-            <td>
-              <metal:block metal:use-macro="here/engineMacros/macros/partOfYearSelect"/>
-            </td>
-          </tr>
-          <tr>
-            <th><label for="search_reportingdate_start" class="question" i18n:translate="">Reported after</label></th>
-            <td i18n:translate="">
-              <input type="text" id="search_reportingdate_start"
-                     name="reportingdate_start:date:ignore_empty" size="12" maxlength="12"
-                     value=""
-                     tal:attributes="value reportingdate_start | default" />
-              <label for="search_reportingdate_end" class="question" i18n:translate="">but before</label>
-              <input type="text" id="search_reportingdate_end"
-                     name="reportingdate_end:date:ignore_empty" size="12" maxlength="12"
-                     value=""
-                     tal:attributes="value reportingdate_end | default" /> (YYYY/MM/DD)
-            </td>
-          </tr>
-          <tr>
-            <th><label for="country" class="question" i18n:translate="">Country</label></th>
-            <td><metal:block metal:use-macro="here/engineMacros/macros/countrySelect"/></td>
-          </tr>
-          <tr>
-            <th i18n:translate="">Status</th>
-            <td tal:define="id_contents python:[('anystatus', 'Any status'),
-                                                ('released', 'Released'),
-                                                ('notreleased', 'Unreleased')];">
-              <tal:block tal:repeat="id_content id_contents">
-                <input type="radio" name="release_status"
-                  tal:attributes="id python: id_content[0];
-                                  value python: id_content[0];
-                                  checked python: id_content[0] == status;"/>
-                <label tal:content="python: id_content[1]"
-                       tal:attributes="for python: id_content[0];"></label>
-              </tal:block>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" align="center">
-              <input type="submit" id="frmsearch_submit" class="custom-search-btn"
-                i18n:attributes="value btn-search"
-                data-action='' value="Search" />
-              <input type="hidden" id="sort_on" name="sort_on" value="reportingdate"
-                tal:attributes="value sort_on | default" />
-              <input type="hidden" id="sort_order" name="sort_order" value="reverse"
-                tal:attributes="value sort_order | default" />
-              <input type="hidden" id="batch_size" name="batch_size" value=""
-                tal:attributes="value options/batch_size | nothing" />
-            </td>
-          </tr>
-        </table>
-      </form>
-      <br/>
-
-      <tal:block condition="options/results | nothing">
-        <p>
-          <tal:block i18n:translate="">Note: </tal:block>
-          <em i18n:translate="">Repository Referrals</em>
-          <tal:block i18n:translate="">will not be added to zip archives, since their documents are located outside this system.
-          </tal:block>
-        </p>
-        <form action="ReportekEngine/zipEnvelopes" method="post" id="results-form"
-          tal:define="query_start python:request.get('query_start') or 0;
-                      Batch python:modules['ZTUtils'].Batch;
+    <!-- Global Variables Definition -->
+    <tal:block define="isBdrDeployment python:here.ReportekEngine.getDeploymentType() == 'BDR';
                       html_quote python:modules['Products.PythonScripts.standard'].html_quote;
-                      batch_size python:options.get('batch_size') or 50;
-                      batch python:Batch(options['results'], int(batch_size), int(query_start), orphan=1);
-                      results_no python: len(options['results'])">
+                      options_get nocall:options/get;
+                      default_date python:DateTime(1,1,1);
 
-          <metal:block use-macro="here/engineMacros/macros/resultsTable">
-            <metal:block fill-slot="resultsTableHead">
-              <tal:def tal:define="generic_headers python: ({'id': 'zip', 'title': '', 'sortable':0},
-                                                            {'id':'getCountryName','title':'Country','sortable':1},
-                                                            {'id':'title','title':'Title','sortable':0},
-                                                            {'id':'years','title':'Years','sortable':1},
-                                                            {'id':'dataflow_uris','title':'Obligation','sortable':1},
-                                                            {'id':'reportingdate','title':'Reported','sortable':1});
-                                    bdr_generic_headers python: ({'id': 'zip', 'title': '', 'sortable':0},
-                                                                 {'id': 'company_id', 'title': 'Company ID', 'sortable':0},
-                                                                 {'id':'getCountryName','title':'Country','sortable':1},
-                                                                 {'id':'company','title':'Company','sortable':0},
-                                                                 {'id':'userid','title':'User ID','sortable':0},
-                                                                 {'id':'title','title':'Title','sortable':0},
-                                                                 {'id':'envurl','title':'URL','sortable':0},
-                                                                 {'id':'years','title':'Years','sortable':1},
-                                                                 {'id':'dataflow_uris','title':'Obligation','sortable':1},
-                                                                 {'id':'reportingdate','title':'Reported','sortable':1},
-                                                                 {'id':'files','title':'Files','sortable':0},
-                                                                 {'id':'accepted','title':'Accepted','sortable':0});
-                                    bdr_fgas python: ({'id':'activities','title':'Activities','sortable':0},
-                                                      {'id':'gases','title':'Reported gases','sortable':0},
-                                                      {'id':'i_authorisations','title':'Issued authorisations','sortable':0},
-                                                      {'id':'a_authorisations','title':'Available authorisations','sortable':0});">
-                <tal:block condition="python: isBdrDeployment and 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
-                  content="structure python:context.sortable_table(bdr_generic_headers + bdr_fgas,
-                  sort_on=request.get('sort_on','reportingdate'),
-                  sort_order=request.get('sort_order', 'reverse'))"/>
-                <tal:block condition="python: isBdrDeployment and 'http://rod.eionet.europa.eu/obligations/713' != options['dataflow_uris']"
-                  content="structure python:context.sortable_table(bdr_generic_headers,
-                  sort_on=request.get('sort_on','reportingdate'),
-                  sort_order=request.get('sort_order', 'reverse'))"/>
-                <tal:block condition="not: isBdrDeployment"
-                  content="structure python:context.sortable_table(generic_headers,
-                  sort_on=request.get('sort_on','reportingdate'),
-                  sort_order=request.get('sort_order', 'reverse'))"/>
-              </tal:def>
-            </metal:block>
+                      obligation_select_size python:'1' if isBdrDeployment else '15';
+                      obligation_selected options/dataflow_uris | nothing;
+                      years options/years | nothing;
+                      reportingdate_start python:options_get('reportingdate_start', default_date).strftime('%Y/%m/%d') if options_get('reportingdate_start') else '';
+                      reportingdate_end python:options_get('reportingdate_end', default_date).strftime('%Y/%m/%d') if options_get('reportingdate_end') else '';
+                      partofyear_selected options/partofyear | nothing;
+                      country_selected options/country | nothing;
+                      status options/release_status | string:released;
+                      sort_on options/sort_on | string:reportingdate;
+                      sort_order options/sort_order | string:reverse;
+                      batch_size python:options.get('batch_size', 50)">
 
-            <metal:block fill-slot="resultsTableRowFormat">
-              <td>
-                <input type="checkbox" name="envelopes"
-                  tal:condition="python:obj.released and not obj.meta_type == 'Repository Referral'"
-                  tal:attributes="value python:obj.absolute_url_path()"/>
+      <div class="searchdataflow">
+        <h1 i18n:translate="">
+          Search the <tal:block replace="python:'Business' if isBdrDeployment else 'Central'"/> Data Repository
+        </h1>
+
+        <!-- Search Form -->
+        <form id="frmSearch" action="searchdataflow" method="get" role="search">
+          <table class="formtable rform-table">
+            <!-- Obligation Field -->
+            <tr>
+              <th><label for="dataflow_uris" class="question" i18n:translate="">Obligation</label></th>
+              <td class="select-container" style="width:100%;"
+                tal:define="placeholder string:Any obligation;
+                            empty_select python:True">
+                <metal:block use-macro="here/engineMacros/macros/select2-obligations">
+                </metal:block>
               </td>
-              <td tal:condition="isBdrDeployment">
-                <tal:block tal:condition="python:hasattr(obj.aq_parent, 'company_id')"
-                  tal:content="python:obj.aq_parent.company_id">
-                </tal:block>
-                <tal:block tal:condition="not: python:hasattr(obj.aq_parent, 'company_id')" tal:content="string:-">
+            </tr>
+
+            <!-- Covering Year Field -->
+            <tr>
+              <th><label for="search_years" class="question" i18n:translate="">Covering Year</label></th>
+              <td>
+                <input type="text" id="search_years" name="years:int:ignore_empty"
+                       size="4" maxlength="4"
+                       tal:attributes="value years | default"
+                       pattern="[0-9]{4}"/>
+              </td>
+            </tr>
+
+            <!-- Part of Year Field -->
+            <tr>
+              <th><label for="partofyear" class="question" i18n:translate="">Part of year</label></th>
+              <td>
+                <metal:block use-macro="here/engineMacros/macros/partOfYearSelect"/>
+              </td>
+            </tr>
+
+            <!-- Reporting Date Range -->
+            <tr>
+              <th><label for="search_reportingdate_start" class="question" i18n:translate="">Reported after</label></th>
+              <td>
+                <input type="text" id="search_reportingdate_start"
+                       name="reportingdate_start:date:ignore_empty"
+                       size="12" maxlength="12"
+                       tal:attributes="value reportingdate_start | default"
+                       placeholder="YYYY/MM/DD"
+                       i18n:attributes="placeholder date_format_placeholder"/>
+                <label for="search_reportingdate_end" class="question" i18n:translate="">but before</label>
+                <input type="text" id="search_reportingdate_end"
+                       name="reportingdate_end:date:ignore_empty"
+                       size="12" maxlength="12"
+                       tal:attributes="value reportingdate_end | default"
+                       placeholder="YYYY/MM/DD"
+                       i18n:attributes="placeholder date_format_placeholder"/>
+              </td>
+            </tr>
+
+            <!-- Country Selection -->
+            <tr>
+              <th><label for="country" class="question" i18n:translate="">Country</label></th>
+              <td>
+                <metal:block use-macro="here/engineMacros/macros/countrySelect"/>
+              </td>
+            </tr>
+
+            <!-- Status Selection -->
+            <tr>
+              <th i18n:translate="">Status</th>
+              <td>
+                <tal:block repeat="status_option python:[
+                  ('anystatus', 'Any status'),
+                  ('released', 'Released'),
+                  ('notreleased', 'Unreleased')
+                ]">
+                  <div class="status-option">
+                    <input type="radio" name="release_status"
+                           tal:attributes="id python:status_option[0];
+                                         value python:status_option[0];
+                                         checked python:status_option[0] == status"/>
+                    <label tal:attributes="for python:status_option[0]"
+                           tal:content="python:status_option[1]"/>
+                  </div>
                 </tal:block>
               </td>
-              <tal:def tal:define="company_meta python: obj.aq_parent.get_zope_company_meta()">
-                <td tal:content="python:obj.getCountryName()" i18n:translate="">country name</td>
-                <td tal:condition="isBdrDeployment"
-                  tal:define="company_name python: company_meta[0] if company_meta[0] else obj.aq_parent.title"
-                  tal:content="company_name" i18n:translate="">company name
+            </tr>
+
+            <!-- Form Controls -->
+            <tr>
+              <td colspan="2" class="form-controls">
+                <input type="submit" id="frmsearch_submit"
+                       class="custom-search-btn"
+                       i18n:attributes="value btn-search"
+                       value="Search"/>
+                <input type="hidden" id="sort_on" name="sort_on"
+                       tal:attributes="value sort_on"/>
+                <input type="hidden" id="sort_order" name="sort_order"
+                       tal:attributes="value sort_order"/>
+                <input type="hidden" id="batch_size" name="batch_size"
+                       tal:attributes="value batch_size"/>
+              </td>
+            </tr>
+          </table>
+        </form>
+
+        <!-- Results Section -->
+        <tal:block condition="options/results | nothing">
+          <div class="results-notice">
+            <p>
+              <strong i18n:translate="">Note: </strong>
+              <em i18n:translate="">Repository Referrals</em>
+              <span i18n:translate="">will not be added to zip archives, since their documents are located outside this system.</span>
+            </p>
+          </div>
+
+          <form id="results-form" action="ReportekEngine/zipEnvelopes" method="post"
+                tal:define="results options/results;
+                           query_start request/query_start | python:0;
+                           Batch python:modules['ZTUtils'].Batch;
+                           batch python:Batch(results, int(batch_size), int(query_start), orphan=1);
+                           results_no python:len(results)">
+
+            <!-- Results Table -->
+            <metal:block use-macro="here/engineMacros/macros/resultsTable">
+              <metal:block fill-slot="resultsTableHead">
+                <tal:def define="generic_headers python:[
+                    {'id': 'zip', 'title': '', 'sortable':0},
+                    {'id':'getCountryName','title':'Country','sortable':1},
+                    {'id':'title','title':'Title','sortable':0},
+                    {'id':'years','title':'Years','sortable':1},
+                    {'id':'dataflow_uris','title':'Obligation','sortable':1},
+                    {'id':'reportingdate','title':'Reported','sortable':1}
+                ];
+                bdr_generic_headers python:[
+                    {'id': 'zip', 'title': '', 'sortable':0},
+                    {'id': 'company_id', 'title': 'Company ID', 'sortable':0},
+                    {'id':'getCountryName','title':'Country','sortable':1},
+                    {'id':'company','title':'Company','sortable':0},
+                    {'id':'userid','title':'User ID','sortable':0},
+                    {'id':'title','title':'Title','sortable':0},
+                    {'id':'envurl','title':'URL','sortable':0},
+                    {'id':'years','title':'Years','sortable':1},
+                    {'id':'dataflow_uris','title':'Obligation','sortable':1},
+                    {'id':'reportingdate','title':'Reported','sortable':1},
+                    {'id':'files','title':'Files','sortable':0},
+                    {'id':'accepted','title':'Accepted','sortable':0}
+                ];
+                bdr_fgas python:[
+                    {'id':'activities','title':'Activities','sortable':0},
+                    {'id':'gases','title':'Reported gases','sortable':0},
+                    {'id':'i_authorisations','title':'Issued authorisations','sortable':0},
+                    {'id':'a_authorisations','title':'Available authorisations','sortable':0}
+                ]">
+
+                  <!-- Table Headers -->
+                  <tal:block condition="python:isBdrDeployment and context.ReportekEngine.get_df_domain(options['dataflow_uris'], df_type='undertakings') == 'FGAS'"
+                            content="structure python:context.sortable_table(
+                              bdr_generic_headers + bdr_fgas,
+                              sort_on=request.get('sort_on','reportingdate'),
+                              sort_order=request.get('sort_order', 'reverse')
+                            )"/>
+                  <tal:block condition="python:isBdrDeployment and context.ReportekEngine.get_df_domain(options['dataflow_uris'], df_type='undertakings') != 'FGAS'"
+                            content="structure python:context.sortable_table(
+                              bdr_generic_headers,
+                              sort_on=request.get('sort_on','reportingdate'),
+                              sort_order=request.get('sort_order', 'reverse')
+                            )"/>
+                  <tal:block condition="not:isBdrDeployment"
+                            content="structure python:context.sortable_table(
+                              generic_headers,
+                              sort_on=request.get('sort_on','reportingdate'),
+                              sort_order=request.get('sort_order', 'reverse')
+                            )"/>
+                </tal:def>
+              </metal:block>
+
+              <!-- Table Row Format -->
+              <metal:block fill-slot="resultsTableRowFormat">
+                <td class="checkbox-cell">
+                  <input type="checkbox" name="envelopes"
+                         tal:condition="python:obj.released and not obj.meta_type == 'Repository Referral'"
+                         tal:attributes="value python:obj.absolute_url_path()"/>
                 </td>
-                <td tal:condition="isBdrDeployment"
-                    tal:define="user_id python:company_meta[1] if company_meta[1] else obj.aq_parent.getId()"
-                    tal:content="user_id" i18n:translate="">user id ?
+
+                <!-- Company ID Column (BDR only) -->
+                <td tal:condition="isBdrDeployment">
+                  <tal:block tal:condition="python:hasattr(obj.aq_parent, 'company_id')"
+                            tal:content="python:obj.aq_parent.company_id"/>
+                  <tal:block tal:condition="not:python:hasattr(obj.aq_parent, 'company_id')"
+                            tal:content="string:-"/>
                 </td>
-              </tal:def>
-              <td>
-                <img tal:attributes="src obj/icon;
+
+                <!-- Company Details -->
+                <tal:block define="company_meta python:obj.aq_parent.get_zope_company_meta()">
+                  <!-- Country Name -->
+                  <td tal:content="python:obj.getCountryName()"
+                      i18n:translate="">country name</td>
+
+                  <!-- Company Name (BDR only) -->
+                  <td tal:condition="isBdrDeployment"
+                      tal:define="company_name python:company_meta[0] if company_meta[0] else obj.aq_parent.title"
+                      tal:content="company_name"
+                      i18n:translate="">company name</td>
+
+                  <!-- User ID (BDR only) -->
+                  <td tal:condition="isBdrDeployment"
+                      tal:define="user_id python:company_meta[1] if company_meta[1] else obj.aq_parent.getId()"
+                      tal:content="user_id"
+                      i18n:translate="">user id</td>
+                </tal:block>
+
+                <!-- Title/Link Column -->
+                <td class="title-column">
+                  <img tal:attributes="src obj/icon;
                                      alt obj/meta_type"
-                  style="width: 16px; height: 16px" />
-                <a tal:attributes="href python:obj.absolute_url_path()"
-                   tal:content="python:obj.title_or_id()" i18n:translate="">
-                  title_link
-                </a>
-              </td>
-              <td tal:condition="isBdrDeployment"
-                tal:content="python: html_quote(obj.absolute_url())">
-              </td>
-              <td style="white-space:nowrap"
-                tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year"
-                i18n:translate="">
-                year-endyear
-              </td>
-              <td i18n:translate="">
-                <tal:block repeat="uri python:obj.dataflow_uris">
-                  <tal:block content="python:context.dataflow_lookup(uri)['TITLE']">
-                    obligation
+                       class="object-icon"/>
+                  <a tal:attributes="href python:obj.absolute_url_path()"
+                     tal:content="python:obj.title_or_id()"
+                     i18n:translate="">title_link</a>
+                </td>
+
+                <!-- URL (BDR only) -->
+                <td tal:condition="isBdrDeployment"
+                    tal:content="python:html_quote(obj.absolute_url())">
+                </td>
+
+                <!-- Year Range -->
+                <td class="year-range"
+                    tal:content="python:'%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year"
+                    i18n:translate="">year-endyear</td>
+
+                <!-- Obligations -->
+                <td class="obligations">
+                  <tal:block repeat="uri python:obj.dataflow_uris">
+                    <div tal:content="python:context.dataflow_lookup(uri)['TITLE']"
+                         i18n:translate="">obligation</div>
                   </tal:block>
-                  <br/>
+                </td>
+
+                <!-- Reporting Date -->
+                <td class="reporting-date"
+                    tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')"
+                    i18n:translate="">reportingdate</td>
+
+                <!-- BDR Specific Columns -->
+                <tal:block condition="isBdrDeployment">
+                  <!-- Files and Accepted Status -->
+                  <tal:block replace="structure python:context.resultsdataflow_files(obj)"/>
+                  <tal:block replace="structure python:context.resultsdataflow_accepted(obj)"/>
+
+                  <!-- FGAS Specific Columns -->
+                  <tal:block condition="python:context.ReportekEngine.get_df_domain(options['dataflow_uris'], df_type='undertakings') == 'FGAS'">
+                    <!-- Activities -->
+                    <td class="fgas-activities">
+                      <ul tal:condition="obj/get_fgas_activities">
+                        <li tal:repeat="act obj/get_pretty_activities"
+                            tal:content="act"/>
+                      </ul>
+                    </td>
+
+                    <!-- Reported Gases -->
+                    <td class="fgas-gases">
+                      <ul tal:condition="obj/get_fgas_reported_gases"
+                          tal:repeat="gas python:obj.get_fgas_reported_gases()">
+                        <li class="gas-details" i18n:translate="">
+                          <div>Gas name: <span tal:content="python:gas.get('Name').split(' ')[0]"/></div>
+                          <div>Gas ID: <span tal:content="python:gas.get('GasId')"/></div>
+                          <div>Gas group: <span tal:content="python:gas.get('GasGroup')"/></div>
+                          <div>Gas group ID: <span tal:content="python:gas.get('GasGroupId')"/></div>
+                        </li>
+                      </ul>
+                    </td>
+
+                    <!-- Authorisations -->
+                    <td class="fgas-auth issued"
+                        tal:define="i_auth python:obj.get_fgas_i_authorisations();
+                                  i_auth python:i_auth if i_auth else 'N/A'"
+                        tal:content="i_auth"/>
+                    <td class="fgas-auth available"
+                        tal:define="a_auth python:obj.get_fgas_a_authorisations();
+                                  a_auth python:a_auth if a_auth else 'N/A'"
+                        tal:content="a_auth"/>
+                  </tal:block>
                 </tal:block>
-              </td>
-              <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')" i18n:translate="">reportingdate</td>
-              <tal:block condition="isBdrDeployment">
-                <tal:block replace="structure python: context.resultsdataflow_files(obj)"/>
-                <tal:block replace="structure python: context.resultsdataflow_accepted(obj)"/>
-                <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">
-                  <ul tal:condition="obj/get_fgas_activities">
-                    <li tal:repeat="act obj/get_pretty_activities" tal:content="act"/>
-                  </ul>
-              </td>
-              <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">
-                <ul tal:condition="obj/get_fgas_reported_gases"
-                  tal:repeat="gas python: obj.get_fgas_reported_gases()">
-                  <li i18n:translate="">
-                    Gas name: <span tal:content="python: gas.get('Name').split(' ')[0]"/><br/>
-                    Gas ID: <span tal:content="python: gas.get('GasId')"/><br/>
-                    Gas group: <span tal:content="python: gas.get('GasGroup')"/><br/>
-                    Gas group ID: <span tal:content="python: gas.get('GasGroupId')"/><br/>
-                  </li>
-                </ul>
-              </td>
-              <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
-                  tal:define="i_auth python: obj.get_fgas_i_authorisations();
-                              i_auth python: i_auth if i_auth else 'N/A'"
-                  tal:content="i_auth"/>
-              <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
-                  tal:define="a_auth python: obj.get_fgas_a_authorisations();
-                              a_auth python: a_auth if a_auth else 'N/A'" 
-                  tal:content="a_auth"/>
-              </tal:block>
+              </metal:block>
             </metal:block>
-          </metal:block>
-          <div class="searchdataflow_controls">
-            <span class="total-dflow-results">
-              <span i18n:translate="">Total number of results:</span>
-              <span tal:content="results_no" />
-            </span>
-            <div class="batch-size-ctl">
-              <label for="b_size" i18n:translate="">Number of results per page:</label>
-              <select id="b_size" name="b_size"
-                tal:define="steps python: [25, 50, 100, 200];
-                            batch_size python: request.get('batch_size') or 50;">
-                <span tal:content="python:batch_size" />
-                <option tal:repeat="step steps" tal:content="step"
-                  tal:attributes="value step;
-                                  selected python:'selected' if step == int(batch_size) else ''" />
-              </select>
-            </div>
-            <div class="results_actions" i18n:translate="">
-              (Envelopes with no checkbox are still in draft mode)<br/>
-              <div class="buttons">
-                <input type="button" id="selectAll" name="selectAll" value="Select All" class="df-btn"
-                  i18n:attributes="value btn-select-all" />
-                <input type="button" id ="btn-xls-export" value="Export all results to XLS"
-                  class="df-btn custom-search-btn" data-action="ReportekEngine/xls_export"
-                  i18n:attributes="value btn-xls-export-all"
-                  tal:attributes="data-xls_max_rows python: here.XLS_max_rows;
-                                  data-results_no results_no" />
-                <input type="button" id ="btn-xls-export-selected" value="Export selected to XLS"
-                  class="df-btn custom-result-btn" data-action="ReportekEngine/xls_export"
-                  i18n:attributes="value btn-xls-export-selected"
-                  disabled="disabled" />
-                <input type="submit" class="df-btn custom-result-btn"
-                  i18n:attributes="value btn-zip-envelope"
-                  data-action="ReportekEngine/zipEnvelopes" value="Zip envelopes" />
+
+            <!-- Results Controls -->
+            <div class="searchdataflow_controls">
+              <!-- Results Count -->
+              <div class="total-dflow-results">
+                <span i18n:translate="">Total number of results:</span>
+                <strong tal:content="results_no"/>
+              </div>
+
+              <!-- Batch Size Control -->
+              <div class="batch-size-ctl">
+                <label for="b_size" i18n:translate="">Number of results per page:</label>
+                <select id="b_size" name="b_size"
+                        tal:define="steps python:[25, 50, 100, 200];
+                                  batch_size python:request.get('batch_size') or 50">
+                  <option tal:repeat="step steps"
+                          tal:content="step"
+                          tal:attributes="value step;
+                                        selected python:'selected' if step == int(batch_size) else ''"/>
+                </select>
+              </div>
+
+              <!-- Results Actions -->
+              <div class="results_actions">
+                <p class="draft-notice" i18n:translate="">
+                  (Envelopes with no checkbox are still in draft mode)
+                </p>
+                <div class="buttons">
+                  <input type="button" id="selectAll"
+                         class="df-btn"
+                         value="Select All"
+                         i18n:attributes="value btn-select-all"/>
+
+                  <input type="button" id="btn-xls-export"
+                         class="df-btn custom-search-btn"
+                         value="Export all results to XLS"
+                         data-action="ReportekEngine/xls_export"
+                         i18n:attributes="value btn-xls-export-all"
+                         tal:attributes="data-xls_max_rows python:here.XLS_max_rows;
+                                       data-results_no results_no"/>
+
+                  <input type="button" id="btn-xls-export-selected"
+                         class="df-btn custom-result-btn"
+                         value="Export selected to XLS"
+                         data-action="ReportekEngine/xls_export"
+                         i18n:attributes="value btn-xls-export-selected"
+                         disabled="disabled"/>
+
+                  <input type="submit"
+                         class="df-btn custom-result-btn"
+                         value="Zip envelopes"
+                         data-action="ReportekEngine/zipEnvelopes"
+                         i18n:attributes="value btn-zip-envelope"/>
+                </div>
               </div>
             </div>
-          </div>
-        </form>
-      </tal:block>
+          </form>
+        </tal:block>
 
-      <p tal:condition="python: 'results' in options and not options['results']">
-          <b i18n:translate="">There was no data matching this query.</b>
-      </p>
-    </div>
+        <!-- No Results Message -->
+        <p class="no-results"
+           tal:condition="python:'results' in options and not options['results']">
+          <strong i18n:translate="">There was no data matching this query.</strong>
+        </p>
+      </div>
+    </tal:block>
   </metal:block>
 </metal:block>

@@ -4,12 +4,16 @@ pipeline {
   environment {
         GIT_NAME = "Products.Reportek"
         GIT_SRC = "https://github.com/eea/Products.Reportek.git"
-        SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,mdr.eionet.europa.eu"
+        SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,cdrtest.eionet.europa.eu,cdrsandbox.eionet.europa.eu,mdr.eionet.europa.eu"
     }
 
  stages {
+
    
     stage('Cosmetics') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         parallel(
 
@@ -58,6 +62,9 @@ pipeline {
     }
 
     stage('Code') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         parallel(
 
@@ -88,35 +95,76 @@ pipeline {
       }
     }
 
+    stage('Tests') {
+      when {
+        not { buildingTag() }
+      }
+      steps {
+        parallel(
+
+          "Tests": {
+            node(label: 'docker') {
+              script {
+                try {
+                    sh '''docker pull eeacms/reportek-base-dr-devel; docker run -i --name="$BUILD_TAG-reportek-base-dr-devel-tests" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr-devel /debug.sh tests'''
+                } finally {
+                    sh '''docker rm -v $BUILD_TAG-reportek-base-dr-devel-tests'''
+                }
+              }
+            }
+          },
+
+          "Coverage": {
+            node(label: 'docker') {
+              script {
+                try {
+                  sh '''docker pull eeacms/reportek-base-dr-devel; docker run -i --name="$BUILD_TAG-reportek-base-dr-devel-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr-devel /debug.sh coverage'''
+                  sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
+                  stash name: "xunit-reports", includes: "xunit-reports/*.xml"
+                  sh '''docker cp $BUILD_TAG-reportek-base-dr-devel-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
+                  stash name: "coverage.xml", includes: "coverage.xml"
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-reportek-base-dr-devel-coverage'''
+                }
+                junit 'xunit-reports/*.xml'
+              }
+            }
+          }
+        )
+      }
+    }
 
     stage('Report to SonarQube') {
+      when {
+        not { buildingTag() }
+      }
       steps {
         node(label: 'docker') {
           script{
             // get the code
             checkout scm
-            // get the result of the tests that were run in a previous Jenkins test 
-            // dir("xunit-reports") {
-            //   unstash "xunit-reports" 
-            // }
+            // get the result of the tests that were run in a previous Jenkins test
+            dir("xunit-reports") {
+               unstash "xunit-reports"
+             }
             // get the result of the cobertura test
-            // unstash "coverage.xml" 
-            // get the sonar-scanner binary location 
+             unstash "coverage.xml"
+            // get the sonar-scanner binary location
             def scannerHome = tool 'SonarQubeScanner';
-            // get the nodejs binary location 
+            // get the nodejs binary location
             def nodeJS = tool 'NodeJS11';
             // run with the SonarQube configuration of API and token
             withSonarQubeEnv('Sonarqube') {
                 // make sure you have the same path to the code as in the coverage report
-                // sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
+                 sh '''sed -i "s|/opt/zope/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
                 // run sonar scanner
-                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./ -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER" 
+                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./ -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
+                sh '''try=2; while [ \$try -gt 0 ]; do curl -s -XPOST -u "${SONAR_AUTH_TOKEN}:" "${SONAR_HOST_URL}api/project_tags/set?project=${GIT_NAME}-${BRANCH_NAME}&tags=${SONARQUBE_TAGS},${BRANCH_NAME}" > set_tags_result; if [ \$(grep -ic error set_tags_result ) -eq 0 ]; then try=0; else cat set_tags_result; echo "... Will retry"; sleep 60; try=\$(( \$try - 1 )); fi; done'''
             }
           }
         }
       }
     }
-
 
     stage('Pull Request') {
       when {
@@ -158,27 +206,16 @@ pipeline {
   }
 
   post {
-    changed {
+    always {
       script {
         def url = "${env.BUILD_URL}/display/redirect"
         def status = currentBuild.currentResult
         def subject = "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-        def summary = "${subject} (${url})"
         def details = """<h1>${env.JOB_NAME} - Build #${env.BUILD_NUMBER} - ${status}</h1>
                          <p>Check console output at <a href="${url}">${env.JOB_BASE_NAME} - #${env.BUILD_NUMBER}</a></p>
                       """
-
-        def color = '#FFFF00'
-        if (status == 'SUCCESS') {
-          color = '#00FF00'
-        } else if (status == 'FAILURE') {
-          color = '#FF0000'
-        }
-
-        emailext (subject: '$DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS', body: details)
+        emailext (subject: subject, attachLog: true, compressLog: true, to: 'eea-edw-c-team-alerts@googlegroups.com', body: details)
       }
     }
   }
 }
-
-

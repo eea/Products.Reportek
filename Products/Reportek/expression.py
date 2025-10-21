@@ -1,9 +1,11 @@
 # Thanks to Ulrick Eck for the support
 
-from AccessControl.class_init import InitializeClass
-from Persistence import Persistent
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
+from persistent import Persistent
+
 from Products.PageTemplates.Expressions import getEngine
+
 try:
     # Up to Zope 2.9
     from Products.PageTemplates.Expressions import _SecureModuleImporter
@@ -14,8 +16,8 @@ except Exception:
 SecureModuleImporter = _SecureModuleImporter()
 
 
-class Expression (Persistent):
-    text = ''
+class Expression(Persistent):
+    text = ""
     _v_compiled = None
 
     security = ClassSecurityInfo()
@@ -40,17 +42,19 @@ class Expression (Persistent):
 InitializeClass(Expression)
 
 
-def exprNamespace(instance, workitem=None, activity=None, process=None,
-                  openflow=None):
-    c = {'instance': instance,
-         'workitem': workitem,
-         'activity': activity,
-         'process': process,
-         'openflow': openflow,
-         'here': instance,
-         'nothing': None,
-         'options': {},
-         'request': getattr(instance, 'REQUEST', None),
-         'modules': SecureModuleImporter
-         }
+def exprNamespace(
+    instance, workitem=None, activity=None, process=None, openflow=None
+):
+    c = {
+        "instance": instance,
+        "workitem": workitem,
+        "activity": activity,
+        "process": process,
+        "openflow": openflow,
+        "here": instance,
+        "nothing": None,
+        "options": {},
+        "request": getattr(instance, "REQUEST", None),
+        "modules": SecureModuleImporter,
+    }
     return getEngine().getContext(c)

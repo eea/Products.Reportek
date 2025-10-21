@@ -80,8 +80,7 @@
             <a class="break-all" tal:attributes="href env/link" tal:content="env/title" title="Link to envelope" i18n:attributes="title title-link-to-envelope"/>
           </td>
           <td>
-            <a tal:condition="python: env['activity'] == 'End'" tal:attributes="href string: ${env/link}/envelope_zip" tal:content="env/activity" title="Zip envelope and download" i18n:attributes="title title-zip-and-download"></a>
-            <span tal:condition="python: env['activity'] != 'End'" tal:content="env/activity"></span>
+            <span tal:content="env/activity"></span>
           </td>
           <td tal:content="env/status"></td>
           <td>
