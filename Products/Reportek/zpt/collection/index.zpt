@@ -44,12 +44,18 @@
                          envs python: here.get_children('Report Envelope', 'reportingdate');
                          refs python: here.get_children('Report Referral', 'title', 0);
                          bdr_has_envs python: isBdrDeployment and envs;
+                         company_id python: getattr(here, 'company_id', '');
+                         is_bdr_test_company python: 'Test' in here.title and 'organisation' in here.title and company_id;
                          visible python: colls or envs or refs;">
       <form method="post" tal:attributes="action string:${request/URL1}/">
         <div class="filessection">
           <metal:block use-macro="here/macros/index-headings">
           </metal:block>
-          <table style="width: 100%; border: 0" class="collection-table-listing">
+          <table
+            tal:define="klass python: 'bdr-test-company' if is_bdr_test_company else '';
+                        klass python: 'collection-table-listing {}'.format(klass);"
+            tal:attributes="class klass"
+            style="width: 100%; border: 0">
             <metal:block use-macro="here/macros/table-heading">
             </metal:block>
             <metal:block use-macro="here/macros/table-body">
