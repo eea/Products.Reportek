@@ -29,10 +29,10 @@ import operator
 import os
 from datetime import datetime
 
-import constants
-import Envelope
-import Referral
-import RepUtils
+from Products.Reportek import constants
+from Products.Reportek import Envelope
+from Products.Reportek import Referral
+from Products.Reportek import RepUtils
 import requests
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import change_permissions, manage_users

@@ -23,12 +23,13 @@ import logging
 
 # Zope imports
 import Zope2
+import Products.Reportek.patches.fix_dtmlfile
 from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
 from plone.keyring.interfaces import IKeyManager
 from plone.keyring.keymanager import KeyManager
 from plone.registry.interfaces import IRegistry
-from registry import Registry
+from Products.Reportek.registry import Registry
 from zope.component import getGlobalSiteManager, getUtility
 from zope.i18nmessageid import MessageFactory
 from ZPublisher.BaseRequest import BaseRequest

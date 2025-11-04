@@ -29,26 +29,21 @@ import sys
 from os.path import join
 from time import time
 
-import IconShow
 import plone.protect.interfaces
-import RepUtils
 import requests
 import transaction
 import xmltodict
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from App.Common import package_home, rfc1123_date
-
-# Product imports
-from blob import FileContainer, StorageError
-from constants import ENGINE_ID, QAREPOSITORY_ID
 from DateTime import DateTime
-from interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
-from XMLInfoParser import SchemaError, detect_schema
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 from zExceptions import Redirect
-from zip_content import ZZipFile, ZZipFileRaw
 from zope.contenttype import guess_content_type
 from zope.event import notify
 from zope.interface import alsoProvides, implements
@@ -56,13 +51,24 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.HTTPRequest import FileUpload
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import IconShow, RepUtils
+
+# Product imports
+from Products.Reportek.blob import FileContainer, StorageError
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    ENGINE_ID,
+    QAREPOSITORY_ID,
+)
+from Products.Reportek.interfaces import IDocument
 from Products.Reportek.RepUtils import (
     DFlowCatalogAware,
     getToolByName,
     parse_uri,
 )
+from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
+from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
 
 __version__ = "$Rev$"[6:-2]
 
@@ -1049,7 +1055,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 try:
                     xml_content = xml_file.read()
                     xml_dict = xmltodict.parse(xml_content)
-                except Exception, e:
+                except Exception as e:
                     logger.exception("Error parsing XML content")
                     return error_message(
                         self, "Error parsing XML: %s" % str(e), REQUEST=REQUEST
