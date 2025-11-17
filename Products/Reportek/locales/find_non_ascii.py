@@ -13,9 +13,9 @@ for i, line in enumerate(f, 1):
     except UnicodeDecodeError as e:
         m = colPat.search(str(e))
         if m:
-            print "non ascii found on line %d, col: %s" % (i, m.groups()[0])
-            print line
+            print("non ascii found on line %d, col: %s" % (i, m.groups()[0]))
+            print(line)
         else:
-            print "Error on line %d" % i
-            print str(e)
-            print line
+            print("Error on line %d" % i)
+            print(str(e))
+            print(line)

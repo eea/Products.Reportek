@@ -5,14 +5,14 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 
 # Product imports
-from activity import activity
+from .activity import activity
 from App.Dialogs import MessageDialog
 from DateTime import DateTime
 from OFS.Folder import Folder
 from path import path
-from StringIO import StringIO
-from transition import transition
-from zope.interface import implements
+from io import StringIO
+from .transition import transition
+from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
@@ -61,13 +61,14 @@ def manage_addProcess(
         REQUEST.RESPONSE.redirect("manage_main")
 
 
+@implementer(IProcess)
 class process(CatalogAware, Folder):
     """A process is a collection of activities and transitions.
     The process map is given by the linking of activities by transitions.
     Each process instance is described by a instance"""
 
     meta_type = "Process"
-    implements(IProcess)
+
     security = ClassSecurityInfo()
     icon = "misc_/Reportek/Process.gif"
 
@@ -247,7 +248,7 @@ class process(CatalogAware, Folder):
         for t in self.objectValues("Transition"):
             activities[t.From] = ""
             activities[t.To] = ""
-        return activities.keys()
+        return list(activities.keys())
 
     def _topsort(self, pairlist):
         numpreds = {}  # elt -> # of predecessors
@@ -269,9 +270,9 @@ class process(CatalogAware, Folder):
                 successors[first] = [second]
 
         # suck up everything without a predecessor
-        answer = filter(
-            lambda x, numpreds=numpreds: numpreds[x] == 0, numpreds.keys()
-        )
+        answer = list(filter(
+            lambda x, numpreds=numpreds: numpreds[x] == 0, list(numpreds.keys())
+        ))
 
         # for everything in answer, knock down the pred count on
         # its successors; note that answer grows *in* the loop
@@ -458,7 +459,7 @@ def process_to_dot(process):
                 acronym = make_acronym(name)
             sh0 = sh = acronym
             n = 0
-            while sh in shorts.values():
+            while sh in list(shorts.values()):
                 n += 1
                 sh = "%s%d" % (sh0, n)
             shorts[name] = sh

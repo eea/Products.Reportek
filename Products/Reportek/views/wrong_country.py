@@ -1,5 +1,5 @@
 from operator import itemgetter
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 
 
 class WrongCountry(BaseAdmin):

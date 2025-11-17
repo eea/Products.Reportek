@@ -25,7 +25,7 @@ for env in context.Catalog(meta_type='Report Envelope',  # noqa: F821
     previous_feedback = [x.id for x in e.objectValues(
         'Report Feedback') if x.title == 'Confirmation of receipt']
     if previous_feedback:
-        print e.absolute_url()
+        print(e.absolute_url())
         list_of_obligations = []
 
         for obl in list(e.dataflow_uris):

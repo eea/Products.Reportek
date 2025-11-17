@@ -1,6 +1,6 @@
 # flake8: noqa
-from common import BaseUnitTest
-from StringIO import StringIO
+from .common import BaseUnitTest
+from io import StringIO
 from Products.Reportek.XMLInfoParser import (detect_schema,
                                              detect_single_schema,
                                              SchemaError)

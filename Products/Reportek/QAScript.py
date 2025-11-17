@@ -19,7 +19,7 @@
 # Cornel Nitu, Finsiel Romania
 import os
 
-import RepUtils
+from . import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens

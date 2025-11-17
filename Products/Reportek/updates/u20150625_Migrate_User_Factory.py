@@ -59,12 +59,12 @@ def update(app, skipMigrationCheck=False):
                     for user in local_users:
                         success = doMigrateLocalUser(acl_users, user)
                         if not success:
-                            print 'Unable to migrate user: %s' % str(user)
+                            print('Unable to migrate user: %s' % str(user))
                         else:
-                            print 'Migrated user: %s' % str(user)
+                            print('Migrated user: %s' % str(user))
 
         trans.commit()
-        print "All done!"
+        print("All done!")
         return True
     except Exception:
         trans.abort()
@@ -85,7 +85,7 @@ def doMigrateLocalUser(acl_users, user_data):
                 if role not in list(role_mgr.listRoleIds()):
                     role_mgr.addRole(role)
                 if role_mgr.assignRoleToPrincipal(role, user_id):
-                    print 'Added user: %s to role: %s' % (user_id, role)
+                    print('Added user: %s to role: %s' % (user_id, role))
                 else:
                     return False
 

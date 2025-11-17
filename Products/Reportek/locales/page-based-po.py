@@ -44,7 +44,8 @@ import os.path
 import os
 import codecs
 import sys
-reload(sys)
+import importlib
+importlib.reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
@@ -56,9 +57,9 @@ def usage():
 
 
 def play(po_header, bySrc):
-    print '\n'.join(po_header)
-    for block in bySrc.itervalues():
-        print block.getBlockText()
+    print('\n'.join(po_header))
+    for block in bySrc.values():
+        print(block.getBlockText())
         # print block.msgidOrSrc
         # print block.msgidOrSrc_trimmed
         # if block.default_message:
@@ -70,22 +71,22 @@ def process_html(html, po_header, bySrc):
     text = codecs.open(html, 'r', 'utf-8').read()
     base_name = os.path.splitext(os.path.basename(html))[0]
     po = codecs.open(g_result_dir + '/' + base_name + '.po', 'w', 'utf-8')
-    po.write(u'\n'.join(po_header))
-    po.write(u'\n')
+    po.write('\n'.join(po_header))
+    po.write('\n')
 
-    for key, block in bySrc.iteritems():
+    for key, block in bySrc.items():
         if block.foundInHtml(base_name):
             continue
         if key in text:
             po.write(block.getBlockText())
-            po.write(u'\n')
+            po.write('\n')
             # add all neighbours from the same source
             for neighbour in block.neighbours:
                 neighbourBlock = bySrc[neighbour]
                 if neighbourBlock.foundInHtml(base_name):
                     continue
                 po.write(neighbourBlock.getBlockText())
-                po.write(u'\n')
+                po.write('\n')
     po.close()
 
 
@@ -96,7 +97,7 @@ def mk_result_dir(html_dir):
     try:
         os.mkdir(result_dir)
     except Exception:
-        print "Failed. Dir %s exists?" % result_dir
+        print("Failed. Dir %s exists?" % result_dir)
         sys.exit(1)
 
     return result_dir
@@ -104,7 +105,7 @@ def mk_result_dir(html_dir):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print usage()
+        print(usage())
         sys.exit(1)
     main_po = sys.argv[1]
     html_dir = sys.argv[2]

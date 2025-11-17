@@ -220,7 +220,7 @@ l_found = False
 
 if confirm == 'True':
 
-    if request.has_key('submit_yes'):
+    if 'submit_yes' in request:
         l_found = True
         region = SESSION.get('region')
         language = SESSION.get('language')
@@ -295,7 +295,7 @@ if l_found == False:
 
 if l_found:
     #    transmap = string.maketrans(' ','-')
-    spec_filename = unicode(l_species, 'utf-8').translate(asciimap).lower()
+    spec_filename = str(l_species, 'utf-8').translate(asciimap).lower()
     filename = "species-%s.xml" % spec_filename.encode('utf-8')
     title = "Species questionnaire for %s" % l_species
     filecontent = []

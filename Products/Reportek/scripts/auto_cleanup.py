@@ -23,11 +23,11 @@ def do_cleanup(container, c_type, prefix, threshold):
     if len(objs) > threshold:
         delete_ids = [obj.getId() for obj in objs[threshold:]]
         for d_id in delete_ids:
-            print "Removing {}: {}".format(c_type,
+            print("Removing {}: {}".format(c_type,
                                            '/'.join([
                                                container.absolute_url(1),
                                                d_id
-                                           ]))
+                                           ])))
         container.manage_delObjects(delete_ids)
         transaction.commit()
 
@@ -65,4 +65,4 @@ def main():
                      if IFolder.providedBy(obj)]
         for folder in folderish:
             do_cleanup(folder, args.c_type, args.prefix, int(args.threshold))
-    print "Operations completed."
+    print("Operations completed.")

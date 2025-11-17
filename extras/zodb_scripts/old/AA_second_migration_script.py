@@ -23,6 +23,6 @@ for env_cat in container.Catalog(meta_type='Report Envelope'):
         request.set('inspectresult', 'Finish')
         env.activateWorkitem(l_lastworkitem.id, actor='openflow_engine')
         env.completeWorkitem(l_lastworkitem.id)
-        print env.absolute_url(0) + ': ' + l_lastworkitem.id
+        print(env.absolute_url(0) + ': ' + l_lastworkitem.id)
 
 return printed

@@ -37,13 +37,13 @@ class BaseCaching(object):
         is a string to add as a Vary header value in the response.
     """
 
-    title = _(u'Generic caching')
+    title = _('Generic caching')
     description = _(
-        u'Through this operation, all standard caching functions '
-        u'can be performed via various combinations of the optional '
-        u'parameter settings. For most cases, it\'s probably easier '
-        u'to use one of the other simpler operations (Strong caching, '
-        u'Moderate caching, Weak caching, or No caching).'
+        'Through this operation, all standard caching functions '
+        'can be performed via various combinations of the optional '
+        'parameter settings. For most cases, it\'s probably easier '
+        'to use one of the other simpler operations (Strong caching, '
+        'Moderate caching, Weak caching, or No caching).'
     )
     prefix = 'Products.Reportek.caching.baseCaching'
     options = ('maxage', 'smaxage', 'lastModified',
@@ -145,12 +145,12 @@ class WeakCaching(BaseCaching):
     operation to help make the UI approachable by mortals
     """
 
-    title = _(u'Weak caching')
+    title = _('Weak caching')
     description = _(
-        u'Cache in browser but expire immediately and enable 304 '
-        u'responses on subsequent requests. 304\'s require configuration '
-        u'of the \'Last-modified\' settings. If '
-        u'Last-Modified  header is insufficient to ensure freshness, turn on '
+        'Cache in browser but expire immediately and enable 304 '
+        'responses on subsequent requests. 304\'s require configuration '
+        'of the \'Last-modified\' settings. If '
+        'Last-Modified  header is insufficient to ensure freshness, turn on '
     )
     prefix = 'Products.Reportek.caching.weakCaching'
     sort = 3
@@ -170,14 +170,14 @@ class ModerateCaching(BaseCaching):
     operation to help make the UI approachable by mortals
     """
 
-    title = _(u'Moderate caching')
+    title = _('Moderate caching')
     description = _(
-        u'Cache in browser but expire immediately (same as \'weak caching\'), '
-        u'and cache in proxy (default: 24 hrs). '
-        u'Use a purgable caching reverse proxy for best results. '
-        u'Caution: If proxy cannot be purged, or cannot be configured '
-        u'to remove the \'s-maxage\' token from the response, then stale '
-        u'responses might be seen until the cached entry expires.')
+        'Cache in browser but expire immediately (same as \'weak caching\'), '
+        'and cache in proxy (default: 24 hrs). '
+        'Use a purgable caching reverse proxy for best results. '
+        'Caution: If proxy cannot be purged, or cannot be configured '
+        'to remove the \'s-maxage\' token from the response, then stale '
+        'responses might be seen until the cached entry expires.')
     prefix = 'Products.Reportek.caching.moderateCaching'
     sort = 2
 
@@ -200,12 +200,12 @@ class StrongCaching(BaseCaching):
     operation to help make the UI approachable by mortals
     """
 
-    title = _(u'Strong caching')
+    title = _('Strong caching')
     description = _(
-        u'Cache in browser and proxy (default: 24 hrs). '
-        u'Caution: Only use for stable resources '
-        u'that never change without changing their URL, or resources '
-        u'for which temporary staleness is not critical.'
+        'Cache in browser and proxy (default: 24 hrs). '
+        'Caution: Only use for stable resources '
+        'that never change without changing their URL, or resources '
+        'for which temporary staleness is not critical.'
     )
     prefix = 'Products.Reportek.caching.strongCaching'
     sort = 1
@@ -228,9 +228,9 @@ class NoCaching(object):
     out of all caches.
     """
 
-    title = _(u'No caching')
-    description = _(u'Use this operation to keep the response '
-                    u'out of all caches.')
+    title = _('No caching')
+    description = _('Use this operation to keep the response '
+                    'out of all caches.')
     prefix = 'Products.Reportek.caching.noCaching'
     sort = 4
     options = ()

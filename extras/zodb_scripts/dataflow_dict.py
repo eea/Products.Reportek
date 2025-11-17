@@ -17,7 +17,7 @@ top = container.REQUEST.PARENTS[-1]
 try:
     res = top.dataflow_rod()
 except:
-    raise ServiceTemporarilyUnavailableException, "Reporting Obligations Database is temporarily unavailable, please try again later"
+    raise ServiceTemporarilyUnavailableException("Reporting Obligations Database is temporarily unavailable, please try again later")
 
 dfdict = {}
 for item in res:

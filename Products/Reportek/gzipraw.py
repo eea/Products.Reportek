@@ -41,7 +41,8 @@ class GzipFileRaw(gzip.GzipFile):
         # be too late and we may end up with a coreupted archive.
         # Make sure unittets always pass.
         gzip.write32u(self.fileobj, self.crc)
-        gzip.write32u(self.fileobj, self.size & 0xffffffffL)
+        # gzip.write32u(self.fileobj, self.size & 0xffffffffL)
+        gzip.write32u(self.fileobj, self.size & 0xffffffff)
         self.fileobj = None
         if self.myfileobj:
             self.myfileobj.close()

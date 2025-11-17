@@ -11,9 +11,9 @@ def logtheupload(REQUEST):
     f.write("User: %s\n" % REQUEST.AUTHENTICATED_USER.getUserName())
     f.write("Content length: %s\n" % REQUEST['CONTENT_LENGTH'])
     f.write("Client IP: %s\n" % REQUEST['HTTP_X_FORWARDED_FOR'])
-    if REQUEST.has_key('title'):
+    if 'title' in REQUEST:
         f.write("Title: %s\n" % REQUEST['title'])
-    if REQUEST.has_key('country'):
+    if 'country' in REQUEST:
         f.write("Country: %s\n" % REQUEST['country'])
     f.close()
 

@@ -1,6 +1,6 @@
 from path import path
-from utils import create_fake_root
-from common import BaseTest, BaseUnitTest
+from .utils import create_fake_root
+from .common import BaseTest, BaseUnitTest
 from mock import patch, Mock, MagicMock, call
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Converter import LocalHttpConverter
@@ -298,7 +298,7 @@ class ConversionServiceTest(BaseUnitTest):
         shp_conv(file_url, shp_conv.id)
         files = mock_requests.mock_calls[0][2]['files']
         mock_requests.mock_calls[0][2]['data']
-        for item in mock_requests.mock_calls[0][2]['files'].values():
+        for item in list(mock_requests.mock_calls[0][2]['files'].values()):
             self.assertEqual('test file', item.read())
         self.assertEqual(set(['file', 'shx', 'dbf']), set(files.keys()))
 

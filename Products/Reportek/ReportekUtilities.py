@@ -3,7 +3,7 @@ from zope.interface import implementer
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 
-from interfaces import IReportekUtilities
+from .interfaces import IReportekUtilities
 
 
 @implementer(IReportekUtilities)

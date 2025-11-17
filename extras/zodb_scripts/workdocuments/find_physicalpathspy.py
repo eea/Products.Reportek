@@ -20,5 +20,5 @@ for hit in context.Catalog(
     for obj in env.objectValues('Report Document'):
         physp = obj.physicalpath()[27:]
         if obj.id[-4:] == '.gml' and obj.absolute_url(1) != physp:
-            print "%s\t%s" % (obj.absolute_url(1), physp)
+            print("%s\t%s" % (obj.absolute_url(1), physp))
 return printed

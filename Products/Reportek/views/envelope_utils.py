@@ -1,7 +1,7 @@
 import json
-from urllib import unquote
+from urllib.parse import unquote
 
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 from DateTime import DateTime
 
 from Products.Reportek.constants import (
@@ -36,7 +36,7 @@ class EnvelopeUtils(BaseAdmin):
         wflow_path = "/".join(wflow_engine.getPhysicalPath())
         p_mapping = wflow_engine.process_mappings
         country = wk.country
-        for wflow, mapping in p_mapping.iteritems():
+        for wflow, mapping in p_mapping.items():
             c_mapping = mapping.get("countries")
             if not wk.dataflow_uris:
                 return None

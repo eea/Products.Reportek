@@ -1,5 +1,5 @@
 from Acquisition import aq_base
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 from operator import itemgetter
 from Products.Reportek import constants
 import json
@@ -73,7 +73,7 @@ class ReferralsUtils(BaseAdmin):
         to_update = []
         errors = []
         if catalog:
-            for rs_setting, value in self.request.form.items():
+            for rs_setting, value in list(self.request.form.items()):
                 if rs_setting.startswith('rstatus:'):
                     try:
                         rid = int(rs_setting.split('rstatus:')[-1])

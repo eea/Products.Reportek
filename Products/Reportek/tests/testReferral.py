@@ -1,4 +1,4 @@
-from common import BaseTest, ConfigureReportek
+from .common import BaseTest, ConfigureReportek
 from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')

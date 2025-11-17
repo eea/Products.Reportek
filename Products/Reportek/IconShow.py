@@ -74,7 +74,7 @@ class IconShow:
         cat, sub = self._getMIMECatAndSub(self.content_type)
         if cat in self._types:
             file = self._types[cat]['default']
-            for item in self._types[cat].keys():
+            for item in list(self._types[cat].keys()):
                 if string.find(sub, item) >= 0:
                     file = self._types[cat][item]
                     break

@@ -13,8 +13,8 @@ RESPONSE = request.RESPONSE
 if ('AUTHENTICATED_USER' in request
         and request['AUTHENTICATED_USER'].getUserName() != 'Anonymous User'):
     userobj = request['AUTHENTICATED_USER']
-    print ("""<span><a id="logoutlink" href="/loggedout">"""
-           """Logout (%s)</a></span>""" % userobj.getUserName())
+    print(("""<span><a id="logoutlink" href="/loggedout">"""
+           """Logout (%s)</a></span>""" % userobj.getUserName()))
 else:
-    print """<a id="loginlink" href="/loggedin">Login</a>"""
+    print("""<a id="loginlink" href="/loggedin">Login</a>""")
 return printed  # noqa

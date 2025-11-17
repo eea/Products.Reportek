@@ -1,10 +1,10 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
-from constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG, ENGINE_ID
-from DataflowMappingsRecord import DataflowMappingsRecord
+from .constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG, ENGINE_ID
+from .DataflowMappingsRecord import DataflowMappingsRecord
 from OFS.Folder import Folder
-from UserList import UserList
+from collections import UserList
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.RepUtils import getToolByName

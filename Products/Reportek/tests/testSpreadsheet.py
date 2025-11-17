@@ -1,10 +1,10 @@
 # flake8: noqa
 from Products.Reportek.Converters import Converters
 from mock import patch, Mock
-from fileuploadmock import FileUploadMock
-from common import BaseTest, ConfigureReportek
+from .fileuploadmock import FileUploadMock
+from .common import BaseTest, ConfigureReportek
 import os
-from StringIO import StringIO
+from io import StringIO
 from Testing import ZopeTestCase
 
 ZopeTestCase.installProduct("Reportek")
@@ -33,8 +33,8 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         """
         res = self.envelope.convert_excel_file("")
         # Test the *effect* of the call.
-        self.assertEquals(0, len(self.envelope.objectIds("Report Document")))
-        self.assertEquals(-1, res)
+        self.assertEqual(0, len(self.envelope.objectIds("Report Document")))
+        self.assertEqual(-1, res)
 
     @patch("transaction.commit")
     @patch(
@@ -53,10 +53,10 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         }
         myfile = FileUploadMock("C:\\TEMP\\testfile.txt", "content here")
         res = self.envelope.convert_excel_file(myfile)
-        self.assertEquals(0, res)
+        self.assertEqual(0, res)
         # Test the *effect* of the call.
         document = self.envelope["testfile.txt"]
-        self.assertEquals("text/plain", document.content_type)
+        self.assertEqual("text/plain", document.content_type)
 
     def test_upload_empty_xml(self):
         """Check convert_excel_file when an empty template is uploaded
@@ -75,7 +75,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         )
         self.envelope.manage_addDocument("testfile.xml", "Title", myfile)
         document = self.envelope["testfile.xml"]
-        self.assertEquals("text/xml", document.content_type)
+        self.assertEqual("text/xml", document.content_type)
 
     @patch("transaction.commit")
     @patch(
@@ -91,10 +91,10 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         myfile = StringIO("-- some reporting data --")
         myfile.filename = "Rivers_empty.xls"
         res = self.envelope.convert_excel_file(myfile)
-        self.assertEquals(1, res)
+        self.assertEqual(1, res)
         document = self.envelope["Rivers_empty.xls"]
-        self.assertEquals("application/vnd.ms-excel", document.content_type)
-        self.assertEquals(
+        self.assertEqual("application/vnd.ms-excel", document.content_type)
+        self.assertEqual(
             [],
             [
                 x
@@ -144,14 +144,14 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         myfile = StringIO("-- some reporting data --")
         myfile.filename = "Rivers_2011.xls"
         res = self.envelope.convert_excel_file(myfile)
-        self.assertEquals(1, res)
-        self.assertEquals(
+        self.assertEqual(1, res)
+        self.assertEqual(
             5, len(self.envelope.objectValues("Report Document"))
         )
         document = self.envelope["Rivers_2011.xls"]
-        self.assertEquals("application/vnd.ms-excel", document.content_type)
+        self.assertEqual("application/vnd.ms-excel", document.content_type)
         document = self.envelope["Rivers_2011_StationsRivers.xml"]
-        self.assertEquals("text/xml", document.content_type)
+        self.assertEqual("text/xml", document.content_type)
 
         # NOTE don't test feedback creation here
         # feedback creation already tested in testFeedback.py

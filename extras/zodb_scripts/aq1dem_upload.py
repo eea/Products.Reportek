@@ -12,7 +12,7 @@ request = container.REQUEST
 response = request.RESPONSE
 actor = request.AUTHENTICATED_USER.getUserName()
 if actor == 'Anonymous User':
-    raise RuntimeError, 'You did not login first'
+    raise RuntimeError('You did not login first')
 container.logtheupload(container.REQUEST)
 # Look up the right URI for country iso-code
 c_uri = None
@@ -21,7 +21,7 @@ for c in container.localities_table():
         c_uri = c['uri']
         break
 if c_uri is None:
-    raise RuntimeError, "Country not found"
+    raise RuntimeError("Country not found")
 # finds the collection in the catalog
 for item in container.Catalog({'meta_type': 'Report Collection',
                                'dataflow_uris': 'http://rod.eionet.europa.eu/obligations/131',

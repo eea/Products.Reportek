@@ -35,13 +35,13 @@ import plone.protect.interfaces
 # Zope imports
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from constants import ENGINE_ID
+from Products.Reportek.constants import ENGINE_ID
 from DateTime import DateTime
 
 # Product specific imports
-from expression import exprNamespace
+from Products.Reportek.expression import exprNamespace
 from OFS.Folder import Folder
-from workitem import workitem
+from Products.Reportek.workitem import workitem
 from zope.interface import alsoProvides
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -53,6 +53,7 @@ from Products.Reportek.RemoteRabbitMQQAApplication import (
     RemoteRabbitMQQAApplication,
 )
 from Products.Reportek.RepUtils import getToolByName
+from functools import reduce
 
 try:
     # do you have CMF?
@@ -61,7 +62,7 @@ try:
 except ImportError:
     # I guess you have no CMF...
     # here's a what you need:
-    from expression import Expression
+    from .expression import Expression
 logger = logging.getLogger("Reportek")
 
 
@@ -690,9 +691,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             transition_list = [transition_condition_list[0]["transition_id"]]
         else:
             if split_mode == "and":
-                transition_list = map(
-                    lambda x: x["transition_id"], transition_condition_list
-                )
+                transition_list = [x["transition_id"] for x in transition_condition_list]
             elif split_mode == "xor":
                 for r in [
                     c for c in transition_condition_list if c["condition"]
@@ -810,9 +809,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 workitem.status == "complete"
                 and (not workitem.workitems_to or activity.isSubflow())
             ):
-                activity_to_id_list = map(
-                    lambda x: x["activity_to_id"], destinations
-                )
+                activity_to_id_list = [x["activity_to_id"] for x in destinations]
                 workitem.addEvent(
                     "forwarded to "
                     + reduce(lambda x, y: x + ", " + y, activity_to_id_list)
@@ -1237,7 +1234,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     jobs = qa_prop.get("getResult", {})
                     app_url = self.getApplicationUrl(wk.id)
                     app = self.unrestrictedTraverse(app_url)
-                    for job in jobs.keys():
+                    for job in list(jobs.keys()):
                         app.delete_job(job, workitem_id)
             elif wk.activity_id.startswith("FMEConversion"):
                 fme_prop = getattr(wk, "FMEConversion")

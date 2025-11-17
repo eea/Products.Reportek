@@ -9,10 +9,10 @@ class PoBlock(object):
     varPattern = re.compile(r'\${([\S-]+)}')
 
     sourcePattern = re.compile(r'^#: (.*\S):\d+')
-    comment = u'#'
-    default = u'#. Default:'
-    msgid = u'msgid'
-    msgstr = u'msgstr'
+    comment = '#'
+    default = '#. Default:'
+    msgid = 'msgid'
+    msgstr = 'msgstr'
     # sourcefiles -> set of msgidOrSrc
     source2ids = defaultdict(set)
 
@@ -77,27 +77,27 @@ class PoBlock(object):
         self.blockLines.append('msgstr ""\n')
 
     def getBlockText(self):
-        return u'\n'.join(self.blockLines)
+        return '\n'.join(self.blockLines)
 
     def replaceTranslation(self, transMsg):
         for i, line in enumerate(self.blockLines):
             if line.startswith(self.msgstr):
                 break
         self.blockLines = self.blockLines[:i]
-        self.blockLines.append(u'%s "%s"\n' % (self.msgstr, transMsg))
-        self.blockLines.append(u'\n')
+        self.blockLines.append('%s "%s"\n' % (self.msgstr, transMsg))
+        self.blockLines.append('\n')
 
-    def replaceTranslationPreserveVars(self, trMsg=u' ✕ '):
+    def replaceTranslationPreserveVars(self, trMsg=' ✕ '):
         for i, line in enumerate(self.blockLines):
             if line.startswith(self.msgstr):
                 break
         self.blockLines = self.blockLines[:i]
-        vars_and_ends = [u'']
+        vars_and_ends = ['']
         vars_and_ends.extend(["${%s}" % var for var in self.i18n_vars])
-        vars_and_ends.append(u'')
+        vars_and_ends.append('')
         self.blockLines.append(self.msgstr + ' "'
                                + trMsg.join(vars_and_ends) + '"\n')
-        self.blockLines.append(u'\n')
+        self.blockLines.append('\n')
 
     def foundInHtml(self, html_base_name):
         return html_base_name in self.htmlsIn

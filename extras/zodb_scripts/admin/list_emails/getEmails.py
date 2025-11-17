@@ -48,14 +48,14 @@ for user in local_users:
     user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)  # noqa: F821
     if user_ob:
         ulocal.append('%s <%s>' %
-                      (unicode(user_ob.cn, 'latin-1'), user_ob.mail))
+                      (str(user_ob.cn, 'latin-1'), user_ob.mail))
 
 uglobal = []
 for user in global_users:
     user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)  # noqa: F821
     if user_ob:
         uglobal.append('%s <%s>' %
-                       (unicode(user_ob.cn, 'latin-1'), user_ob.mail))
+                       (str(user_ob.cn, 'latin-1'), user_ob.mail))
 
 if separator:
     delimiter = ', '

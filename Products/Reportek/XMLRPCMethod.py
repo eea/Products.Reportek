@@ -22,7 +22,7 @@
 """ Module that handles the call of a XMLRPC Method
 """
 
-import xmlrpclib
+import xmlrpc.client
 
 
 class XMLRPCMethod(object):
@@ -34,6 +34,6 @@ class XMLRPCMethod(object):
         self.timeout = timeout
 
     def call_method(self):
-        server = xmlrpclib.ServerProxy(self.url)
+        server = xmlrpc.client.ServerProxy(self.url)
         method = getattr(server, self.method_name)
         return method()

@@ -24,7 +24,7 @@ ALL_XML_LIST = [
 
 def log_msg(msg):
     logger.info(msg)
-    print msg
+    print(msg)
 
 
 def back_it_up(app, xml):

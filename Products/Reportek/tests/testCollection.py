@@ -1,5 +1,5 @@
 from Testing import ZopeTestCase
-from common import BaseTest
+from .common import BaseTest
 ZopeTestCase.installProduct('Reportek')
 
 # from Products.Reportek.Collection import Collection

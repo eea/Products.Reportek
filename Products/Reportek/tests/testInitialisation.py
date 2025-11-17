@@ -1,6 +1,6 @@
 # from Testing import ZopeTestCase
 # ZopeTestCase.installProduct('Reportek')
-from common import BaseTest, ConfigureReportek
+from .common import BaseTest, ConfigureReportek
 
 
 # FIXME Why are these tests necessary?
@@ -25,4 +25,4 @@ class InitialisationTestCase(BaseTest, ConfigureReportek):
 
     def testWorkflowEngine(self):
         of = getattr(self.app, 'WorkflowEngine')
-        self.assertEquals(of.meta_type, 'Workflow Engine')
+        self.assertEqual(of.meta_type, 'Workflow Engine')

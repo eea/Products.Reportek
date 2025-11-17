@@ -32,7 +32,7 @@ def log_msg(msg, level='INFO'):
         'NOTSET': 0
     }
     logger.log(lvl.get(level), msg)
-    print msg
+    print(msg)
 
 def get_fgas_collections(app):
     catalog = getToolByName(app, DEFAULT_CATALOG, None)
@@ -53,12 +53,12 @@ def add_new_fgas_ver_col(app):
         for brain in brains:
             try:
                 if len(brain.getPath().split('/')) != 4:
-                    print "Skipping non-4-level path:{}".format(brain.getPath())
+                    print("Skipping non-4-level path:{}".format(brain.getPath()))
                     continue
                 obj = brain.getObject()
                 if obj.company_id:
                     engine.create_fgas_ver_col(obj)
-                    print "Created FGAS verification collection for: {}".format(obj.absolute_url())
+                    print("Created FGAS verification collection for: {}".format(obj.absolute_url()))
                     logger.info(
                         'Added FGAS verification collection to: %s',
                             obj.absolute_url())
@@ -67,23 +67,23 @@ def add_new_fgas_ver_col(app):
                         logger.info('savepoint at %d records', count)
                     count += 1
                 else:
-                    print "Skipping non-company collection: {}".format(obj.absolute_url())
+                    print("Skipping non-company collection: {}".format(obj.absolute_url()))
                     logger.info(
                         'Not a company collection: %s. ',
                         obj.absolute_url())
             except Exception as e:
                 errors += 1
-                print "Skipping error processing: {}".format(brain.getURL())
+                print("Skipping error processing: {}".format(brain.getURL()))
                 logger.error(
                     'Error processing %s: %s', brain.getURL(), str(e))
                 continue
 
         transaction.commit()
-        print "Changed {} objects with {} errors".format(count, errors)
+        print("Changed {} objects with {} errors".format(count, errors))
         logger.info('Changed %d objects with %d errors', count, errors)
         return True
     except Exception as e:
-        print "Critical error during migration: {}".format(str(e))
+        print("Critical error during migration: {}".format(str(e)))
         logger.critical('Critical error during migration: %s', str(e))
         transaction.abort()
         return False

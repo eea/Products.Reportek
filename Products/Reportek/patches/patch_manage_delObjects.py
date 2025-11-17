@@ -79,11 +79,11 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
         id = ids[-1]
         v = self._getOb(id, self)
         if v.wl_isLocked():
-            raise ResourceLockedError, (
+            raise ResourceLockedError(
                 'Object "%s" is locked via WebDAV' % v.getId())
 
         if v is self:
-            raise BadRequest, '%s does not exist' % escape(ids[-1])
+            raise BadRequest('%s does not exist' % escape(ids[-1]))
 
         if IProcess.providedBy(v):
             processes.append(v.getId())

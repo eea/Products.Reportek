@@ -14,6 +14,6 @@ def inline_replace(x):
 
 
 try:
-    return map(inline_replace, container.localities_rod())
+    return list(map(inline_replace, container.localities_rod()))
 except:
     return []

@@ -29,8 +29,8 @@ from time import time
 
 import requests
 from plone.memoize import ram
-from RepUtils import inline_replace
-from XMLRPCMethod import XMLRPCMethod
+from .RepUtils import inline_replace
+from .XMLRPCMethod import XMLRPCMethod
 
 
 class CountriesManager:

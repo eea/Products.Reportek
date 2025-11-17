@@ -100,7 +100,7 @@ def allowedRolesAndUsers(obj):
             localroles = acl_users._getAllLocalRoles(obj)
     except AttributeError:
         localroles = _mergedLocalRoles(obj)
-    for user, roles in localroles.items():
+    for user, roles in list(localroles.items()):
         if allowed.intersection(roles):
             allowed.update(['user:' + user])
     if 'Owner' in allowed:

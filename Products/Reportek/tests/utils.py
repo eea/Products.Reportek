@@ -34,7 +34,7 @@ import ZODB.blob
 import ZODB.MappingStorage
 from mock import Mock, patch
 from OFS.Folder import Folder
-from StringIO import StringIO
+from io import StringIO
 
 
 class HtmlElementList(list):
@@ -157,7 +157,7 @@ def startZServer(number_of_threads=1, log=None):
     global _Z2HOST, _Z2PORT
     if _Z2HOST is None:
         _Z2HOST = "127.0.0.1"
-        _Z2PORT = random.choice(range(55000, 55500))
+        _Z2PORT = random.choice(list(range(55000, 55500)))
         from ZServer import setNumberOfThreads
 
         setNumberOfThreads(number_of_threads)
@@ -210,7 +210,7 @@ def makelist(arg):
     if isinstance(arg, tuple):
         return list(arg)
     if isinstance(arg, str):  # noqa
-        return filter(None, [arg])
+        return [_f for _f in [arg] if _f]
     raise ValueError("Argument must be list, tuple, or string")
 
 
@@ -258,7 +258,7 @@ def create_upload_file(data="", filename="testfile.txt"):
 
 
 def chase_response(target, environ={}, user=None):
-    from utils import publish_view
+    from .utils import publish_view
 
     response = publish_view(target, environ=environ, user=user)
     while response.status == 302:

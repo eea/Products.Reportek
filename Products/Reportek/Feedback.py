@@ -34,20 +34,20 @@ import logging
 import tempfile
 
 import plone.protect.interfaces
-import RepUtils
-import StringIO
+from Products.Reportek import RepUtils
+from io import StringIO
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from blob import add_OfsBlobFile
+from Products.Reportek.blob import add_OfsBlobFile
 from BTrees.OOBTree import BTree
-from Comment import CommentsManager
+from Products.Reportek.Comment import CommentsManager
 from DateTime import DateTime
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
 from zope.annotation.interfaces import IAnnotations
 from zope.event import notify
-from zope.interface import alsoProvides, implements
+from zope.interface import alsoProvides, implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -91,7 +91,7 @@ def manage_addFeedback(
     # Normally, there can only be one feedback for a release
     if not id:
         id = "feedback" + str(int(releasedate))
-    tmp = StringIO.StringIO(feedbacktext)
+    tmp = StringIO(feedbacktext)
     convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
     # if Local Conversion Service is down
     # the next line of code will raise an exception
@@ -208,6 +208,7 @@ def manage_addManualQAFeedback(
         )
 
 
+@implementer(IFeedback, IFeedbackHistory)
 class ReportFeedback(
     CatalogAware,
     ObjectManager,
@@ -250,7 +251,6 @@ class ReportFeedback(
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
     # assertions.
-    implements(IFeedback, IFeedbackHistory)
     security = ClassSecurityInfo()
 
     def __init__(
@@ -328,7 +328,7 @@ class ReportFeedback(
         if title:
             self.title = title
         if feedbacktext:
-            tmp = StringIO.StringIO(feedbacktext)
+            tmp = StringIO(feedbacktext)
             convs = getattr(
                 self.getPhysicalRoot(), constants.CONVERTERS_ID, None
             )
@@ -357,7 +357,7 @@ class ReportFeedback(
 
     def sanitize_html(self, html):
         """Sanitizes HTML."""
-        tmp = StringIO.StringIO(html)
+        tmp = StringIO(html)
         convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
         sanitizer = convs["safe_html"]
         return sanitizer.convert(tmp, sanitizer.id).text
@@ -365,7 +365,7 @@ class ReportFeedback(
     def set_html_feedback(self, content, metadata):
         """Sets HTML feedback."""
 
-        if isinstance(content, unicode):
+        if isinstance(content, str):
             content = content.encode("utf8")
         filename = metadata.get("filename")
         if len(content) > constants.FEEDBACKTEXT_LIMIT or filename:
@@ -441,7 +441,7 @@ class ReportFeedback(
                 res["result"] = "Fail"
                 res["message"] = "Malformed body"
 
-            for attr in VALID_ATTRS_MAP.keys():
+            for attr in list(VALID_ATTRS_MAP.keys()):
                 history[VALID_ATTRS_MAP[attr]] = getattr(
                     self, VALID_ATTRS_MAP[attr]
                 )

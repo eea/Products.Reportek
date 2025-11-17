@@ -128,7 +128,7 @@ def convert_all(parent, limit=None, skip=0,
         sp = transaction.savepoint()
         try:
             fs_path, size = convert(doc, allow_missing=allow_missing)
-        except Exception, e:
+        except Exception as e:
             sp.rollback()
             if warnings:
                 log.warn("Error converting %r (%s)", doc, e)

@@ -1,4 +1,4 @@
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
 
 
@@ -37,8 +37,8 @@ class BuildCollections(BaseAdmin):
 
         for iso in countries:
             # get country uri
-            country = filter(lambda c: c.get('iso') ==
-                             iso, self.localities_rod)[0]
+            country = [c for c in self.localities_rod if c.get('iso') ==
+                             iso][0]
             if country:
                 target_path = str(country['iso'].lower())
                 try:

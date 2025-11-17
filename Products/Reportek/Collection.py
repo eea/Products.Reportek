@@ -30,10 +30,11 @@ import operator
 import os
 from datetime import datetime
 
-import constants
-import Envelope
-import Referral
-import RepUtils
+# import constants
+from . import constants
+from . import Envelope
+from . import Referral
+from . import RepUtils
 import requests
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import change_permissions, manage_users
@@ -42,10 +43,10 @@ from Acquisition import aq_base
 from App.Common import package_home
 from DateTime import DateTime
 from OFS.Folder import Folder
-from reportekcontent import ReportekContent
-from Toolz import Toolz
+from .reportekcontent import ReportekContent
+from .Toolz import Toolz
 from zope.event import notify
-from zope.interface import implements
+from zope.interface import implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 
 import Products
@@ -122,10 +123,9 @@ def manage_addCollection(
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
+@implementer(ICollection)
 class BaseCollection(ReportekContent):
     """BaseCollection class."""
-
-    implements(ICollection)
 
 
 class Collection(
@@ -249,9 +249,9 @@ def manage_main(self, *args, **kw):
     if getSecurityManager().checkPermission(
         "View management screens", self
     ):
-        return apply(self.manage_main_inh, (self,) + args, kw)
+        return self.manage_main_inh(*(self,) + args, **kw)
     else:
-        return apply(self.index_html, (self,) + args, kw)
+        return self.index_html(*(self,) + args, **kw)
 
 
 security.declareProtected("Add Collections", "manage_addCollectionForm")
@@ -307,13 +307,13 @@ def local_defined_roles(self):
 
 def local_defined_users(self):
     if isinstance(self.__ac_local_roles__, dict):
-        return self.__ac_local_roles__.keys()
+        return list(self.__ac_local_roles__.keys())
 
 
 def local_unique_roles(self):
     return set(
         role
-        for roles in self.__ac_local_roles__.values()
+        for roles in list(self.__ac_local_roles__.values())
         for role in roles
     )
 
@@ -407,9 +407,9 @@ def years(self):
     if self.endyear == "":
         return [self.year]
     if int(self.year) > int(self.endyear):
-        return range(int(self.endyear), int(self.year) + 1)
+        return list(range(int(self.endyear), int(self.year) + 1))
     else:
-        return range(int(self.year), int(self.endyear) + 1)
+        return list(range(int(self.year), int(self.endyear) + 1))
 
 
 def getEngine(self):
@@ -698,7 +698,7 @@ def changeQueryString2(
         p_query_string, p_parameter, p_value
     )
     return "&".join(
-        str(x) + "=" + str(l_query_array[x]) for x in l_query_array.keys()
+        str(x) + "=" + str(l_query_array[x]) for x in list(l_query_array.keys())
     )
 
 
@@ -718,7 +718,7 @@ def changeQueryString2Dict(
     if isinstance(p_parameter, dict):
         # if p_parameter is a dictionary pass through every element
         l_input_array = p_parameter
-        for i in l_input_array.keys():
+        for i in list(l_input_array.keys()):
             if l_input_array[i] is None:
                 try:
                     del l_query_array[i]
@@ -1017,7 +1017,7 @@ def process_agent_uses_listing(self):
     if raw_data:
         raw_data = json.loads(raw_data)
         paus_per_year = raw_data.get(self.company_id)
-        for year, paus in paus_per_year.items():
+        for year, paus in list(paus_per_year.items()):
             for pau in paus:
                 pau["year"] = year
                 data.append(pau)
@@ -1064,7 +1064,7 @@ def stock_listing(self):
     if raw_data:
         raw_data = json.loads(raw_data)
         stocks_per_year = raw_data.get(self.company_id)
-        for year, stocks in stocks_per_year.items():
+        for year, stocks in list(stocks_per_year.items()):
             for stock in stocks:
                 stock["year"] = year
                 data.append(stock)
@@ -1507,7 +1507,7 @@ def is_newest_released(self, env_id):
 
 @property
 def Description(self):
-    if isinstance(self.descr, unicode):  # noqa: F821
+    if isinstance(self.descr, str):  # noqa: F821
         return self.descr.encode("utf-8")
 
     return self.descr

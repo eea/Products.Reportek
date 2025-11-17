@@ -44,9 +44,9 @@ def update(app):
         count += 1
         if count % 200 == 0:
             transaction.commit()
-            print "Deleting %s envelopes. Transaction commit." % count
+            print("Deleting %s envelopes. Transaction commit." % count)
 
     transaction.commit()
 
-    print "All done! Cleaned up %s envelopes from a total of %s" % (count,
-                                                                    total)
+    print("All done! Cleaned up %s envelopes from a total of %s" % (count,
+                                                                    total))

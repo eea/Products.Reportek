@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os.path
-from common import BaseTest, BaseUnitTest, WorkflowTestCase, ConfigureReportek
+from .common import BaseTest, BaseUnitTest, WorkflowTestCase, ConfigureReportek
 from Products.Reportek.OpenFlowEngine import OpenFlowEngineImportError
 from Products.Reportek import ContentRegistryPingger
 from Products.Reportek import Converters
@@ -13,12 +13,12 @@ import hashlib
 from zope.lifecycleevent import ObjectMovedEvent
 from functools import partial
 from mock import Mock, patch
-from utils import (create_fake_root, create_upload_file, create_envelope,
+from .utils import (create_fake_root, create_upload_file, create_envelope,
                    add_document, add_feedback, add_hyperlink,
                    simple_addEnvelope)
 from DateTime import DateTime
 import lxml.etree
-from StringIO import StringIO
+from io import StringIO
 from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
@@ -139,11 +139,11 @@ class EnvelopeTestCase(BaseTest):
         # Activate envelope's workitem
         self.envelope.activateWorkitem(wi.id, actor=user)
         # Check that it did it correctly
-        self.assertEquals(wi.actor, 'test_user_1_')
-        self.assertEquals(self.envelope.id, wi.instance_id)
-        self.assertEquals('Begin', wi.activity_id)
+        self.assertEqual(wi.actor, 'test_user_1_')
+        self.assertEqual(self.envelope.id, wi.instance_id)
+        self.assertEqual('Begin', wi.activity_id)
         self.envelope.completeWorkitem(wi.id, actor=user)
-        self.assertEquals('complete', wi.status)
+        self.assertEqual('complete', wi.status)
 
     def test_invalid_period(self):
         col = self.app.collection
@@ -179,7 +179,7 @@ class EnvelopeTestCase(BaseTest):
             id='an_application')
         script1 = getattr(folder, 'an_application')
         # test unicode
-        script1.write(u"return 'blâ'")
+        script1.write("return 'blâ'")
         expected_type1 = script1.meta_type
         expected_checksum1 = hashlib.md5(
             script1.read().encode('utf-8')).hexdigest()
@@ -223,150 +223,150 @@ class EnvelopeTestCase(BaseTest):
         self.assertIn('processes', o)
         proc = o['processes'][0]
         expected_proc = {
-            u'activities': [{u'application': u'',
-                             u'complete_automatically': 1,
-                             u'description': u'',
-                             u'finish_mode': 0,
-                             u'join_mode': u'and',
-                             u'kind': u'standard',
-                             u'parameters': u'',
-                             u'pullable_roles': [expected_role],
-                             u'push_application': u'',
-                             u'pushable_roles': [],
-                             u'rid': u'Begin',
-                             u'self_assignable': 1,
-                             u'split_mode': u'and',
-                             u'start_mode': 0,
-                             u'subflow': u'',
-                             u'title': u''},
-                            {u'application': u'',
-                             u'complete_automatically': 1,
-                             u'description': u'',
-                             u'finish_mode': 0,
-                             u'join_mode': u'and',
-                             u'kind': u'standard',
-                             u'parameters': u'',
-                             u'pullable_roles': [],
-                             u'push_application': u'',
-                             u'pushable_roles': [],
-                             u'rid': u'End',
-                             u'self_assignable': 1,
-                             u'split_mode': u'and',
-                             u'start_mode': 0,
-                             u'subflow': u'',
-                             u'title': u''},
-                            {u'application': u'script1',
-                             u'complete_automatically': 1,
-                             u'description': u'',
-                             u'finish_mode': 0,
-                             u'join_mode': u'and',
-                             u'kind': u'standard',
-                             u'parameters': u'',
-                             u'pullable_roles': [],
-                             u'push_application': u'',
-                             u'pushable_roles': [],
-                             u'rid': u'activity1',
-                             u'self_assignable': 1,
-                             u'split_mode': u'and',
-                             u'start_mode': 0,
-                             u'subflow': u'',
-                             u'title': u''},
-                            {u'application': u'script2',
-                             u'complete_automatically': 1,
-                             u'description': u'',
-                             u'finish_mode': 0,
-                             u'join_mode': u'and',
-                             u'kind': u'standard',
-                             u'parameters': u'',
-                             u'pullable_roles': [],
-                             u'push_application': u'',
-                             u'pushable_roles': [],
-                             u'rid': u'activity2',
-                             u'self_assignable': 1,
-                             u'split_mode': u'and',
-                             u'start_mode': 0,
-                             u'subflow': u'',
-                             u'title': u''}],
-            u'begin': u'Begin',
-            u'description': u'',
-            u'end': u'End',
-            u'priority': 0,
-            u'rid': u'begin_end',
-            u'title': u'',
-            u'transitions': [{
-                u'condition': tr.condition,
-                u'description': u'',
-                u'from': u'Begin',
-                u'rid': u'begin_end',
-                u'to': u'End'}]
+            'activities': [{'application': '',
+                             'complete_automatically': 1,
+                             'description': '',
+                             'finish_mode': 0,
+                             'join_mode': 'and',
+                             'kind': 'standard',
+                             'parameters': '',
+                             'pullable_roles': [expected_role],
+                             'push_application': '',
+                             'pushable_roles': [],
+                             'rid': 'Begin',
+                             'self_assignable': 1,
+                             'split_mode': 'and',
+                             'start_mode': 0,
+                             'subflow': '',
+                             'title': ''},
+                            {'application': '',
+                             'complete_automatically': 1,
+                             'description': '',
+                             'finish_mode': 0,
+                             'join_mode': 'and',
+                             'kind': 'standard',
+                             'parameters': '',
+                             'pullable_roles': [],
+                             'push_application': '',
+                             'pushable_roles': [],
+                             'rid': 'End',
+                             'self_assignable': 1,
+                             'split_mode': 'and',
+                             'start_mode': 0,
+                             'subflow': '',
+                             'title': ''},
+                            {'application': 'script1',
+                             'complete_automatically': 1,
+                             'description': '',
+                             'finish_mode': 0,
+                             'join_mode': 'and',
+                             'kind': 'standard',
+                             'parameters': '',
+                             'pullable_roles': [],
+                             'push_application': '',
+                             'pushable_roles': [],
+                             'rid': 'activity1',
+                             'self_assignable': 1,
+                             'split_mode': 'and',
+                             'start_mode': 0,
+                             'subflow': '',
+                             'title': ''},
+                            {'application': 'script2',
+                             'complete_automatically': 1,
+                             'description': '',
+                             'finish_mode': 0,
+                             'join_mode': 'and',
+                             'kind': 'standard',
+                             'parameters': '',
+                             'pullable_roles': [],
+                             'push_application': '',
+                             'pushable_roles': [],
+                             'rid': 'activity2',
+                             'self_assignable': 1,
+                             'split_mode': 'and',
+                             'start_mode': 0,
+                             'subflow': '',
+                             'title': ''}],
+            'begin': 'Begin',
+            'description': '',
+            'end': 'End',
+            'priority': 0,
+            'rid': 'begin_end',
+            'title': '',
+            'transitions': [{
+                'condition': tr.condition,
+                'description': '',
+                'from': 'Begin',
+                'rid': 'begin_end',
+                'to': 'End'}]
         }
         self.assertEqual(proc, expected_proc)
 
-    def _make_openflow_json(self, pr_id=u'begin_end_new', act_id=u'Begin',
-                            transition_id=u'begin_end',
+    def _make_openflow_json(self, pr_id='begin_end_new', act_id='Begin',
+                            transition_id='begin_end',
                             app_name_url=(
-                                u'script1', u'Applications/an_application'),
-                            roles=[u'Manager']):
+                                'script1', 'Applications/an_application'),
+                            roles=['Manager']):
 
         obj = {
-            u'applications': [
-                {u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                 u'rid': app_name_url[0],
-                 u'type': u'Script (Python)',
-                 u'url': app_name_url[1]},
-                {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
-                 u'rid': u'script2',
-                 u'type': u'Script (Python)',
-                 u'url': u'Applications/another_application'}],
-            u'processes': [{u'activities': [{u'application': app_name_url[0],
-                                             u'complete_automatically': 1,
-                                             u'description': u'',
-                                             u'finish_mode': 0,
-                                             u'join_mode': u'and',
-                                             u'kind': u'standard',
-                                             u'parameters': u'',
-                                             u'pullable_roles': roles,
-                                             u'push_application': u'',
-                                             u'pushable_roles': [],
-                                             u'rid': act_id,
-                                             u'self_assignable': 1,
-                                             u'split_mode': u'and',
-                                             u'start_mode': 0,
-                                             u'subflow': u'',
-                                             u'title': u''},
-                                            {u'application': u'script2',
-                                             u'complete_automatically': 1,
-                                             u'description': u'',
-                                             u'finish_mode': 0,
-                                             u'join_mode': u'and',
-                                             u'kind': u'standard',
-                                             u'parameters': u'',
-                                             u'pullable_roles': [],
-                                             u'push_application': u'',
-                                             u'pushable_roles': [],
-                                             u'rid': u'End',
-                                             u'self_assignable': 1,
-                                             u'split_mode': u'and',
-                                             u'start_mode': 0,
-                                             u'subflow': u'',
-                                             u'title': u''}],
-                            u'begin': u'Begin',
-                            u'description': u'Șșș',
-                            u'end': u'End',
-                            u'priority': 0,
-                            u'rid': pr_id,
-                            u'title': u'Ă title',
-                            u'transitions': [
-                                {u'condition': u'python: len([ i for i in xrange(1, 11)])',  # noqa
-                                 u'description': u'',
-                                 u'from': u'Begin',
-                                 u'rid': transition_id,
-                                 u'to': u'End'}]}]
+            'applications': [
+                {'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
+                 'rid': app_name_url[0],
+                 'type': 'Script (Python)',
+                 'url': app_name_url[1]},
+                {'checksum': '6d440bda5b6bc8f337e611ce7b6a172e',
+                 'rid': 'script2',
+                 'type': 'Script (Python)',
+                 'url': 'Applications/another_application'}],
+            'processes': [{'activities': [{'application': app_name_url[0],
+                                             'complete_automatically': 1,
+                                             'description': '',
+                                             'finish_mode': 0,
+                                             'join_mode': 'and',
+                                             'kind': 'standard',
+                                             'parameters': '',
+                                             'pullable_roles': roles,
+                                             'push_application': '',
+                                             'pushable_roles': [],
+                                             'rid': act_id,
+                                             'self_assignable': 1,
+                                             'split_mode': 'and',
+                                             'start_mode': 0,
+                                             'subflow': '',
+                                             'title': ''},
+                                            {'application': 'script2',
+                                             'complete_automatically': 1,
+                                             'description': '',
+                                             'finish_mode': 0,
+                                             'join_mode': 'and',
+                                             'kind': 'standard',
+                                             'parameters': '',
+                                             'pullable_roles': [],
+                                             'push_application': '',
+                                             'pushable_roles': [],
+                                             'rid': 'End',
+                                             'self_assignable': 1,
+                                             'split_mode': 'and',
+                                             'start_mode': 0,
+                                             'subflow': '',
+                                             'title': ''}],
+                            'begin': 'Begin',
+                            'description': 'Șșș',
+                            'end': 'End',
+                            'priority': 0,
+                            'rid': pr_id,
+                            'title': 'Ă title',
+                            'transitions': [
+                                {'condition': 'python: len([ i for i in xrange(1, 11)])',  # noqa
+                                 'description': '',
+                                 'from': 'Begin',
+                                 'rid': transition_id,
+                                 'to': 'End'}]}]
         }
         return StringIO(json.dumps(obj))
 
     def test_openflow_importFromJson(self):
-        pr_id = u'begin_end_new'
+        pr_id = 'begin_end_new'
         make_json = partial(self._make_openflow_json, pr_id=pr_id)
         jsonControlObj = json.load(make_json())
         jsonStream = make_json()
@@ -428,14 +428,14 @@ class EnvelopeTestCase(BaseTest):
         self.assertEqual(tr.From, trans['from'])
         self.assertEqual(tr.To, trans['to'])
         self.assertEqual(tr.condition, trans['condition'])
-        app1 = {u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                u'rid': u'script1',
-                u'type': u'Script (Python)',
-                u'url': u'Applications/an_application'}
-        app2 = {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
-                u'rid': u'script2',
-                u'type': u'Script (Python)',
-                u'url': u'Applications/another_application'}
+        app1 = {'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
+                'rid': 'script1',
+                'type': 'Script (Python)',
+                'url': 'Applications/an_application'}
+        app2 = {'checksum': '6d440bda5b6bc8f337e611ce7b6a172e',
+                'rid': 'script2',
+                'type': 'Script (Python)',
+                'url': 'Applications/another_application'}
         self.assertIn(app1, applications)
         self.assertIn(app2, applications)
 
@@ -448,15 +448,15 @@ class EnvelopeTestCase(BaseTest):
         folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
             id='an_application')
         script1 = getattr(folder, 'an_application')
-        script1.write(u"return 'blâ'")
+        script1.write("return 'blâ'")
         wfe.addApplication('script1', script1.absolute_url(1))
         folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
             id='another_application')
         script1 = getattr(folder, 'another_application')
-        script1.write(u"return 'something else'")
+        script1.write("return 'something else'")
         wfe.addApplication('script2', script1.absolute_url(1))
 
-        pr_id = u'begin_end_new'
+        pr_id = 'begin_end_new'
         make_json = partial(self._make_openflow_json, pr_id=pr_id)
         jsonControlObj = json.load(make_json())
         jsonStream = make_json()
@@ -495,7 +495,7 @@ class EnvelopeTestCase(BaseTest):
         self.createStandardCatalog()
         wfe = getattr(self.app, 'WorkflowEngine')
 
-        pr_id = u'begin_end_new_ă'
+        pr_id = 'begin_end_new_ă'
         make_json = partial(self._make_openflow_json, pr_id)
         jsonStream = make_json()
         expected_exception_args = ('Invalid rid', pr_id)
@@ -506,8 +506,8 @@ class EnvelopeTestCase(BaseTest):
             exception_args = e.args
             self.assertEqual(exception_args[:2], expected_exception_args)
 
-        pr_id = u'begin_end_new'
-        act_id = u'B€gin'
+        pr_id = 'begin_end_new'
+        act_id = 'B€gin'
         make_json = partial(self._make_openflow_json, pr_id, act_id)
         jsonStream = make_json()
         expected_exception_args = ('Invalid rid', act_id)
@@ -518,8 +518,8 @@ class EnvelopeTestCase(BaseTest):
             exception_args = e.args
         self.assertEqual(exception_args, expected_exception_args)
 
-        pr_id = u'begin_end_new2'
-        trans_id = u'b€gin_end'
+        pr_id = 'begin_end_new2'
+        trans_id = 'b€gin_end'
         make_json = partial(self._make_openflow_json,
                             pr_id, transition_id=trans_id)
         jsonStream = make_json()
@@ -531,9 +531,9 @@ class EnvelopeTestCase(BaseTest):
             exception_args = e.args
         self.assertEqual(exception_args, expected_exception_args)
 
-        pr_id = u'begin_end_new3'
-        app_name = u'Draft'
-        app_url = u'/Applications/Drâft'
+        pr_id = 'begin_end_new3'
+        app_name = 'Draft'
+        app_url = '/Applications/Drâft'
         make_json = partial(self._make_openflow_json, pr_id,
                             app_name_url=(app_name, app_url))
         jsonStream = make_json()
@@ -562,7 +562,7 @@ class EnvelopeTestCase(BaseTest):
         self.createStandardCatalog()
         wfe = getattr(self.app, 'WorkflowEngine')
 
-        weird_roles = [u'Manager', u'destroyer']
+        weird_roles = ['Manager', 'destroyer']
         make_json = partial(self._make_openflow_json, roles=weird_roles)
         jsonStream = make_json()
         wfe._importFromJson(jsonStream)

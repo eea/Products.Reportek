@@ -15,6 +15,6 @@ for x in container.Catalog(meta_type='Report Envelope', dataflow_uris=['http://r
             'Report Feedback') if y.title == 'Confirmation of receipt']
         if not fbs and obj.released:
             obj.AddBWDCoverLetter()
-            print obj.absolute_url(1)
+            print(obj.absolute_url(1))
 
 return printed

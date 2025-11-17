@@ -4,7 +4,7 @@ from time import time
 
 import requests
 from AccessControl import ClassSecurityInfo
-from interfaces import IRegistryManagement
+from .interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
@@ -12,6 +12,7 @@ from requests.exceptions import HTTPError
 from zope.interface import implementer
 
 import Products
+from functools import reduce
 
 logger = logging.getLogger("Reportek")
 
@@ -477,7 +478,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     if ver:
                         if ver.startswith("/"):
                             ver = ver.lstrip("/")
-                        if isinstance(ver, unicode):
+                        if isinstance(ver, str):
                             ver = ver.encode("utf-8")
                         audit_paths.append(ver)
             else:

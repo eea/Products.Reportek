@@ -16,6 +16,6 @@ def _patched_registered_objects(self):
         conn._registered_objects
         # skip the 'temporary' connection since it stores session objects
         # which get written all the time
-        for name, conn in app._p_jar.connections.items()
+        for name, conn in list(app._p_jar.connections.items())
         if name != 'temporary'
     ]))

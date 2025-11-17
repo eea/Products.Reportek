@@ -325,8 +325,8 @@ class OpenFlow2Xpdl:
             # nork burutzen du
             # add the performer's role
             text = ''
-            for perfor, w in pull_roles.items():
-                for proc, activies in w.items():
+            for perfor, w in list(pull_roles.items()):
+                for proc, activies in list(w.items()):
                     for act in activies:
                         if proc == prozesua.getId() and i.getId() == act:
                             if text == '':

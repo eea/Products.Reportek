@@ -44,23 +44,23 @@ def registry_setup(registry):
     registry.registerInterface(ICacheSettings)
 
     # Set registry records and fields for ICachePurgingSettings
-    cp_enabled = field.Bool(title=u"enabled")
+    cp_enabled = field.Bool(title="enabled")
     cpe_record = Record(cp_enabled)
 
     c_proxies = field.Tuple(
-        title=u"cachingProxies", value_type=field.TextLine(title=u"Value")
+        title="cachingProxies", value_type=field.TextLine(title="Value")
     )
     cp_record = Record(c_proxies)
 
     # plone.cachepurging.interfaces.ICachePurgingSettings.virtualHosting
     # need to set this to True to incorporate virtual host tokens in the
     # PURGE paths
-    cp_vh = field.Bool(title=u"virtualHosting")
+    cp_vh = field.Bool(title="virtualHosting")
     cp_vh_record = Record(cp_vh)
 
     # plone.cachepurging.interfaces.ICachePurgingSettings.domains
     cp_domains = field.Tuple(
-        title=u"domains", value_type=field.TextLine(title=u"Value")
+        title="domains", value_type=field.TextLine(title="Value")
     )
     cp_domains_record = Record(cp_domains)
     # In case we use plone.caching.operations.chain

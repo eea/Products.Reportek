@@ -15,7 +15,7 @@ reslist = []
 
 def print_as_attrs(mydict, str1, str2):
     attrs = []
-    for elm, value in mydict.items():
+    for elm, value in list(mydict.items()):
         attrs.append('%s="%s"' % (elm, html_quote(str(value))))
     return str1 + " ".join(attrs) + str2
 
@@ -124,11 +124,11 @@ req = context.REQUEST
 
 req.RESPONSE.setHeader('content-type', 'text/xml; charset=UTF-8')
 
-print print_as_attrs(search_args, '<results ', '>')
+print(print_as_attrs(search_args, '<results ', '>'))
 
 for d in reslist:
-    print print_as_attrs(d, '  <result ', '/>')
+    print(print_as_attrs(d, '  <result ', '/>'))
 
-print "</results>"
+print("</results>")
 
 return printed

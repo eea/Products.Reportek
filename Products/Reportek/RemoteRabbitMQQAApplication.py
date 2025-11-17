@@ -25,7 +25,7 @@ import json
 import logging
 import string
 import tempfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 import requests.exceptions
@@ -35,10 +35,10 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from BTrees.OOBTree import TreeSet
 from DateTime import DateTime
-from Document import Document
+from .Document import Document
 from OFS.SimpleItem import SimpleItem
 from persistent.dict import PersistentDict
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
@@ -78,6 +78,7 @@ def manage_addRRMQQAApplication(
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
+@implementer(IQAApplication)
 class RemoteRabbitMQQAApplication(BaseRemoteApplication):
     """RabbitMQ QA Application"""
 
@@ -85,7 +86,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
-    implements(IQAApplication)
+
     meta_type = "Remote RabbitMQ QA Application"
 
     manage_options = (
@@ -230,7 +231,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         jobs_summary[job_id]["valid"] = True
         else:
             job_id = payload.get("jobId")
-            l_file_id = urllib.unquote(
+            l_file_id = urllib.parse.unquote(
                 string.split(
                     payload.get("documentURL", payload.get("envelopeUrl")), "/"
                 )[-1]
@@ -282,7 +283,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
     def handle_result(self, wk, payload):
         """Handle payload with job results."""
         job_id = payload.get("jobId")
-        l_file_id = urllib.unquote(
+        l_file_id = urllib.parse.unquote(
             string.split(payload.get("documentURL"), "/")[-1]
         )
         job_result = payload.get("jobResult")
@@ -531,7 +532,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         for script in scripts:
                             remapped = {
                                 compat[name]: val
-                                for name, val in script.iteritems()
+                                for name, val in script.items()
                                 if compat.get(name)
                             }  # noqa
                             remapped["content_type_out"] = script.get(

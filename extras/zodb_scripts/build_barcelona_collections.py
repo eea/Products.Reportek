@@ -10,7 +10,7 @@
 ##
 for x in container.objectValues('Report Collection'):
     if not hasattr(x, 'un'):
-        print '>>%s' % x.absolute_url()
+        print('>>%s' % x.absolute_url())
         # x.manage_addCollection(title='United Nations (UN)', descr='', year='', endyear='',
         #                    partofyear='', country=x.id, locality='',
         #                    dataflow_uris=[], allow_collections=1,
@@ -25,6 +25,6 @@ for x in container.objectValues('Report Collection'):
                                                  'http://rod.eionet.europa.eu/obligations/430'
                                                  ], allow_collections=0,
                                   allow_envelopes=1, id='bc')
-        print x.un.bc.absolute_url(1)
+        print(x.un.bc.absolute_url(1))
 
 return printed

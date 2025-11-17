@@ -1,4 +1,4 @@
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 import json
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.rabbitmq import send_message

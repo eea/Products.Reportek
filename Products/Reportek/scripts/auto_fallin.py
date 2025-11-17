@@ -34,30 +34,30 @@ except Exception:
 
 now = DateTime()
 should_run = False
-print "Now: {}".format(now.HTML4())
-print "Scheduled start: {}".format(SCHEDULE_START.HTML4())
+print("Now: {}".format(now.HTML4()))
+print("Scheduled start: {}".format(SCHEDULE_START.HTML4()))
 if SCHEDULE_PERIOD == 'weekly':
     if (int(math.ceil(now.earliestTime()
             - SCHEDULE_START.earliestTime())) % 7 == 0):
         should_run = True
-        print "Weekly run condition evaluates to: {}".format(
-            int(math.ceil(now - SCHEDULE_START)) % 7)
-        print "Triggered weekly run"
+        print("Weekly run condition evaluates to: {}".format(
+            int(math.ceil(now - SCHEDULE_START)) % 7))
+        print("Triggered weekly run")
 elif SCHEDULE_PERIOD == 'monthly':
     if ((SCHEDULE_START.month() != now.month()
             or (SCHEDULE_START.month() == now.month()
                 and SCHEDULE_START.year() != now.year()))
             and SCHEDULE_START.day() == now.day()):
         should_run = True
-        print "Triggered monthly run"
+        print("Triggered monthly run")
 elif SCHEDULE_PERIOD == 'yearly':
     if (SCHEDULE_START.day() == now.day()
             and SCHEDULE_START.month() == now.month()):
         should_run = True
-        print "Triggered yearly run"
+        print("Triggered yearly run")
 elif SCHEDULE_PERIOD == 'daily':
     should_run = True
-    print "Triggered daily run"
+    print("Triggered daily run")
 
 
 def get_envelopes(catalog, df_uris, act_from, act_to):
@@ -132,7 +132,7 @@ def main():
             env_year -= int(year_offset[-1])
         savepoint = transaction.savepoint()
         try:
-            for key, value in results.iteritems():
+            for key, value in results.items():
                 entry_savepoint = transaction.savepoint()
                 wk = value.get('wk')
                 env = value.get('envelope')
@@ -144,28 +144,28 @@ def main():
                         env.falloutWorkitem(wk.id)
                         env.fallinWorkitem(wk.id, args.act_to)
                         env.endFallinWorkitem(wk.id)
-                        print "{} moved from {} to {}".format(
+                        print("{} moved from {} to {}".format(
                             env.absolute_url(1),
                             args.act_from,
-                            args.act_to)
+                            args.act_to))
                     except Exception as e:
                         entry_savepoint.rollback()
-                        print "Error while\
+                        print("Error while\
                                attempting to forward {}: {}".format(
-                            env.absolute_url(1), str(e))
+                            env.absolute_url(1), str(e)))
                         should_raise = True
                         if client:
                             client.captureException()
             transaction.commit()
         except Exception as error:
             savepoint.rollback()
-            print "Error while attempting\
-                to forward envelopes: {}".format(str(error))
+            print("Error while attempting\
+                to forward envelopes: {}".format(str(error)))
             should_raise = True
             if client:
                 client.captureException()
     else:
-        print "Defined SCHEDULE date is not today, aborting..."
+        print("Defined SCHEDULE date is not today, aborting...")
 
     if should_raise and client:
         client.captureMessage(

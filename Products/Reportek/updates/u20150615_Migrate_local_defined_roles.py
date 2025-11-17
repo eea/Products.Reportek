@@ -32,7 +32,7 @@ def update(app, skipMigrationCheck=False):
             catalog.addColumn('local_defined_roles')
         catalog_rebuild(catalog.unrestrictedTraverse('/'))
         trans.commit()
-        print "Migration complete!"
+        print("Migration complete!")
         return True
     except Exception:
         trans.abort()

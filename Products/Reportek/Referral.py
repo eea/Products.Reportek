@@ -32,10 +32,10 @@ $Id$"""
 import AccessControl.Role
 
 # Product imports
-import RepUtils
+from . import RepUtils
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from CountriesManager import CountriesManager
+from .CountriesManager import CountriesManager
 from OFS.role import RoleManager
 from OFS.SimpleItem import SimpleItem
 
@@ -186,9 +186,9 @@ class Referral(
         if getSecurityManager().checkPermission(
             "View management screens", self
         ):
-            return apply(self.manage_prop, (self,) + args, kw)
+            return self.manage_prop(*(self,) + args, **kw)
         else:
-            return apply(self.index_html, (self,) + args, kw)
+            return self.index_html(*(self,) + args, **kw)
 
     security.declareProtected("View", "get_custom_delivery_rdf_meta")
 

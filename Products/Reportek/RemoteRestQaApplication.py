@@ -25,7 +25,7 @@ import json
 import logging
 import string
 import tempfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 import requests.exceptions
@@ -34,10 +34,10 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
-from Document import Document
+from .Document import Document
 from OFS.SimpleItem import SimpleItem
 from ZODB.POSException import ConflictError
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
@@ -66,6 +66,7 @@ def manage_addRemoteRESTQAApplication(
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
+@implementer(IQAApplication)
 class RemoteRestQaApplication(BaseRemoteApplication):
     """A computerised application, executed by an activity.
     It executes a set of operations on a remote server and generates a
@@ -102,7 +103,6 @@ class RemoteRestQaApplication(BaseRemoteApplication):
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
-    implements(IQAApplication)
     meta_type = "Remote Rest QA Application"
 
     manage_options = (
@@ -256,7 +256,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
-        for l_jobID, l_job_details in l_wk_prop["getResult"].items():
+        for l_jobID, l_job_details in list(l_wk_prop["getResult"].items()):
             if l_job_details["code"] == 0 and l_job_details[
                 "next_run"
             ].lessThanEqualTo(DateTime()):
@@ -275,10 +275,10 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     else:
                         l_files_failed[l_fn] = "#%s" % l_jobID
         # log the results from local QA
-        for filename, scripts in l_wk_prop["localQA"].items():
+        for filename, scripts in list(l_wk_prop["localQA"].items()):
             success = []
             fail = []
-            for script, status in scripts.items():
+            for script, status in list(scripts.items()):
                 if status == "done":
                     success.append("#" + script)
                 else:
@@ -302,7 +302,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # write to log the list of file that succeded
         if l_files_success:
             l_filenames_jobs = ""
-            for x in l_files_success.keys():
+            for x in list(l_files_success.keys()):
                 l_filenames_jobs += "<li>%s for file %s</li>" % (
                     l_files_success[x],
                     x,
@@ -319,7 +319,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         if not l_wk_prop["getResult"]:
             l_complete = 0
 
-        for l_jobID, l_job_details in l_wk_prop["getResult"].items():
+        for l_jobID, l_job_details in list(l_wk_prop["getResult"].items()):
             # result retrieved
             if l_job_details["code"] == 1:
                 pass
@@ -334,7 +334,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             # write to log the list of file that failed
             if l_files_failed:
                 l_filenames_jobs = ""
-                for x in l_files_failed.keys():
+                for x in list(l_files_failed.keys()):
                     l_filenames_jobs += "<li>%s for file %s</li>" % (
                         l_files_failed[x],
                         x,
@@ -444,12 +444,12 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # not ran yet
         if not localQA:
             return False
-        for script_results in localQA.values():
+        for script_results in list(localQA.values()):
             # any bad status present?
             if any(
                 (
                     bad_status
-                    for bad_status in script_results.values()
+                    for bad_status in list(script_results.values())
                     if bad_status != "done"
                 )
             ):
@@ -520,7 +520,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             # Write in the envelope's log which files were sent to be analyzed
             # and their QA jobs
             l_filenames_jobs = ""
-            for x in l_files.keys():
+            for x in list(l_files.keys()):
                 l_filenames_jobs += "<li>%s for file %s</li>" % (l_files[x], x)
             l_workitem.addEvent(
                 "%s job(s) in progress: <ul>%s</ul>"
@@ -585,7 +585,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         l_wk_prop = getattr(l_workitem, self.app_name)
         # find out what file this job was for
         l_file_url = l_wk_prop["getResult"][p_jobID]["fileURL"]
-        l_file_id = urllib.unquote(string.split(l_file_url, "/")[-1])
+        l_file_id = urllib.parse.unquote(string.split(l_file_url, "/")[-1])
         envelope = self.aq_parent
         try:
             url = "asynctasks/qajobs/{}".format(str(p_jobID))
@@ -971,10 +971,10 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         l_workitem = getattr(self, p_workitem_id)
         l_qa = getattr(l_workitem, self.app_name)
 
-        for l_key in p_analyze.keys():
+        for l_key in list(p_analyze.keys()):
             l_qa["analyze"][l_key] = p_analyze[l_key]
 
-        for l_job, l_value in p_getResult.items():
+        for l_job, l_value in list(p_getResult.items()):
             if l_job not in l_qa["getResult"]:
                 l_qa["getResult"][l_job] = {}
             l_qa["getResult"][l_job].update(l_value)
@@ -1058,7 +1058,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         for script in scripts:
                             remapped = {
                                 compat[name]: val
-                                for name, val in script.iteritems()
+                                for name, val in script.items()
                                 if compat.get(name)
                             }  # noqa
                             remapped["content_type_out"] = script.get(

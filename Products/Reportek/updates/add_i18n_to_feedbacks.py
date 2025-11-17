@@ -64,7 +64,7 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
 
     lines = feedbacktext.split('\n')
     feedbacktext = ''.join([ln.strip() for ln in lines])
-    for src, block in bySrc.iteritems():
+    for src, block in bySrc.items():
         # for the complicated, unsafe match, the regex looks like this,
         # but the initial text is being escaped, so a plain . is \.
         # r'<(?P<initial_open_tag>[^<>]+)>
@@ -115,8 +115,8 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
             try:
                 varPat = re.compile(varPat)
             except Exception as e:
-                print varPat.pattern
-                print unicode(e)
+                print(varPat.pattern)
+                print(str(e))
 
         # avoid wrong msgids like: "L", "K+L+M"
         if (toFindSafe and toFindSafe in feedbacktext
@@ -166,12 +166,12 @@ def update(app):
         # if o.id not in ['feedback1389098996','feedback1372226406']:
         #    continue
         if 'html' in o.content_type:
-            print 'Updating feed:', o.id
+            print('Updating feed:', o.id)
             trans = transaction.begin()
             try:
                 o.feedbacktext = do_update(o, app, bySrc, safeMatchOnly=False)
                 trans.commit()
             except Exception:
                 trans.abort()
-                print "Error on feed:", o.id
+                print("Error on feed:", o.id)
                 raise

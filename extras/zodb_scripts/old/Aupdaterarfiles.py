@@ -16,7 +16,7 @@ for e in container.Catalog(meta_type='Report Envelope'):
 
 for x in fs:
     x.manage_editDocument(content_type='application/x-rar-compressed')
-    print x.absolute_url()
-    print x.content_type
+    print(x.absolute_url())
+    print(x.content_type)
 
 return printed

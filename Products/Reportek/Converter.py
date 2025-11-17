@@ -22,16 +22,16 @@ import os
 import string
 from copy import deepcopy
 
-import blob
-import constants
-import RepUtils
+from . import blob
+from . import constants
+from . import RepUtils
 import requests
 from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
-from conversion_registry import request_params
+from .conversion_registry import request_params
 from OFS.SimpleItem import SimpleItem
-from RepUtils import extension
+from .RepUtils import extension
 from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import Redirect
 from ZODB.POSException import POSKeyError
@@ -191,7 +191,7 @@ class Converter(SimpleItem):
 
             # generate 'filename'
             if not output_file_name:
-                if converter_obj.ct_output in constants.CONTENT_TYPES.keys():
+                if converter_obj.ct_output in list(constants.CONTENT_TYPES.keys()):
                     output_file_name = "%s%s" % (
                         file_obj.id[: file_obj.id.rfind(".")],
                         constants.CONTENT_TYPES[converter_obj.ct_output],
@@ -343,7 +343,7 @@ class LocalHttpConverter(Converter):
             extra_params = request_params(self.ct_extraparams, obj=file_obj)
         data = self.get_file_data(file_obj)
         files = {"file": data}
-        accepts_shp = any(map(lambda item: "shp" in item, self.ct_input))
+        accepts_shp = any(["shp" in item for item in self.ct_input])
         if accepts_shp:
             shp_container = file_obj.aq_parent
             file_name = file_obj.id.split(".")[0]

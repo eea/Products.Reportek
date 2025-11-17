@@ -94,7 +94,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
                 # Check link to app in WorkflowEngine
                 self.assertEqual(
                     path, self.root.WorkflowEngine._applications[app]['url'])
-        for app in apps_list(self.root).keys():
+        for app in list(apps_list(self.root).keys()):
             self.assertNotIn(app, self.root.objectIds())
 
     def test_common_folder(self):
@@ -110,7 +110,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
         move_apps(self.root, grouped_apps, host_folder=host_folder)
         common_apps = 0
         apps = apps_list(self.root)
-        for value in apps.values():
+        for value in list(apps.values()):
             if value > 1:
                 common_apps += 1
         self.assertEqual(2, common_apps)
@@ -217,7 +217,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
         self.assertEqual([('app3', 1),
                           ('app2', 2),
                           ('app1', 1)],
-                         apps.items())
+                         list(apps.items()))
 
     def test_update_path_to_QA_application_in_ReportekEngine(self):
         self.create_app('qa_application')

@@ -6,7 +6,7 @@ from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from time import time
 import json
 
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 
 
 class ListUsers(BaseAdmin):
@@ -204,7 +204,7 @@ class ListUsers(BaseAdmin):
                     users = dict((user, {'uid': user,
                                          'role': role,
                                          }) for user, roles
-                                 in brain.local_defined_roles.iteritems()
+                                 in brain.local_defined_roles.items()
                                  if use_role in roles)
                 else:
                     if brain.local_defined_users:
@@ -216,7 +216,7 @@ class ListUsers(BaseAdmin):
                                      for user in brain.local_defined_users)
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     # Hide our internal user agent from search results
-                    if 'bdr_folder_agent' in users.keys():
+                    if 'bdr_folder_agent' in list(users.keys()):
                         del users['bdr_folder_agent']
 
                 if not users and role != 'Reporter (Owner)':

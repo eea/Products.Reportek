@@ -77,7 +77,6 @@
     <include package="plone.caching" />
     <include package="plone.cachepurging" />
     <include package="plone.keyring" />
-    <include package="collective.captcha" />
     <include package=".caching" />
     <include package=".indexer" />
 

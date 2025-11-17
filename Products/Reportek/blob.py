@@ -4,14 +4,14 @@ from gzip import GzipFile
 from time import localtime, strftime, time
 
 import OFS.SimpleItem as _SimpleItem
-import RepUtils
+from Products.Reportek import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
 from App.config import getConfiguration
-from gzipraw import GzipFileRaw
+from Products.Reportek.gzipraw import GzipFileRaw
 from persistent import Persistent
-from StringIO import StringIO
+from io import StringIO
 from ZODB.blob import Blob, POSKeyError
 from zope.contenttype import guess_content_type
 from ZPublisher.HTTPRequest import FileUpload
@@ -393,7 +393,7 @@ def compute_uncompressed_size(file_or_content):
         size = file_or_content.tell()
         file_or_content.seek(pos)
         return size
-    elif isinstance(file_or_content, basestring):
+    elif isinstance(file_or_content, str):
         return len(file_or_content)
     elif isinstance(file_or_content, StringIO):
         return file_or_content.len

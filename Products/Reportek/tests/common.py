@@ -7,12 +7,12 @@ from App.Common import package_home
 from mock import Mock
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
+from io import StringIO
 from Testing import ZopeTestCase
-from utils import makerequest, simple_addEnvelope
+from .utils import makerequest, simple_addEnvelope
 from zope import interface
 from zope.component import provideAdapter
-from zope.interface import implements
+from zope.interface import implementer
 from zope.traversing.adapters import DefaultTraversable
 from zope.traversing.interfaces import ITraversable
 
@@ -243,8 +243,8 @@ class ConfigureReportek:
 # that are not pickable
 # we need some mechanism to implement functional, vertical tests, like copy
 # paste zodb objects
+@implementer(ITraversable)
 class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
-    implements(ITraversable)
     provideAdapter(DefaultTraversable, (interface.Interface,), ITraversable)
 
     def getId(self):
@@ -344,15 +344,15 @@ class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         # user = getSecurityManager().getUser()
         # obj.app.REQUEST.AUTHENTICATED_USER = user
         # reportek = obj.app.manage_addProduct['Reportek']
-        if "year" in kwargs.keys():
+        if "year" in list(kwargs.keys()):
             year = kwargs["year"]
         else:
             year = "2003"
-        if "endyear" in kwargs.keys():
+        if "endyear" in list(kwargs.keys()):
             endyear = kwargs["endyear"]
         else:
             endyear = "2004"
-        if "country" in kwargs.keys():
+        if "country" in list(kwargs.keys()):
             country = kwargs["country"]
         else:
             country = "http://rod.eionet.eu.int/spatial/2"

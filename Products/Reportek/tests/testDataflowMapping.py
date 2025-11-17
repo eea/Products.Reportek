@@ -1,6 +1,6 @@
-from common import BaseUnitTest
+from .common import BaseUnitTest
 from mock import Mock
-from utils import create_fake_root, makerequest
+from .utils import create_fake_root, makerequest
 
 from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from Products.Reportek.DataflowMappings import DataflowMappings

@@ -17,7 +17,7 @@ for c in container.localities_table():
         c_uri = c['uri']
         break
 if c_uri is None:
-    raise RuntimeError, "Country not found"
+    raise RuntimeError("Country not found")
 for item in container.Catalog({'meta_type': 'Report Collection',
                                'dataflow_uris': 'http://rod.eionet.europa.eu/obligations/131',
                                'country': c_uri}):

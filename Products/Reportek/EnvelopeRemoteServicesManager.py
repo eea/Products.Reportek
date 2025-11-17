@@ -33,13 +33,13 @@ import re
 import plone.protect.interfaces
 
 # Product specific imports
-import RepUtils
+from Products.Reportek import RepUtils
 import transaction
 from AccessControl import ClassSecurityInfo
 
 # Zope imports
 from AccessControl.class_init import InitializeClass
-from constants import QAREPOSITORY_ID
+from Products.Reportek.constants import QAREPOSITORY_ID
 from zope.interface import alsoProvides
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -137,7 +137,7 @@ class EnvelopeRemoteServicesManager:
             # no naming we know, but there are files for this schema
             if not base:
                 base = baseName
-            for i in xrange(1, 1000):
+            for i in range(1, 1000):
                 candidate_id = "%s.%d.xml" % (base, i)
                 if candidate_id not in docNames:
                     return candidate_id
@@ -145,7 +145,7 @@ class EnvelopeRemoteServicesManager:
 
         else:
             # No other files for this schema, but there are files whatsoever
-            for i in xrange(1, 1000):
+            for i in range(1, 1000):
                 candidate_id = "%s__%d.xml" % (baseName, i)
                 if candidate_id not in docNames:
                     return candidate_id
@@ -255,9 +255,9 @@ class EnvelopeRemoteServicesManager:
 
         # extract the file ids and scripts from the REQUEST
         l_files_dict = {}
-        for l_file, l_scripts in REQUEST.form.items():
+        for l_file, l_scripts in list(REQUEST.form.items()):
             l_files_dict[l_file] = l_scripts.split(",")
-        if len(l_files_dict.keys()) == 0 or not l_qa_app:
+        if len(list(l_files_dict.keys())) == 0 or not l_qa_app:
             REQUEST.SESSION.set("note_content_type", "text/html")
             REQUEST.SESSION.set("note_title", "Error in QA service")
             REQUEST.SESSION.set(
@@ -268,7 +268,7 @@ class EnvelopeRemoteServicesManager:
 
         try:
             l_res = []
-            for l_file, l_scripts in l_files_dict.items():
+            for l_file, l_scripts in list(l_files_dict.items()):
                 l_file_id = l_file.split("/")[-1]
                 l_res.append(
                     "<h2>QA results for file %s</h2><hr />" % l_file_id
@@ -526,7 +526,7 @@ class EnvelopeRemoteServicesManager:
         # remove duplicates
         for l_item in l_list:
             l_dict[l_item] = ""
-        return l_dict.keys()
+        return list(l_dict.keys())
 
     security.declareProtected("Change Envelopes", "getValidXMLSchemas")
 

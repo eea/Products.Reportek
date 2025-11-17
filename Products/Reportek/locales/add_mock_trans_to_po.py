@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from poParser import po_load
+from .poParser import po_load
 import codecs
 import sys
-reload(sys)
+import importlib
+importlib.reload(sys)
 sys.setdefaultencoding('utf-8')
 # sys.path.insert(0, '.')
 
@@ -14,7 +15,7 @@ def usage():
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print usage
+        print(usage)
         sys.exit(1)
 
     po_file = sys.argv[1]
@@ -25,14 +26,14 @@ if __name__ == '__main__':
     po_load(po_file, poHeader=po_header, byMsgid=byMsgid)
 
     # add header to output file
-    out_po.write(u'\n'.join(po_header))
-    out_po.write(u'\n')
-    for key, block in byMsgid.iteritems():
+    out_po.write('\n'.join(po_header))
+    out_po.write('\n')
+    for key, block in byMsgid.items():
         if not block.translated:
             # block.replaceTranslation("__translated__"
             # + block.srcMsg.strip('"') + "__translated__")
             block.replaceTranslationPreserveVars()
         out_po.write(block.getBlockText())
-        out_po.write(u'\n')
+        out_po.write('\n')
 
     out_po.close()

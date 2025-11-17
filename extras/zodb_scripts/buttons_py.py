@@ -28,13 +28,13 @@ buttons = [
 # Remember to end with a comma.
 # ('http://eea.eionet.europa.eu:9000/','Directory Services','Directory'),
 
-print '<ul>'
+print('<ul>')
 for item in buttons:
-    print '<li><a href="%s" title="%s">%s </a></li>' % (html_quote(item[0]), item[1], item[2])
+    print('<li><a href="%s" title="%s">%s </a></li>' % (html_quote(item[0]), item[1], item[2]))
 
 userobj = container.REQUEST['AUTHENTICATED_USER']
 if userobj.has_permission("View management screens", container):
-    print """<li><a href="manage">Manage </a></li>"""
+    print("""<li><a href="manage">Manage </a></li>""")
 
-print '</ul>'
+print('</ul>')
 return printed

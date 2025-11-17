@@ -35,7 +35,7 @@ import time
 import traceback
 from copy import deepcopy
 from datetime import datetime
-from urllib import FancyURLopener
+from urllib.request import FancyURLopener
 
 from AccessControl.ImplPython import rolesForPermissionOn
 from AccessControl.SecurityInfo import ModuleSecurityInfo
@@ -111,7 +111,7 @@ good_chars = (
     "uuuYYyyZz"
 )
 
-TRANSMAP = string.maketrans(bad_chars, good_chars)
+TRANSMAP = str.maketrans(bad_chars, good_chars)
 
 
 def copy_file(infile, outfile):
@@ -168,7 +168,7 @@ def cleanup_id(name):
     """Cleanup an id
     Should be more thorough and e.g. remove trailing dots/spaces
     """
-    if type(name) is unicode:
+    if type(name) is str:
         try:
             name = name.encode("ascii")
         except UnicodeEncodeError as e:
@@ -195,7 +195,7 @@ def generate_id(template):
 
 def xmlEncode(p_string):
     """Encode the XML reserved chars"""
-    if isinstance(p_string, unicode):
+    if isinstance(p_string, str):
         l_tmp = p_string.encode("utf-8")
     else:
         l_tmp = str(p_string)
@@ -217,9 +217,9 @@ def utGMLEncode(p_str, p_str_enc):
     Also special characters that might appear in GML files are escaped
     """
     if p_str_enc == "":
-        l_tmp = unicode(str(p_str), errors="replace")
+        l_tmp = str(str(p_str), errors="replace")
     else:
-        l_tmp = unicode(str(p_str), "%s" % p_str_enc, errors="replace")
+        l_tmp = str(str(p_str), "%s" % p_str_enc, errors="replace")
     l_tmp = l_tmp.encode("utf8", "replace")
 
     # xml entities
@@ -251,7 +251,7 @@ def utGMLEncode(p_str, p_str_enc):
 def asciiEncode(p_value):
     """Gets a value and returns a string"""
     if p_value is not None:
-        return unicode(str(p_value), "latin-1").encode("ascii", "replace")
+        return str(str(p_value), "latin-1").encode("ascii", "replace")
     else:
         return ""
 
@@ -273,7 +273,7 @@ def utf8Encode(p_str):
 
 def to_utf8(s):
     """converts Unicode to UTF-8"""
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s.encode("utf-8")
     else:
         return s
@@ -323,14 +323,14 @@ def utSortByAttr(p_obj_list, p_attr, p_sort_order=0):
     """Sort a list of objects by one of the attributes"""
     l_temp = map(
         None,
-        map(getattr, p_obj_list, (p_attr,) * len(p_obj_list)),
-        xrange(len(p_obj_list)),
+        list(map(getattr, p_obj_list, (p_attr,) * len(p_obj_list))),
+        range(len(p_obj_list)),
         p_obj_list,
     )
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
-    return map(operator.getitem, l_temp, (-1,) * len(l_temp))
+    return list(map(operator.getitem, l_temp, (-1,) * len(l_temp)))
 
 
 def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
@@ -341,7 +341,7 @@ def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
-    return map(operator.getitem, l_temp, (-1,) * len(l_temp))
+    return list(map(operator.getitem, l_temp, (-1,) * len(l_temp)))
 
 
 def utTruncString(s, p_size=50):
@@ -357,14 +357,14 @@ def utSortObjsListByMethod(p_list, p_method, p_desc=1):
     l_len = len(p_list)
     l_temp = map(
         None,
-        map(lambda x, y: getattr(x, y)(), p_list, (p_method,) * l_len),
-        xrange(l_len),
+        list(map(lambda x, y: getattr(x, y)(), p_list, (p_method,) * l_len)),
+        range(l_len),
         p_list,
     )
     l_temp.sort()
     if p_desc:
         l_temp.reverse()
-    return map(operator.getitem, l_temp, (-1,) * l_len)
+    return list(map(operator.getitem, l_temp, (-1,) * l_len))
 
 
 def utSortObjsListByMethod2(p_list, p_method, p_desc=1):
@@ -380,25 +380,25 @@ def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     """Sort a list of objects by the result of one of their functions"""
     l_temp = map(
         None,
-        map(
+        list(map(
             lambda x, y: getattr(x, y)(),
             p_obj_list,
             (p_attr,) * len(p_obj_list),
-        ),
-        xrange(len(p_obj_list)),
+        )),
+        range(len(p_obj_list)),
         p_obj_list,
         (p_date,) * len(p_obj_list),
     )
-    l_temp = filter(lambda x: x[0] < x[3], l_temp)
+    l_temp = [x for x in l_temp if x[0] < x[3]]
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
-    return map(operator.getitem, l_temp, (-2,) * len(l_temp))
+    return list(map(operator.getitem, l_temp, (-2,) * len(l_temp)))
 
 
 def utGrabFromUrl(p_url):
     """Takes a file from a remote server"""
-    from urllib import URLopener
+    from urllib.request import URLopener
 
     try:
         l_opener = URLopener()
@@ -512,11 +512,11 @@ def http_response_with_file(
         # This happens to be what RFC2616 tells us to do in the face of an
         # invalid date.
         try:
-            mod_since = long(DateTime(header).timeTime())
+            mod_since = int(DateTime(header).timeTime())
         except Exception:
             mod_since = None
         if mod_since is not None:
-            last_mod = long(file_mtime)
+            last_mod = int(file_mtime)
             if last_mod > 0 and last_mod <= mod_since:
                 # Set header values since apache caching will return
                 # Content-Length of 0 in response if size is not set here
@@ -543,7 +543,7 @@ def iter_ofs_file_data(ofs_file):
     else:
         while data is not None:
             yield data.data
-            data = data.next
+            data = data.__next__
 
 
 def ofs_file_content_tmp(ofs_file):
@@ -567,7 +567,7 @@ def _mime_types():
 
 
 def extension(accepted_mime_types):
-    for ext, mimes in mime_types.iteritems():
+    for ext, mimes in mime_types.items():
         for mime in mimes:
             if mime in accepted_mime_types:
                 return ext
@@ -602,7 +602,7 @@ def replace_keys(replace_items, obj):
     :return: modified dict
     """
     if obj:
-        for key, replacement in replace_items.iteritems():
+        for key, replacement in replace_items.items():
             if key in obj:
                 obj[replacement] = obj.pop(key)
     return obj
@@ -707,7 +707,7 @@ def write_xls_header(sheet):
 
 def write_xls_data(data, sheet, header, row):
     """Write data to sheet"""
-    for key in header.keys():
+    for key in list(header.keys()):
         value = data.get(key)
         if isinstance(value, list):
             value = ",".join(value)
@@ -821,7 +821,7 @@ def cleanup_zip_cache(days=7):
                 logger.warning(
                     "Unable to remove file: {} ({})".format(f, str(e))
                 )
-    print("Cleanup done! Removed {} files".format(len(removed)))
+    print(("Cleanup done! Removed {} files".format(len(removed))))
 
 
 class RemoteApplicationException(Exception):
@@ -848,7 +848,7 @@ def _mergedLocalRoles(object):
             dict = object.__ac_local_roles__ or {}
             if callable(dict):
                 dict = dict()
-            for k, v in dict.items():
+            for k, v in list(dict.items()):
                 if k in merged:
                     merged[k] = merged[k] + v
                 else:
@@ -884,7 +884,7 @@ class DFlowCatalogAware(object):
         for r in rolesForPermissionOn(reportek_dataflow_admin, ob):
             allowed[r] = 1
         localroles = _mergedLocalRoles(ob)
-        for user, roles in localroles.items():
+        for user, roles in list(localroles.items()):
             for role in roles:
                 if role in allowed:
                     allowed["user:" + user] = 1
@@ -941,7 +941,7 @@ def parse_uri(uri, replace=False):
 
 
 def encode_dict(dic):
-    if isinstance(dic, unicode):
+    if isinstance(dic, str):
         return dic.encode("utf-8")
     elif isinstance(dic, dict):
         res = {}

@@ -31,13 +31,13 @@ from time import strftime, time
 from zipfile import ZIP_DEFLATED, ZipFile
 
 # product imports
-import constants
+from . import constants
 import plone.protect.interfaces
-import RepUtils
+from . import RepUtils
 import requests
 import transaction
 import xlwt
-import xmlrpclib
+import xmlrpc.client
 from AccessControl import ClassSecurityInfo, SpecialUsers, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
@@ -46,25 +46,25 @@ from AccessControl.SecurityManagement import (
     setSecurityManager,
 )
 from App.Common import package_home
-from config import DEPLOYMENT_BDR, DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
-from CountriesManager import CountriesManager
-from DataflowsManager import DataflowsManager
+from .config import DEPLOYMENT_BDR, DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
+from .CountriesManager import CountriesManager
+from .DataflowsManager import DataflowsManager
 from DateTime import DateTime
-from interfaces import IReportekEngine
+from .interfaces import IReportekEngine
 
 # Zope imports
 from OFS.Folder import Folder
-from paginator import DiggPaginator, EmptyPage, InvalidPage
+from .paginator import DiggPaginator, EmptyPage, InvalidPage
 from plone.memoize import ram
-from StringIO import StringIO
-from Toolz import Toolz
-from urlparse import urlparse
+from io import StringIO
+from .Toolz import Toolz
+from urllib.parse import urlparse
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
 from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.i18n.negotiator import normalize_lang
-from zope.interface import alsoProvides, implements
+from zope.interface import alsoProvides, implementer
 
 import Products
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -94,10 +94,10 @@ BDR_CLIENT_ROLES = ("ClientFG", "ClientODS", "ClientCARS", "ClientHDV")
 BDR_LOCAL_ROLES = (BDR_ROLE_AUDITOR,) + BDR_CLIENT_ROLES
 
 
+@implementer(IReportekEngine, II18nAware)
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """Stores generic attributes for Reportek"""
 
-    implements(IReportekEngine, II18nAware)
     meta_type = "Reportek Engine"
     icon = "misc_/Reportek/Converters"
 
@@ -708,14 +708,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             mapped_dfs = self.get_mapped_dfs()
             dfs = set(RepUtils.utConvertToList(dfs))
 
-            for domain, domain_types in mapped_dfs.items():
+            for domain, domain_types in list(mapped_dfs.items()):
                 if df_type:
                     # If df_type specified, check only that type
                     if set(domain_types.get(df_type, [])).intersection(dfs):
                         return domain
                 else:
                     # Check all types for the domain
-                    for type_dfs in domain_types.values():
+                    for type_dfs in list(domain_types.values()):
                         if set(type_dfs).intersection(dfs):
                             return domain
 
@@ -1148,9 +1148,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog_args = self.get_query_args()
         if self.REQUEST.get("countries"):
             isos = self.REQUEST.get("countries")
-            countries = filter(
-                lambda c: c.get("iso") in isos, self.localities_rod()
-            )
+            countries = [c for c in self.localities_rod() if c.get("iso") in isos]
             catalog_args["country"] = [country["uri"] for country in countries]
         if self.REQUEST.get("obligations"):
             obligations = self.REQUEST.get("obligations")
@@ -1367,7 +1365,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def zipEnvelopes(self, envelopes=[], REQUEST=None, RESPONSE=None):
         """Zip several envelopes together with the metadata"""
-        import zip_content
+        from . import zip_content
 
         envelopes = RepUtils.utConvertToList(envelopes)
 
@@ -1441,7 +1439,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         Skip over the ones that don't really exist.
         """
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
-        records = map(getattr, p_brains, ("data_record_id_",) * len(p_brains))
+        records = list(map(getattr, p_brains, ("data_record_id_",) * len(p_brains)))
         objects = []
         for record in records:
             try:
@@ -1649,7 +1647,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             upd_module.update(app)
 
         migs = getattr(self, constants.MIGRATION_ID)
-        migs = sorted(migs.values(), key=lambda o: o.current_ts, reverse=True)
+        migs = sorted(list(migs.values()), key=lambda o: o.current_ts, reverse=True)
         done_rows = []
         todo_rows = []
 
@@ -1742,7 +1740,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 frag = "%s:%s@" % (self.UNS_username, self.UNS_password)
                 url = url.replace("http://", "http://" + frag)
                 url = url.replace("https://", "https://" + frag)
-            return xmlrpclib.Server(url)
+            return xmlrpc.client.Server(url)
 
     def get_ecas_userid(self, username):
         ecas_path = "/acl_users/" + ECAS_ID
@@ -2046,7 +2044,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         raise ValueError("hello world")
 
     def getSearchResults(self, **kwargs):
-        [kwargs.pop(el) for el in kwargs.keys() if kwargs[el] in [None, ""]]
+        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**kwargs)
 

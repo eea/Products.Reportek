@@ -1,6 +1,6 @@
 """Authentication library"""
 
-from urllib import urlencode
+from urllib.parse import urlencode
 
 import Products.PluggableAuthService.interfaces.plugins as plugin_interfaces
 from Products.Five.browser import BrowserView

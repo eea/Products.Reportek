@@ -4,8 +4,8 @@ import json
 from mock import Mock, patch
 from Products.Reportek import Converters, constants
 from Products.Reportek.RemoteRestQaApplication import RemoteRestQaApplication
-from utils import create_envelope, create_fake_root
-from common import BaseUnitTest
+from .utils import create_envelope, create_fake_root
+from .common import BaseUnitTest
 
 
 class RemoteApplicationFeedbackTest(BaseUnitTest):
@@ -63,7 +63,7 @@ class RemoteApplicationFeedbackTest(BaseUnitTest):
         # mock_requests.codes.ok = 200
 
     def test_24_char_feedback_is_saved_inline(self):
-        text = u"smałl aut°mătic feedback"
+        text = "smałl aut°mătic feedback"
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
         self.assertEqual(feedback.objectValues(), [])
@@ -71,7 +71,7 @@ class RemoteApplicationFeedbackTest(BaseUnitTest):
         self.assertEqual(feedback.feedbacktext, text)
 
     def test_100k_char_feedback_creates_attachment_and_explanation(self):
-        text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
+        text = "large automatic feedback: " + ("[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
 
         [feedback] = self.envelope.objectValues()
@@ -130,7 +130,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
 
     def test_feedback_objects_details_big_file(self):
         self.maxDiff = None
-        text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
+        text = "large automatic feedback: " + ("[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
         self.assertEqual(

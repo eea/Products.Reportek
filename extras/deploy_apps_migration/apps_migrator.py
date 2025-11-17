@@ -15,8 +15,8 @@ def move_apps(root, grouped_apps=None,
               host_folder='Applications',
               log=None,
               commit=False, delete=False):
-    import StringIO
-    messages = StringIO.StringIO()
+    import io
+    messages = io.StringIO()
     host_folder_obj = getattr(root, host_folder, None)
     actions = ['Create', 'Move', 'Update']
     len_act = len(max(actions, key=len))
@@ -26,7 +26,7 @@ def move_apps(root, grouped_apps=None,
     total_processed = 0
     root_len_before = len(root.objectIds())
     host_folder_created = False
-    for app in apps_list(root).keys():
+    for app in list(apps_list(root).keys()):
         if app in root.objectIds():
             good_ids.append(getattr(root, app).meta_type)
         else:
@@ -148,7 +148,7 @@ def group_apps_by_process(app):
     results = list()
     [results.append(
         (proc.id,
-         map(lambda act: getattr(proc, act).application, proc.listActivities())
+         [getattr(proc, act).application for act in proc.listActivities()]
          )
     )
         for proc in procs

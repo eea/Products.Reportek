@@ -34,8 +34,8 @@ def update(app, skipMigrationCheck=False):
             if ldapfolder:
                 ldapfolder.manage_addLDAPSchemaItem(ldap_name='employeeType',
                                                     friendly_name='disabled')
-                print ("Added 'employeeType' with friendly name 'disabled' to\
-                        %s" % ldapfolder.absolute_url())
+                print(("Added 'employeeType' with friendly name 'disabled' to\
+                        %s" % ldapfolder.absolute_url()))
                 trans.commit()
                 return True
     except Exception:

@@ -96,7 +96,7 @@ for row in collections:
     c_id = row[1]
     country = getattr(container, c_id)
     user_id = row[0]
-    print "%s -- %s" % (user_id, c_id)
+    print("%s -- %s" % (user_id, c_id))
     country.manage_addProduct['Reportek'].manage_addCollection(  # noqa: F821
         row[2],
         '',

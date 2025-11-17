@@ -28,8 +28,8 @@ locality = ""
 # finds the collection in the catalog
 for item in container.Catalog({'meta_type': 'Report Collection', 'dataflow_uris': obligation}):
     collection = item.getObject()
-    print item.getPath()
-    print item.country
+    print(item.getPath())
+    print(item.country)
 #
     collection.manage_addProduct['Reportek'].manage_addEnvelope(title, descr, year,
                                                                 endyear, partofyear, locality)

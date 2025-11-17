@@ -35,7 +35,7 @@ def validate_meta_type(obj):
 
 
 def validate(obj, validators):
-    if all(map(lambda(validator): validator(obj), validators)):
+    if all([validator(obj) for validator in validators]):
         return True
 
 

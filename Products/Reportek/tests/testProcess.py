@@ -1,5 +1,5 @@
 from Products.Reportek.process import process
-from common import BaseTest
+from .common import BaseTest
 
 
 class processDefinitionCreationTestCase(BaseTest):

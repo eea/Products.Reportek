@@ -1,4 +1,4 @@
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 
 
 class SearchCollections(BaseAdmin):

@@ -8,22 +8,22 @@ def pathcompare(p1, p2):
     return cmp(p1[0], p2[0])
 
 
-print context.standard_html_header(context, context.REQUEST)  # noqa: F821
+print(context.standard_html_header(context, context.REQUEST))  # noqa: F821
 
-print """<a name="bypath"></a>
+print("""<a name="bypath"></a>
 <div id="tabbedmenu">
   <ul>
     <li id="currenttab"><span>Grouped by path</span></li>
     <li><a href=/admin/list_auditors/by_person>Grouped by person</a></li>
   </ul>
 </div>
-<div id="tabbedmenuend"></div>"""
+<div id="tabbedmenuend"></div>""")
 
-print """<h1>Filter by obligation</h1>
+print("""<h1>Filter by obligation</h1>
 <form method="get">
   <select id="obligation" name="obligation">
   <option value="">(All obligations)</option>
-"""
+""")
 
 data = context.ReportekEngine.dataflow_table_grouped()  # noqa: F821
 groups = data[0]
@@ -31,30 +31,30 @@ items = data[1]
 
 for group in groups:
     group_label = group if len(group) <= 80 else group[:77]
-    print """<optgroup label="%s">""" % group_label
+    print("""<optgroup label="%s">""" % group_label)
     for item in items[group]:
         extra_attributes = 'class="terminated"' if item.get(
             'terminated', None) == '1' else ''
         if item['uri'] == filtered_obl:
             extra_attributes = extra_attributes + ' selected="selected"'
-        print """<option value="%s" %s>""" % (item['uri'], extra_attributes)
+        print("""<option value="%s" %s>""" % (item['uri'], extra_attributes))
         prefix = ' '.join(item['SOURCE_TITLE'].split()[0:2])
         if len(item['TITLE']) <= 80:
             title = item['TITLE']
         else:
             title = "%s ..." % item['TITLE'][:77]
-        print """[%s] %s</option>""" % (prefix, title)
-    print """</optgroup>"""
+        print("""[%s] %s</option>""" % (prefix, title))
+    print("""</optgroup>""")
 
-print """</select><input type="submit" value="Filter" /></form>"""
+print("""</select><input type="submit" value="Filter" /></form>""")
 
-print """<table class="datatable">
+print("""<table class="datatable">
 <tr>
 <th>Path</th>
 <th>Last change</th>
 <th>Obligations</th>
 <th>%ss</th>
-</tr>""" % role
+</tr>""" % role)
 persons = {}
 results = []
 hits = container.Catalog(meta_type='Report Collection')  # noqa: F821
@@ -89,26 +89,26 @@ for hit in results:
         obl = string.join(ol, '<br />')  # noqa: F821
         hover = str(len(hit[4])) + ' obligation(s)'
     if members != []:
-        print """<tr%s>""" % evenstr
-        print """<td><a href="%s">%s</a></td>
+        print("""<tr%s>""" % evenstr)
+        print("""<td><a href="%s">%s</a></td>
     <td>%s</td>
     <td title="%s">%s</td>
-    <td>""" % (hit[0], hit[1][:40], hit[2], hover, obl)
+    <td>""" % (hit[0], hit[1][:40], hit[2], hover, obl))
         for m in members:
-            print """<a\
+            print("""<a\
              href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a>\
-             """ % (m, m)
+             """ % (m, m))
             if m not in persons:
                 persons[m] = []
             persons[m].append(hit[1])
-        print """</td></tr>"""
+        print("""</td></tr>""")
         if evenstr == '':
             evenstr = ' class="zebraeven"'
         else:
             evenstr = ''
 
-print "</table>"
+print("</table>")
 
-print context.standard_html_footer(context, context.REQUEST)  # noqa: F821
+print(context.standard_html_footer(context, context.REQUEST))  # noqa: F821
 
 return printed  # noqa

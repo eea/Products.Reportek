@@ -17,7 +17,7 @@ def execute_query(q_number, query_text):
         res = {}
         for spec in species_list:
             if spec[6] or spec[7] or spec[8]:
-                if res.has_key(spec[0]):
+                if spec[0] in res:
                     res[spec[0]].append((spec[4], spec[3]))
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]
@@ -27,7 +27,7 @@ def execute_query(q_number, query_text):
         query_text = query_text.lower()
         for spec in species_list:
             if (spec[6] or spec[7] or spec[8]) and (query_text in spec[3].lower() or query_text in spec[4].lower()):
-                if res.has_key(spec[0]):
+                if spec[0] in res:
                     res[spec[0]].append((spec[4], spec[3]))
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]
@@ -41,7 +41,7 @@ def execute_query(q_number, query_text):
         query_text = query_text.lower()
         for spec in species_list:
             if spec[7] and (query_text in spec[3].lower() or query_text in spec[4].lower()):
-                if res.has_key(spec[0]):
+                if spec[0] in res:
                     res[spec[0]].append((spec[4], spec[3]))
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]

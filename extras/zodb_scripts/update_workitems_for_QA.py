@@ -18,7 +18,7 @@ for c in container.objectValues('Report Collection'):
                     x['time'] for x in w.event_log if x['event'] == 'assigned to openflow_engine'][0]
                 w.addEventOnTime(container.EnvelopeQAApplication.decodeAppData(
                     w, 'Automatic QA'), before_time)
-                print w.event_log
+                print(w.event_log)
             except:
-                print 'skipped workitem ' + w.absolute_url() + '<br />'
+                print('skipped workitem ' + w.absolute_url() + '<br />')
 return printed

@@ -108,8 +108,8 @@ class LDAPUserFolderXMLAdapter(XMLAdapterBase):
             else:
                 if isinstance(prop_value, str):
                     prop_value = prop_value.decode(self._encoding)
-                elif not isinstance(prop_value, basestring):
-                    prop_value = unicode(prop_value)
+                elif not isinstance(prop_value, str):
+                    prop_value = str(prop_value)
                 child = self._doc.createTextNode(prop_value)
                 node.appendChild(child)
             fragment.appendChild(node)
@@ -153,7 +153,7 @@ class LDAPUserFolderXMLAdapter(XMLAdapterBase):
         """ Extract localy stored group memberships
         """
         fragment = self._doc.createDocumentFragment()
-        stored_groups = self.context._groups_store.items()
+        stored_groups = list(self.context._groups_store.items())
 
         if stored_groups:
             node = self._doc.createElement('group-users')
@@ -179,9 +179,9 @@ class LDAPUserFolderXMLAdapter(XMLAdapterBase):
             node = self._doc.createElement('ldap-servers')
             for server_info in self.context.getServers():
                 child = self._doc.createElement('ldap-server')
-                for key, value in server_info.items():
+                for key, value in list(server_info.items()):
                     if isinstance(value, (int, bool)):
-                        value = unicode(value)
+                        value = str(value)
                     child.setAttribute(key, value)
                 node.appendChild(child)
             fragment.appendChild(node)
@@ -194,11 +194,11 @@ class LDAPUserFolderXMLAdapter(XMLAdapterBase):
         fragment = self._doc.createDocumentFragment()
         node = self._doc.createElement('ldap-schema')
         schema_config = self.context.getSchemaConfig()
-        for schema_info in schema_config.values():
+        for schema_info in list(schema_config.values()):
             child = self._doc.createElement('schema-item')
-            for key, value in schema_info.items():
+            for key, value in list(schema_info.items()):
                 if isinstance(value, (int, bool)):
-                    value = unicode(value)
+                    value = str(value)
                 child.setAttribute(key, value)
             node.appendChild(child)
         fragment.appendChild(node)
@@ -308,15 +308,15 @@ class LDAPUserFolderXMLAdapter(XMLAdapterBase):
 
             if child.getAttribute('purge').lower() == 'true':
                 server_count = len(self.context.getServers())
-                self.context.manage_deleteServers(range(0, server_count))
+                self.context.manage_deleteServers(list(range(0, server_count)))
 
             for grandchild in child.childNodes:
                 if grandchild.nodeName != 'ldap-server':
                     continue
 
-                if grandchild.getAttribute('protocol').lower() == u'ldaps':
+                if grandchild.getAttribute('protocol').lower() == 'ldaps':
                     use_ssl = 1
-                elif grandchild.getAttribute('protocol').lower() == u'ldapi':
+                elif grandchild.getAttribute('protocol').lower() == 'ldapi':
                     use_ssl = 2
                 else:
                     use_ssl = 0

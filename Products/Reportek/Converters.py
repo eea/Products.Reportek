@@ -26,10 +26,10 @@ import json
 import logging
 import re
 
-import constants
-import Converter
+from . import constants
+from . import Converter
 import requests
-import xmlrpclib
+import xmlrpc.client
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from OFS.Folder import Folder
@@ -153,7 +153,7 @@ class Converters(Folder):
     def _get_remote_converters(self, doc_schema=None):
         """ """
         try:
-            server = xmlrpclib.ServerProxy(self.remote_converter)
+            server = xmlrpc.client.ServerProxy(self.remote_converter)
             # acording to "Architectural and Detailed Design for GDEM
             # under IDA/EINRC/SA6/AIT"
             if doc_schema:

@@ -1,4 +1,4 @@
-from common import BaseUnitTest
+from .common import BaseUnitTest
 from mock import Mock, patch
 from Products.Reportek.negotiator import CustomNegotiator
 from ZPublisher.HTTPRequest import HTTPRequest
@@ -13,9 +13,9 @@ class TestCustomNegotiator(BaseUnitTest):
         'Fr'
     ]
     AVAILABLE_LANGS_NAME = [
-        u'English',
-        u'Rom\xe2n\u0103',
-        u'Fran\xe7ais',
+        'English',
+        'Rom\xe2n\u0103',
+        'Fran\xe7ais',
     ]
 
     def setUp(self):
@@ -62,6 +62,6 @@ class TestCustomNegotiator(BaseUnitTest):
         mock_translation_domain.getCatalogsInfo.return_value = langs_dict
         mock_queryUtility.return_value = mock_translation_domain
         langs = self.negotiator.getAvailableLanguages()
-        self.assertEqual(langs, dict(zip(
+        self.assertEqual(langs, dict(list(zip(
             [normalize_lang(lang) for lang in self.AVAILABLE_LANGS],
-            self.AVAILABLE_LANGS_NAME)))
+            self.AVAILABLE_LANGS_NAME))))

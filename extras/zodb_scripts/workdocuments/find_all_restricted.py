@@ -19,5 +19,5 @@ for hit in context.Catalog(
     env = hit.getObject()
     for obj in env.objectValues('Report Document'):
         if not obj.acquiredRolesAreUsedBy('View'):
-            print obj.id, obj.getCountryCode()
+            print(obj.id, obj.getCountryCode())
 return printed

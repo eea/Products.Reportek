@@ -28,8 +28,8 @@ import logging
 import re
 from collections import defaultdict
 
-import process
-import RepUtils
+from . import process
+from . import RepUtils
 import transaction
 
 # Zope imports
@@ -38,13 +38,13 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 
 # custom exceptions imports
-from exceptions import CannotPickProcess, NoProcessAvailable
+from .exceptions import CannotPickProcess, NoProcessAvailable
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
 
 # from webdav.WriteLockInterface import WriteLockInterface
 # product imports
-from Toolz import Toolz
+from .Toolz import Toolz
 from ZODB.PersistentMapping import PersistentMapping
 
 import Products
@@ -394,7 +394,7 @@ class OpenFlowEngine(Folder, Toolz):
         apon = self._activitiesPullableOnRole
         pullable_roles = [
             r
-            for r in apon.keys()
+            for r in list(apon.keys())
             if process_id in apon[r] and activity_id in apon[r][process_id]
         ]
         while current is not None:
@@ -436,7 +436,7 @@ class OpenFlowEngine(Folder, Toolz):
         """ """
         push_roles = []
         tmpRole = self._activitiesPushableOnRole
-        for role in tmpRole.keys():
+        for role in list(tmpRole.keys()):
             if process_id in tmpRole[role]:
                 if activity_id in tmpRole[role][process_id]:
                     push_roles.append(role)
@@ -446,7 +446,7 @@ class OpenFlowEngine(Folder, Toolz):
         """ """
         pull_roles = []
         tmpRole = self._activitiesPullableOnRole
-        for role in tmpRole.keys():
+        for role in list(tmpRole.keys()):
             if process_id in tmpRole[role]:
                 if activity_id in tmpRole[role][process_id]:
                     pull_roles.append(role)
@@ -510,13 +510,13 @@ class OpenFlowEngine(Folder, Toolz):
         """List application declaration;
         returns a list of dictionaries with keys: name, link
         """
-        return map(
+        return list(map(
             lambda x, self=self: {
                 "name": x,
                 "link": self._applications[x]["url"],
             },
             sorted(self._applications.keys()),
-        )
+        ))
 
     ##################################################
     # IMPORT/EXPORT functions                        #
@@ -536,7 +536,7 @@ class OpenFlowEngine(Folder, Toolz):
             app_type = app.meta_type
             if app_type in typesWithContent:
                 content = app.read()
-                if isinstance(content, unicode):  # noqa: F821
+                if isinstance(content, str):  # noqa: F821
                     content = content.encode("utf-8")
                 checksum = hashlib.md5(content).hexdigest()
             else:
@@ -622,7 +622,7 @@ class OpenFlowEngine(Folder, Toolz):
                 process["transitions"].append(transition)
             workflow["processes"].append(process)
 
-        for appName, appValue in self._applications.items():
+        for appName, appValue in list(self._applications.items()):
             if appName in applications_for_these_processes:
                 url = appValue["url"]
                 app_type, checksum = self._applicationDetails(url)
@@ -702,10 +702,10 @@ class OpenFlowEngine(Folder, Toolz):
                     if pullR:
                         pullR = str(pullR)
                         pullRoles[pullR].append(act_id)
-            for role, activities in pushRoles.items():
+            for role, activities in list(pushRoles.items()):
                 if role in validRoles:
                     self.editActivitiesPushableOnRole(role, pr_id, activities)
-            for role, activities in pullRoles.items():
+            for role, activities in list(pullRoles.items()):
                 if role in validRoles:
                     self.editActivitiesPullableOnRole(role, pr_id, activities)
             for trans in pr.get("transitions", []):
@@ -793,7 +793,7 @@ class OpenFlowEngine(Folder, Toolz):
             logger.error(
                 "Workflow Import/Export: Failed to import OpenFlowEngine json.\
                  Reason: %s"
-                % unicode(e.args)
+                % str(e.args)
             )  # noqa: F821
             if "Invalid rid" in e.args[0]:
                 message = (
@@ -809,7 +809,7 @@ class OpenFlowEngine(Folder, Toolz):
             logger.error(
                 "Workflow Import/Export: Failed to import OpenFlowEngine json.\
                  Reason: %s"
-                % unicode(e.args)
+                % str(e.args)
             )  # noqa: F821
             message = "Failed to import."
             transaction.abort()
@@ -867,7 +867,7 @@ class OpenFlowEngine(Folder, Toolz):
         l_return_dict = self.process_mappings
         for l_process_id in l_all_processes:
             # add new processes
-            if l_process_id not in self.process_mappings.keys():
+            if l_process_id not in list(self.process_mappings.keys()):
                 # FIXME - superfluous operations here.
                 # Could this hide a bug? Do we need a copy of process_mappings?
                 # because we currently don't actually have a copy but a
@@ -948,7 +948,7 @@ class OpenFlowEngine(Folder, Toolz):
         Look by the same dataflow uris and country code
         """
         l_result = {}
-        for l_process_id, l_value in self.getProcessMappings().items():
+        for l_process_id, l_value in list(self.getProcessMappings().items()):
             for l_dataflow in dataflow_uris:
                 # both dataflows and countries are chosen explicitly
                 if RepUtils.utIsSubsetOf(
@@ -986,9 +986,9 @@ class OpenFlowEngine(Folder, Toolz):
                     l_purl = self._getOb(l_process_id).absolute_url(1)
                     l_result[l_purl] = max(l_result.get(l_purl, 0), 0)
         # l_result now has the list of all suitable processes
-        l_keys = l_result.keys()
+        l_keys = list(l_result.keys())
         if len(l_keys) == 1:
-            return (0, l_result.keys()[0])
+            return (0, list(l_result.keys())[0])
         elif len(l_keys) == 0:
             return (
                 1,
@@ -1003,7 +1003,7 @@ class OpenFlowEngine(Folder, Toolz):
             # or an error if there are more than one with the highest score
             l_highest_score = max(l_result.values())
             l_best_fits = [
-                x[0] for x in l_result.items() if x[1] == l_highest_score
+                x[0] for x in list(l_result.items()) if x[1] == l_highest_score
             ]
             if len(l_best_fits) > 1:
                 return (
@@ -1048,7 +1048,7 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             if not REQUEST.get("delete"):
                 p_process = ""
-                for key, val in REQUEST.form.iteritems():
+                for key, val in REQUEST.form.items():
                     if val == "Edit mapping":
                         p_process = "_".join(key.split("_")[1:])
                         break

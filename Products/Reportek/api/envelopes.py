@@ -158,8 +158,8 @@ class EnvelopesAPI(BrowserView):
                     try:
                         zipfiles = envelope.getZipInfo(doc)
                         for zfile in zipfiles:
-                            if not isinstance(zfile, unicode):
-                                zfile = unicode(zfile, errors='ignore')
+                            if not isinstance(zfile, str):
+                                zfile = str(zfile, errors='ignore')
                             archived_files.append(zfile.encode('utf-8',
                                                                'ignore'))
                     except (POSKeyError, StorageError, SystemError) as e:
@@ -292,7 +292,7 @@ class EnvelopesAPI(BrowserView):
             'periodDescription'
         ]
 
-        for c_filter in self.AVAILABLE_FILTERS.keys():
+        for c_filter in list(self.AVAILABLE_FILTERS.keys()):
             c_mapping = self.AVAILABLE_FILTERS[c_filter].get('catalog_mapping')
             if c_mapping:
                 catalog_field_map[c_filter] = c_mapping
@@ -579,16 +579,16 @@ class EnvelopesAPI(BrowserView):
                                'description': error
                                })
             else:
-                additional_filters = [k for k in self.AVAILABLE_FILTERS.keys()
+                additional_filters = [k for k in list(self.AVAILABLE_FILTERS.keys())
                                       if k not in valid_catalog_filters]
                 for brain in brains:
                     default_props = self.get_default_props(brain)
                     envelope_data = {}
                     if not fields:
-                        fields = default_props.keys()
+                        fields = list(default_props.keys())
                     additional_p_fields = [param for param in fields
                                            if param not in default_props]
-                    additional_p_filters = [p for p in fed_params.keys()
+                    additional_p_filters = [p for p in list(fed_params.keys())
                                             if p not in default_props]
 
                     if additional_p_fields or additional_p_filters:
@@ -627,7 +627,7 @@ class EnvelopesAPI(BrowserView):
                                 envelope_data['companyName'] = (
                                     c_n if c_n != '-'
                                     else None)
-                        elif field in default_props.keys():
+                        elif field in list(default_props.keys()):
                             envelope_data[field] = default_props.get(field)
 
                     if envelope_data:

@@ -30,8 +30,8 @@ from Products.PythonScripts.standard import html_quote
 from Products.Reportek import constants
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from time import time
-import RepUtils
-from string import rfind
+from . import RepUtils
+# from string import rfind
 
 
 class Toolz:
@@ -121,7 +121,7 @@ class Toolz:
             r[item[key]].append(item)
         # unfortunetely, Zope framework seems not to handle just any
         # Python code (like defaultdict), so ulglify this a little
-        return sorted(r.keys(), reverse=desc), dict(r)
+        return sorted(list(r.keys()), reverse=desc), dict(r)
 
     def partofyear_table(self):
         ordered_keys = [
@@ -187,9 +187,9 @@ class Toolz:
         """
         if file_id:
             file_id = file_id[max(
-                rfind(file_id, '/'),
-                rfind(file_id, '\\'),
-                rfind(file_id, ':')) + 1:]
+                file_id.rfind('/'),
+                file_id.rfind('\\'),
+                file_id.rfind(':')) + 1:]
         return RepUtils.cleanup_id(file_id.strip())
 
     def get_key_url(self, url):
@@ -209,7 +209,7 @@ class Toolz:
         overwrites dict1's.
         """
         result = dict(dict1)  # Create a copy of dict1
-        for k, v in dict2.iteritems():
+        for k, v in dict2.items():
             # If both values are dicts, merge them recursively
             if (
                 k in result

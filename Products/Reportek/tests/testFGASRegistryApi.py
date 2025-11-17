@@ -2,7 +2,7 @@
 
 import json
 
-from common import BaseTest
+from .common import BaseTest
 from mock import Mock, patch
 
 from Products.Reportek.Collection import Collection

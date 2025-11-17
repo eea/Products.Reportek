@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from common import BaseTest
+from .common import BaseTest
 from Products.Reportek import RepUtils
 
 import logging
@@ -21,7 +21,7 @@ class RepUtilsTestCase(BaseTest):
         result = RepUtils.parse_template(TEMPLATE, dict={
             'str': 'European Environment Agency',
             'num': 12.23333,
-            'unicode': u'Det Europæiske Miljøagentur'})
+            'unicode': 'Det Europæiske Miljøagentur'})
         self.assertEqual(
             result,
             '''str:European Environment Agency, num:12.23333, '''
@@ -41,5 +41,5 @@ class RepUtilsTestCase(BaseTest):
             Test MSWord characters that are somewhat risky in HTML documents.
         """
         result = RepUtils.parse_template(
-            BASIC_TEMPLATE, dict={'value': u',ƒ…^†“”‘’‰•Ÿæ©–'})
+            BASIC_TEMPLATE, dict={'value': ',ƒ…^†“”‘’‰•Ÿæ©–'})
         self.assertEqual(result, 'value:,ƒ…^†“”‘’‰•Ÿæ©–')

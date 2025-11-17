@@ -4,7 +4,7 @@ import threading
 import requests
 # from BeautifulSoup import BeautifulSoup as bs
 from bs4 import BeautifulSoup as bs
-from config import DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
+from .config import DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
 
 from Products.Reportek.rabbitmq import send_message
 

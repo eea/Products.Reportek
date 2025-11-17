@@ -21,7 +21,7 @@
 
 from datetime import datetime
 import struct
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
@@ -29,7 +29,7 @@ from Products.Reportek import constants
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED, BadZipfile
 import zipfile
 
-import RepUtils
+from Products.Reportek import RepUtils
 
 
 METADATA_CONTENT = """Metadata for envelope "$envelope" at $link
@@ -199,7 +199,7 @@ def get_history_content(ob):
         # first we generate the event log for each activity
         events = []
         for log in item.event_log:
-            if isinstance(log['event'], unicode):
+            if isinstance(log['event'], str):
                 log['event'] = log['event'].encode('utf-8')
             events.append(parsed_template(
                 HISTORY_ACTIVITY_EVENTS,
@@ -374,9 +374,9 @@ def get_feedback_content(ob):
     title = ob.title
     fbtext = ob.feedbacktext
 
-    if isinstance(fbtext, unicode):  # noqa: F821
+    if isinstance(fbtext, str):  # noqa: F821
         fbtext = fbtext.encode('utf-8')
-    if isinstance(title, unicode):  # noqa: F821
+    if isinstance(title, str):  # noqa: F821
         title = title.encode('utf-8')
     header = parsed_template(FEEDBACK_HEADER,
                              {'title': 'Feedbacks for envelope %s' % title})
@@ -558,7 +558,7 @@ class ZZipFile(ZipFile):
 
 
 def encode_zip_name(name, key):
-    return urllib.quote('%s-%s' % (name, key), '')
+    return urllib.parse.quote('%s-%s' % (name, key), '')
 
 
 class ZZipFileRaw(ZZipFile):

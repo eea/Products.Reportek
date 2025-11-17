@@ -25,7 +25,7 @@ from xml.sax.saxutils import XMLGenerator
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
-from cStringIO import StringIO
+from io import StringIO
 
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.RepUtils import parse_uri
@@ -45,7 +45,7 @@ class StripSchema(XMLGenerator):
 
     def startElement(self, name, attrs):
         newattrs = {}
-        for key, val in attrs.items():
+        for key, val in list(attrs.items()):
             if key in BADATTRS:
                 continue
             newattrs[key] = val
@@ -81,13 +81,13 @@ class XMLMetadata:
     security.declarePrivate("_get_namespaces")
 
     def _get_namespaces(self):
-        return " ".join(map(lambda x: str(x), self._namespaces))
+        return " ".join([str(x) for x in self._namespaces])
 
     security.declarePrivate("_xml_encode")
 
     def _xml_encode(self, s):
         """Encode some special chars"""
-        if isinstance(s, unicode):
+        if isinstance(s, str):
             tmp = s.encode("utf-8")
         else:
             tmp = str(s)

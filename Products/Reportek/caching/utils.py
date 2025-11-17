@@ -207,7 +207,7 @@ def cachedResponse(
 
     response.setStatus(status)
 
-    for k, v in headers.items():
+    for k, v in list(headers.items()):
         response.setHeader(k, v)
 
     response.setHeader('X-RAMCache', PAGE_CACHE_KEY, literal=1)
@@ -247,7 +247,7 @@ def notModified(published, request, response, lastModified=None):
         del response.headers['cache-control']
 
     response.setStatus(304)
-    return u''
+    return ''
 
 
 #
@@ -335,7 +335,7 @@ def getContext(published, marker=(IFolder, IApplication,)):
     Returns an item providing ``marker`` or None, if it cannot be found.
     """
 
-    if not isinstance(marker, (list, tuple,)):
+    if not isinstance(marker, (list, tuple)):
         marker = (marker,)
 
     def checkType(context):

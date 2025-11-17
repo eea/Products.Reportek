@@ -72,7 +72,7 @@ def report(app, out):
     except Exception:
         import sys
         o = sys.stdout
-        print "Can't open %s for write. Using stdout instead." % out
+        print("Can't open %s for write. Using stdout instead." % out)
 
     byDocumentType = defaultdict(RepDocStats)
     byBlobType = defaultdict(RepDocStats)
@@ -104,7 +104,7 @@ def report(app, out):
                 byDocumentTypeMissingBlob[doc.content_type].add(data_file.size)
                 total_missing += data_file.size
         except Exception as e:
-            print str(e.args)
+            print(str(e.args))
 
     def sort_by_size(t):
         return t[1]['size']
@@ -123,14 +123,14 @@ def report(app, out):
     o.close()
 
     j = {'byDocumentType': OrderedDict(
-            sorted(((k, v.to_dict()) for k, v in byDocumentType.iteritems()),
+            sorted(((k, v.to_dict()) for k, v in byDocumentType.items()),
                    key=sort_by_size, reverse=True)),
          'byDocumentTypeMissingBlob': OrderedDict(
             sorted(((k, v.to_dict())
-                    for k, v in byDocumentTypeMissingBlob.iteritems()),
+                    for k, v in byDocumentTypeMissingBlob.items()),
                    key=sort_by_size, reverse=True)),
          'byBlobType': OrderedDict(
-            sorted(((k, v.to_dict()) for k, v in byBlobType.iteritems()),
+            sorted(((k, v.to_dict()) for k, v in byBlobType.items()),
                    key=sort_by_size, reverse=True)),
          }
     json.dump(j, oj, indent=2)

@@ -1,6 +1,6 @@
 import os
 from Testing import ZopeTestCase
-from common import BaseTest, ConfigureReportek
+from .common import BaseTest, ConfigureReportek
 from Products.Reportek.exceptions import CannotPickProcess
 from Products.Reportek.RepUtils import inline_replace
 
@@ -25,23 +25,23 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
 
     def testWorkflowEngine(self):
         of = getattr(self.app, 'WorkflowEngine')
-        self.assertEquals(of.meta_type, 'Workflow Engine')
+        self.assertEqual(of.meta_type, 'Workflow Engine')
 
     def test_getDataflows(self):
         """ Test that the dataflows were added correctly """
-        assert map(inline_replace,
-                   self.exampledataflows) == self.wf.getDataflows()
+        assert list(map(inline_replace,
+                   self.exampledataflows)) == self.wf.getDataflows()
 
     def test_getCountries(self):
         """ Test that the countries were added correctly """
-        assert map(inline_replace,
-                   self.examplelocalities) == self.wf.getCountries()
+        assert list(map(inline_replace,
+                   self.examplelocalities)) == self.wf.getCountries()
 
     def test_processmap(self):
         # A process called begin_end is already set up in
         # createStandardDependencies() and mapped to dataflows=*
         # and countries=*
-        self.assertEquals((
+        self.assertEqual((
             0, 'WorkflowEngine/begin_end'),
             self.wf.findProcess(
                 ['http://rod.eionet.eu.int/obligations/8'],
@@ -61,7 +61,7 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
                                    ['http://rod.eionet.eu.int/spatial/2'])
 
         # This envelope has one obligation, Number 9 maps to process2
-        self.assertEquals((
+        self.assertEqual((
             0, 'WorkflowEngine/process2'),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/9'],
                                 'http://rod.eionet.eu.int/spatial/2'))
@@ -69,14 +69,14 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
         # This envelope has two obligations, Number 9 maps to process2,
         # 15 maps to default begin_end
         # Should NOT return (0, 'WorkflowEngine/begin_end')
-        self.assertEquals((
+        self.assertEqual((
             0, 'WorkflowEngine/process2'),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/9',
                                  'http://rod.eionet.eu.int/obligations/15'],
                                 'http://rod.eionet.eu.int/spatial/2'))
 
         # This envelope has two obligations, each maps to the same process
-        self.assertEquals((
+        self.assertEqual((
             0, 'WorkflowEngine/process2'),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/9',
                                  'http://rod.eionet.eu.int/obligations/11'],
@@ -84,7 +84,7 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
 
         # This envelope has two obligations, each maps to a different process
         # Should NOT return (0, 'WorkflowEngine/begin_end')
-        self.assertEquals((
+        self.assertEqual((
             1, (CannotPickProcess,
                 'More than one process associated with this envelope')),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8',
@@ -100,11 +100,11 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
                                    'http://rod.eionet.eu.int/spatial/2',
                                    'http://rod.eionet.eu.int/spatial/3'])
         # Check that country 8 gets the original
-        self.assertEquals((
+        self.assertEqual((
             0, 'WorkflowEngine/begin_end'),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8'],
                                 'http://rod.eionet.eu.int/spatial/8'))
-        self.assertEquals((
+        self.assertEqual((
             0, 'WorkflowEngine/process1'),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8'],
                                 'http://rod.eionet.eu.int/spatial/2'))
@@ -113,7 +113,7 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
         # The begin_end is not removed from the process map
         self.wf.manage_addProcess('process1', BeginEnd=1)
         self.wf.setProcessMappings('process1', '1', '1')
-        self.assertEquals((
+        self.assertEqual((
             1, (CannotPickProcess,
                 'More than one process associated with this envelope')),
             self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8'],

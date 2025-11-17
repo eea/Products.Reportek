@@ -14,7 +14,7 @@ RESPONSE = request.RESPONSE
 
 RESPONSE.setHeader('content-type', 'application/rdf+xml;charset=utf-8')
 
-print """<?xml version="1.0" encoding="utf-8" ?>
+print("""<?xml version="1.0" encoding="utf-8" ?>
 <rdf:RDF xml:lang="en"
            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
            xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -27,10 +27,10 @@ print """<?xml version="1.0" encoding="utf-8" ?>
         See http://rdfs.org/ns/void-guide
     -->
 
-"""
+""")
 serverurl = html_quote(request.SERVER_URL)
 
-print """<void:Linkset rdf:ID="D2O">
+print("""<void:Linkset rdf:ID="D2O">
     <void:linkPredicate rdf:resource="http://rod.eionet.europa.eu/schema.rdf#locality"/>
     <void:linkPredicate rdf:resource="http://rod.eionet.europa.eu/schema.rdf#obligation"/>
     <void:target rdf:resource="#deliveries"/>
@@ -45,14 +45,14 @@ print """<void:Linkset rdf:ID="D2O">
     <rdfs:label>Deliveries from %s</rdfs:label>
     <void:vocabulary rdf:resource="http://rod.eionet.europa.eu/schema.rdf"/>
     <void:subset rdf:resource="#D2O"/>
-""" % serverurl
+""" % serverurl)
 
 for item in container.Catalog(meta_type='Report Envelope', released=1):
     try:
-        print """<void:dataDump rdf:resource="%s%s"/>""" % (serverurl, html_quote(item.getPath()))
+        print("""<void:dataDump rdf:resource="%s%s"/>""" % (serverurl, html_quote(item.getPath())))
     except:
-        print """<!-- deleted envelope %s -->""" % item.id
+        print("""<!-- deleted envelope %s -->""" % item.id)
 
-print """</void:Dataset>
-</rdf:RDF>"""
+print("""</void:Dataset>
+</rdf:RDF>""")
 return printed

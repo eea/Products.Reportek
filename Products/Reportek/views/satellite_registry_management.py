@@ -3,7 +3,7 @@ import logging
 import re
 
 import xmltodict
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 from plone.memoize.ram import global_cache
 
 from Products.Reportek.constants import ENGINE_ID
@@ -258,7 +258,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             del person["last_name"]
             del person["username"]
 
-        for key in company.keys():
+        for key in list(company.keys()):
             if key not in keys:
                 del company[key]
         return company
@@ -386,7 +386,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             "Content-Disposition": "attachment; filename=companies_list.xlsx",
         }
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             self.request.response.setHeader(key, value)
 
         api = self.get_api()
@@ -456,7 +456,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             "Content-Disposition": "attachment; filename=user_list.xlsx",
         }
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             self.request.response.setHeader(key, value)
 
         api = self.get_api()

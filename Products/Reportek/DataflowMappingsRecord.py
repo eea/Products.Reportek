@@ -1,9 +1,9 @@
 import logging
 from os import environ
 
-import messages
+from . import messages
 import requests
-import xmlrpclib
+import xmlrpc.client
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
@@ -115,7 +115,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         )
         if resp.status_code == 200:
             webq_url = self.ReportekEngine.webq_url
-            webq = xmlrpclib.ServerProxy(webq_url).WebQService
+            webq = xmlrpc.client.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([row["url"] for row in resp.json()])
 
             new_mappings = PersistentList()
@@ -170,7 +170,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
         if has_webform == "auto":
             webq_url = self.ReportekEngine.webq_url
-            webq = xmlrpclib.ServerProxy(webq_url).WebQService
+            webq = xmlrpc.client.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([schema_uri])
             # WebQ has a form for this, so we shall need and webform file id
             if webq_resp.get(schema_uri):

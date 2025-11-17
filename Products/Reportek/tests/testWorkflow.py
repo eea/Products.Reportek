@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # flake8: noqa
 from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
-from common import BaseTest, WorkflowTestCase, ConfigureReportek
+from .common import BaseTest, WorkflowTestCase, ConfigureReportek
 
 from mock import Mock
 
@@ -15,12 +15,12 @@ class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
         self.envelope = self.createStandardEnvelope()
 
     def test_overview_without_rights(self):
-        from utils import publish_view
+        from .utils import publish_view
         self.assertIn('This envelope is not yet available for public view.\n',
                       publish_view(self.envelope).body)
 
     def test_overview_with_rights(self):
-        from utils import chase_response, load_json
+        from .utils import chase_response, load_json
         from mock import Mock
         from AccessControl.User import User
         self.envelope.canViewContent = Mock(return_value=1)
@@ -58,7 +58,7 @@ class FindProcessTestCase(BaseTest, ConfigureReportek):
             dataflow = 'http://rod.eionet.eu.int/obligations/8'
         if not country:
             country = 'http://rod.eionet.eu.int/spatial/2'
-        with self.assertRaisesRegexp(exception, self.messages.get(exception)):
+        with self.assertRaisesRegex(exception, self.messages.get(exception)):
             BaseTest.create_envelope(self.col)
 
     def test_NoProcessAvailable_exception(self):
@@ -131,7 +131,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def _add_application_content(self, name='script1',
                                  url='an_application',
-                                 content=u"return 'blâ'"):
+                                 content="return 'blâ'"):
         self.app.manage_addFolder('Applications')
         folder = getattr(self.app, 'Applications')
 
@@ -144,10 +144,10 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def test_importFromJson_appDiff_ok(self):
         self._add_application_content()
-        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                         u'rid': u'script1',
-                         u'type': u'Script (Python)',
-                         u'url': u'Applications/an_application'},
+        applications = [{'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
+                         'rid': 'script1',
+                         'type': 'Script (Python)',
+                         'url': 'Applications/an_application'},
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
@@ -161,17 +161,17 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def test_importFromJson_appDiff_pathDiff(self):
         self._add_application_content()
-        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                         u'rid': u'script1',
-                         u'type': u'Script (Python)',
-                         u'targetPath': u'Applications/an_application',
-                         u'url': u'OtherPath/an_application', },
+        applications = [{'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
+                         'rid': 'script1',
+                         'type': 'Script (Python)',
+                         'targetPath': 'Applications/an_application',
+                         'url': 'OtherPath/an_application', },
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = (u'Imported successfully\nSome of the following apps differ:\n'
+        expected_msg = ('Imported successfully\nSome of the following apps differ:\n'
                         'App script1 with path: Applications/an_application is '
                         '<b>different by path</b> (path on source was: OtherPath/an_application)\n')
         self.wf.importFromJson(None, REQUEST=True)
@@ -181,16 +181,16 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def test_importFromJson_appDiff_typeDiff(self):
         self._add_application_content()
-        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                         u'rid': u'script1',
-                         u'type': u'Other type',
-                         u'url': u'Applications/an_application'},
+        applications = [{'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
+                         'rid': 'script1',
+                         'type': 'Other type',
+                         'url': 'Applications/an_application'},
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
+        expected_msg = 'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]
@@ -198,16 +198,16 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def test_importFromJson_appDiff_contentDiff(self):
         self._add_application_content()
-        applications = [{u'checksum': u'other_checksum',
-                         u'rid': u'script1',
-                         u'type': u'Script (Python)',
-                         u'url': u'Applications/an_application'},
+        applications = [{'checksum': 'other_checksum',
+                         'rid': 'script1',
+                         'type': 'Script (Python)',
+                         'url': 'Applications/an_application'},
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
+        expected_msg = 'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]
@@ -215,17 +215,17 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def test_importFromJson_appDiff_contentDiff_pathDiff(self):
         self._add_application_content()
-        applications = [{u'checksum': u'other_checksum',
-                         u'rid': u'script1',
-                         u'type': u'Script (Python)',
-                         u'targetPath': u'Applications/an_application',
-                         u'url': u'OtherPath/an_application', },
+        applications = [{'checksum': 'other_checksum',
+                         'rid': 'script1',
+                         'type': 'Script (Python)',
+                         'targetPath': 'Applications/an_application',
+                         'url': 'OtherPath/an_application', },
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = (u'Imported successfully\nSome of the following apps differ:\n'
+        expected_msg = ('Imported successfully\nSome of the following apps differ:\n'
                         'App script1 with path: Applications/an_application is '
                         '<b>different by content and different by path</b> (path on source was: OtherPath/an_application)\n')
         self.wf.importFromJson(None, REQUEST=True)
@@ -235,32 +235,32 @@ class OpenflowEngineTestCase(WorkflowTestCase):
 
     def test_importFromJson_appDiff_srcMissing(self):
         self._add_application_content()
-        applications = [{u'checksum': u'',
-                         u'rid': u'script1',
-                         u'type': u'',
-                         u'url': u'Applications/an_application'},
+        applications = [{'checksum': '',
+                         'rid': 'script1',
+                         'type': '',
+                         'url': 'Applications/an_application'},
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
+        expected_msg = 'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]
                          ['manage_tabs_message'], expected_msg)
 
     def test_importFromJson_appDiff_dstMissing(self):
-        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                         u'rid': u'script1',
-                         u'type': u'Script (Python)',
-                         u'url': u'Applications/an_application'},
+        applications = [{'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
+                         'rid': 'script1',
+                         'type': 'Script (Python)',
+                         'url': 'Applications/an_application'},
                         ]
 
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>missing</b>\n'
+        expected_msg = 'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>missing</b>\n'
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]

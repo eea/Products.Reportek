@@ -22,7 +22,7 @@ def do_update(app):
         else:
             dataflows[ob.dataflow_uri] = [data]
 
-    for k, v in dataflows.items():
+    for k, v in list(dataflows.items()):
         oid = (''.join(choice(ascii_uppercase) for i in range(12)))
         ob = DataflowMappingsRecord(
             oid,

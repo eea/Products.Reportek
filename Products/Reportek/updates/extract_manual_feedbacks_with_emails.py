@@ -71,7 +71,7 @@ def update(app, outName='manual_feedbacks_with_emails.txt'):
                                   feed.absolute_url(1) + '\r\n')
                         break
         except Exception as e:
-            print "For: ", brain.getPath(), " . Error is: ", e.args
+            print("For: ", brain.getPath(), " . Error is: ", e.args)
     out.close()
 
 

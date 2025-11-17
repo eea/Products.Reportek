@@ -35,7 +35,7 @@ def dump_code(app):
     if repo.exists():
         repo.rmtree()  # TODO keep files, change content, remove only extras
     repo.mkdir()
-    for zodb_path, (meta_type, src) in zodb_scripts.items():
+    for zodb_path, (meta_type, src) in list(zodb_scripts.items()):
         ext = ext_map[meta_type]
         file_path = repo/(zodb_path + ext)
         if not file_path.parent.exists():

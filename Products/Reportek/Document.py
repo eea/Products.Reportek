@@ -29,9 +29,9 @@ import sys
 from os.path import join
 from time import time
 
-import IconShow
+from Products.Reportek import IconShow, RepUtils
 import plone.protect.interfaces
-import RepUtils
+# import RepUtils
 import requests
 import transaction
 import xmltodict
@@ -40,18 +40,18 @@ from AccessControl.class_init import InitializeClass
 from App.Common import package_home, rfc1123_date
 
 # Product imports
-from blob import FileContainer, StorageError
-from constants import ENGINE_ID, QAREPOSITORY_ID
+from Products.Reportek.blob import FileContainer, StorageError
+from Products.Reportek.constants import ENGINE_ID, QAREPOSITORY_ID
 from DateTime import DateTime
-from interfaces import IDocument
+from Products.Reportek.interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
-from XMLInfoParser import SchemaError, detect_schema
+from io import StringIO
+from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
 from zExceptions import Redirect
-from zip_content import ZZipFile, ZZipFileRaw
+from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
 from zope.contenttype import guess_content_type
 from zope.event import notify
-from zope.interface import alsoProvides, implements
+from zope.interface import alsoProvides, implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.HTTPRequest import FileUpload
 
@@ -160,7 +160,7 @@ def manage_addDocument(
     )
     if is_object and not filename:
         filename = getattr(file, "filename")
-    is_str = file and isinstance(file, basestring)
+    is_str = file and isinstance(file, str)
 
     if is_object:
         if not id:
@@ -251,6 +251,7 @@ def manage_addDocument(
         return error_message(self, "You must specify a file!", REQUEST=REQUEST)
 
 
+@implementer(IDocument)
 class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     """An External Document allows indexing and conversions.
 
@@ -259,7 +260,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         The document's binary content as :class:`.FileContainer` object.
     """
 
-    implements(IDocument)
     icon = "misc_/Reportek/document_gif"
 
     manage_options = (
@@ -467,7 +467,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         if text == "":
             text = self.title_or_id()
         strg = '<a href="%s"' % (self.absolute_url())
-        for key in args.keys():
+        for key in list(args.keys()):
             value = args.get(key)
             strg = '%s %s="%s"' % (strg, key, value)
         strg = "%s>%s</a>" % (strg, text)
@@ -945,7 +945,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             size = file_or_content.tell()
             file_or_content.seek(pos)
             return size
-        elif isinstance(file_or_content, basestring):
+        elif isinstance(file_or_content, str):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
             return file_or_content.len
@@ -1022,7 +1022,7 @@ def xml_to_json(self, REQUEST=None):
 
                     def is_valid_tag(tag):
                         """Check if a tag is a non-empty string."""
-                        return isinstance(tag, basestring) and tag.strip()
+                        return isinstance(tag, str) and tag.strip()
 
                     if not all(is_valid_tag(tag) for tag in tags):
                         return error_message(
@@ -1050,7 +1050,7 @@ def xml_to_json(self, REQUEST=None):
             try:
                 xml_content = xml_file.read()
                 xml_dict = xmltodict.parse(xml_content)
-            except Exception, e:
+            except Exception as e:
                 logger.exception("Error parsing XML content")
                 return error_message(
                     self, "Error parsing XML: %s" % str(e), REQUEST=REQUEST
@@ -1091,7 +1091,7 @@ def xml_to_json(self, REQUEST=None):
 
                 if isinstance(content, dict):
                     filtered = {}
-                    for key, value in content.iteritems():
+                    for key, value in content.items():
                         new_path = current_path + [key]
 
                         # Handle attributes
@@ -1137,7 +1137,7 @@ def xml_to_json(self, REQUEST=None):
 
             # Apply filtering to the whole document
             filtered_dict = {}
-            for root_key, root_value in xml_dict.iteritems():
+            for root_key, root_value in xml_dict.items():
                 filtered = filter_content(root_value, [root_key])
                 if filtered:
                     filtered_dict[root_key] = filtered

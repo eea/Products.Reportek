@@ -1,8 +1,8 @@
-from common import BaseUnitTest
+from .common import BaseUnitTest
 from datetime import datetime
 from mock import Mock, patch
-from utils import create_fake_root, create_upload_file
-from utils import create_envelope, add_document
+from .utils import create_fake_root, create_upload_file
+from .utils import create_envelope, add_document
 from Products.Reportek.QAScript import QAScript
 
 
@@ -91,7 +91,7 @@ class QAScriptTest(BaseUnitTest):
         self.qa_repository.myscript = Mock(
             qa_extraparams=[], script_url='ls -l %s')
         self.qa_repository.myscript.content_type_out = 'text/plain'
-        from StringIO import StringIO
+        from io import StringIO
         mock_file = StringIO(self.doc_content)
         mock_file.name = 'test_file'
         mock_file.__exit__ = Mock()
@@ -101,7 +101,7 @@ class QAScriptTest(BaseUnitTest):
         with patch('Products.Reportek.QARepository.RepUtils',
                    Mock(temporary_named_copy=Mock(return_value=mock_file))):
             with patch.object(self.qa_repository, 'REQUEST', create=True) as\
-                 request:
+                    request:
                 request.SERVER_URL = 'http://example.com'
                 file_url = 'http://example.com/envelope/foo.txt'
                 with patch('Products.Reportek.QARepository.subprocess') as\
@@ -163,7 +163,7 @@ class QAScriptTest(BaseUnitTest):
         result = qa_repository.canRunQAOnFiles([self.doc])
 
         self.assertEqual(('foo.txt', 'loc_mdb_workflow_qascript'),
-                         (result.keys()[0], result.values()[0][0][0])
+                         (list(result.keys())[0], list(result.values())[0][0][0])
                          )
 
     def test_scripts_are_found_by_schema(self):
@@ -266,6 +266,6 @@ class QAScriptTest(BaseUnitTest):
         self.doc.content_type = 'application/msword'
         result = qa_repository.canRunQAOnFiles([self.doc])
         self.assertEqual(
-            map(lambda item: item[0], result['foo.txt']),
+            [item[0] for item in result['foo.txt']],
             ['loc_doc_workflow_qascript']
         )

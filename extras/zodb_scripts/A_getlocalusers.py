@@ -19,5 +19,5 @@ for dn, roles in container.acl_users.getLocalUsers():
     if 'Client' in roles:
         uobj = container.acl_users.getUserDetails(dn, 'dictionary')
         if uobj:
-            print "%-30s %s" % (dn, uobj.get('cn', ['Unknown'])[0])
+            print("%-30s %s" % (dn, uobj.get('cn', ['Unknown'])[0]))
 return printed

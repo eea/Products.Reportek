@@ -37,18 +37,18 @@ import re
 import tempfile
 from xml.dom.minidom import parseString
 
-import RepUtils
+from . import RepUtils
 import transaction
-import xmlrpclib
-import zip_content
+import xmlrpc.client
+from . import zip_content
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
-from constants import CONVERTERS_ID, ENGINE_ID
+from .constants import CONVERTERS_ID, ENGINE_ID
 from DateTime import DateTime
-from Toolz import Toolz
-from XMLInfoParser import SchemaError, detect_single_schema
-from zip_content import ZZipFile
+from .Toolz import Toolz
+from .XMLInfoParser import SchemaError, detect_single_schema
+from .zip_content import ZZipFile
 from zope.contenttype import guess_content_type
 from zope.event import notify
 
@@ -70,7 +70,7 @@ ESRI_EXTRAEXTENSIONS = [".shp", ".shx", ".dbf", ".prj", ".xml"]
 
 
 def invoke_conversion_service(server_name, method_name, url):
-    server = xmlrpclib.ServerProxy(server_name)
+    server = xmlrpc.client.ServerProxy(server_name)
     method = getattr(server.ConversionService, method_name)
     if method_name in [
         "convertDD_XML_split",
@@ -198,7 +198,7 @@ class EnvelopeCustomDataflows(Toolz):
 
         for wk_log in has_conversions:
             files = conv_results.get(wk_log)
-            for filename, c_info in files.iteritems():
+            for filename, c_info in files.items():
                 if c_info.get("active") and c_info.get("status") != "INFO":
                     failed.append(filename)
 
@@ -966,7 +966,7 @@ class EnvelopeCustomDataflows(Toolz):
 
                     if (
                         replace_xml
-                        and zipped_file.xml_schema_location in xml_f.keys()
+                        and zipped_file.xml_schema_location in list(xml_f.keys())
                     ):
                         # delete all the XML files from this envelope which
                         # have this schema
@@ -1418,10 +1418,10 @@ class EnvelopeCustomDataflows(Toolz):
                         )
                         ret.append("</zone>")
         except Exception:
-            print(
+            print((
                 "Error parsing files from envelope: form2.xml or %s"
                 % form_name
-            )
+            ))
         ret.append("</response>")
         return "".join(ret)
 
@@ -1501,7 +1501,7 @@ class EnvelopeCustomDataflows(Toolz):
 
         for xml_file in self.objectValues("Report Document"):
             schema = xml_file.xml_schema_location
-            if schema in schema_convs.keys():
+            if schema in list(schema_convs.keys()):
                 url = xml_file.absolute_url(1)
                 try:
                     converted = self.convert(
@@ -1691,9 +1691,9 @@ class EnvelopeCustomDataflows(Toolz):
                         if m:
                             if len(m) == 1:
                                 m = m[0]
-                                metadata[m.keys()[0]] = m[m.keys()[0]]
+                                metadata[list(m.keys())[0]] = m[list(m.keys())[0]]
                             else:
-                                m_key = m[0].keys()[0]
+                                m_key = list(m[0].keys())[0]
                                 metadata[m_key] = [k[m_key] for k in m]
                 else:
                     metadata = r_metadata
@@ -1901,7 +1901,7 @@ class EnvelopeCustomDataflows(Toolz):
         colls = self.get_company_collections()
         if colls:
             # Filter out collections when there's no Add Envelopes permission
-            for k in envs.keys():
+            for k in list(envs.keys()):
                 c_colls = (
                     col
                     for col in colls.get(k, [])
@@ -2009,7 +2009,7 @@ class EnvelopeCustomDataflows(Toolz):
 
             files_to_delete = []
             delete_ids = []
-            if isinstance(files_param, basestring):
+            if isinstance(files_param, str):
                 files_to_delete = [files_param]
             elif isinstance(files_param, list):
                 files_to_delete = files_param
@@ -2023,7 +2023,7 @@ class EnvelopeCustomDataflows(Toolz):
 
             validated_ids = []
             for f_id in files_to_delete:
-                if not isinstance(f_id, basestring):
+                if not isinstance(f_id, str):
                     err = (
                         "Invalid item in 'files' list: all items must "
                         "be strings."

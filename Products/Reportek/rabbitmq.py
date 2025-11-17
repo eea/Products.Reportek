@@ -19,10 +19,10 @@ formatter = logging.Formatter(
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-RABBITMQ_HOST = unicode(os.environ.get("RABBITMQ_HOST", "") or "localhost")
+RABBITMQ_HOST = str(os.environ.get("RABBITMQ_HOST", "") or "localhost")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "") or "5672")
-RABBITMQ_USER = unicode(os.environ.get("RABBITMQ_USER", ""))
-RABBITMQ_PASS = unicode(os.environ.get("RABBITMQ_PASS", ""))
+RABBITMQ_USER = str(os.environ.get("RABBITMQ_USER", ""))
+RABBITMQ_PASS = str(os.environ.get("RABBITMQ_PASS", ""))
 
 
 def get_rabbitmq_client_settings():

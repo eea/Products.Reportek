@@ -32,7 +32,7 @@ from AccessControl.Permissions import view_management_screens
 from bs4 import BeautifulSoup as bs
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
+from io import StringIO
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
@@ -286,8 +286,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                         ", ".join(ext)
                     )
                 )
-            up_group = latest.keys()[
-                latest.values().index(sorted(latest.values(), reverse=True)[0])
+            up_group = list(latest.keys())[
+                list(latest.values()).index(sorted(list(latest.values()), reverse=True)[0])
             ]
             files = [
                 f
@@ -573,7 +573,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         results = getattr(workitem, self.app_name, {}).get("results")
         rest_endpoint = "fmerest/v3/transformations/jobs/id"
         if results:
-            for job_id in results.keys():
+            for job_id in list(results.keys()):
                 if (
                     results[job_id].get("status")
                     not in ["completed", "failed"]

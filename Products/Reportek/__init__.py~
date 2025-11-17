@@ -28,8 +28,7 @@ from App.ImageFile import ImageFile
 from plone.keyring.interfaces import IKeyManager
 from plone.keyring.keymanager import KeyManager
 from plone.registry.interfaces import IRegistry
-#from registry import Registry
-from Products.Reportek.registry import Registry
+from registry import Registry
 from zope.component import getGlobalSiteManager, getUtility
 from zope.i18nmessageid import MessageFactory
 from ZPublisher.BaseRequest import BaseRequest
@@ -183,7 +182,7 @@ def create_reportek_objects(app):
 
     # Add Registry Management
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        from . import RegistryManagement
+        import RegistryManagement
 
         try:
             registry_management = getattr(app, constants.REGISTRY_MANAGEMENT)
@@ -337,7 +336,7 @@ registerMultiPlugin(ReportekUserFactoryPlugin.meta_type)
 def initialize(context):
     """Reportek initializer"""
 
-    from . import blob
+    import blob
     from AccessControl.Permissions import view_management_screens
 
     context.registerClass(

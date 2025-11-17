@@ -20,14 +20,14 @@ def update(app):
                 with data_file.open() as df:
                     data_file.size = len(df.read())
 
-                print("On %s" % ob.absolute_url())
-                print "Correcting size %d to %d" % (data_file.compressed_size,
-                                                    data_file.size)
+                print(("On %s" % ob.absolute_url()))
+                print("Correcting size %d to %d" % (data_file.compressed_size,
+                                                    data_file.size))
                 transaction.commit()
         except Exception as e:
             try:
-                print("On %s" % ob.absolute_url())
+                print(("On %s" % ob.absolute_url()))
             except Exception:
                 pass
-            print(repr(e) + '\n' + '(%s: %s)' % (str(e), str(e.args)))
+            print((repr(e) + '\n' + '(%s: %s)' % (str(e), str(e.args))))
             transaction.abort()

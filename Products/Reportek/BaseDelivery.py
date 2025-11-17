@@ -7,12 +7,12 @@ from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.interfaces import IBaseDelivery
 from Products.Reportek.RepUtils import parse_uri
-from zope.interface import implements
+from zope.interface import implementer
 
 
+@implementer(IBaseDelivery)
 class BaseDelivery(ReportekContent):
     """BaseDelivery class."""
-    implements(IBaseDelivery)
 
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
@@ -155,9 +155,9 @@ class BaseDelivery(ReportekContent):
         if self.endyear == '':
             return [self.year]
         if int(self.year) > int(self.endyear):
-            return range(int(self.endyear), int(self.year) + 1)
+            return list(range(int(self.endyear), int(self.year) + 1))
         else:
-            return range(int(self.year), int(self.endyear) + 1)
+            return list(range(int(self.year), int(self.endyear) + 1))
 
     security.declareProtected('View', 'getObligations')
 

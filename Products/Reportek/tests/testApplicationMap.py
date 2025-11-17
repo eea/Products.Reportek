@@ -1,8 +1,8 @@
 from Products.Reportek import constants
 from OFS.SimpleItem import SimpleItem
 from OFS.Folder import Folder
-from common import WorkflowTestCase, BaseTest
-from common import ConfigureReportek
+from .common import WorkflowTestCase, BaseTest
+from .common import ConfigureReportek
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -25,12 +25,12 @@ class ApplicationsTestCase(BaseTest, ConfigureReportek):
         """ Test that listApplications() returns the applications sorted on
             name """
         self.wf.addApplication(name="alpha_app", link="pyAuto")
-        self.assertEquals(
+        self.assertEqual(
             [{'name': 'alpha_app', 'link': 'pyAuto'}],
             self.wf.listApplications())
         self.wf.addApplication(name="delta_app", link="delta")
         self.wf.addApplication(name="beta_app", link="beta")
-        self.assertEquals([{'link': 'pyAuto', 'name': 'alpha_app'},
+        self.assertEqual([{'link': 'pyAuto', 'name': 'alpha_app'},
                            {'link': 'beta', 'name': 'beta_app'},
                            {'link': 'delta', 'name': 'delta_app'}],
                           self.wf.listApplications())

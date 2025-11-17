@@ -28,7 +28,7 @@ def log_msg(msg, level='INFO'):
         'NOTSET': 0
     }
     logger.log(lvl.get(level), msg)
-    print msg
+    print(msg)
 
 
 def decompress_zip_blobs(app):

@@ -88,9 +88,9 @@ def update(app, outName='blob_compression.log'):
                 with data_file.open('wb', orig_size=data_file.size,
                                     preserve_mtime=True) as file_handle:
                     file_handle.write(content)
-                print ("Compressing %s, path: %s (%d:%d)"
+                print(("Compressing %s, path: %s (%d:%d)"
                        % (ob.absolute_url(), path, data_file.size,
-                          data_file.compressed_size))
+                          data_file.compressed_size)))
                 out.write("Compressing %s, path: %s (%d:%d)\n" % (
                     ob.absolute_url(), path, data_file.size,
                     data_file.compressed_size))

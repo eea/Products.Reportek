@@ -24,19 +24,19 @@
 import logging
 import string
 import tempfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 import transaction
-import xmlrpclib
+import xmlrpc.client
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
-from Document import Document
+from .Document import Document
 from OFS.SimpleItem import SimpleItem
 from ZODB.POSException import ConflictError
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
@@ -71,6 +71,7 @@ def manage_addRemoteApplication(
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
+@implementer(IQAApplication)
 class RemoteApplication(BaseRemoteApplication):
     """A computerised application, executed by an activity.
     It executes a set of operations on a remote server and generates a
@@ -108,7 +109,6 @@ class RemoteApplication(BaseRemoteApplication):
     # assertions.
     security = ClassSecurityInfo()
     meta_type = "Remote Application"
-    implements(IQAApplication)
 
     manage_options = (
         {"label": "Settings", "action": "manage_settings_html"},
@@ -245,7 +245,7 @@ class RemoteApplication(BaseRemoteApplication):
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
-        for l_jobID, l_job_details in l_wk_prop["getResult"].items():
+        for l_jobID, l_job_details in list(l_wk_prop["getResult"].items()):
             if l_job_details["code"] == 0 and l_job_details[
                 "next_run"
             ].lessThanEqualTo(DateTime()):
@@ -264,10 +264,10 @@ class RemoteApplication(BaseRemoteApplication):
                     else:
                         l_files_failed[l_fn] = "#%s" % l_jobID
         # log the results from local QA
-        for filename, scripts in l_wk_prop["localQA"].items():
+        for filename, scripts in list(l_wk_prop["localQA"].items()):
             success = []
             fail = []
-            for script, status in scripts.items():
+            for script, status in list(scripts.items()):
                 if status == "done":
                     success.append("#" + script)
                 else:
@@ -291,7 +291,7 @@ class RemoteApplication(BaseRemoteApplication):
         # write to log the list of file that succeded
         if l_files_success:
             l_filenames_jobs = ""
-            for x in l_files_success.keys():
+            for x in list(l_files_success.keys()):
                 l_filenames_jobs += "<li>%s for file %s</li>" % (
                     l_files_success[x],
                     x,
@@ -308,7 +308,7 @@ class RemoteApplication(BaseRemoteApplication):
         if not l_wk_prop["getResult"]:
             l_complete = 0
 
-        for l_jobID, l_job_details in l_wk_prop["getResult"].items():
+        for l_jobID, l_job_details in list(l_wk_prop["getResult"].items()):
             # result retrieved
             if l_job_details["code"] == 1:
                 pass
@@ -323,7 +323,7 @@ class RemoteApplication(BaseRemoteApplication):
             # write to log the list of file that failed
             if l_files_failed:
                 l_filenames_jobs = ""
-                for x in l_files_failed.keys():
+                for x in list(l_files_failed.keys()):
                     l_filenames_jobs += "<li>%s for file %s</li>" % (
                         l_files_failed[x],
                         x,
@@ -433,12 +433,12 @@ class RemoteApplication(BaseRemoteApplication):
         # not ran yet
         if not localQA:
             return False
-        for script_results in localQA.values():
+        for script_results in list(localQA.values()):
             # any bad status present?
             if any(
                 (
                     bad_status
-                    for bad_status in script_results.values()
+                    for bad_status in list(script_results.values())
                     if bad_status != "done"
                 )
             ):
@@ -461,7 +461,7 @@ class RemoteApplication(BaseRemoteApplication):
         l_wk_prop = getattr(l_workitem, self.app_name)
 
         try:
-            l_server = xmlrpclib.ServerProxy(self.RemoteServer)
+            l_server = xmlrpc.client.ServerProxy(self.RemoteServer)
             service = getattr(l_server, self.RemoteService)
             l_ret = getattr(service, "analyzeXMLFiles")(p_files_dict)
 
@@ -502,7 +502,7 @@ class RemoteApplication(BaseRemoteApplication):
             # Write in the envelope's log which files were sent to be analyzed
             # and their QA jobs
             l_filenames_jobs = ""
-            for x in l_files.keys():
+            for x in list(l_files.keys()):
                 l_filenames_jobs += "<li>%s for file %s</li>" % (l_files[x], x)
             l_workitem.addEvent(
                 "%s job(s) in progress: <ul>%s</ul>"
@@ -512,7 +512,7 @@ class RemoteApplication(BaseRemoteApplication):
         # An XML-RPC fault package - retry later
         # The agreed errors from the XQuery service are embedded
         # in this error type
-        except xmlrpclib.Fault as l_fault:
+        except xmlrpc.client.Fault as l_fault:
             l_nRetries = int(l_wk_prop["analyze"]["retries_left"])
             if l_nRetries == 0:
                 l_workitem.addEvent(
@@ -545,7 +545,7 @@ class RemoteApplication(BaseRemoteApplication):
                     },
                 )
         # An HTTP protocol error - retry later
-        except xmlrpclib.ProtocolError as l_protocol:
+        except xmlrpc.client.ProtocolError as l_protocol:
             l_nRetries = int(l_wk_prop["analyze"]["retries_left"])
             if l_nRetries == 0:
                 l_workitem.addEvent(
@@ -578,7 +578,7 @@ class RemoteApplication(BaseRemoteApplication):
                     },
                 )
         # A broken response package - critical, do not retry
-        except xmlrpclib.ResponseError as l_response:
+        except xmlrpc.client.ResponseError as l_response:
             l_workitem.addEvent(
                 "Error in sending files to %s: %s"
                 % (self.app_name, str(l_response))
@@ -593,7 +593,7 @@ class RemoteApplication(BaseRemoteApplication):
                 },
             )
         # Generic client error - critical, do not retry
-        except xmlrpclib.Error as err:
+        except xmlrpc.client.Error as err:
             l_workitem.addEvent(
                 "Error in sending files to %s: %s" % (self.app_name, str(err))
             )
@@ -623,10 +623,10 @@ class RemoteApplication(BaseRemoteApplication):
         l_wk_prop = getattr(l_workitem, self.app_name)
         # find out what file this job was for
         l_file_url = l_wk_prop["getResult"][p_jobID]["fileURL"]
-        l_file_id = urllib.unquote(string.split(l_file_url, "/")[-1])
+        l_file_id = urllib.parse.unquote(string.split(l_file_url, "/")[-1])
         envelope = self.aq_parent
         try:
-            l_server = xmlrpclib.ServerProxy(self.RemoteServer)
+            l_server = xmlrpc.client.ServerProxy(self.RemoteServer)
             service = getattr(l_server, self.RemoteService)
             l_ret = getattr(service, "getResult")(str(p_jobID))
 
@@ -868,7 +868,7 @@ class RemoteApplication(BaseRemoteApplication):
         # An XML-RPC fault package - retry later
         # The agreed errors from the XQuery service are embedded
         # in this error type
-        except (xmlrpclib.Fault, xmlrpclib.ProtocolError) as l_err:
+        except (xmlrpc.client.Fault, xmlrpc.client.ProtocolError) as l_err:
             l_nRetries = int(l_wk_prop["getResult"][p_jobID]["retries_left"])
             retry = (
                 self.retryJobFrequency
@@ -966,10 +966,10 @@ class RemoteApplication(BaseRemoteApplication):
         l_workitem = getattr(self, p_workitem_id)
         l_qa = getattr(l_workitem, self.app_name)
 
-        for l_key in p_analyze.keys():
+        for l_key in list(p_analyze.keys()):
             l_qa["analyze"][l_key] = p_analyze[l_key]
 
-        for l_job, l_value in p_getResult.items():
+        for l_job, l_value in list(p_getResult.items()):
             if l_job not in l_qa["getResult"]:
                 l_qa["getResult"][l_job] = {}
             l_qa["getResult"][l_job].update(l_value)
@@ -1025,10 +1025,10 @@ class RemoteApplication(BaseRemoteApplication):
         """Retrieve the available QA scripts for file schema"""
         l_server_url = self.RemoteServer
         l_remote_server = self.RemoteService
-        l_server = xmlrpclib.ServerProxy(l_server_url)
+        l_server = xmlrpc.client.ServerProxy(l_server_url)
         result = []
         try:
-            l_server = xmlrpclib.ServerProxy(l_server_url)
+            l_server = xmlrpc.client.ServerProxy(l_server_url)
             l_server_service = getattr(l_server, l_remote_server)
             scripts = l_server_service.listQueries(file_schema)
             if short:
@@ -1052,7 +1052,7 @@ class RemoteApplication(BaseRemoteApplication):
         """On demand QA"""
         l_server_url = self.RemoteServer
         l_remote_server = self.RemoteService
-        l_server = xmlrpclib.ServerProxy(l_server_url)
+        l_server = xmlrpc.client.ServerProxy(l_server_url)
         l_server_service = getattr(l_server, l_remote_server)
         l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
 

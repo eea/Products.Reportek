@@ -1,9 +1,10 @@
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 from operator import itemgetter
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID, DEFAULT_CATALOG
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.rabbitmq import queue_msg
+from functools import reduce
 
 
 class ManageRoles(BaseAdmin):
@@ -206,7 +207,7 @@ class ManageRoles(BaseAdmin):
         users = [acl_users.findUser(search_param=p, search_term=term)
                  for p in params]
         users = reduce(lambda x, y: x + y, users)  # noqa: F821
-        users = {user.get('uid'): user for user in users}.values()
+        users = list({user.get('uid'): user for user in users}.values())
 
         return users
 
@@ -216,15 +217,15 @@ class ManageRoles(BaseAdmin):
         ecas_db = getattr(ecas, '_ecas_id', None)
         users = []
         if ecas_db:
-            for user in ecas_db.values():
+            for user in list(ecas_db.values()):
                 username = user.username
                 email = user.email
-                if isinstance(username, unicode):  # noqa: F821
+                if isinstance(username, str):  # noqa: F821
                     username = username.encode('utf-8')
-                if isinstance(email, unicode):  # noqa: F821
+                if isinstance(email, str):  # noqa: F821
                     email = email.encode('utf-8')
                 if username:
-                    if isinstance(username, unicode):  # noqa: F821
+                    if isinstance(username, str):  # noqa: F821
                         username = username.encode('utf-8')
                     if term in username:
                         result = {

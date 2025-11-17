@@ -1,6 +1,6 @@
 import hashlib
 
-from common import BaseUnitTest
+from .common import BaseUnitTest
 from mock import patch
 from path import path
 

@@ -36,5 +36,5 @@ for country in users:
         user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)  # noqa: F821
         if user_ob:
             ulocal.append('%s: %s (uid=%s,mail=%s)' % (
-                country, unicode(user_ob.cn, 'latin-1'), user, user_ob.mail))
+                country, str(user_ob.cn, 'latin-1'), user, user_ob.mail))
 return ulocal  # noqa: F999

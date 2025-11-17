@@ -28,7 +28,7 @@ class ReportekPropertiedUser(PropertiedUser):
             # because this is not a FGAS Portal case
             if not hasattr(obj, "im_self"):
                 return []
-            obj = obj.im_self
+            obj = obj.__self__
         current_path_parts = obj.absolute_url(1).split("/")
         if len(current_path_parts) < 3:
             return []

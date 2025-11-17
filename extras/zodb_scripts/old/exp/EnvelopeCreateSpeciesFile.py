@@ -18,7 +18,7 @@ l_found = False
 
 if confirm == 'True':
 
-    if request.has_key('submit_yes'):
+    if 'submit_yes' in request:
         l_found = True
         region = SESSION.get('region')
         language = SESSION.get('language')

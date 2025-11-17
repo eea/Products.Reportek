@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 import transaction
 from AccessControl.Permissions import view_management_screens
-from common import BaseTest
+from .common import BaseTest
 from OFS.Folder import Folder
 from OFS.Image import manage_addFile
 from OFS.SimpleItem import SimpleItem

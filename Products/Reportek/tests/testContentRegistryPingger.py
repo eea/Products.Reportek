@@ -5,8 +5,8 @@ import pickle
 
 from Products.Reportek import ContentRegistryPingger
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_CDR
-from common import BaseTest, ConfigureReportek
-from utils import (
+from .common import BaseTest, ConfigureReportek
+from .utils import (
     mysleep,
     create_upload_file,
     simple_addEnvelope,

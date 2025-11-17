@@ -1,5 +1,5 @@
 # flake8: noqa
-from common import BaseUnitTest
+from .common import BaseUnitTest
 from mock import Mock, patch, MagicMock
 from Products.Reportek.constants import DF_URL_PREFIX
 
@@ -120,7 +120,7 @@ class UNSCallsTest(BaseUnitTest):
     @patch('Products.Reportek.ReportekEngine.time')
     @patch('Products.Reportek.ReportekEngine.strftime')
     def test_send_notification_to_uns(self, mock_strftime, mock_time):
-        from utils import create_fake_root
+        from .utils import create_fake_root
         from Products.Reportek.Envelope import Envelope
         from Products.Reportek.Collection import manage_addCollection
         envelope_uri = 'http://example.com/my/envelope'
@@ -143,7 +143,7 @@ class UNSCallsTest(BaseUnitTest):
         e.id = 'envelope'
         e.dataflow_uris = [mock_dataflow['uri']]
         e.country = mock_localities['es']['uri']
-        e.localities_table = Mock(return_value=mock_localities.values())
+        e.localities_table = Mock(return_value=list(mock_localities.values()))
         e.absolute_url = Mock(return_value=envelope_uri)
         e.getCountryName = Mock(return_value=mock_localities['es']['name'])
         self.engine.dataflow_lookup = Mock(return_value=mock_dataflow)

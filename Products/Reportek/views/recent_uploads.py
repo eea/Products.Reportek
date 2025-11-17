@@ -1,4 +1,4 @@
-from base_admin import BaseAdmin
+from .base_admin import BaseAdmin
 from DateTime import DateTime
 
 from Products.Reportek import constants

@@ -20,6 +20,6 @@ def is_automatic(s):
     return False
 
 
-l_feedback2delete = filter(
-    is_automatic, context.getMySelf().objectIds('Report Feedback'))  # noqa: F821
+l_feedback2delete = list(filter(
+    is_automatic, context.getMySelf().objectIds('Report Feedback')))  # noqa: F821
 context.getMySelf().manage_delObjects(l_feedback2delete)  # noqa: F821

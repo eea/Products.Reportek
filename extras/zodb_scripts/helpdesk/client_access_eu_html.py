@@ -19,8 +19,8 @@ def pathcompare(p1, p2):
     return cmp(p1[0], p2[0])
 
 
-print context.standard_html_header(context, context.REQUEST)  # noqa: F821
-print """<div class="quickjumps">
+print(context.standard_html_header(context, context.REQUEST))  # noqa: F821
+print("""<div class="quickjumps">
 <h2>Jump to</h2>
 <a href="#byperson">Sorted by person</a>
 </div>
@@ -31,7 +31,7 @@ print """<div class="quickjumps">
 <th>Last change</th>
 <th>Obl</th>
 <th>%ss</th>
-</tr>""" % (role, role)
+</tr>""" % (role, role))
 persons = {}
 results = []
 hits = container.Catalog(meta_type='Report Collection')  # noqa: F821
@@ -63,26 +63,26 @@ for hit in results:
         obl = string.join(ol, '\n')  # noqa: F821
         hover = str(len(hit[4]))
     if members != []:
-        print """<tr%s>""" % evenstr
-        print """<td><a href="%s">%s</a></td>
+        print("""<tr%s>""" % evenstr)
+        print("""<td><a href="%s">%s</a></td>
     <td>%s</td>
     <td title="%s">%s</td>
-    <td>""" % (hit[0], hit[1], hit[2], obl, hover)
+    <td>""" % (hit[0], hit[1], hit[2], obl, hover))
         for m in members:
-            print """<a\
+            print("""<a\
              href="http://www.eionet.europa.eu/directory/user?uid=%s">%s\
-             </a>""" % (m, m)
+             </a>""" % (m, m))
             if m not in persons:
                 persons[m] = []
             persons[m].append(hit[1])
-        print """</td></tr>"""
+        print("""</td></tr>""")
         if evenstr == '':
             evenstr = ' class="zebraeven"'
         else:
             evenstr = ''
 
 
-print """</table>
+print("""</table>
 <div class="quickjumps">
 <h2>Jump to</h2>
 <a href="#bypath">Sorted by path</a>
@@ -92,25 +92,25 @@ print """</table>
 <tr>
   <th>%s</th>
   <th>Path</th>
-</tr>""" % role
+</tr>""" % role)
 
 evenstr = ''
-pitems = persons.items()
+pitems = list(persons.items())
 pitems.sort()
 for account, paths in pitems:
     err = ''
     if string.find(account, ' ') >= 0:  # noqa: F821
         err = 'Spaces&nbsp;in&nbsp;userid! '
-    print '''<tr%s><td valign="top">%s\
+    print('''<tr%s><td valign="top">%s\
     <a href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a></td>
 <td valign="top">%s</td>
-</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>'))  # noqa: F821
+</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>')))  # noqa: F821
     if evenstr == '':
         evenstr = ' class="zebraeven"'
     else:
         evenstr = ''
 
-print "</table>"
-print context.standard_html_footer(context, context.REQUEST)  # noqa: F821
+print("</table>")
+print(context.standard_html_footer(context, context.REQUEST))  # noqa: F821
 
 return printed  # noqa: F999

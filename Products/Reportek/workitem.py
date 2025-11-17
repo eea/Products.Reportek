@@ -2,7 +2,7 @@ import string
 import uuid
 from time import time
 
-import constants
+from Products.Reportek import constants
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from BTrees.OOBTree import BTree
@@ -12,7 +12,7 @@ from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
 from zope.annotation.interfaces import IAnnotations
 from zope.event import notify
-from zope.interface import implements
+from zope.interface import implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -30,6 +30,7 @@ def computed_attribute_decorator(level=0):
     return computed_attribute_wrapper
 
 
+@implementer(IWorkitem, IWkMetadata)
 class workitem(
     CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware
 ):
@@ -41,7 +42,6 @@ class workitem(
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
-    implements(IWorkitem, IWkMetadata)
 
     def __init__(
         self,

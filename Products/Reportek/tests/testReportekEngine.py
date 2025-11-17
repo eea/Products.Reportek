@@ -1,11 +1,11 @@
 import unittest
 import zipfile
 
-from common import BaseTest, BaseUnitTest, ConfigureReportek
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from DateTime import DateTime
 from mock import Mock, patch
-from StringIO import StringIO
-from utils import (
+from io import StringIO
+from .utils import (
     add_document,
     create_envelope,
     create_fake_root,

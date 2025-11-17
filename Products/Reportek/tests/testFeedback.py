@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from common import BaseTest, BaseUnitTest, ConfigureReportek
-from fileuploadmock import FileUploadMock
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
+from .fileuploadmock import FileUploadMock
 from mock import Mock, patch
 from plone.protect.interfaces import IDisableCSRFProtection
 from Testing import ZopeTestCase
-from utils import create_envelope, create_fake_root
+from .utils import create_envelope, create_fake_root
 from zope.interface import alsoProvides
 
 from Products.Reportek import Converters, constants
@@ -256,7 +256,7 @@ class RemoteApplicationFeedbackTest(BaseUnitTest):
         self.assertEqual(feedback.feedbacktext, text)
 
     def test_100k_char_feedback_creates_attachment_and_explanation(self):
-        text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
+        text = "large automatic feedback: " + ("[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
 
         [feedback] = self.envelope.objectValues()
@@ -430,7 +430,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
 
     def test_feedback_objects_details_big_file(self):
         self.maxDiff = None
-        text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
+        text = "large automatic feedback: " + ("[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
         self.assertEqual(

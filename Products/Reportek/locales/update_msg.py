@@ -8,7 +8,7 @@ import os
 def update(pofile):
     """ Update po file
     """
-    print "Updating po file: %s" % pofile
+    print("Updating po file: %s" % pofile)
 
     newfile = []
     msgid = ""
@@ -39,7 +39,7 @@ def update(pofile):
     with open(pofile, 'w') as pobj:
         pobj.writelines(newfile)
 
-    print "\t changed %s broken msgstr" % count
+    print("\t changed %s broken msgstr" % count)
 
 
 def main():

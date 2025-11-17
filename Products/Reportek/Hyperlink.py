@@ -21,7 +21,7 @@
 import string
 from time import time
 
-import RepUtils
+from Products.Reportek import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from App.ImageFile import ImageFile

@@ -1,5 +1,5 @@
 #
-from common import BaseTest, ConfigureReportek, WorkflowTestCase
+from .common import BaseTest, ConfigureReportek, WorkflowTestCase
 from mock import Mock, patch
 from Testing import ZopeTestCase
 

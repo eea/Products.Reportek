@@ -18,6 +18,6 @@ def inline_replace(x):
 
 
 try:
-    return map(inline_replace, container.dataflow_rod())
+    return list(map(inline_replace, container.dataflow_rod()))
 except Exception:
-    raise ServiceTemporarilyUnavailableException, "Reporting Obligations Database is temporarily unavailable, please try again later"
+    raise ServiceTemporarilyUnavailableException("Reporting Obligations Database is temporarily unavailable, please try again later")

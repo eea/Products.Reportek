@@ -36,7 +36,7 @@ def migrate_partofyear(app, ctype):
         existing = aq_base(obj).partofyear
         if existing:
             try:
-                obj.partofyear = rpd.keys()[rpd.values().index(existing)]
+                obj.partofyear = list(rpd.keys())[list(rpd.values()).index(existing)]
                 obj.reindexObject()
                 changed_count += 1
             except Exception as e:

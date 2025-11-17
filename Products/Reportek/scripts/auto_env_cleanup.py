@@ -46,7 +46,7 @@ def do_cleanup(site, inactive_for=30, limit=None):
         try:
             env = b.getObject()
         except Exception as e:
-            print "Unable to retrieve envelope object"
+            print("Unable to retrieve envelope object")
         processed.append(env.absolute_url())
         col = env.getParentNode()
         if col.getPhysicalPath() not in cols_removed:
@@ -54,15 +54,15 @@ def do_cleanup(site, inactive_for=30, limit=None):
                           if engine.dataflow_lookup(df).get(
                             'terminated') == '1']
             if terminated and len(terminated) == len(col.dataflow_uris):
-                print "Removing {}. Terminated obligations: {}".format(
+                print("Removing {}. Terminated obligations: {}".format(
                         col.absolute_url(),
-                        terminated)
+                        terminated))
                 col_par = col.getParentNode()
                 changed = False
                 if not getattr(col_par, 'can_move_released', False):
                     col_par.can_move_released = True
                     changed = True
-                print "Parent collection: {}".format(col_par.absolute_url())
+                print("Parent collection: {}".format(col_par.absolute_url()))
                 try:
                     cols_removed.append(col.getPhysicalPath())
                     col_par.manage_delObjects(col.getId())
@@ -70,12 +70,12 @@ def do_cleanup(site, inactive_for=30, limit=None):
                         del col_par.can_move_released
                     col_count += 1
                 except Exception as e:
-                    print "Unable to delete collection: {}: {}".format(
-                        col.absolute_url(), str(e))
+                    print("Unable to delete collection: {}: {}".format(
+                        col.absolute_url(), str(e)))
             else:
-                print "Removing {}. Last modified date: {}".format(
+                print("Removing {}. Last modified date: {}".format(
                     env.absolute_url(),
-                    env.bobobase_modification_time())
+                    env.bobobase_modification_time()))
                 changed = False
                 if not getattr(col, 'can_move_released', False):
                     col.can_move_released = True
@@ -87,16 +87,16 @@ def do_cleanup(site, inactive_for=30, limit=None):
                         del col.can_move_released
                     env_count += 1
                 except Exception as e:
-                    print "Something went wrong: {}".format(str(e))
+                    print("Something went wrong: {}".format(str(e)))
         else:
-            print "Parent collection for: {} already deleted".format(
-                env.absolute_url())
+            print("Parent collection for: {} already deleted".format(
+                env.absolute_url()))
             env_count += 1
 
     transaction.commit()
-    print "Removed {} collections and {} envelopes".format(col_count,
-                                                           env_count)
-    print "Processed: \n{}\nRemoved: \n{}".format(processed, envs_removed)
+    print("Removed {} collections and {} envelopes".format(col_count,
+                                                           env_count))
+    print("Processed: \n{}\nRemoved: \n{}".format(processed, envs_removed))
 
 
 def main():
@@ -116,4 +116,4 @@ def main():
     args = parser.parse_args(sys.argv[3:])
     site = get_zope_site()
     do_cleanup(site, inactive_for=args.inactive_for, limit=args.limit)
-    print "Operations completed."
+    print("Operations completed.")

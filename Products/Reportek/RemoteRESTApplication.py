@@ -30,8 +30,8 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
-from zope.interface import implements
+from io import StringIO
+from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.interfaces import IQAApplication
@@ -63,9 +63,9 @@ def manage_addRemoteRESTApplication(
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
+@implementer(IQAApplication)
 class RemoteRESTApplication(SimpleItem):
     security = ClassSecurityInfo()
-    implements(IQAApplication)
     meta_type = "Remote REST Application"
     manage_options = (
         {"label": "Settings", "action": "manage_settings_html"},

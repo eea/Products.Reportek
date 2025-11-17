@@ -21,9 +21,9 @@ import os
 import shlex
 import subprocess
 
-import constants
-import QAScript
-import RepUtils
+from . import constants
+from . import QAScript
+from . import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens

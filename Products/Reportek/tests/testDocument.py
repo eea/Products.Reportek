@@ -1,13 +1,13 @@
-from utils import publish_view
+from .utils import publish_view
 import os
 import transaction
 from mock import Mock, patch
-from utils import (create_temp_reposit, HtmlPage, MockDatabase,
+from .utils import (create_temp_reposit, HtmlPage, MockDatabase,
                    break_document_data_file)
-from fileuploadmock import FileUploadMock
-from common import BaseTest, BaseUnitTest, ConfigureReportek
+from .fileuploadmock import FileUploadMock
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from zExceptions import Redirect
-from StringIO import StringIO
+from io import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -96,7 +96,7 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
         """
         self.create_file('C:\\TEMP\\testfile.txt', id, 'Title')
         self.document = getattr(self.envelope, id)
-        self.assertEquals('text/plain', self.document.content_type)
+        self.assertEqual('text/plain', self.document.content_type)
 
     def test_create_xml_document(self):
         """ Create a simple XML document, and then verify the schema got
@@ -114,8 +114,8 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
         self.assertTrue(hasattr(self.envelope, 'documentid.xml'),
                         'Document did not get created')
         document = getattr(self.envelope, 'documentid.xml')
-        self.assertEquals('text/xml', document.content_type)
-        self.assertEquals(
+        self.assertEqual('text/xml', document.content_type)
+        self.assertEqual(
             'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd',  # noqa
             document.xml_schema_location)
 
@@ -148,8 +148,8 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
                                            'Title', myfile)
         _, ext = os.path.splitext(filename)
         document = getattr(self.envelope, 'documentid' + ext)
-        self.assertEquals('text/xml', document.content_type)
-        self.assertEquals(
+        self.assertEqual('text/xml', document.content_type)
+        self.assertEqual(
             'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd',  # noqa
             document.xml_schema_location)
 

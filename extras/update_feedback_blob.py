@@ -72,7 +72,7 @@ def convert_attachment(feedback, file_ob):
 def write_string_to_file(string, f):
     if isinstance(string, str):
         f.write(string)
-    elif isinstance(string, unicode):
+    elif isinstance(string, str):
         blocksize = 65536
         for c in range(len(string)/blocksize+1):
             f.write(string[c*blocksize:(c+1)*blocksize].encode('utf-8'))
@@ -129,7 +129,7 @@ def convert_all(parent, limit=None, skip=0, report=True, warnings=True):
                 n_skip_bytes += len(feedback.feedbacktext)
                 log.info("Skipping %r, %d bytes, it's not automatic QA",
                          ofs_path(feedback), len(feedback.feedbacktext))
-        except Exception, e:
+        except Exception as e:
             sp.rollback()
             if warnings:
                 log.warn("Error converting %r (%s)", ofs_path(feedback), e)

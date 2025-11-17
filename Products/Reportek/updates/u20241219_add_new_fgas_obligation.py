@@ -32,7 +32,7 @@ def log_msg(msg, level='INFO'):
         'NOTSET': 0
     }
     logger.log(lvl.get(level), msg)
-    print msg
+    print(msg)
 
 def get_fgas_collections(app):
     catalog = getToolByName(app, DEFAULT_CATALOG, None)

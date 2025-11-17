@@ -1,16 +1,16 @@
 from Products.Reportek.interfaces import IReportekContent
 from DateTime import DateTime
-from RepUtils import datify
-from zope.interface import implements
+from Products.Reportek.RepUtils import datify
+from zope.interface import implementer
 
 
+@implementer(IReportekContent)
 class ReportekContent(object):
     """Base class that implements a bobobase_modification_time since
        bobobase_modification_time has been removed from Persistence.
        This should be a temporary workaround until we can replace this
        functionality
     """
-    implements(IReportekContent)
 
     def __init__(self):
         self.modification_date = DateTime()

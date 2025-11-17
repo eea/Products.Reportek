@@ -21,7 +21,7 @@
 
 # $Id$
 
-import StringIO
+from io import StringIO
 from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
@@ -30,7 +30,7 @@ from OFS.Image import manage_addFile
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
-from RepUtils import cleanup_id, generate_id, getFilename
+from Products.Reportek.RepUtils import cleanup_id, generate_id, getFilename
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
@@ -144,7 +144,7 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
         if self.checkPermissionEditComments():
             author = self.REQUEST.AUTHENTICATED_USER.getUserName()
             date = DateTime()
-            tmp = StringIO.StringIO(body)
+            tmp = StringIO(body)
             convs = getattr(
                 self.getPhysicalRoot(), constants.CONVERTERS_ID, None
             )
@@ -245,7 +245,7 @@ class CommentsManager:
             date = DateTime()
         else:
             date = DateTime(date)
-        tmp = StringIO.StringIO(body)
+        tmp = StringIO(body)
         convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
         # if Local Conversion Service is down
         # the next line of code will raise an exception

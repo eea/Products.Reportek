@@ -5,8 +5,8 @@
 # have been run thus most of them remained more or less outdated
 # What is left here are the tests that have been easily brought back to life
 # One can see the rest of them using version control history
-from authutils import loginUnrestricted
-from common import BaseTest, ConfigureReportek
+from .authutils import loginUnrestricted
+from .common import BaseTest, ConfigureReportek
 import unittest
 from Testing import ZopeTestCase
 import unittest

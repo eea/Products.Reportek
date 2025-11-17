@@ -214,7 +214,7 @@ class BaseAdmin(BrowserView):
                 l_roles = brain.local_defined_roles
                 if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
                     # For BDR, Reporters actually have local 'Owner' Roles
-                    for user in l_roles.keys():
+                    for user in list(l_roles.keys()):
                         l_roles[user] = ['Reporter (Owner)' if role == 'Owner'
                                          else role for role in l_roles[user]]
                 collection = {
@@ -281,7 +281,7 @@ class BaseAdmin(BrowserView):
         groups = acl_users.searchGroups(cn=term)
 
         if groups:
-            group_list = {group.get('cn'): group for group in groups}.values()
+            group_list = list({group.get('cn'): group for group in groups}.values())
             group_list.sort(key=itemgetter('cn'))
             return group_list
 

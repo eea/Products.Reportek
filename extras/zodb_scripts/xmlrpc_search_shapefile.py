@@ -13,7 +13,7 @@ from Products.PythonScripts.standard import html_quote
 
 def print_as_elm(mydict):
     attrs = []
-    for elm, value in mydict.items():
+    for elm, value in list(mydict.items()):
         attrs.append('%s="%s"' % (elm, html_quote(str(value))))
     return "  <file %s/>" % " ".join(attrs)
 
@@ -68,8 +68,8 @@ if req['CONTENT_TYPE'] == 'text/xml' and req['REQUEST_METHOD'] == 'POST':
     return filelist
 else:
     req.RESPONSE.setHeader('content-type', 'text/xml; charset=UTF-8')
-    print "<results>"
+    print("<results>")
     for d in filelist:
-        print print_as_elm(d)
-    print "</results>"
+        print(print_as_elm(d))
+    print("</results>")
     return printed

@@ -9,8 +9,10 @@ reporting.
 import logging
 import os
 import time
-import urllib
-from time import clock as process_time
+import urllib.request
+import urllib.parse
+import urllib.error
+from time import process_time
 
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
@@ -119,7 +121,7 @@ class RebuildView(BrowserView):
         self.request.RESPONSE.redirect(
             catalog.absolute_url()
             + "/manage_maintenance?manage_tabs_message="
-            + urllib.quote(msg)
+            + urllib.parse.quote(msg)
         )
 
 

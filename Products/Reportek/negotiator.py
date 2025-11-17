@@ -8,34 +8,34 @@ from zope.tal.translationcontext import TranslationContext
 class CustomNegotiator(Negotiator):
 
     LANGUAGE_NAMES = {
-        u'bg': u'Български',
-        u'cs': u'čeština',
-        u'hr': u'Hrvatski',
-        u'da': u'dansk',
-        u'nl': u'Nederlands',
-        u'el': u'ελληνικά',
-        u'en': u'English',
-        u'et': u'eesti',
-        u'fi': u'Suomi',
-        u'fr': u'Français',
-        u'de': u'Deutsch',
-        u'hu': u'magyar',
-        u'is': u'Íslenska',
-        u'it': u'italiano',
-        u'lv': u'Latviešu',
-        u'lt': u'lietuvių',
-        u'mt': u'Malti',
-        u'no': u'Norsk',
-        u'pl': u'polski',
-        u'pt': u'Português',
-        u'ro': u'Română',
-        u'sk': u'slovenčina',
-        u'sl': u'Slovenščina',
-        u'es': u'Español',
-        u'sv': u'Svenska',
-        u'tr': u'Türkçe',
-        u'ru': u'русский',
-        u'ga': u'Gaeilge',
+        'bg': 'Български',
+        'cs': 'čeština',
+        'hr': 'Hrvatski',
+        'da': 'dansk',
+        'nl': 'Nederlands',
+        'el': 'ελληνικά',
+        'en': 'English',
+        'et': 'eesti',
+        'fi': 'Suomi',
+        'fr': 'Français',
+        'de': 'Deutsch',
+        'hu': 'magyar',
+        'is': 'Íslenska',
+        'it': 'italiano',
+        'lv': 'Latviešu',
+        'lt': 'lietuvių',
+        'mt': 'Malti',
+        'no': 'Norsk',
+        'pl': 'polski',
+        'pt': 'Português',
+        'ro': 'Română',
+        'sk': 'slovenčina',
+        'sl': 'Slovenščina',
+        'es': 'Español',
+        'sv': 'Svenska',
+        'tr': 'Türkçe',
+        'ru': 'русский',
+        'ga': 'Gaeilge',
     }
 
     @classmethod
@@ -83,11 +83,11 @@ class CustomNegotiator(Negotiator):
             return {}
         langs = translation_domain.getCatalogsInfo()
         self.purgeWeirdZopeI18nTestLang(langs)
-        language_codes = normalize_langs(langs.keys())
+        language_codes = normalize_langs(list(langs.keys()))
         languages = {}
         for code in language_codes:
             languages[code] = self.LANGUAGE_NAMES.get(code, code)
         return languages
 
     def getSelectedLanguage(self, request):
-        return self.getLanguage(self.getAvailableLanguages().keys(), request)
+        return self.getLanguage(list(self.getAvailableLanguages().keys()), request)

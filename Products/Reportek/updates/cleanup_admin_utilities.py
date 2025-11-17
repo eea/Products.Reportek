@@ -20,7 +20,7 @@ TO_REMOVE = [
 def do_cleanup(app):
     for obj_id in TO_REMOVE:
         if hasattr(app, obj_id):
-            print 'Removing %s' % obj_id
+            print('Removing %s' % obj_id)
             app._delObject(obj_id, suppress_events=True)
 
 

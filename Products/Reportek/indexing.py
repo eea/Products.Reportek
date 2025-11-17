@@ -208,7 +208,7 @@ class IndexQueue(local):
 
         debug("finished reducing; %d item(s) in queue...", len(res))
         # Sort so unindex operations come first
-        self.setState(sorted(res.values(), key=itemgetter(0)))
+        self.setState(sorted(list(res.values()), key=itemgetter(0)))
 
     def process(self):
         self.optimize()

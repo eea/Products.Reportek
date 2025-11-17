@@ -18,7 +18,7 @@ for env_cat in container.Catalog(meta_type='Report Envelope'):
             l_logs.append({'count': l_count+1, 'time': DateTime(rec[:rec.find(
                 '/')]), 'user': rec[rec.find('/')+1:rec.find(':  ')], 'log': rec[rec.find(':  ')+3:]})
         l_lenght = len(l_logs)
-        print env.absolute_url(1) + ': ' + str(l_lenght)
+        print(env.absolute_url(1) + ': ' + str(l_lenght))
 
         l_report = {}
         for l_log in l_logs:

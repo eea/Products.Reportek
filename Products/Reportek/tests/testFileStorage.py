@@ -2,11 +2,11 @@ import time
 import zipfile
 
 import transaction
-from common import BaseTest, BaseUnitTest, ConfigureReportek
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from mock import Mock, call, patch
 from plone.protect.interfaces import IDisableCSRFProtection
-from StringIO import StringIO
-from utils import (
+from io import StringIO
+from .utils import (
     MockDatabase,
     break_document_data_file,
     create_envelope,
@@ -486,7 +486,7 @@ class OfsBlobFileTest(BaseUnitTest):
         self.assertEqual(myfile.__name__, "myfile")
 
         self.assertEqual(list(folder), ["myfile"])
-        self.assertEqual(folder.values(), [myfile])
+        self.assertEqual(list(folder.values()), [myfile])
         self.assertEqual(myfile.meta_type, "File (Blob)")
 
     def test_save_and_read_content(self):
@@ -515,7 +515,7 @@ class OfsBlobFileTest(BaseUnitTest):
             self.assertEqual(f.read(), content)
 
     def test_download_content(self):
-        from utils import publish_view
+        from .utils import publish_view
 
         from Products.Reportek.blob import OfsBlobFile
 

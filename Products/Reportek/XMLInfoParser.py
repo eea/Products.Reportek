@@ -33,7 +33,7 @@ class SchemaError(ValueError):
 
 
 def locations_str(locations):
-    if isinstance(locations, basestring):
+    if isinstance(locations, str):
         return locations
     loc_list = [loc for loc in locations]
     return ' '.join(loc_list)
@@ -84,7 +84,7 @@ def detect_schema(src):
         # pick every 2nd item in list (the location)
         location_list = location_list[1::2]
         if location_list:
-            location_list_valid = filter(absolute_location, location_list)
+            location_list_valid = list(filter(absolute_location, location_list))
             if len(location_list) != len(location_list_valid):
                 raise SchemaError('Schema location is not a valid URL',
                                   locations_str(set(location_list) - set(
