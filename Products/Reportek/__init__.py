@@ -28,8 +28,6 @@ from App.ImageFile import ImageFile
 from plone.keyring.interfaces import IKeyManager
 from plone.keyring.keymanager import KeyManager
 from plone.registry.interfaces import IRegistry
-#from registry import Registry
-from Products.Reportek.registry import Registry
 from zope.component import getGlobalSiteManager, getUtility
 from zope.i18nmessageid import MessageFactory
 from ZPublisher.BaseRequest import BaseRequest
@@ -44,10 +42,6 @@ from Products.PluginIndexes.DateIndex.DateIndex import DateIndex
 from Products.PluginIndexes.FieldIndex.FieldIndex import FieldIndex
 from Products.PluginIndexes.KeywordIndex.KeywordIndex import (
     KeywordIndex,
-)
-from Products.Reportek.config import (
-    DEPLOYMENT_BDR,
-    REPORTEK_DEPLOYMENT,
 )
 from Products.Reportek import (
     Collection,
@@ -71,7 +65,14 @@ from Products.Reportek import (
 )
 from Products.Reportek.caching.config import registry_setup
 from Products.Reportek.catalog import ReportekCatalog
+from Products.Reportek.config import (
+    DEPLOYMENT_BDR,
+    REPORTEK_DEPLOYMENT,
+)
 from Products.Reportek.interfaces import IReportekCatalog
+
+# from registry import Registry
+from Products.Reportek.registry import Registry
 from Products.Reportek.ReportekUserFactoryPlugin import (
     ReportekUserFactoryPlugin,
     addReportekUserFactoryPlugin,
@@ -337,8 +338,9 @@ registerMultiPlugin(ReportekUserFactoryPlugin.meta_type)
 def initialize(context):
     """Reportek initializer"""
 
-    from . import blob
     from AccessControl.Permissions import view_management_screens
+
+    from . import blob
 
     context.registerClass(
         QAScript.QAScript,
@@ -450,7 +452,7 @@ def initialize(context):
             permission="Add Remote Application",
             constructors=(
                 RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,  # noqa
-                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication  # noqa
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication,  # noqa
             ),  # noqa
             icon="www/qa_application.gif",
         )
@@ -466,9 +468,7 @@ def initialize(context):
         import traceback
 
         type, val, tb = sys.exc_info()
-        sys.stderr.write(
-            string.join(traceback.format_exception(type, val, tb), "")
-        )
+        sys.stderr.write("".join(traceback.format_exception(type, val, tb)))
         del type, val, tb
 
 
@@ -478,6 +478,8 @@ def initialize(context):
 # These objects are accessed as:
 #   <dtml-var SCRIPT_NAME>/misc_/Product/name
 misc_ = {
+    "collection.gif": ImageFile("www/collection.gif", globals()),
+    "referral.gif": ImageFile("www/referral.gif", globals()),
     "Converters": ImageFile("www/converter.gif", globals()),
     "QARepository": ImageFile("www/qarepo.gif", globals()),
     "feedback_gif": ImageFile("www/feedback.gif", globals()),

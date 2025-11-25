@@ -28,6 +28,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Zope imports
+from functools import reduce
 from math import ceil, floor
 
 from AccessControl import ClassSecurityInfo
@@ -404,18 +405,23 @@ class DiggPaginator(ExPaginator):
         )
 
         # put active page in middle of main range
-        main_range = list(map(
-            int,
-            [
-                floor(number - body / 2.0) + 1,  # +1 = shift odd body to right
-                floor(number + body / 2.0),
-            ],
-        ))
+        main_range = list(
+            map(
+                int,
+                [
+                    floor(number - body / 2.0)
+                    + 1,  # +1 = shift odd body to right
+                    floor(number + body / 2.0),
+                ],
+            )
+        )
         # adjust bounds
         if main_range[0] < 1:
             main_range = list(map(abs(main_range[0] - 1).__add__, main_range))
         if main_range[1] > num_pages:
-            main_range = list(map((num_pages - main_range[1]).__add__, main_range))
+            main_range = list(
+                map((num_pages - main_range[1]).__add__, main_range)
+            )
 
         # Determine leading and trailing ranges; if possible and appropriate,
         # combine them with the main range, in which case the resulting main

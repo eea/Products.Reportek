@@ -169,7 +169,7 @@ class EnvelopeTestCase(BaseTest):
         wfe = getattr(self.app, 'WorkflowEngine')
         pr = getattr(wfe, 'begin_end')
         tr = getattr(pr, 'begin_end')
-        tr.condition = "python: len([ i for i in xrange(1, 11)])"
+        tr.condition = "python: len([ i for i in range(1, 11)])"
         pr.addActivity('activity1', application='script1')
         pr.addActivity('activity2', application='script2')
         self.app.manage_addFolder('Applications')
@@ -357,7 +357,7 @@ class EnvelopeTestCase(BaseTest):
                             'rid': pr_id,
                             'title': 'Ă title',
                             'transitions': [
-                                {'condition': 'python: len([ i for i in xrange(1, 11)])',  # noqa
+                                {'condition': 'python: len([ i for i in range(1, 11)])',  # noqa
                                  'description': '',
                                  'from': 'Begin',
                                  'rid': transition_id,

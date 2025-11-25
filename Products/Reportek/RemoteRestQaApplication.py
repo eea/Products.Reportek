@@ -25,7 +25,9 @@ import json
 import logging
 import string
 import tempfile
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import requests
 import requests.exceptions
@@ -34,7 +36,6 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
-from .Document import Document
 from OFS.SimpleItem import SimpleItem
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
@@ -43,6 +44,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.exceptions import LocalConversionException
 from Products.Reportek.interfaces import IQAApplication
+
+from .Document import Document
 
 feedback_log = logging.getLogger(__name__ + ".feedback")
 
@@ -585,7 +588,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         l_wk_prop = getattr(l_workitem, self.app_name)
         # find out what file this job was for
         l_file_url = l_wk_prop["getResult"][p_jobID]["fileURL"]
-        l_file_id = urllib.parse.unquote(string.split(l_file_url, "/")[-1])
+        l_file_id = urllib.parse.unquote(l_file_url.split("/")[-1])
         envelope = self.aq_parent
         try:
             url = "asynctasks/qajobs/{}".format(str(p_jobID))

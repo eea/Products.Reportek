@@ -35,9 +35,9 @@
             </tal:block>
 
             <div id="content" role="main">
-                <metal:block use-macro="context/macros/file_viewing_section" />
-                <metal:block use-macro="context/macros/file_properties_section" />
-                <metal:block use-macro="context/macros/qa_and_feedback_section" />
+                <metal:block use-macro="here/macros/file_viewing_section" />
+                <metal:block use-macro="here/macros/file_properties_section" />
+                <metal:block use-macro="here/macros/qa_and_feedback_section" />
             </div>
         </tal:block>
     </metal:block>

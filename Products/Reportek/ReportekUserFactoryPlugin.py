@@ -1,5 +1,5 @@
 from AccessControl import ClassSecurityInfo
-from App.class_init import InitializeClass
+from AccessControl.class_init import InitializeClass
 from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -16,7 +16,6 @@ __all__ = [
 
 @implementer(IUserFactoryPlugin)
 class ReportekUserFactoryPlugin(BasePlugin):
-
     meta_type = "Reportek User Factory Plugin"
     security = ClassSecurityInfo()
 

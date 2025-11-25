@@ -25,7 +25,9 @@ import json
 import logging
 import string
 import tempfile
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import requests
 import requests.exceptions
@@ -35,7 +37,6 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from BTrees.OOBTree import TreeSet
 from DateTime import DateTime
-from .Document import Document
 from OFS.SimpleItem import SimpleItem
 from persistent.dict import PersistentDict
 from zope.interface import implementer
@@ -44,6 +45,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
 from Products.Reportek.rabbitmq import queue_msg
+
+from .Document import Document
 
 feedback_log = logging.getLogger(__name__ + ".feedback")
 
@@ -232,8 +235,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         else:
             job_id = payload.get("jobId")
             l_file_id = urllib.parse.unquote(
-                string.split(
-                    payload.get("documentURL", payload.get("envelopeUrl")), "/"
+                payload.get("documentURL", payload.get("envelopeUrl")).split(
+                    "/"
                 )[-1]
             )
 
@@ -284,7 +287,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         """Handle payload with job results."""
         job_id = payload.get("jobId")
         l_file_id = urllib.parse.unquote(
-            string.split(payload.get("documentURL"), "/")[-1]
+            payload.get("documentURL").split("/")[-1]
         )
         job_result = payload.get("jobResult")
 

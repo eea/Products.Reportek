@@ -1,7 +1,7 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="content">
-    <span tal:replace="structure here/collection_tabs" />
+    <span tal:replace="structure python:here.collection_tabs(tab='index_html')" />
 
     <tal:block tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                            is_manager python:SecurityManager.checkPermission('View management screens', template);

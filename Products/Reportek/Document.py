@@ -26,11 +26,12 @@ import logging
 import os
 import string
 import sys
+from io import StringIO
 from os.path import join
 from time import time
 
-from Products.Reportek import IconShow, RepUtils
 import plone.protect.interfaces
+
 # import RepUtils
 import requests
 import transaction
@@ -38,17 +39,9 @@ import xmltodict
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from App.Common import package_home, rfc1123_date
-
-# Product imports
-from Products.Reportek.blob import FileContainer, StorageError
-from Products.Reportek.constants import ENGINE_ID, QAREPOSITORY_ID
 from DateTime import DateTime
-from Products.Reportek.interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
-from io import StringIO
-from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
 from zExceptions import Redirect
-from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
 from zope.contenttype import guess_content_type
 from zope.event import notify
 from zope.interface import alsoProvides, implementer
@@ -56,13 +49,24 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.HTTPRequest import FileUpload
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import IconShow, RepUtils
+
+# Product imports
+from Products.Reportek.blob import FileContainer, StorageError
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    ENGINE_ID,
+    QAREPOSITORY_ID,
+)
+from Products.Reportek.interfaces import IDocument
 from Products.Reportek.RepUtils import (
     DFlowCatalogAware,
     getToolByName,
     parse_uri,
 )
+from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
+from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
 
 __version__ = "$Rev$"[6:-2]
 
@@ -179,7 +183,7 @@ def manage_addDocument(
                 string.rfind(id, "\\"),
                 string.rfind(id, ":"),
             )
-            + 1:
+            + 1 :
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
@@ -240,7 +244,7 @@ def manage_addDocument(
                 pobj = REQUEST.PARENTS[0]
                 if not REQUEST.PARENTS[0].absolute_url(1):
                     pobj = REQUEST.PARENTS[-1]
-            ppath = string.join(pobj.getPhysicalPath(), "/")
+            ppath = "/".join(pobj.getPhysicalPath())
             msg = "The file %s was successfully created!" % id
             return success_message(
                 self, [obj], message=msg, action=ppath, REQUEST=REQUEST
@@ -477,7 +481,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def icon_gif(self, REQUEST, RESPONSE):
         """Return an icon for the file's MIME-Type"""
-        filename = join(package_home(__name__), self.getIconPath())
+        filename = join(package_home(globals()), self.getIconPath())
         content_type = "image/gif"
         file_size = os.path.getsize(filename)
         file_mtime = os.path.getmtime(filename)
@@ -968,203 +972,202 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     security.declareProtected("View", "xml_to_json")
 
+    def xml_to_json(self, REQUEST=None):
+        """Convert XML content to JSON if the document is an XML file
 
-def xml_to_json(self, REQUEST=None):
-    """Convert XML content to JSON if the document is an XML file
+        GET request returns full XML as JSON.
+        POST request accepts a JSON object in body with format:
+        {
+            "tags": ["tag1", "path/to/tag2"]
+        }
+        to filter specific tags or paths to tags.
+        """
+        if self.content_type != "text/xml":
+            return error_message(
+                self, "This document is not an XML file", REQUEST=REQUEST
+            )
 
-    GET request returns full XML as JSON.
-    POST request accepts a JSON object in body with format:
-    {
-        "tags": ["tag1", "path/to/tag2"]
-    }
-    to filter specific tags or paths to tags.
-    """
-    if self.content_type != "text/xml":
-        return error_message(
-            self, "This document is not an XML file", REQUEST=REQUEST
-        )
-
-    try:
-        tags = None
-        if REQUEST is not None:
-            method = REQUEST.get("REQUEST_METHOD", "")
-            if method == "POST":
-                try:
-                    body = REQUEST.get("BODY")
-                    if not body:
-                        return error_message(
-                            self, "Empty request body", REQUEST=REQUEST
-                        )
-
+        try:
+            tags = None
+            if REQUEST is not None:
+                method = REQUEST.get("REQUEST_METHOD", "")
+                if method == "POST":
                     try:
-                        body_json = json.loads(body)
-                    except ValueError:
+                        body = REQUEST.get("BODY")
+                        if not body:
+                            return error_message(
+                                self, "Empty request body", REQUEST=REQUEST
+                            )
+
+                        try:
+                            body_json = json.loads(body)
+                        except ValueError:
+                            return error_message(
+                                self,
+                                "Invalid JSON in request body",
+                                REQUEST=REQUEST,
+                            )
+
+                        tags = body_json.get("tags")
+                        if not tags:
+                            return error_message(
+                                self,
+                                "Missing or empty 'tags' key in request body",
+                                REQUEST=REQUEST,
+                            )
+
+                        if not isinstance(tags, list):
+                            return error_message(
+                                self,
+                                "'tags' must be a list of strings",
+                                REQUEST=REQUEST,
+                            )
+
+                        def is_valid_tag(tag):
+                            """Check if a tag is a non-empty string."""
+                            return isinstance(tag, str) and tag.strip()
+
+                        if not all(is_valid_tag(tag) for tag in tags):
+                            return error_message(
+                                self,
+                                "All tags must be non-empty strings",
+                                REQUEST=REQUEST,
+                            )
+
+                    except Exception as e:
+                        logger.exception("Error processing request body")
                         return error_message(
                             self,
-                            "Invalid JSON in request body",
+                            "Error processing request: %s" % str(e),
                             REQUEST=REQUEST,
                         )
-
-                    tags = body_json.get("tags")
-                    if not tags:
-                        return error_message(
-                            self,
-                            "Missing or empty 'tags' key in request body",
-                            REQUEST=REQUEST,
-                        )
-
-                    if not isinstance(tags, list):
-                        return error_message(
-                            self,
-                            "'tags' must be a list of strings",
-                            REQUEST=REQUEST,
-                        )
-
-                    def is_valid_tag(tag):
-                        """Check if a tag is a non-empty string."""
-                        return isinstance(tag, str) and tag.strip()
-
-                    if not all(is_valid_tag(tag) for tag in tags):
-                        return error_message(
-                            self,
-                            "All tags must be non-empty strings",
-                            REQUEST=REQUEST,
-                        )
-
-                except Exception as e:
-                    logger.exception("Error processing request body")
+                elif method != "GET":
                     return error_message(
                         self,
-                        "Error processing request: %s" % str(e),
+                        "Only GET and POST methods are supported",
                         REQUEST=REQUEST,
                     )
-            elif method != "GET":
-                return error_message(
-                    self,
-                    "Only GET and POST methods are supported",
-                    REQUEST=REQUEST,
-                )
 
-        xml_content = None
-        with self.data_file.open() as xml_file:
-            try:
-                xml_content = xml_file.read()
-                xml_dict = xmltodict.parse(xml_content)
-            except Exception as e:
-                logger.exception("Error parsing XML content")
-                return error_message(
-                    self, "Error parsing XML: %s" % str(e), REQUEST=REQUEST
-                )
+            xml_content = None
+            with self.data_file.open() as xml_file:
+                try:
+                    xml_content = xml_file.read()
+                    xml_dict = xmltodict.parse(xml_content)
+                except Exception as e:
+                    logger.exception("Error parsing XML content")
+                    return error_message(
+                        self, "Error parsing XML: %s" % str(e), REQUEST=REQUEST
+                    )
 
-        if tags:
-            # Pre-process tags for efficiency
-            simple_tags = set()
-            path_tags = []
-            for tag in tags:
-                tag = tag.strip()
-                if "/" in tag:
-                    parts = [
-                        p.strip() for p in tag.split("/") if p.strip()
-                    ]
-                    if parts:
-                        path_tags.append(parts)
-                elif tag:
-                    simple_tags.add(tag)
+            if tags:
+                # Pre-process tags for efficiency
+                simple_tags = set()
+                path_tags = []
+                for tag in tags:
+                    tag = tag.strip()
+                    if "/" in tag:
+                        parts = [
+                            p.strip() for p in tag.split("/") if p.strip()
+                        ]
+                        if parts:
+                            path_tags.append(parts)
+                    elif tag:
+                        simple_tags.add(tag)
 
-            def check_path(current_path, tag_path):
-                """Check if current path matches any of the
-                requested tag paths
-                """
-                return len(current_path) <= len(tag_path) and all(
-                    cp == tp for cp, tp in zip(current_path, tag_path)
-                )
+                def check_path(current_path, tag_path):
+                    """Check if current path matches any of the
+                    requested tag paths
+                    """
+                    return len(current_path) <= len(tag_path) and all(
+                        cp == tp for cp, tp in zip(current_path, tag_path)
+                    )
 
-            def filter_content(content, current_path=None):
-                """Recursively filter content based on tag
-                paths/simple tags
-                """
-                if current_path is None:
-                    current_path = []
+                def filter_content(content, current_path=None):
+                    """Recursively filter content based on tag
+                    paths/simple tags
+                    """
+                    if current_path is None:
+                        current_path = []
 
-                if not isinstance(content, (dict, list)):
-                    return content
+                    if not isinstance(content, (dict, list)):
+                        return content
 
-                if isinstance(content, dict):
-                    filtered = {}
-                    for key, value in content.items():
-                        new_path = current_path + [key]
+                    if isinstance(content, dict):
+                        filtered = {}
+                        for key, value in content.items():
+                            new_path = current_path + [key]
 
-                        # Handle attributes
-                        if key.startswith("@"):
-                            if key in simple_tags or any(
+                            # Handle attributes
+                            if key.startswith("@"):
+                                if key in simple_tags or any(
+                                    new_path == path for path in path_tags
+                                ):
+                                    filtered[key] = value
+                                continue
+
+                            is_match = key in simple_tags or any(
                                 new_path == path for path in path_tags
-                            ):
+                            )
+                            is_parent = any(
+                                check_path(new_path, path)
+                                for path in path_tags
+                            )
+                            should_traverse = bool(simple_tags or is_parent)
+
+                            # Add matched content
+                            if is_match:
                                 filtered[key] = value
-                            continue
 
-                        is_match = key in simple_tags or any(
-                            new_path == path for path in path_tags
-                        )
-                        is_parent = any(
-                            check_path(new_path, path)
-                            for path in path_tags
-                        )
-                        should_traverse = bool(simple_tags or is_parent)
+                            # Process nested content if needed
+                            is_dl = isinstance(value, (dict, list))
+                            if should_traverse and is_dl:
+                                nested = filter_content(value, new_path)
+                                if nested:
+                                    if key not in filtered:
+                                        filtered[key] = nested
+                                    elif isinstance(filtered[key], dict):
+                                        filtered[key].update(nested)
 
-                        # Add matched content
-                        if is_match:
-                            filtered[key] = value
+                        return filtered if filtered else None
 
-                        # Process nested content if needed
-                        is_dl = isinstance(value, (dict, list))
-                        if should_traverse and is_dl:
-                            nested = filter_content(value, new_path)
-                            if nested:
-                                if key not in filtered:
-                                    filtered[key] = nested
-                                elif isinstance(filtered[key], dict):
-                                    filtered[key].update(nested)
-
+                    # Handle lists
+                    filtered = []
+                    for item in content:
+                        nested = filter_content(item, current_path)
+                        if nested:
+                            filtered.append(nested)
                     return filtered if filtered else None
 
-                # Handle lists
-                filtered = []
-                for item in content:
-                    nested = filter_content(item, current_path)
-                    if nested:
-                        filtered.append(nested)
-                return filtered if filtered else None
+                # Apply filtering to the whole document
+                filtered_dict = {}
+                for root_key, root_value in xml_dict.items():
+                    filtered = filter_content(root_value, [root_key])
+                    if filtered:
+                        filtered_dict[root_key] = filtered
 
-            # Apply filtering to the whole document
-            filtered_dict = {}
-            for root_key, root_value in xml_dict.items():
-                filtered = filter_content(root_value, [root_key])
-                if filtered:
-                    filtered_dict[root_key] = filtered
+                if not filtered_dict:
+                    return error_message(
+                        self,
+                        "No content found for specified tags",
+                        REQUEST=REQUEST,
+                    )
 
-            if not filtered_dict:
-                return error_message(
-                    self,
-                    "No content found for specified tags",
-                    REQUEST=REQUEST,
-                )
+                xml_dict = filtered_dict
 
-            xml_dict = filtered_dict
+            if REQUEST is not None:
+                REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+                return json.dumps(
+                    xml_dict, indent=2, ensure_ascii=False
+                ).encode("utf-8")
+            return xml_dict
 
-        if REQUEST is not None:
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
-            return json.dumps(
-                xml_dict, indent=2, ensure_ascii=False
-            ).encode("utf-8")
-        return xml_dict
-
-    except Exception as e:
-        logger.exception("Error in xml_to_json")
-        return error_message(
-            self,
-            "Error converting XML to JSON: %s" % str(e),
-            REQUEST=REQUEST,
-        )
+        except Exception as e:
+            logger.exception("Error in xml_to_json")
+            return error_message(
+                self,
+                "Error converting XML to JSON: %s" % str(e),
+                REQUEST=REQUEST,
+            )
 
 
 InitializeClass(Document)

@@ -30,12 +30,8 @@ Referrals are obsolete. It is better to use an Envelope with a hyperlink in it.
 $Id$"""
 
 import AccessControl.Role
-
-# Product imports
-from . import RepUtils
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from .CountriesManager import CountriesManager
 from OFS.role import RoleManager
 from OFS.SimpleItem import SimpleItem
 
@@ -43,6 +39,10 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
+
+# Product imports
+from . import RepUtils
+from .CountriesManager import CountriesManager
 
 manage_addReferralForm = PageTemplateFile("zpt/referral/add", globals())
 
@@ -101,6 +101,7 @@ class Referral(
     """
 
     meta_type = "Repository Referral"
+    icon = "misc_/Reportek/referral.gif"
 
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
@@ -122,8 +123,6 @@ class Referral(
         )
         + RoleManager.manage_options
         + SimpleItem.manage_options
-
-
     )
 
     def __init__(

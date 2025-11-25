@@ -2,7 +2,6 @@ import string
 import uuid
 from time import time
 
-from Products.Reportek import constants
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from BTrees.OOBTree import BTree
@@ -16,6 +15,7 @@ from zope.interface import implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import constants
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.interfaces import IWkMetadata, IWorkitem
 from Products.Reportek.RepUtils import DFlowCatalogAware
@@ -257,7 +257,7 @@ class workitem(
         """ """
         return (
             (self.status in ("active", "inactive"))
-            and string.split(self.process_path, "/")[-1] == process_id
+            and self.process_path.split("/")[-1] == process_id
             and self.activity_id == activity_id
         )
 

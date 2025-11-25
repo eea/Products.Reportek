@@ -23,6 +23,7 @@
 
 # from AccessControl.PermissionRole import rolesForPermissionOn
 import base64
+import datetime
 import json
 import logging
 import operator
@@ -47,10 +48,9 @@ from AccessControl.SecurityManagement import (
 from AccessControl.users import UnrestrictedUser as BaseUnrestrictedUser
 from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
-from DateTime import DateTime
-import datetime
-from path import path
 from App.Common import rfc1123_date
+from DateTime import DateTime
+from path import path
 from zope.component import getUtility
 
 # from zope.datetime import rfc1123_date
@@ -173,7 +173,9 @@ def cleanup_id(name):
             name = name.encode("ascii")
         except UnicodeEncodeError as e:
             name = name[: e.start].encode("ascii")
-    name = string.translate(name, TRANSMAP)
+    if isinstance(name, bytes):
+        name = name.decode("ascii", errors="ignore")
+    name = name.translate(TRANSMAP)
     valid_fn_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
     return "".join(c for c in name if c in valid_fn_chars)
 
@@ -190,7 +192,12 @@ def generate_id(template):
         id = chr(k & 0xFF) + id
         k >>= 8
     id = base64.encodestring(id)
-    return template + string.translate(string.lower(id), TRANSMAP, "/=\n")
+    if isinstance(id, bytes):
+        id = id.decode("ascii", errors="ignore")
+    # Remove /=\n characters and translate
+    id = id.lower().translate(TRANSMAP)
+    id = id.replace("/", "").replace("=", "").replace("\n", "")
+    return template + id
 
 
 def xmlEncode(p_string):
@@ -321,27 +328,28 @@ def utIsSubsetOf(first_list, second_list):
 
 def utSortByAttr(p_obj_list, p_attr, p_sort_order=0):
     """Sort a list of objects by one of the attributes"""
-    l_temp = map(
-        None,
-        list(map(getattr, p_obj_list, (p_attr,) * len(p_obj_list))),
-        range(len(p_obj_list)),
-        p_obj_list,
+    l_temp = list(
+        zip(
+            [getattr(obj, p_attr) for obj in p_obj_list],
+            range(len(p_obj_list)),
+            p_obj_list,
+        )
     )
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
-    return list(map(operator.getitem, l_temp, (-1,) * len(l_temp)))
+    return [item[-1] for item in l_temp]
 
 
 def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
     """Sort a list of objects by one of the attributes"""
-    l_temp = map(
-        None, (p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list
+    l_temp = list(
+        zip((p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list)
     )
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
-    return list(map(operator.getitem, l_temp, (-1,) * len(l_temp)))
+    return [item[-1] for item in l_temp]
 
 
 def utTruncString(s, p_size=50):
@@ -368,11 +376,14 @@ def utSortObjsListByMethod(p_list, p_method, p_desc=1):
 
 
 def utSortObjsListByMethod2(p_list, p_method, p_desc=1):
-    """Sort a list of objects by an attribute values"""
+    """Sort a list of objects by calling a method on each object"""
 
-    p_list.sort(key=operator.attrgetter(p_method))
-    if p_desc:
-        p_list.reverse()
+    def get_sort_key(obj):
+        attr = getattr(obj, p_method)
+        # Call it if it's a method, otherwise return the value
+        return attr() if callable(attr) else attr
+
+    p_list.sort(key=get_sort_key, reverse=bool(p_desc))
     return p_list
 
 
@@ -380,11 +391,13 @@ def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     """Sort a list of objects by the result of one of their functions"""
     l_temp = map(
         None,
-        list(map(
-            lambda x, y: getattr(x, y)(),
-            p_obj_list,
-            (p_attr,) * len(p_obj_list),
-        )),
+        list(
+            map(
+                lambda x, y: getattr(x, y)(),
+                p_obj_list,
+                (p_attr,) * len(p_obj_list),
+            )
+        ),
         range(len(p_obj_list)),
         p_obj_list,
         (p_date,) * len(p_obj_list),
@@ -463,7 +476,7 @@ def cookId(file):
                 filename.rfind("\\"),
                 filename.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         return id
     return file
@@ -502,7 +515,7 @@ def http_response_with_file(
     # HTTP If-Modified-Since header handling.
     header = request.get_header("If-Modified-Since", None)
     if header is not None:
-        header = string.split(header, ";")[0]
+        header = header.split(";")[0]
         # Some proxies seem to send invalid date strings for this
         # header. If the date string is not valid, we ignore it
         # rather than raise an error to be generally consistent
@@ -915,7 +928,7 @@ class DFlowCatalogAware(object):
                 # Can happen only when using
                 # catalog-getObject-raises off in Zope 2.8
                 logger.warning(
-                    "reindexObjectSecurity: Cannot get %s from " "catalog",
+                    "reindexObjectSecurity: Cannot get %s from catalog",
                     brain_path,
                 )
                 continue
@@ -1032,29 +1045,33 @@ def checkPermission(permission, obj):
         permission = permission.decode()
     return getSecurityManager().checkPermission(permission, obj)
 
+
 # pylint: disable=dangerous-default-value
 
 
 def load_template(name, context=None, _memo={}):
-    ''' load the main template '''
+    """load the main template"""
+    from App.Common import package_home
+
+    import Products.Reportek
+    from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+
     if name not in _memo:
-        tpl = ChameleonTemplate(name)
+        base_path = package_home(Products.Reportek.__dict__)
+        tpl = PageTemplateFile(os.path.join(base_path, name))
+        _memo[name] = tpl
 
-        if context is not None:
-            bound = tpl.bind(context)
-            _memo[name] = bound
-        else:
-            _memo[name] = tpl
-
+    if context is not None:
+        return _memo[name].__of__(context)
     return _memo[name]
 
 
 def datify(s):
     """Get a DateTime object from a string (or anything parsable by DateTime,
-       a datetime.date, a datetime.datetime
+    a datetime.date, a datetime.datetime
     """
     if not isinstance(s, DateTime):
-        if s == 'None':
+        if s == "None":
             s = None
         elif isinstance(s, datetime.datetime):
             s = DateTime(s.isoformat())
