@@ -376,14 +376,11 @@ def utSortObjsListByMethod(p_list, p_method, p_desc=1):
 
 
 def utSortObjsListByMethod2(p_list, p_method, p_desc=1):
-    """Sort a list of objects by calling a method on each object"""
+    """Sort a list of objects by an attribute values"""
 
-    def get_sort_key(obj):
-        attr = getattr(obj, p_method)
-        # Call it if it's a method, otherwise return the value
-        return attr() if callable(attr) else attr
-
-    p_list.sort(key=get_sort_key, reverse=bool(p_desc))
+    p_list.sort(key=operator.attrgetter(p_method))
+    if p_desc:
+        p_list.reverse()
     return p_list
 
 

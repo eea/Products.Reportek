@@ -355,8 +355,6 @@ class Envelope(
     security.declareProtected("Change Envelopes", "manage_renameObject")
     security.declareProtected("Change Envelopes", "manage_renameObjects")
 
-    macros = PageTemplateFile("zpt/envelope/macros.zpt", globals()).macros
-
     def __init__(
         self,
         process,

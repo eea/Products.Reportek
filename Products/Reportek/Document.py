@@ -293,9 +293,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     from App.Common import package_home
 
-    macros = PageTemplateFile(
+    _macros_template = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/document/macros.zpt")
-    ).macros
+    )
+
+    @property
+    def macros(self):
+        return self._macros_template.macros
 
     meta_type = "Report Document"
 

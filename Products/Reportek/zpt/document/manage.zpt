@@ -34,10 +34,13 @@
                 <p class="restricted-notice" i18n:translate="">The access to this file is limited, meaning it is not (yet) released for public view.</p>
             </tal:block>
 
-            <div id="content" role="main">
-                <metal:block use-macro="here/macros/file_viewing_section" />
-                <metal:block use-macro="here/macros/file_properties_section" />
-                <metal:block use-macro="here/macros/qa_and_feedback_section" />
+            <div id="fcontent" role="main">
+                <metal:block use-macro="here/macros/file_viewing_section">
+                </metal:block>
+                <metal:block use-macro="here/macros/file_properties_section">
+                </metal:block>
+                <metal:block use-macro="here/macros/qa_and_feedback_section">
+                </metal:block>
             </div>
         </tal:block>
     </metal:block>

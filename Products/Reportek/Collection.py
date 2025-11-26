@@ -271,10 +271,6 @@ class Collection(
     security.declareProtected("Add Envelopes", "manage_addReferral")
     manage_addReferral = Referral.manage_addReferral
 
-    macros = PageTemplateFile(
-        os.path.join(package_home(globals()), "zpt/collection/macros.zpt")
-    ).macros
-
     security.declareProtected("View", "index_html")
     index_html = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/collection/index.zpt")

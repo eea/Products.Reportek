@@ -16,8 +16,8 @@
     </tal:block>
   </tal:block>
 
-  <tal:def tal:define="session python: getattr(request, 'SESSION', {});
-                    status_extra python: session.get('status_extra')">
+  <tal:def tal:define="session python: getattr(request, 'SESSION', None) or {};
+                    status_extra python: session.get('status_extra', None)">
   <tal:block tal:condition="status_extra">
     <span tal:attributes="class python: {'error': 'error-msg-lite', 'warning': 'warning-msg-lite', 'info': 'info-msg-lite'}.get(e_type, '');"
     tal:define="e_type python: status_extra[0];
@@ -126,12 +126,12 @@
                       </a>
                     </strong>
                     (<span tal:replace="python:item.getActivityDetails('description')"></span>)
-                    , 
+                    ,
                     <!-- <span tal:condition="not:repeat/item/end">, </span> -->
                   </tal:block>
                   <tal:block condition="not:canPull">
                     <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
-                    , 
+                    ,
                     <!-- <span tal:condition="not:repeat/item/end">, </span> -->
                   </tal:block>
                 </div>
