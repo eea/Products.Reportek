@@ -24,8 +24,6 @@ import hashlib
 import json
 import logging
 import os
-import string
-import sys
 from io import IOBase, StringIO
 from os.path import join
 from time import time
@@ -183,7 +181,7 @@ def manage_addDocument(
                 id.rfind("\\"),
                 id.rfind(":"),
             )
-            + 1 :
+            + 1:
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)

@@ -33,7 +33,6 @@ import os
 import tempfile
 from zipfile import BadZipfile
 
-import AccessControl.Role
 import OFS.ObjectManager
 import OFS.SimpleItem
 import plone.protect.interfaces

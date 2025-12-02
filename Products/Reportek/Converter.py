@@ -112,7 +112,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = ct_extraparams
         self.description = description
         # Drop everything up to period.
-        self.suffix = suffix[suffix.find(".") + 1 :]
+        self.suffix = suffix[suffix.find(".") + 1:]
         self.internal = internal
 
     # security stuff
@@ -142,7 +142,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = RepUtils.utConvertLinesToList(ct_extraparams)
         self.description = description
         # Drop everything up to period.
-        self.suffix = suffix[suffix.find(".") + 1 :]
+        self.suffix = suffix[suffix.find(".") + 1:]
         self.internal = internal
         self._p_changed = 1
         if REQUEST:
@@ -343,7 +343,7 @@ class LocalHttpConverter(Converter):
             extra_params = request_params(self.ct_extraparams, obj=file_obj)
         data = self.get_file_data(file_obj)
         files = {"file": data}
-        file_handles = [data] if hasattr(data, 'close') else []
+        file_handles = [data] if hasattr(data, "close") else []
         accepts_shp = any(["shp" in item for item in self.ct_input])
         if accepts_shp:
             shp_container = file_obj.aq_parent
@@ -358,9 +358,9 @@ class LocalHttpConverter(Converter):
             dbf_data = self.get_file_data(dbf_file)
             files["shx"] = shx_data
             files["dbf"] = dbf_data
-            if hasattr(shx_data, 'close'):
+            if hasattr(shx_data, "close"):
                 file_handles.append(shx_data)
-            if hasattr(dbf_data, 'close'):
+            if hasattr(dbf_data, "close"):
                 file_handles.append(dbf_data)
         try:
             resp = requests.post(
