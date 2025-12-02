@@ -290,7 +290,7 @@ class Converters(Folder):
     ):
         """Proxy to run_conversion for API compatibility."""
         name = REQUEST.get("conv", converter_id)
-        regex_result = re.match("(loc|rem)_(\w+$)", name)
+        regex_result = re.match(r"(loc|rem)_(\w+$)", name)
         if regex_result:
             flag, _id = regex_result.groups()
             if flag == "rem":

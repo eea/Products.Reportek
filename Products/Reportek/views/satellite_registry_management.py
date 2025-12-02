@@ -52,7 +52,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             email = self.request.form.get("email")
 
             if fname and lname and email:
-                if not re.match("[\.\w]{1,}[@]\w+[.]\w+", email):
+                if not re.match(r"[\.\w]{1,}[@]\w+[.]\w+", email):
                     return self.index(
                         error="Please use a valid email address."
                     )

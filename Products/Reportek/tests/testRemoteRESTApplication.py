@@ -143,7 +143,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         )
         self.create_cepaa_set(1)
         exp = re.compile(
-            "\w+ job request for http:\/\/[\w+\/]+ successfully submited.$"
+            r"\w+ job request for http:\/\/[\w+\/]+ successfully submited.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
@@ -152,7 +152,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         mock_requests.get.return_value = Mock(status_code=201)
         self.create_cepaa_set(1)
         exp = re.compile(
-            "\w+ job request for http:\/\/[\w+\/]+ returned invalid status code 201.$"  # noqa
+            r"\w+ job request for http:\/\/[\w+\/]+ returned invalid status code 201.$"  # noqa
         )  # noqa
         self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
@@ -164,11 +164,11 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         mock_requests.get.return_value = Mock(status_code=200, json=bad_json)
         self.create_cepaa_set(1)
         exp = re.compile(
-            "\w+ job request for http:\/\/[\w+\/]+ response is not json.$"
+            r"\w+ job request for http:\/\/[\w+\/]+ response is not json.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
         exp = re.compile(
-            "\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
+            r"\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[4]["event"], exp)
 
@@ -179,7 +179,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         )
         self.create_cepaa_set(1)
         exp = re.compile(
-            "\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
+            r"\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
@@ -214,7 +214,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile(
-            "\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$"  # noqa
+            r"\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$"  # noqa
         )  # noqa
         self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
@@ -238,11 +238,11 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile(
-            "\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$"
+            r"\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[-4]["event"], exp)
         exp = re.compile(
-            "\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$"
+            r"\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
@@ -275,7 +275,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile(
-            "\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$"
+            r"\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
@@ -541,7 +541,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         )
         # Forward state
         self.app.col1.env1.forwardState()
-        exp = re.compile("\w+ job id 1 for http:\/\/[\w+\/]+ failed.$")
+        exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ failed.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
@@ -592,7 +592,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             "0", self.app.REQUEST
         )
         exp = re.compile(
-            "\w+ job id 1 for http:\/\/[\w+\/]+ is still running.$"
+            r"\w+ job id 1 for http:\/\/[\w+\/]+ is still running.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[-1]["event"], exp)
 
@@ -711,7 +711,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             "0", self.app.REQUEST
         )
         exp = re.compile(
-            "\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$"
+            r"\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[-1]["event"], exp)
         workitem = self.app.col1.env1["0"]

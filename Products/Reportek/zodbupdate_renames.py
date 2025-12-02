@@ -1,5 +1,4 @@
-"""
-ZODB update rename rules for obsolete Zope 2 classes.
+"""ZODB update rename rules for obsolete Zope 2 classes.
 
 This module defines rename rules for zodbupdate to handle migration
 from Zope 2 to Zope 4, removing obsolete persistent classes.

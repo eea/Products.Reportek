@@ -598,7 +598,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
                     c_ctl.selected = True
 
             self.browser.getControl(name="cid").value = "test5"
-            self.browser.getControl(name="pattern").value = "\eea"
+            self.browser.getControl(name="pattern").value = r"\eea"
             self.browser.getControl(name="btn.submit").click()
             self.assertTrue(
                 "Successfully created collection for" in self.browser.contents

@@ -113,14 +113,14 @@
 
   </div>
 
-  <div id="pagefoot">
+  <div id="pagefoot" i18n:translate="">
     Document last modified <tal:block
     tal:define="obj python:context.aq_inner.aq_parent;
                 m_date python:getattr(obj, 'modified', None)"
     tal:condition="python:m_date and callable(m_date)"
     tal:content="python:m_date().ISO()">
     </tal:block>.
-    <a href="/legalnotice">Legal notice</a>
+    <a href="/legalnotice" i18n:translate="">Legal notice</a>
   </div>
 </body>
 
