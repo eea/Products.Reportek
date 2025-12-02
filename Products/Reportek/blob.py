@@ -1,22 +1,22 @@
 import logging
 import os.path
 from gzip import GzipFile
+from io import StringIO
 from time import localtime, strftime, time
 
 import OFS.SimpleItem as _SimpleItem
-from Products.Reportek import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
 from App.config import getConfiguration
-from Products.Reportek.gzipraw import GzipFileRaw
 from persistent import Persistent
-from io import StringIO
 from ZODB.blob import Blob, POSKeyError
 from zope.contenttype import guess_content_type
 from ZPublisher.HTTPRequest import FileUpload
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import RepUtils
+from Products.Reportek.gzipraw import GzipFileRaw
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
 
 logger = logging.getLogger("Reportek")
@@ -221,7 +221,7 @@ class FileContainer(Persistent):
         blob_dir = self.get_blob_dir()
         try:
             with self._blob.open("r") as this_data_file:
-                fs_path = this_data_file.name[len(blob_dir) + 1:]
+                fs_path = this_data_file.name[len(blob_dir) + 1 :]
                 return os.path.join(blob_dir, fs_path)
         except Exception:
             return ""

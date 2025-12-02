@@ -1,6 +1,6 @@
 import unittest
 import zipfile
-from io import BytesIO, StringIO
+from io import BytesIO
 
 from DateTime import DateTime
 from mock import Mock, patch

@@ -25,19 +25,18 @@ import json
 import logging
 import os
 import tempfile
+import xmlrpc.client
 from copy import copy, deepcopy
+from io import StringIO
 from operator import itemgetter
 from time import strftime, time
+from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
-# product imports
-from . import constants
 import plone.protect.interfaces
-from . import RepUtils
 import requests
 import transaction
 import xlwt
-import xmlrpc.client
 from AccessControl import ClassSecurityInfo, SpecialUsers, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
@@ -46,19 +45,11 @@ from AccessControl.SecurityManagement import (
     setSecurityManager,
 )
 from App.Common import package_home
-from .config import DEPLOYMENT_BDR, DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
-from .CountriesManager import CountriesManager
-from .DataflowsManager import DataflowsManager
 from DateTime import DateTime
-from .interfaces import IReportekEngine
 
 # Zope imports
 from OFS.Folder import Folder
-from .paginator import DiggPaginator, EmptyPage, InvalidPage
 from plone.memoize import ram
-from io import StringIO
-from .Toolz import Toolz
-from urllib.parse import urlparse
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
@@ -79,6 +70,15 @@ from Products.Reportek.RegistryManagement import (
     FGASRegistryAPI,
 )
 from Products.Reportek.RepUtils import getToolByName
+
+# product imports
+from . import RepUtils, constants
+from .config import DEPLOYMENT_BDR, DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
+from .CountriesManager import CountriesManager
+from .DataflowsManager import DataflowsManager
+from .interfaces import IReportekEngine
+from .paginator import DiggPaginator, EmptyPage, InvalidPage
+from .Toolz import Toolz
 
 __doc__ = """
       Engine for the Reportek Product
@@ -1148,7 +1148,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog_args = self.get_query_args()
         if self.REQUEST.get("countries"):
             isos = self.REQUEST.get("countries")
-            countries = [c for c in self.localities_rod() if c.get("iso") in isos]
+            countries = [
+                c for c in self.localities_rod() if c.get("iso") in isos
+            ]
             catalog_args["country"] = [country["uri"] for country in countries]
         if self.REQUEST.get("obligations"):
             obligations = self.REQUEST.get("obligations")
@@ -1439,7 +1441,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         Skip over the ones that don't really exist.
         """
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
-        records = list(map(getattr, p_brains, ("data_record_id_",) * len(p_brains)))
+        records = list(
+            map(getattr, p_brains, ("data_record_id_",) * len(p_brains))
+        )
         objects = []
         for record in records:
             try:
@@ -1647,7 +1651,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             upd_module.update(app)
 
         migs = getattr(self, constants.MIGRATION_ID)
-        migs = sorted(list(migs.values()), key=lambda o: o.current_ts, reverse=True)
+        migs = sorted(
+            list(migs.values()), key=lambda o: o.current_ts, reverse=True
+        )
         done_rows = []
         todo_rows = []
 
@@ -2044,7 +2050,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         raise ValueError("hello world")
 
     def getSearchResults(self, **kwargs):
-        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
+        [
+            kwargs.pop(el)
+            for el in list(kwargs.keys())
+            if kwargs[el] in [None, ""]
+        ]
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**kwargs)
 

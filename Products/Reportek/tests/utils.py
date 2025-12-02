@@ -25,7 +25,7 @@ import shutil
 import sys
 import tempfile
 import time
-from io import BytesIO, StringIO
+from io import BytesIO
 
 import lxml.cssselect
 import lxml.html

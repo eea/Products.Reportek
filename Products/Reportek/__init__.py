@@ -463,7 +463,6 @@ def initialize(context):
         monitoring.initialize()
 
     except Exception:
-        import string
         import sys
         import traceback
 

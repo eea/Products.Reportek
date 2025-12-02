@@ -335,7 +335,9 @@ class ConversionServiceTest(BaseUnitTest):
 
         file_url = "/Converters/test.shp"
         shp_conv(file_url, shp_conv.id)
-        self.assertEqual(set(["file", "shx", "dbf"]), set(captured_files.keys()))
+        self.assertEqual(
+            set(["file", "shx", "dbf"]), set(captured_files.keys())
+        )
         for content in captured_files.values():
             self.assertEqual(b"test file", content)
 

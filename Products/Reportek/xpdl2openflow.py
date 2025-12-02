@@ -19,19 +19,32 @@
 # Miruna Badescu, Finsiel Romania
 
 
-""" XMLInfoParser object
+"""XMLInfoParser object
 
 Parses XML files and extract DTD identifier or XML Schema URL.
 
 """
 
 from io import StringIO
+from xml.sax import InputSource, make_parser
 from xml.sax.handler import ContentHandler
-from xml.sax import make_parser, InputSource
-from .xpdldefinitions import (package, packageheader, participant, application,
-                             workflowprocess, processheader, activity, tool,
-                             subflow, loop, transitionrestriction,
-                             splittransition, transitionref, transition)
+
+from .xpdldefinitions import (
+    activity,
+    application,
+    loop,
+    package,
+    packageheader,
+    participant,
+    processheader,
+    splittransition,
+    subflow,
+    tool,
+    transition,
+    transitionref,
+    transitionrestriction,
+    workflowprocess,
+)
 
 xpdlns_1_0 = "http://www.wfmc.org/2002/XPDL1.0"
 
@@ -39,7 +52,7 @@ xpdlns_1_0 = "http://www.wfmc.org/2002/XPDL1.0"
 class saxstack_struct:
     def __init__(self, obj=None):
         self.obj = obj
-        self.content = ''
+        self.content = ""
 
 
 class generic_tag:
@@ -48,7 +61,6 @@ class generic_tag:
 
 
 class xpdl_handler(ContentHandler):
-
     def __init__(self):
         self.root = None
         self.stack = []
@@ -56,330 +68,344 @@ class xpdl_handler(ContentHandler):
     def startElement(self, name, attrs):
         """ """
         # get package
-        if name == 'Package':
+        if name == "Package":
             obj = package()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # get package header
-        elif name == 'PackageHeader':
+        elif name == "PackageHeader":
             obj = packageheader()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'XPDLVersion':
+        elif name == "XPDLVersion":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Vendor':
+        elif name == "Vendor":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Created':
+        elif name == "Created":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Version':
+        elif name == "Version":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Author':
+        elif name == "Author":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Codepage':
+        elif name == "Codepage":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'CountryKey':
+        elif name == "CountryKey":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'PublicationStatus':
+        elif name == "PublicationStatus":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'ConformanceClass':
+        elif name == "ConformanceClass":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'PriorityUnit':
+        elif name == "PriorityUnit":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Responsible':
+        elif name == "Responsible":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'ExternalPackage':
+        elif name == "ExternalPackage":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Documentation':
+        elif name == "Documentation":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Icon':
+        elif name == "Icon":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'CostUnit':
+        elif name == "CostUnit":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # get participants
-        elif name == 'Participant':
-            obj = participant(attrs.get('Id', '').encode('utf-8'),
-                              attrs.get('Name', '').encode('utf-8'),
-                              attrs.get('Description', '').encode('utf-8'))
+        elif name == "Participant":
+            obj = participant(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Name", "").encode("utf-8"),
+                attrs.get("Description", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'ParticipantType':
-            self.stack[-1].obj.participant_type = attrs.get(
-                'Type', '').encode('utf-8')
-        elif name == 'ExtendedAttribute':  # merg la toate
+        elif name == "ParticipantType":
+            self.stack[-1].obj.participant_type = attrs.get("Type", "").encode(
+                "utf-8"
+            )
+        elif name == "ExtendedAttribute":  # merg la toate
             self.stack[-1].obj.extendedattributes[
-                attrs.get('Name', '').encode('utf-8')] = attrs.get(
-                    'Value', '').encode('utf-8')
+                attrs.get("Name", "").encode("utf-8")
+            ] = attrs.get("Value", "").encode("utf-8")
         # get application
-        elif name == 'Application':
-            obj = application(attrs.get('Id', '').encode('utf-8'),
-                              attrs.get('Name', '').encode('utf-8'),
-                              attrs.get('Description', '').encode('utf-8'))
+        elif name == "Application":
+            obj = application(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Name", "").encode("utf-8"),
+                attrs.get("Description", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # get processes
-        elif name == 'WorkflowProcess':
-            obj = workflowprocess(attrs.get('Id', '').encode('utf-8'),
-                                  attrs.get('Name', '').encode('utf-8'),
-                                  attrs.get('Description', '').encode('utf-8')
-                                  )
+        elif name == "WorkflowProcess":
+            obj = workflowprocess(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Name", "").encode("utf-8"),
+                attrs.get("Description", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'ProcessHeader':
+        elif name == "ProcessHeader":
             obj = processheader()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Description':  # bun si in cazul lui activity
+        elif name == "Description":  # bun si in cazul lui activity
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Priority':
+        elif name == "Priority":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # get activities
-        elif name == 'Activity':
-            obj = activity(attrs.get('Id', '').encode('utf-8'),
-                           attrs.get('Name', '').encode('utf-8'),
-                           attrs.get('Description', '').encode('utf-8'))
+        elif name == "Activity":
+            obj = activity(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Name", "").encode("utf-8"),
+                attrs.get("Description", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # get implementation (No, Tool, SubFlow, Loop)
-        elif name == 'Implementation':
+        elif name == "Implementation":
             pass
-        elif name == 'No':
+        elif name == "No":
             pass
-        elif name == 'Tool':
-            obj = tool(attrs.get('Id', '').encode('utf-8'),
-                       attrs.get('Type', '').encode('utf-8'))
+        elif name == "Tool":
+            obj = tool(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Type", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'ActualParameter':
+        elif name == "ActualParameter":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'SubFlow':
-            obj = subflow(attrs.get('Id', '').encode('utf-8'),
-                          attrs.get('Execution', '').encode('utf-8'))
+        elif name == "SubFlow":
+            obj = subflow(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Execution", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Loop':
-            obj = loop(attrs.get('Kind', '').encode('utf-8'))
+        elif name == "Loop":
+            obj = loop(attrs.get("Kind", "").encode("utf-8"))
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Performer':
+        elif name == "Performer":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # start and finish modes
-        elif name == 'Manual':
+        elif name == "Manual":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Automatic':
+        elif name == "Automatic":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'StartMode':
+        elif name == "StartMode":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'FinishMode':
+        elif name == "FinishMode":
             obj = generic_tag()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'TransitionRestriction':
+        elif name == "TransitionRestriction":
             obj = transitionrestriction()
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Join':
+        elif name == "Join":
             obj = generic_tag()
-            obj.type = attrs.get('Type', '').encode('utf-8')
+            obj.type = attrs.get("Type", "").encode("utf-8")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Split':
+        elif name == "Split":
             obj = splittransition()
-            obj.type = attrs.get('Type', '').encode('utf-8')
+            obj.type = attrs.get("Type", "").encode("utf-8")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'TransitionRef':
+        elif name == "TransitionRef":
             obj = transitionref()
-            obj.id = attrs.get('Id', '').encode('utf-8')
+            obj.id = attrs.get("Id", "").encode("utf-8")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Transition':
-            obj = transition(attrs.get('Id', '').encode('utf-8'),
-                             attrs.get('Name', '').encode('utf-8'),
-                             attrs.get('From', '').encode('utf-8'),
-                             attrs.get('To', '').encode('utf-8'))
+        elif name == "Transition":
+            obj = transition(
+                attrs.get("Id", "").encode("utf-8"),
+                attrs.get("Name", "").encode("utf-8"),
+                attrs.get("From", "").encode("utf-8"),
+                attrs.get("To", "").encode("utf-8"),
+            )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
-        elif name == 'Condition':
+        elif name == "Condition":
             obj = generic_tag()
-            obj.type = attrs.get('Type', '').encode('utf-8')
+            obj.type = attrs.get("Type", "").encode("utf-8")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
 
     def endElement(self, name):
         """ """
-        if name == 'Package':
+        if name == "Package":
             self.root = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'PackageHeader':
+        elif name == "PackageHeader":
             self.stack[-2].obj.packageheader = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'XPDLVersion':
+        elif name == "XPDLVersion":
             self.stack[-2].obj.xpdlversion = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Vendor':
+        elif name == "Vendor":
             self.stack[-2].obj.vendor = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Created':
+        elif name == "Created":
             self.stack[-2].obj.created = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Version':
+        elif name == "Version":
             self.stack[-2].obj.version = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Author':
+        elif name == "Author":
             self.stack[-2].obj.author = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Codepage':
+        elif name == "Codepage":
             self.stack[-2].obj.codepage = self.stack[-1].content
             self.stack.pop()
-        elif name == 'CountryKey':
+        elif name == "CountryKey":
             self.stack[-2].obj.countrykey = self.stack[-1].content
             self.stack.pop()
-        elif name == 'PublicationStatus':
+        elif name == "PublicationStatus":
             self.stack[-2].obj.publicationstatus = self.stack[-1].content
             self.stack.pop()
-        elif name == 'ConformanceClass':
+        elif name == "ConformanceClass":
             self.stack[-2].obj.conformanceclass = self.stack[-1].content
             self.stack.pop()
-        elif name == 'PriorityUnit':
+        elif name == "PriorityUnit":
             self.stack[-2].obj.priorityunit = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Responsible':
+        elif name == "Responsible":
             self.stack[-2].obj.responsible = self.stack[-1].content
             self.stack.pop()
-        elif name == 'ExternalPackage':
+        elif name == "ExternalPackage":
             self.stack[-2].obj.externalpackage = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Documentation':
+        elif name == "Documentation":
             self.stack[-2].obj.documentation = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Icon':
+        elif name == "Icon":
             self.stack[-2].obj.icon = self.stack[-1].content
             self.stack.pop()
-        elif name == 'CostUnit':
+        elif name == "CostUnit":
             self.stack[-2].obj.costunit = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Participant':
+        elif name == "Participant":
             self.stack[-2].obj.participants.append(self.stack[-1].obj)
             self.stack.pop()
-        elif name == 'ParticipantType':
+        elif name == "ParticipantType":
             pass
-        elif name == 'ExtendedAttribute':
+        elif name == "ExtendedAttribute":
             pass
-        elif name == 'Application':
+        elif name == "Application":
             self.stack[-2].obj.applications.append(self.stack[-1].obj)
             self.stack.pop()
-        elif name == 'WorkflowProcess':
+        elif name == "WorkflowProcess":
             self.stack[-2].obj.process_definitions.append(self.stack[-1].obj)
             self.stack.pop()
-        elif name == 'ProcessHeader':
+        elif name == "ProcessHeader":
             self.stack[-2].obj.process_header = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'Description':
+        elif name == "Description":
             self.stack[-2].obj.description = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Priority':
+        elif name == "Priority":
             self.stack[-2].obj.priority = self.stack[-1].content
             self.stack.pop()
-        elif name == 'Activity':
+        elif name == "Activity":
             self.stack[-2].obj.activities.append(self.stack[-1].obj)
             self.stack.pop()
-        elif name == 'Implementation':
+        elif name == "Implementation":
             pass
-        elif name == 'No':
+        elif name == "No":
             pass
-        elif name == 'Tool':
+        elif name == "Tool":
             self.stack[-2].obj.tool = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'ActualParameter':
+        elif name == "ActualParameter":
             self.stack[-2].obj.actual_parameters.append(self.stack[-1].content)
             self.stack.pop()
-        elif name == 'SubFlow':
+        elif name == "SubFlow":
             self.stack[-2].obj.subflow = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'Loop':
+        elif name == "Loop":
             self.stack[-2].obj.loop = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'Performer':
+        elif name == "Performer":
             self.stack[-2].obj.performer = self.stack[-1].content
             self.stack.pop()
-        elif name == 'StartMode':
+        elif name == "StartMode":
             self.stack[-2].obj.startmode = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'FinishMode':
+        elif name == "FinishMode":
             self.stack[-2].obj.finishmode = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'Manual':
+        elif name == "Manual":
             self.stack[-2].obj.mode = 0
             self.stack.pop()
-        elif name == 'Automatic':
+        elif name == "Automatic":
             self.stack[-2].obj.mode = 1
             self.stack.pop()
-        elif name == 'TransitionRestriction':
+        elif name == "TransitionRestriction":
             self.stack[-2].obj.transition_restrictions = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'Join':
+        elif name == "Join":
             self.stack[-2].obj.join = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'Split':
+        elif name == "Split":
             self.stack[-2].obj.split = self.stack[-1].obj
             self.stack.pop()
-        elif name == 'TransitionRef':
+        elif name == "TransitionRef":
             self.stack[-2].obj.transition_refs.append(self.stack[-1].obj)
             self.stack.pop()
-        elif name == 'Transition':
+        elif name == "Transition":
             self.stack[-2].obj.transitions.append(self.stack[-1].obj)
             self.stack.pop()
-        elif name == 'Condition':
+        elif name == "Condition":
             self.stack[-2].obj.condition = self.stack[-1].content
             self.stack.pop()
 
     def characters(self, content):
         if len(self.stack) > 0:
-            self.stack[-1].content += content.strip(' \t')
+            self.stack[-1].content += content.strip(" \t")
 
 
 class xpdlparser:

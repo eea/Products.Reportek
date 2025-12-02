@@ -1,5 +1,5 @@
 import os
-from io import BytesIO, StringIO
+from io import BytesIO
 
 import transaction
 from mock import Mock, patch

@@ -1,17 +1,14 @@
+from io import StringIO
+
 import requests
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-
-# Product imports
-from .activity import activity
 from App.Dialogs import MessageDialog
 from DateTime import DateTime
 from OFS.Folder import Folder
 from path import path
-from io import StringIO
-from .transition import transition
 from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -19,6 +16,10 @@ from Products.Reportek import constants
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.interfaces import IProcess
 from Products.Reportek.RepUtils import getToolByName
+
+# Product imports
+from .activity import activity
+from .transition import transition
 
 CycleError = "CycleError"  # For _topsort()
 
@@ -270,9 +271,12 @@ class process(CatalogAware, Folder):
                 successors[first] = [second]
 
         # suck up everything without a predecessor
-        answer = list(filter(
-            lambda x, numpreds=numpreds: numpreds[x] == 0, list(numpreds.keys())
-        ))
+        answer = list(
+            filter(
+                lambda x, numpreds=numpreds: numpreds[x] == 0,
+                list(numpreds.keys()),
+            )
+        )
 
         # for everything in answer, knock down the pred count on
         # its successors; note that answer grows *in* the loop
@@ -474,7 +478,7 @@ def process_to_dot(process):
         cond_desc = condition
         tooltip = "{0} -> {1}".format(t.From, t.To)
         if condition.startswith(cond_prefix):
-            condition = condition[len(cond_prefix):]
+            condition = condition[len(cond_prefix) :]
         if condition:
             condition = namify(condition, "cond")
         line = "{short_tr_from} -> {short_tr_to}".format(**locals())

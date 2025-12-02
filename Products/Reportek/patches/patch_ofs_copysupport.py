@@ -1,39 +1,43 @@
 from App.Dialogs import MessageDialog
-from Products.Reportek.interfaces import IProcess
-from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
+
 # from App.special_dtml import DTMLFile
 from zExceptions import BadRequest
 
+from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
+from Products.Reportek.interfaces import IProcess
+
 
 def patched_manage_renameForm(self, REQUEST=None, RESPONSE=None):
-    """ Patched manage_renameForm so that we can add extra form inputs for
-        processes
+    """Patched manage_renameForm so that we can add extra form inputs for
+    processes
     """
     processes = []
 
     if REQUEST:
-        ids = REQUEST.get('ids')
+        ids = REQUEST.get("ids")
         if not ids:
-            return MessageDialog(title='No items specified',
-                                 message='No items were specified!',
-                                 action='',)
+            return MessageDialog(
+                title="No items specified",
+                message="No items were specified!",
+                action="",
+            )
         for oid in ids:
             obj = self.get(oid)
             if IProcess.providedBy(obj):
                 processes.append(oid)
 
-    REQUEST.form['processes'] = processes
-    import pdb;pdb.set_trace()
+    REQUEST.form["processes"] = processes
     # self.renameForm = DTMLFile('dtml/renameForm', globals())
 
     # return self.renameForm(self, REQUEST)
 
 
-def patched_manage_renameObjects(self, ids=[], new_ids=[],
-                                 renameapp_ids=[], REQUEST=None):
+def patched_manage_renameObjects(
+    self, ids=[], new_ids=[], renameapp_ids=[], REQUEST=None
+):
     """Rename several sub-objects"""
     if len(ids) != len(new_ids):
-        raise BadRequest('Please rename each listed object.')
+        raise BadRequest("Please rename each listed object.")
     app_folder = getattr(self.getPhysicalRoot(), APPLICATIONS_FOLDER_ID, None)
 
     for i in range(len(ids)):

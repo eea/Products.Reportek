@@ -650,24 +650,28 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         ajax_url = r_utilities.absolute_url() + "/api.get_users_by_path"
         self.browser.post(ajax_url, "obligation=8&role=&countries%5B%5D=tc")
         expected_result = {
-            "data": [{
-                "obligations": [
-                    ["http://nohost/obligations/1",
-                     "Yearly report to the Fictive Convention"]
-                ],
-                "users": {
-                    "test_user_1_": {
-                        "role": ["Owner", "Reporter"],
-                        "uid": "test_user_1_"
-                    }
-                },
-                "collection": {
-                    "path": "/tc",
-                    "type": "Report Collection",
-                    "company_id": None,
-                    "title": "Test Country"
+            "data": [
+                {
+                    "obligations": [
+                        [
+                            "http://nohost/obligations/1",
+                            "Yearly report to the Fictive Convention",
+                        ]
+                    ],
+                    "users": {
+                        "test_user_1_": {
+                            "role": ["Owner", "Reporter"],
+                            "uid": "test_user_1_",
+                        }
+                    },
+                    "collection": {
+                        "path": "/tc",
+                        "type": "Report Collection",
+                        "company_id": None,
+                        "title": "Test Country",
+                    },
                 }
-            }]
+            ]
         }
         self.assertEqual(expected_result, json.loads(self.browser.contents))
 
@@ -712,9 +716,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
 
             # Get available collections
             self.browser.getControl(name="btn.find_collections").click()
-            col_controls = list(self.browser.getControl(
-                name="collections:list"
-            ).controls)
+            col_controls = list(
+                self.browser.getControl(name="collections:list").controls
+            )
             self.assertEqual(col_controls[0].optionValue, "/tc,")
             self.assertTrue("(Owner, Reporter)" in self.browser.contents)
             col_controls[0].selected = True
@@ -742,8 +746,12 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
                     r_control.selected = True
             self.browser.getControl(name="btn.find_collections").click()
             # Roles may appear in any order, check all three are present
-            roles_match = re.search(r'\(([^)]*Owner[^)]*)\)', self.browser.contents)
-            self.assertIsNotNone(roles_match, "Expected roles pattern with Owner not found")
+            roles_match = re.search(
+                r"\(([^)]*Owner[^)]*)\)", self.browser.contents
+            )
+            self.assertIsNotNone(
+                roles_match, "Expected roles pattern with Owner not found"
+            )
             roles_str = roles_match.group(1)
             self.assertIn("Owner", roles_str)
             self.assertIn("Client", roles_str)
@@ -897,7 +905,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         self.browser.getControl(name="btnFind").click()
 
         # Select our test user
-        list(self.browser.getControl(name="username").controls)[0].selected = True
+        list(self.browser.getControl(name="username").controls)[
+            0
+        ].selected = True
         self.browser.getControl(name="btn.find_roles").click()
 
         # Select previously added role
@@ -922,7 +932,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         self.browser.getControl(name="btnFind").click()
 
         # Select our test user
-        list(self.browser.getControl(name="username").controls)[0].selected = True
+        list(self.browser.getControl(name="username").controls)[
+            0
+        ].selected = True
         self.browser.getControl(name="btn.find_roles").click()
         roles = list(self.browser.getControl(name="_tc:list").controls)
         self.assertEqual(len(roles), 2)
