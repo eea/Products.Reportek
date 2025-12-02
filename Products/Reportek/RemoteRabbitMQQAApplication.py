@@ -23,7 +23,6 @@
 
 import json
 import logging
-import string
 import tempfile
 import urllib.error
 import urllib.parse

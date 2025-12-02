@@ -23,7 +23,6 @@
 
 import json
 import logging
-import string
 import tempfile
 import urllib.error
 import urllib.parse
@@ -72,6 +71,7 @@ def manage_addRemoteRESTQAApplication(
 @implementer(IQAApplication)
 class RemoteRestQaApplication(BaseRemoteApplication):
     """A computerised application, executed by an activity.
+
     It executes a set of operations on a remote server and generates a
     feedback object into the envelope as result of these.
     The instance data for the RemoteApplication is stored in the workitem
@@ -79,7 +79,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
       {
           "analyze": {code, retries_left, last_error, next_run},
-          "getResult": {jobID: {code, retries_left, last_error, next_run, fileURL}},
+          "getResult": {jobID: {
+              code, retries_left, last_error, next_run, fileURL}},
       }
 
     First, a call is made to the 'analyze' function from the remote service

@@ -23,7 +23,6 @@
 
 # from AccessControl.PermissionRole import rolesForPermissionOn
 import base64
-import datetime
 import json
 import logging
 import operator
@@ -154,7 +153,7 @@ def iter_file_data(in_file, chunk_size=131072, close_when_done=False):
                 break
             yield chunk
     finally:
-        if close_when_done and hasattr(in_file, 'close'):
+        if close_when_done and hasattr(in_file, "close"):
             in_file.close()
 
 
@@ -481,7 +480,7 @@ def cookId(file):
                 filename.rfind("\\"),
                 filename.rfind(":"),
             )
-            + 1 :
+            + 1:
         ]
         return id
     return file

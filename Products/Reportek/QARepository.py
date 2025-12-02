@@ -289,7 +289,7 @@ class QARepository(Folder):
 
                             with tmp_copy:
                                 # generate extra-parameters
-                                # the file path is set default as first parameter
+                                # the file path is set default as first param
                                 params = [tmp_copy.name]
                                 eval_map = {
                                     "file_obj": file_obj,

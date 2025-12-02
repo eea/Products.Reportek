@@ -57,8 +57,7 @@ def manage_addHyperlink(self, id="", title="", hyperlinkurl="", REQUEST=None):
                 id.rfind("\\"),
                 id.rfind(":"),
             )
-            + 1 :
-        ]
+            + 1 :]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
 

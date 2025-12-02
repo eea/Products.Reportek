@@ -23,7 +23,7 @@
 
 import logging
 import re
-from io import BytesIO, StringIO
+from io import BytesIO
 
 import requests
 from AccessControl import ClassSecurityInfo

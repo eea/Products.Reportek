@@ -24,6 +24,7 @@
 import json
 import logging
 from datetime import datetime, timedelta
+from io import StringIO
 
 import requests
 from AccessControl import ClassSecurityInfo
@@ -32,7 +33,6 @@ from AccessControl.Permissions import view_management_screens
 from bs4 import BeautifulSoup as bs
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
-from io import StringIO
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
@@ -280,14 +280,15 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     e_file.bobobase_modification_time()
                                 )
             if not latest:
-                raise ValueError(
-                    "No convertible files found in the envelope. "
-                    "Convertible file extensions for this workflow: {}.".format(
-                        ", ".join(ext)
-                    )
+                err = "No convertible files found in the envelope. "
+                "Convertible file extensions for this workflow: {}.".format(
+                    ", ".join(ext)
                 )
+                raise ValueError(err)
             up_group = list(latest.keys())[
-                list(latest.values()).index(sorted(list(latest.values()), reverse=True)[0])
+                list(latest.values()).index(
+                    sorted(list(latest.values()), reverse=True)[0]
+                )
             ]
             files = [
                 f

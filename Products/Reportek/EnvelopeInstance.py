@@ -28,6 +28,7 @@ This class is part of the workflow system
 
 import json
 import logging
+from functools import reduce
 from time import time
 
 import plone.protect.interfaces
@@ -35,25 +36,23 @@ import plone.protect.interfaces
 # Zope imports
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from Products.Reportek.constants import ENGINE_ID
 from DateTime import DateTime
-
-# Product specific imports
-from Products.Reportek.expression import exprNamespace
 from OFS.Folder import Folder
-from Products.Reportek.workitem import workitem
 from zope.interface import alsoProvides
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import DEFAULT_CATALOG, ENGINE_ID
 from Products.Reportek.exceptions import ApplicationException
+
+# Product specific imports
+from Products.Reportek.expression import exprNamespace
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RemoteRabbitMQQAApplication import (
     RemoteRabbitMQQAApplication,
 )
 from Products.Reportek.RepUtils import getToolByName
-from functools import reduce
+from Products.Reportek.workitem import workitem
 
 try:
     # do you have CMF?
@@ -691,7 +690,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             transition_list = [transition_condition_list[0]["transition_id"]]
         else:
             if split_mode == "and":
-                transition_list = [x["transition_id"] for x in transition_condition_list]
+                transition_list = [
+                    x["transition_id"] for x in transition_condition_list
+                ]
             elif split_mode == "xor":
                 for r in [
                     c for c in transition_condition_list if c["condition"]
@@ -809,7 +810,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 workitem.status == "complete"
                 and (not workitem.workitems_to or activity.isSubflow())
             ):
-                activity_to_id_list = [x["activity_to_id"] for x in destinations]
+                activity_to_id_list = [
+                    x["activity_to_id"] for x in destinations
+                ]
                 workitem.addEvent(
                     "forwarded to "
                     + reduce(lambda x, y: x + ", " + y, activity_to_id_list)
