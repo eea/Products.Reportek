@@ -57,7 +57,7 @@ class FileContainer(Persistent):
             "application/msaccess",
             "application/excel",
             "application/vnd.msexcel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # noqa
             "application/x-msaccess",
             "application/rtf",
@@ -221,7 +221,7 @@ class FileContainer(Persistent):
         blob_dir = self.get_blob_dir()
         try:
             with self._blob.open("r") as this_data_file:
-                fs_path = this_data_file.name[len(blob_dir) + 1 :]
+                fs_path = this_data_file.name[len(blob_dir) + 1:]
                 return os.path.join(blob_dir, fs_path)
         except Exception:
             return ""
