@@ -113,11 +113,14 @@
 
   </div>
 
-  <div id="pagefoot" i18n:translate="">
-      Document last modified <tal:block
-    content="here/bobobase_modification_time"></tal:block>.
-    <span class="noprint" i18n:translate="">
-      [<a href="http://validator.eea.europa.eu/check/referer">Validate HTML</a>]</span>
+  <div id="pagefoot">
+    Document last modified <tal:block
+    tal:define="obj python:context.aq_inner.aq_parent;
+                m_date python:getattr(obj, 'modified', None)"
+    tal:condition="python:m_date and callable(m_date)"
+    tal:content="python:m_date().ISO()">
+    </tal:block>.
+    <a href="/legalnotice">Legal notice</a>
   </div>
 </body>
 

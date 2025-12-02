@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from .common import BaseTest, BaseUnitTest, ConfigureReportek
-from .fileuploadmock import FileUploadMock
 from mock import Mock, patch
 from plone.protect.interfaces import IDisableCSRFProtection
 from Testing import ZopeTestCase
-from .utils import create_envelope, create_fake_root
 from zope.interface import alsoProvides
 
 from Products.Reportek import Converters, constants
+
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
+from .fileuploadmock import FileUploadMock
+from .utils import create_envelope, create_fake_root
 
 ZopeTestCase.installProduct("Reportek")
 ZopeTestCase.installProduct("PythonScripts")
@@ -120,7 +121,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             hasattr(self.feedback, "testfile.txt"), "File did not get created"
         )
         with self.feedback["testfile.txt"].data_file.open() as f:
-            self.assertEqual(f.read(), "content here")
+            self.assertEqual(f.read(), b"content here")
 
     def test_add_feedback_with_attached_file(self):
         upload_file = FileUploadMock("testfile.txt", "content here")
@@ -138,7 +139,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             hasattr(feedback, "testfile.txt"), "File did not get created"
         )
         with feedback["testfile.txt"].data_file.open() as f:
-            self.assertEqual(f.read(), "content here")
+            self.assertEqual(f.read(), b"content here")
 
     def test_add_feedback_with_attached_multiple_files(self):
         files = []
@@ -161,7 +162,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             )
         for fmock in files:
             with feedback[fmock.filename].data_file.open() as f:
-                self.assertEqual(f.read(), "content here")
+                self.assertEqual(f.read(), b"content here")
 
     def test_AttFeedback(self):
         """Test the manage_uploadAttFeedback method
@@ -231,9 +232,9 @@ class RemoteApplicationFeedbackTest(BaseUnitTest):
             self.envelope.getPhysicalRoot(), constants.CONVERTERS_ID
         ).__getitem__ = Mock(return_value=safe_html)
 
-    @patch("Products.Reportek.RemoteApplication.xmlrpclib")
-    def receive_feedback(self, text, mock_xmlrpclib):
-        mock_server = mock_xmlrpclib.ServerProxy.return_value
+    @patch("Products.Reportek.RemoteApplication.xmlrpc.client")
+    def receive_feedback(self, text, mock_xmlrpc_client):
+        mock_server = mock_xmlrpc_client.ServerProxy.return_value
         getResult = mock_server.the_service.getResult
         getResult.return_value = {
             "CODE": "0",
@@ -329,9 +330,9 @@ class BlockerFeedbackTest(BaseUnitTest):
             self.envelope.getPhysicalRoot(), constants.CONVERTERS_ID
         ).__getitem__ = Mock(return_value=safe_html)
 
-    @patch("Products.Reportek.RemoteApplication.xmlrpclib")
-    def receive_feedback(self, text, result, mock_xmlrpclib):
-        mock_server = mock_xmlrpclib.ServerProxy.return_value
+    @patch("Products.Reportek.RemoteApplication.xmlrpc.client")
+    def receive_feedback(self, text, result, mock_xmlrpc_client):
+        mock_server = mock_xmlrpc_client.ServerProxy.return_value
         getResult = mock_server.the_service.getResult
         getResult.return_value = result
         self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(

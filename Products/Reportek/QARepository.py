@@ -21,9 +21,6 @@ import os
 import shlex
 import subprocess
 
-from . import constants
-from . import QAScript
-from . import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
@@ -34,6 +31,8 @@ from RestrictedPython.Eval import RestrictionCapableEval
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.RemoteApplication import RemoteApplication
+
+from . import QAScript, RepUtils, constants
 
 __doc__ = """
       QARepository product module.
@@ -288,29 +287,31 @@ class QARepository(Folder):
                         with file_obj.data_file.open() as doc_file:
                             tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
-                        with tmp_copy:
-                            # generate extra-parameters
-                            # the file path is set default as first parameter
-                            params = [tmp_copy.name]
-                            eval_map = {
-                                "file_obj": file_obj,
-                                "l_script_obj": l_script_obj,
-                                "REQUEST": self.REQUEST,
-                            }
-                            for k in l_script_obj.qa_extraparams:
-                                eval_res = RestrictionCapableEval(k).eval(
-                                    eval_map
-                                )
-                                params.append(eval_res)
+                            with tmp_copy:
+                                # generate extra-parameters
+                                # the file path is set default as first parameter
+                                params = [tmp_copy.name]
+                                eval_map = {
+                                    "file_obj": file_obj,
+                                    "l_script_obj": l_script_obj,
+                                    "REQUEST": self.REQUEST,
+                                }
+                                for k in l_script_obj.qa_extraparams:
+                                    eval_res = RestrictionCapableEval(k).eval(
+                                        eval_map
+                                    )
+                                    params.append(eval_res)
 
-                            command = l_script_obj.script_url % tuple(params)
-                            proc = subprocess.Popen(
-                                shlex.split(command),
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT,
-                                shell=False,
-                            )
-                            l_res_data.data = proc.stdout.read()
+                                command = l_script_obj.script_url % tuple(
+                                    params
+                                )
+                                proc = subprocess.Popen(
+                                    shlex.split(command),
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    shell=False,
+                                )
+                                l_res_data.data = proc.stdout.read()
                     else:
                         l_res_data.data = "QA error"
 

@@ -1,20 +1,21 @@
 import unittest
 import zipfile
+from io import BytesIO, StringIO
 
-from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from DateTime import DateTime
 from mock import Mock, patch
-from io import StringIO
+
+from Products.Reportek import Converters, constants
+from Products.Reportek.Envelope import Envelope
+from Products.Reportek.ReportekEngine import ReportekEngine
+
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from .utils import (
     add_document,
     create_envelope,
     create_fake_root,
     create_upload_file,
 )
-
-from Products.Reportek import Converters, constants
-from Products.Reportek.Envelope import Envelope
-from Products.Reportek.ReportekEngine import ReportekEngine
 
 
 class ReportekEngineTest(BaseTest, ConfigureReportek):
@@ -151,7 +152,8 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         self.createStandardCatalog()
 
         process = Mock()
-        process.absolute_url = Mock(return_value="/ProcessURL")
+        process.absolute_url.return_value = "WorkflowEngine/begin_end"
+        process.begin = "Begin"
         first_envelope = Envelope(
             process=process,
             title="FirstEnvelope",
@@ -223,9 +225,14 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         )
 
     def test_returns_all(self):
-        results = self.engine.getSearchResults()
+        # In Zope 4/Python 3, ZCatalog.searchResults with no query
+        # returns empty results instead of all objects. We need to
+        # pass a query that matches all indexed objects.
+        results = self.engine.getSearchResults(
+            meta_type=["Report Envelope", "Report Feedback"]
+        )
         envs = [el.getObject() for el in results]
-        self.assertItemsEqual(
+        self.assertCountEqual(
             envs,
             [
                 self.root.first_envelope,
@@ -239,7 +246,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
     def test_filter_by_meta_type(self):
         results = self.engine.getSearchResults(meta_type="Report Feedback")
         envs = [el.getObject() for el in results]
-        self.assertItemsEqual(
+        self.assertCountEqual(
             envs,
             [
                 self.root.first_envelope["feedbackid"],
@@ -303,7 +310,7 @@ class ReportekEngineZipTest(BaseUnitTest):
         envelope.released = True
         envelope.title = "TestedEnvelope"
 
-        response_body = StringIO()
+        response_body = BytesIO()
         mock_response = Mock(write=response_body.write)
 
         with patch("Products.Reportek.ReportekEngine.getSecurityManager"):
@@ -320,4 +327,7 @@ class ReportekEngineZipTest(BaseUnitTest):
                 "TestedEnvelope/history.txt",
             ],
         )
-        self.assertEqual(response_zip.read("TestedEnvelope/foo.txt"), content)
+        self.assertEqual(
+            response_zip.read("TestedEnvelope/foo.txt"),
+            content.encode("utf-8"),
+        )

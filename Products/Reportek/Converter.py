@@ -22,22 +22,21 @@ import os
 import string
 from copy import deepcopy
 
-from . import blob
-from . import constants
-from . import RepUtils
 import requests
 from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
-from .conversion_registry import request_params
 from OFS.SimpleItem import SimpleItem
-from .RepUtils import extension
 from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import Redirect
 from ZODB.POSException import POSKeyError
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.blob import StorageError
+
+from . import RepUtils, blob, constants
+from .conversion_registry import request_params
+from .RepUtils import extension
 
 __doc__ = """
       Converter product module.
@@ -113,7 +112,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = ct_extraparams
         self.description = description
         # Drop everything up to period.
-        self.suffix = suffix[suffix.find(".") + 1:]
+        self.suffix = suffix[suffix.find(".") + 1 :]
         self.internal = internal
 
     # security stuff
@@ -143,7 +142,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = RepUtils.utConvertLinesToList(ct_extraparams)
         self.description = description
         # Drop everything up to period.
-        self.suffix = suffix[suffix.find(".") + 1:]
+        self.suffix = suffix[suffix.find(".") + 1 :]
         self.internal = internal
         self._p_changed = 1
         if REQUEST:
@@ -191,7 +190,9 @@ class Converter(SimpleItem):
 
             # generate 'filename'
             if not output_file_name:
-                if converter_obj.ct_output in list(constants.CONTENT_TYPES.keys()):
+                if converter_obj.ct_output in list(
+                    constants.CONTENT_TYPES.keys()
+                ):
                     output_file_name = "%s%s" % (
                         file_obj.id[: file_obj.id.rfind(".")],
                         constants.CONTENT_TYPES[converter_obj.ct_output],
@@ -230,7 +231,6 @@ class Converter(SimpleItem):
 
 class RemoteConverter(Converter):
     def __init__(self, converter_id):
-        super(Converter, self).__init__(converter_id)
         self.id = converter_id
 
     def __call__(self, file_url, write_to_response=True):
@@ -343,6 +343,7 @@ class LocalHttpConverter(Converter):
             extra_params = request_params(self.ct_extraparams, obj=file_obj)
         data = self.get_file_data(file_obj)
         files = {"file": data}
+        file_handles = [data] if hasattr(data, 'close') else []
         accepts_shp = any(["shp" in item for item in self.ct_input])
         if accepts_shp:
             shp_container = file_obj.aq_parent
@@ -353,14 +354,23 @@ class LocalHttpConverter(Converter):
             dbf_file = shp_container.unrestrictedTraverse(
                 ".".join([file_name, "dbf"])
             )
-            files["shx"] = self.get_file_data(shx_file)
-            files["dbf"] = self.get_file_data(dbf_file)
-        resp = requests.post(
-            url, files=files, data={"extraparams": extra_params}
-        )
-
-        response = ConversionResult(resp)
-        return response
+            shx_data = self.get_file_data(shx_file)
+            dbf_data = self.get_file_data(dbf_file)
+            files["shx"] = shx_data
+            files["dbf"] = dbf_data
+            if hasattr(shx_data, 'close'):
+                file_handles.append(shx_data)
+            if hasattr(dbf_data, 'close'):
+                file_handles.append(dbf_data)
+        try:
+            resp = requests.post(
+                url, files=files, data={"extraparams": extra_params}
+            )
+            response = ConversionResult(resp)
+            return response
+        finally:
+            for fh in file_handles:
+                fh.close()
 
 
 InitializeClass(Converter)

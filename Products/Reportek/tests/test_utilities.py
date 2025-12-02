@@ -1,18 +1,25 @@
+import json
 import os
+import re
+import unittest
 from datetime import date, timedelta
 
 import transaction
 from AccessControl.Permissions import view_management_screens
-from .common import BaseTest
 from OFS.Folder import Folder
 from OFS.Image import manage_addFile
 from OFS.SimpleItem import SimpleItem
 from Testing import ZopeTestCase as ztc
+from zope.testbrowser import browser as testbrowser_module
+from zope.testbrowser.browser import Browser
+from ZPublisher.WSGIPublisher import publish_module
+
+# Add 'nohost' to the allowed hosts for testbrowser (used by Zope test URLs)
+testbrowser_module._allowed.add("nohost")
+from Zope2.App import zcml
 
 import Products.Five
 import Products.GenericSetup
-from Products.Five import zcml
-from Products.Five.testbrowser import Browser
 from Products.PageTemplates.ZopePageTemplate import manage_addPageTemplate
 from Products.PythonScripts.PythonScript import manage_addPythonScript
 from Products.Reportek import (
@@ -21,6 +28,8 @@ from Products.Reportek import (
 )
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.ReportekEngine import ReportekEngine
+
+from .common import BaseTest
 
 ztc.installProduct("PluginIndexes")
 ztc.installProduct("PythonScripts")
@@ -194,6 +203,11 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
 
         r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
         r_utilities.manage_permission(view_management_screens, roles=["Owner"])
+        # # Grant ReportekUtilities User permission to Manager role for the
+        # # @@index_html view which is required by breadcrumbs_views template
+        # r_utilities.manage_permission(
+        #     "ReportekUtilities User", roles=["Manager"], acquire=0
+        # )
         r_utilities._p_changed = True
 
     def _setupSCRIPTS(self):
@@ -201,7 +215,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
             script_path = os.path.join(
                 os.path.dirname(__file__), "data", script.get("filename")
             )
-            with open(script_path, "rb") as f:
+            with open(script_path, "r", encoding="utf-8") as f:
                 f.seek(0)
                 script_content = f.read()
                 manage_addPythonScript(self.app, id=script.get("script_id"))
@@ -250,9 +264,12 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         )
         self.setRoles("Reporter", name=user_name)
         self.login(user_name)
-        self.browser.addHeader(
-            "Authorization", "Basic " + user_name + ":" + user_password
-        )
+        import base64
+
+        credentials = base64.b64encode(
+            "{}:{}".format(user_name, user_password).encode("utf-8")
+        ).decode("ascii")
+        self.browser.addHeader("Authorization", "Basic " + credentials)
         transaction.commit()
 
     def _setup_collections(self):
@@ -354,7 +371,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         ReportekEngine.dataflow_rod = orig_dataflow_rod
 
     def afterSetUp(self):
-        self.browser = Browser()
+        # Use the WSGI publisher as the app for functional testing
+        self.browser = Browser(wsgi_app=publish_module)
         self.browser.handleErrors = False
         try:
             import Products.Reportek
@@ -394,6 +412,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         mock_user.sn = "user"
         mock_user.mail = "test_user_1_@test.com"
         acl_users._setObject("test_user_1_", mock_user)
+
+        # Commit all test setup so WSGI publisher can see the objects
+        transaction.commit()
 
     # FIXME test config does not include views.cdr.zcml
     if False and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
@@ -628,19 +649,27 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
         ajax_url = r_utilities.absolute_url() + "/api.get_users_by_path"
         self.browser.post(ajax_url, "obligation=8&role=&countries%5B%5D=tc")
-        expected_result = (
-            '{"data": [{"obligations": ['
-            '["http://nohost/obligations/1", '
-            '"Yearly report to the Fictive Convention"]], '
-            '"users": {"test_user_1_": {'
-            '"role": ["Owner", "Reporter"], '
-            '"uid": "test_user_1_"}}, '
-            '"collection": {"path": "/tc", '
-            '"type": "Report Collection", '
-            '"company_id": null, '
-            '"title": "Test Country"}}]}'
-        )
-        self.assertEqual(expected_result, self.browser.contents)
+        expected_result = {
+            "data": [{
+                "obligations": [
+                    ["http://nohost/obligations/1",
+                     "Yearly report to the Fictive Convention"]
+                ],
+                "users": {
+                    "test_user_1_": {
+                        "role": ["Owner", "Reporter"],
+                        "uid": "test_user_1_"
+                    }
+                },
+                "collection": {
+                    "path": "/tc",
+                    "type": "Report Collection",
+                    "company_id": None,
+                    "title": "Test Country"
+                }
+            }]
+        }
+        self.assertEqual(expected_result, json.loads(self.browser.contents))
 
         # Go back to ReportekUtilities index_html
         self.browser.goBack(count=3)
@@ -683,9 +712,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
 
             # Get available collections
             self.browser.getControl(name="btn.find_collections").click()
-            col_controls = self.browser.getControl(
+            col_controls = list(self.browser.getControl(
                 name="collections:list"
-            ).controls
+            ).controls)
             self.assertEqual(col_controls[0].optionValue, "/tc,")
             self.assertTrue("(Owner, Reporter)" in self.browser.contents)
             col_controls[0].selected = True
@@ -698,13 +727,13 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
             search_term_ctl = self.browser.getControl(name="search_term")
             search_term_ctl.value = "test_user_1_"
             self.browser.getControl(name="btnFind").click()
-            self.browser.getControl(name="username").controls[
+            list(self.browser.getControl(name="username").controls)[
                 0
             ].selected = True
-            self.browser.getControl(name="countries:list").controls[
+            list(self.browser.getControl(name="countries:list").controls)[
                 0
             ].selected = True
-            self.browser.getControl(name="dataflow_uris:list").controls[
+            list(self.browser.getControl(name="dataflow_uris:list").controls)[
                 0
             ].selected = True
             r_controls = self.browser.getControl(name="role").controls
@@ -712,9 +741,13 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
                 if r_control.optionValue == "Client":
                     r_control.selected = True
             self.browser.getControl(name="btn.find_collections").click()
-            self.assertTrue(
-                "(Owner, Client, Reporter)" in self.browser.contents
-            )
+            # Roles may appear in any order, check all three are present
+            roles_match = re.search(r'\(([^)]*Owner[^)]*)\)', self.browser.contents)
+            self.assertIsNotNone(roles_match, "Expected roles pattern with Owner not found")
+            roles_str = roles_match.group(1)
+            self.assertIn("Owner", roles_str)
+            self.assertIn("Client", roles_str)
+            self.assertIn("Reporter", roles_str)
 
             # Go to ReportekUtilities
             self.browser.goBack(count=6)
@@ -724,7 +757,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
                 text="Search for collections and create envelopes"
             ).click()
             self._check_controls(self.browser.contents)
-            self.browser.getControl(name="dataflow_uris:list").controls[
+            list(self.browser.getControl(name="dataflow_uris:list").controls)[
                 0
             ].selected = True
             self.browser.getControl(name="btn.search").click()
@@ -836,7 +869,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
             self._check_controls(self.browser.contents)
 
             # Search our inactive test envelope
-            self.browser.getControl(name="dataflow_uris:list").controls[
+            list(self.browser.getControl(name="dataflow_uris:list").controls)[
                 0
             ].selected = True
             status = self.browser.getControl(name="status").controls
@@ -864,7 +897,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         self.browser.getControl(name="btnFind").click()
 
         # Select our test user
-        self.browser.getControl(name="username").controls[0].selected = True
+        list(self.browser.getControl(name="username").controls)[0].selected = True
         self.browser.getControl(name="btn.find_roles").click()
 
         # Select previously added role
@@ -889,9 +922,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         self.browser.getControl(name="btnFind").click()
 
         # Select our test user
-        self.browser.getControl(name="username").controls[0].selected = True
+        list(self.browser.getControl(name="username").controls)[0].selected = True
         self.browser.getControl(name="btn.find_roles").click()
-        roles = self.browser.getControl(name="_tc:list").controls
+        roles = list(self.browser.getControl(name="_tc:list").controls)
         self.assertEqual(len(roles), 2)
 
         # self.browser.goBack(count=6)

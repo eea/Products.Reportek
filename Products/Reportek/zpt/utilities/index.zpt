@@ -8,16 +8,20 @@
 
 
   <metal:block fill-slot="content">
-    <div tal:define="menuitems view/get_available_menu_items;
+    <tal:block tal:define="menuitems view/get_available_menu_items;
                      menuactions python: dict((item.get('action'), item.get('title')) for item in menuitems);
-                     menu_keys python: menuactions.keys();
+                     menu_keys python: set(menuactions.keys());
                      user_mgmt_actions python: ['@@get_users_by_path', '@@assign_role', '@@revoke_roles', '@@disabled_members'];
                      collections_actions python: ['@@collections.wrong_country', '@@collections.build', '@@collections.sync'];
                      envelopes_actions python: ['@@collections.search', '@@envelopes.autocomplete', '@@envelopes.wrong_country', '@@envelopes.stuck', '@@envelopes.forwardable'];
                      referral_actions python: ['@@referrals.management'];
-                     generic_actions python: ['@@obligation.recent_uploads', '@@statistics']">
-
-      <div class="utils-user-mgmt" tal:condition="python: [action for action in user_mgmt_actions if action in menu_keys]">
+                     generic_actions python: ['@@obligation.recent_uploads', '@@statistics'];
+                     has_user_mgmt python: bool(menu_keys.intersection(user_mgmt_actions));
+                     has_collections python: bool(menu_keys.intersection(collections_actions));
+                     has_envelopes python: bool(menu_keys.intersection(envelopes_actions));
+                     has_referrals python: bool(menu_keys.intersection(referral_actions))">
+    <div>
+      <div class="utils-user-mgmt" tal:condition="has_user_mgmt">
         <h2 i18n:translate="">User management</h2>
 
         <ul>
@@ -29,7 +33,7 @@
         </ul>
       </div>
 
-      <div class="utils-collections" tal:condition="python: not isBdrDeployment and [action for action in collections_actions if action in menu_keys]">
+      <div class="utils-collections" tal:condition="python: not isBdrDeployment and has_collections">
         <h2 i18n:translate="">Collections</h2>
 
         <ul>
@@ -41,7 +45,7 @@
         </ul>
       </div>
 
-      <div class="utils-envelopes" tal:condition="python: [action for action in envelopes_actions if action in menu_keys]">
+      <div class="utils-envelopes" tal:condition="has_envelopes">
         <h2 i18n:translate="">Envelopes</h2>
         <ul>
           <tal:rep tal:repeat="action envelopes_actions">
@@ -52,7 +56,7 @@
         </ul>
       </div>
 
-      <div class="utils-referrals" tal:condition="python: [action for action in referral_actions if action in menu_keys]">
+      <div class="utils-referrals" tal:condition="has_referrals">
         <h2 i18n:translate="">Referrals</h2>
         <ul>
           <tal:rep tal:repeat="action referral_actions">
@@ -77,5 +81,6 @@
       </div>
 
     </div>
+    </tal:block>
   </metal:block>
 </metal:block>

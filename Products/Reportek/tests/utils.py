@@ -25,6 +25,7 @@ import shutil
 import sys
 import tempfile
 import time
+from io import BytesIO, StringIO
 
 import lxml.cssselect
 import lxml.html
@@ -34,7 +35,6 @@ import ZODB.blob
 import ZODB.MappingStorage
 from mock import Mock, patch
 from OFS.Folder import Folder
-from io import StringIO
 
 
 class HtmlElementList(list):
@@ -252,7 +252,9 @@ def create_temp_reposit():
 
 
 def create_upload_file(data="", filename="testfile.txt"):
-    f = StringIO(data)
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+    f = BytesIO(data)
     f.filename = filename
     return f
 
@@ -278,29 +280,25 @@ def publish_view(view, environ={}, user=None):
     name = view.__name__
     new_environ = {
         "PATH_INFO": "/" + name,
-        "_stdout": StringIO(),
+        "_stdout": BytesIO(),
     }
     new_environ.update(environ)
 
     root = create_fake_root()
-    user = Mock() if not user else user
+    if not user:
+        user = Mock()
+        user.getUserName.return_value = "test_user"
     root.__allow_groups__ = Mock(validate=Mock(return_value=user))
     request = makerequest(root, new_environ["_stdout"], new_environ).REQUEST
     view.__doc__ = "non-empty documentation"
     setattr(root, name, view)
 
-    module_info = (
-        Mock(),  # before
-        None,  # after
-        root,  # object
-        "TESTING",  # realm
-        True,  # debug_mode
-        Mock(),  # err_hook
-        None,  # validated_hook
-        Mock(),
-    )  # tm
+    # Zope 4 WSGIPublisher.publish takes (request, module_info)
+    # where module_info is (obj, realm, debug_mode)
+    module_info = (root, "TESTING", True)
     try:
-        return publish(request, "Zope2", Mock(return_value=module_info))
+        publish(request, module_info)
+        return request.response
     finally:
         noSecurityManager()
 
@@ -389,13 +387,19 @@ class MockDatabase(object):
         self._blob_dir = tempfile.mkdtemp()
         storage = ZODB.blob.BlobStorage(self._blob_dir, storage)
         self.db = ZODB.DB(storage)
+        self._connection = None
 
     @property
     def root(self):
-        return self.db.open().root()
+        if self._connection is None:
+            self._connection = self.db.open()
+        return self._connection.root()
 
     def cleanup(self):
         transaction.abort()
+        if self._connection is not None:
+            self._connection.close()
+        self.db.close()
         shutil.rmtree(self._blob_dir)
 
 

@@ -2,26 +2,27 @@
 import os
 import unittest
 from copy import deepcopy
+from io import BytesIO, StringIO
 
 from App.Common import package_home
 from mock import Mock
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
-from io import StringIO
 from Testing import ZopeTestCase
-from .utils import makerequest, simple_addEnvelope
 from zope import interface
 from zope.component import provideAdapter
 from zope.interface import implementer
 from zope.traversing.adapters import DefaultTraversable
 from zope.traversing.interfaces import ITraversable
+from Zope2.App import zcml
 
-from Products.Five import zcml
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import RepUtils, constants
 from Products.Reportek.Collection import Collection, manage_addCollection
 from Products.Reportek.ReportekEngine import ReportekEngine
 from Products.Reportek.RepUtils import getToolByName
+
+from .utils import makerequest, simple_addEnvelope
 
 ZopeTestCase.installProduct("Reportek")
 ZopeTestCase.installProduct("PythonScripts")
@@ -299,6 +300,33 @@ class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         except ImportError:
             pass
 
+        try:
+            import plone.keyring
+
+            zcml.load_config("configure.zcml", plone.keyring)
+        except ImportError:
+            pass
+
+        try:
+            import plone.protect
+
+            zcml.load_config("configure.zcml", plone.protect)
+        except ImportError:
+            pass
+
+        # Register a KeyManager utility for plone.protect's authenticator
+        try:
+            from plone.keyring.interfaces import IKeyManager
+            from plone.keyring.keymanager import KeyManager
+            from zope.component import getGlobalSiteManager
+
+            gsm = getGlobalSiteManager()
+            if gsm.queryUtility(IKeyManager) is None:
+                manager = KeyManager()
+                gsm.registerUtility(manager, IKeyManager)
+        except ImportError:
+            pass
+
         self.engine = self.create_reportek_engine(self.root)
         self.wf = self.create_flow_engine(self.root)
         self.createStandardCatalog()
@@ -377,7 +405,7 @@ class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         request.physicalPathToVirtualPath = lambda x: x
         request.physicalPathToURL = lambda x: x
         response = request.RESPONSE
-        response._data = StringIO()
+        response._data = BytesIO()
         response.write = response._data.write
         request._headers = {}
         request.get_header = request._headers.get

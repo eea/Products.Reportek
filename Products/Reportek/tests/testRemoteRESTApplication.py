@@ -1,6 +1,5 @@
 import re
 
-from .common import WorkflowTestCase
 from DateTime import DateTime
 from mock import MagicMock, Mock, call, patch
 from OFS.Folder import Folder
@@ -15,6 +14,8 @@ from Products.Reportek.RemoteRESTApplication import (
     manage_addRemoteRESTApplication,
 )
 from Products.Reportek.ReportekEngine import ReportekEngine
+
+from .common import WorkflowTestCase
 
 
 class RemoteRESTApplicationProduct(WorkflowTestCase):
@@ -144,9 +145,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job request for http:\/\/[\w+\/]+ successfully submited.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_request_for_new_job_invalid_status_code(self, mock_requests):
@@ -155,9 +154,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job request for http:\/\/[\w+\/]+ returned invalid status code 201.$"  # noqa
         )  # noqa
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_request_for_new_job_response_is_not_json(self, mock_requests):
@@ -169,15 +166,11 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job request for http:\/\/[\w+\/]+ response is not json.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
         exp = re.compile(
             "\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[4]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[4]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_request_for_new_job_invalid_json_response(self, mock_requests):
@@ -188,9 +181,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_workitem_initialization(self, mock_requests):
@@ -225,9 +216,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$"  # noqa
         )  # noqa
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_invalid_json(self, mock_requests):
@@ -251,15 +240,11 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-4]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-4]["event"], exp)
         exp = re.compile(
             "\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_succeeded(self, mock_requests):
@@ -292,9 +277,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_success_finishes_application(self, mock_requests):
@@ -439,10 +422,11 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         ]
         [attach] = feedback.objectValues()
         self.assertEqual("env1_results.zip", attach.__name__)
-        self.assertEqual(
-            (path(__file__).parent.abspath() / "result.zip").bytes(),
-            attach.data_file.open().read(),
-        )
+        with attach.data_file.open() as f:
+            self.assertEqual(
+                (path(__file__).parent.abspath() / "result.zip").bytes(),
+                f.read(),
+            )
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_failure_posts_feedback(self, mock_requests):
@@ -526,7 +510,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         ]
         [attach] = feedback.objectValues()
         self.assertEqual("output.log", attach.__name__)
-        self.assertEqual("fail: log message\n", attach.data_file.open().read())
+        with attach.data_file.open() as f:
+            self.assertEqual(b"fail: log message\n", f.read())
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_failed(self, mock_requests):
@@ -557,9 +542,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile("\w+ job id 1 for http:\/\/[\w+\/]+ failed.$")
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-3]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_fail_finishes_application(self, mock_requests):
@@ -611,9 +594,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job id 1 for http:\/\/[\w+\/]+ is still running.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-1]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-1]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_not_done_decreases_retries_left(self, mock_requests):
@@ -732,9 +713,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         exp = re.compile(
             "\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$"
         )
-        self.assertRegex(
-            self.app.col1.env1["0"].event_log[-1]["event"], exp
-        )
+        self.assertRegex(self.app.col1.env1["0"].event_log[-1]["event"], exp)
         workitem = self.app.col1.env1["0"]
         self.assertEqual(4, workitem.restapp["retries_left"])
 

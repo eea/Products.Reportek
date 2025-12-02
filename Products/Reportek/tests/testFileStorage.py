@@ -1,11 +1,16 @@
 import time
 import zipfile
+from io import BytesIO, StringIO
 
 import transaction
-from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from mock import Mock, call, patch
 from plone.protect.interfaces import IDisableCSRFProtection
-from io import StringIO
+from zope.interface import alsoProvides
+
+from Products.Reportek import Document, blob, constants
+from Products.Reportek.Converters import Converters
+
+from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from .utils import (
     MockDatabase,
     break_document_data_file,
@@ -14,10 +19,6 @@ from .utils import (
     create_upload_file,
     makerequest,
 )
-from zope.interface import alsoProvides
-
-from Products.Reportek import Document, blob, constants
-from Products.Reportek.Converters import Converters
 
 
 def create_document_with_data(data, compression="no"):
@@ -37,22 +38,22 @@ def doc_data(doc):
 
 class FileStorageTest(BaseTest):
     def test_manage_file_upload(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = Document.Document("testdoc", "Document for Test")
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(create_upload_file(data))
         self.assertEqual(doc_data(doc), data)
 
     def test_manage_file_upload_as_string(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = Document.Document("testdoc", "Document for Test")
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(data)
         self.assertEqual(doc_data(doc), data)
 
     def test_upload_new_version(self):
-        data_1 = "the data, version one"
-        data_2 = "the data, version two"
+        data_1 = b"the data, version one"
+        data_2 = b"the data, version two"
         doc = Document.Document("testdoc", "Document for Test")
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(data_1)
@@ -60,7 +61,7 @@ class FileStorageTest(BaseTest):
         self.assertEqual(doc_data(doc), data_2)
 
     def test_upload_during_create(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
 
         root = create_fake_root()
         root.getWorkitemsActiveForMe = Mock(return_value=[])
@@ -83,7 +84,7 @@ class FileStorageTest(BaseTest):
         )
 
     def test_get_AE_gzip(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
 
         root = create_fake_root()
         root.getWorkitemsActiveForMe = Mock(return_value=[])
@@ -115,10 +116,10 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         envelope = create_envelope(root)
 
-        zip_data = StringIO()
+        zip_data = BytesIO()
         mock_zip = zipfile.ZipFile(zip_data, "w")
-        mock_zip.writestr("f1.txt", "hello one")
-        mock_zip.writestr("f2.txt", "hello two file")
+        mock_zip.writestr("f1.txt", b"hello one")
+        mock_zip.writestr("f2.txt", b"hello two file")
         mock_zip.close()
 
         upload_file = create_upload_file(zip_data.getvalue(), "f.zip")
@@ -130,13 +131,13 @@ class FileStorageTest(BaseTest):
 
     def test_get_size(self):
         # rawsize and get_size are used in some old dtml
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = create_document_with_data(data)
         self.assertEqual(doc.get_size(), len(data))
         self.assertEqual(doc.rawsize(), len(data))
 
     def test_compress_auto(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = create_document_with_data(data, compression="auto")
         # rawsize must be the uncompressed size.
         self.assertEqual(doc.rawsize(), len(data))
@@ -147,13 +148,14 @@ class FileStorageTest(BaseTest):
         # don't compare sizes.
         self.assertTrue(compressed_size != doc.rawsize())
         # test fetching the data back
-        read_data = doc.data_file.open("rb").read()
+        with doc.data_file.open("rb") as f:
+            read_data = f.read()
         self.assertTrue(read_data == data)
 
     def test_compress_auto_not(self):
         from Products.Reportek.blob import FileContainer
 
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         FileContainer.COMP_TYPES.discard("text/plain")
         doc = create_document_with_data(data, compression="auto")
         FileContainer.COMP_TYPES.add("text/plain")
@@ -165,7 +167,7 @@ class FileStorageTest(BaseTest):
     def test_compress_yes(self):
         from Products.Reportek.blob import FileContainer
 
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         FileContainer.COMP_TYPES.discard("text/plain")
         doc = create_document_with_data(data, compression="yes")
         FileContainer.COMP_TYPES.add("text/plain")
@@ -178,7 +180,7 @@ class FileStorageTest(BaseTest):
         self.assertTrue(compressed_size != doc.rawsize())
 
     def test_compress_keep_compressed(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = create_document_with_data(data, compression="auto")
         # rawsize must be the uncompressed size.
         self.assertEqual(doc.rawsize(), len(data))
@@ -189,7 +191,8 @@ class FileStorageTest(BaseTest):
         # don't compare sizes.
         self.assertTrue(compressed_size != doc.rawsize())
         # test fetching the data back
-        read_data = doc.data_file.open("rb", skip_decompress=True).read()
+        with doc.data_file.open("rb", skip_decompress=True) as f:
+            read_data = f.read()
         self.assertTrue(len(read_data) == compressed_size)
 
 
@@ -200,7 +203,7 @@ class DataFileApiTest(BaseUnitTest):
     def test_read_uncommitted_file_data_error(self):
         from Products.Reportek.Document import StorageError
 
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
 
         doc = create_document_with_data(data)
 
@@ -210,7 +213,7 @@ class DataFileApiTest(BaseUnitTest):
     def test_read_committed_file_data_error(self):
         from Products.Reportek.Document import StorageError
 
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
 
         zodb = MockDatabase()
         self.addCleanup(zodb.cleanup)
@@ -223,24 +226,22 @@ class DataFileApiTest(BaseUnitTest):
         self.assertRaises(StorageError, doc.data_file.open)
 
     def test_read_file_data(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = create_document_with_data(data)
 
-        data_file = doc.data_file.open()
-        self.assertEqual(data_file.read(), data)
+        with doc.data_file.open() as data_file:
+            self.assertEqual(data_file.read(), data)
 
-        # rewind the file, see if we can still read data
-        data_file.seek(0)
-        self.assertEqual(data_file.read(), data)
+            # rewind the file, see if we can still read data
+            data_file.seek(0)
+            self.assertEqual(data_file.read(), data)
 
-        # read in chunks
-        data_file.seek(0)
-        self.assertEqual(data_file.read(1), data[0])
-
-        data_file.close()
+            # read in chunks
+            data_file.seek(0)
+            self.assertEqual(data_file.read(1), data[0:1])
 
     def test_read_file_data_as_context_manager(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         doc = create_document_with_data(data)
 
         data_file = doc.data_file.open()
@@ -258,7 +259,7 @@ class DataFileApiTest(BaseUnitTest):
         self.assertEqual(doc.data_file.size, 0)
 
     def test_get_file_metadata(self):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         t0 = time.time()
         doc = create_document_with_data(data)
         t1 = time.time()
@@ -268,9 +269,9 @@ class DataFileApiTest(BaseUnitTest):
     def test_save_file_data(self):
         doc = create_document_with_data("some data")
         with doc.data_file.open("wb") as data_file_handle:
-            data_file_handle.write("the new ")
-            data_file_handle.write("file version")
-        self.assertEqual(doc_data(doc), "the new file version")
+            data_file_handle.write(b"the new ")
+            data_file_handle.write(b"file version")
+        self.assertEqual(doc_data(doc), b"the new file version")
 
     def test_open_with_invalid_argument(self):
         doc = create_document_with_data("some data")
@@ -328,7 +329,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_one_document(self, mock_commit):
-        data = "hello world, file for test!"
+        data = b"hello world, file for test!"
         file_1 = create_upload_file(data)
         Document.manage_addDocument(self.envelope, file=file_1)
         self.envelope.release_envelope()
@@ -344,17 +345,17 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
 
         mock_ZipFile.side_effect = zipstream.ZipFile
 
-        file_1 = create_upload_file("data one")
+        file_1 = create_upload_file(b"data one")
         Document.manage_addDocument(self.envelope, file=file_1)
 
         self.envelope.release_envelope()
 
         zip_download_1 = self.download_zip(self.envelope)
-        self.assertEqual(zip_download_1.read("testfile.txt"), "data one")
+        self.assertEqual(zip_download_1.read("testfile.txt"), b"data one")
         self.assertEqual(mock_ZipFile.call_count, 1)
 
         zip_download_2 = self.download_zip(self.envelope)
-        self.assertEqual(zip_download_2.read("testfile.txt"), "data one")
+        self.assertEqual(zip_download_2.read("testfile.txt"), b"data one")
         self.assertEqual(mock_ZipFile.call_count, 1)
 
     @patch("Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD", -1)
@@ -363,28 +364,28 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         # zip cache is invalidated when the envelope is released (in case the
         # envelope had previously been released, unreleased and modified).
 
-        file_1 = create_upload_file("data one")
+        file_1 = create_upload_file(b"data one")
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
         doc = self.envelope[doc_id]
         self.envelope.release_envelope()
 
         zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("testfile.txt"), "data one")
+        self.assertEqual(zip_download.read("testfile.txt"), b"data one")
 
         self.envelope.absolute_url = Mock(return_value="url")
         self.envelope.unrelease_envelope()
-        doc.manage_file_upload(create_upload_file("data two"))
+        doc.manage_file_upload(create_upload_file(b"data two"))
         self.envelope.release_envelope()
 
         zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("testfile.txt"), "data two")
+        self.assertEqual(zip_download.read("testfile.txt"), b"data two")
 
     @patch("Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD", -1)
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_cache_invalidation_on_feedback(self, mock_commit):
         self.root.getEngine = Mock()
 
-        file_1 = create_upload_file("data one")
+        file_1 = create_upload_file(b"data one")
         Document.manage_addDocument(self.envelope, file=file_1)
         self.envelope.release_envelope()
 
@@ -393,7 +394,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.envelope.manage_addFeedback(title="good work")
 
         zip_download = self.download_zip(self.envelope)
-        self.assertTrue("good work" in zip_download.read("feedbacks.html"))
+        self.assertTrue(b"good work" in zip_download.read("feedbacks.html"))
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_feedback_content(self, mock_commit):
@@ -401,7 +402,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.envelope.manage_addFeedback("feedback", title="good work")
         feedback = self.envelope["feedback"]
 
-        data = "asdfqwer"
+        data = b"asdfqwer"
         feedback.manage_uploadFeedback(create_upload_file(data, "opinion.txt"))
 
         self.envelope.release_envelope()
@@ -421,11 +422,13 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.envelope.release_envelope()
 
         zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("opinion.txt"), data)
+        self.assertEqual(
+            zip_download.read("opinion.txt"), data.encode("utf-8")
+        )
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_missing_document_datafile(self, mock_commit):
-        file_1 = create_upload_file("asdf")
+        file_1 = create_upload_file(b"asdf")
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
         doc = self.envelope[doc_id]
         self.envelope.release_envelope()
@@ -467,7 +470,7 @@ class FileContainerTest(BaseUnitTest):
     def test_default_content(self):
         ob = blob.FileContainer()
         with ob.open() as f:
-            self.assertEqual(f.read(), "")
+            self.assertEqual(f.read(), b"")
 
     def test_compression_ok(self):
         blob.FileContainer(compress="auto")
@@ -492,7 +495,7 @@ class OfsBlobFileTest(BaseUnitTest):
     def test_save_and_read_content(self):
         from Products.Reportek.blob import OfsBlobFile
 
-        content = "hello blobby world!\n"
+        content = b"hello blobby world!\n"
         myfile = OfsBlobFile()
 
         with myfile.data_file.open("wb") as f:
@@ -506,31 +509,31 @@ class OfsBlobFileTest(BaseUnitTest):
 
         from Products.Reportek.blob import add_OfsBlobFile
 
-        content = "hello blobby world!\n"
+        content = b"hello blobby world!\n"
 
         folder = Folder()
-        myfile = add_OfsBlobFile(folder, "myfile", StringIO(content))
+        myfile = add_OfsBlobFile(folder, "myfile", BytesIO(content))
 
         with myfile.data_file.open() as f:
             self.assertEqual(f.read(), content)
 
     def test_download_content(self):
-        from .utils import publish_view
-
         from Products.Reportek.blob import OfsBlobFile
 
-        content = "hello blobby world!\n"
+        from .utils import publish_view
+
+        content = b"hello blobby world!\n"
         myfile = OfsBlobFile("myfile")
 
         with myfile.data_file.open("wb") as f:
             f.write(content)
         myfile.data_file.content_type = "image/jpeg"
 
-        out = StringIO()
+        out = BytesIO()
         publish_view(myfile, {"_stdout": out})
-        (headers_str, body) = out.getvalue().split("\r\n\r\n", 1)
+        (headers_str, body) = out.getvalue().split(b"\r\n\r\n", 1)
         headers = {}
-        for line in headers_str.splitlines():
+        for line in headers_str.decode("utf-8").splitlines():
             k, v = line.split(":", 1)
             headers[k.strip()] = v.strip()
         self.assertEqual(body, content)
@@ -539,10 +542,10 @@ class OfsBlobFileTest(BaseUnitTest):
     def test_update_content(self):
         from Products.Reportek.blob import OfsBlobFile
 
-        content = "hello blobby world!\n"
+        content = b"hello blobby world!\n"
         myfile = OfsBlobFile("myfile")
 
-        upload_file = StringIO(content)
+        upload_file = BytesIO(content)
         upload_file.headers = {"Content-Type": "text/plain"}
         myfile.manage_edit(Mock(form={"file": upload_file}), Mock())
 

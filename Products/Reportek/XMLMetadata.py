@@ -19,13 +19,13 @@
 # Soren Roug, EEA
 # Cornel Nitu, Finsiel Romania
 
+from io import StringIO
 from xml.sax import make_parser
 from xml.sax.saxutils import XMLGenerator
 
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
-from io import StringIO
 
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.RepUtils import parse_uri
@@ -87,8 +87,10 @@ class XMLMetadata:
 
     def _xml_encode(self, s):
         """Encode some special chars"""
-        if isinstance(s, str):
-            tmp = s.encode("utf-8")
+        if isinstance(s, bytes):
+            tmp = s.decode("utf-8")
+        elif isinstance(s, str):
+            tmp = s
         else:
             tmp = str(s)
         tmp = tmp.replace("&", "&amp;")
@@ -156,7 +158,8 @@ class XMLMetadata:
         # In case it is more correct to use namespaces
         # parser.setFeature( "http://xml.org/sax/features/namespaces", 1 )
         parser.setContentHandler(handler)
-        parser.parse(document.data_file.open())
+        with document.data_file.open() as data_file:
+            parser.parse(data_file)
         outf.seek(0)
         xml_a(outf.read())
         outf.close()

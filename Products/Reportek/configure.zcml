@@ -7,6 +7,14 @@
     i18n_domain="default"
 >
 
+    <include package="zope.component" file="meta.zcml" />
+    <include package="zope.component" />
+    <include package="zope.browserpage" file="meta.zcml" />
+    <include package="zope.browsermenu" file="meta.zcml" />
+    <include package="zope.browsermenu" />
+    <include package="Products.Five" />
+    <include package="Products.GenericSetup" file="meta.zcml" />
+
     <subscriber
         for="zope.processlifetime.IDatabaseOpenedWithRoot"
         handler=".startup"

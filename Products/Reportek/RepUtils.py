@@ -146,22 +146,28 @@ def copy_file(infile, outfile):
         outstream.close()
 
 
-def iter_file_data(in_file, chunk_size=131072):
-    while True:
-        chunk = in_file.read(chunk_size)
-        if not chunk:
-            break
-        yield chunk
+def iter_file_data(in_file, chunk_size=131072, close_when_done=False):
+    try:
+        while True:
+            chunk = in_file.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+    finally:
+        if close_when_done and hasattr(in_file, 'close'):
+            in_file.close()
 
 
 def read_file_chunked(in_file, chunk_size=131072):
     f = in_file.open("rb")
-    while True:
-        chunk = f.read(chunk_size)
-        if not chunk:
-            break
-        yield chunk
-    f.close()
+    try:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+    finally:
+        f.close()
 
 
 def cleanup_id(name):
@@ -187,11 +193,11 @@ def generate_id(template):
     else:
         template = ""
     k = int(time.time())
-    id = ""
+    id = b""
     for x in range(4):
-        id = chr(k & 0xFF) + id
+        id = bytes([k & 0xFF]) + id
         k >>= 8
-    id = base64.encodestring(id)
+    id = base64.encodebytes(id)
     if isinstance(id, bytes):
         id = id.decode("ascii", errors="ignore")
     # Remove /=\n characters and translate
@@ -202,8 +208,10 @@ def generate_id(template):
 
 def xmlEncode(p_string):
     """Encode the XML reserved chars"""
-    if isinstance(p_string, str):
-        l_tmp = p_string.encode("utf-8")
+    if isinstance(p_string, bytes):
+        l_tmp = p_string.decode("utf-8")
+    elif isinstance(p_string, str):
+        l_tmp = p_string
     else:
         l_tmp = str(p_string)
     l_tmp = l_tmp.replace("&", "&amp;")
@@ -279,11 +287,11 @@ def utf8Encode(p_str):
 
 
 def to_utf8(s):
-    """converts Unicode to UTF-8"""
-    if isinstance(s, str):
-        return s.encode("utf-8")
-    else:
-        return s
+    """In Python 3, return string as-is (str is already Unicode).
+    For bytes input, decode to string."""
+    if isinstance(s, bytes):
+        return s.decode("utf-8")
+    return s
 
 
 def utConvertToList(something):
@@ -487,6 +495,8 @@ def extractURLs(s):
 class TmpFile:
     def __init__(self, data):
         self.fname = tempfile.mktemp()
+        if isinstance(data, str):
+            data = data.encode("utf-8")
         open(self.fname, "w+b").write(data)
 
     def __str__(self):
@@ -597,7 +607,10 @@ mime_types = _mime_types()
 
 
 def discard_utf8_bom(body):
-    bom = "\xef\xbb\xbf"
+    if isinstance(body, bytes):
+        bom = b"\xef\xbb\xbf"
+    else:
+        bom = "\xef\xbb\xbf"
     if body.startswith(bom):
         return body[3:]
     else:

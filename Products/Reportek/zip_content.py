@@ -19,18 +19,18 @@
 # Soren Roug, EEA
 # Cornel Nitu, Finsiel Romania
 
-from datetime import datetime
 import struct
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
+from datetime import datetime
+from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipfile, ZipFile
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
-from Products.Reportek import constants
-from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED, BadZipfile
-import zipfile
 
-from Products.Reportek import RepUtils
-
+from Products.Reportek import RepUtils, constants
 
 METADATA_CONTENT = """Metadata for envelope "$envelope" at $link
 
@@ -162,7 +162,8 @@ FEEDBACK_FOOTER = """
 
 
 def _get_today():
-    return datetime.now().isoformat(' ')
+    return datetime.now().isoformat(" ")
+
 
 # ----------------  history log --------------------------------
 
@@ -170,66 +171,79 @@ def _get_today():
 def _get_user(ob):
     if ob.actor:
         return ob.actor
-    return '(Not assigned)'
+    return "(Not assigned)"
 
 
 def get_history_content(ob):
-    """ Return the history associated with this envelope.
-        Example:
-        |   Log history for envelope Test Envelope
-        |
-        |   1. Activity: Draft
-        |      Route: From Start To Draft
-        |      Status: complete
-        |      User:   johndoe
-        |      Eventlog:
-        |               2005/02/24 - creation
-        |               2005/02/24 - assigned to johndoe
-        |               2005/02/24 - active
-        |   ---
-        |   [other activities]
+    """Return the history associated with this envelope.
+    Example:
+    |   Log history for envelope Test Envelope
+    |
+    |   1. Activity: Draft
+    |      Route: From Start To Draft
+    |      Status: complete
+    |      User:   johndoe
+    |      Eventlog:
+    |               2005/02/24 - creation
+    |               2005/02/24 - assigned to johndoe
+    |               2005/02/24 - active
+    |   ---
+    |   [other activities]
     """
 
     parsed_template = RepUtils.parse_template
     i = 1
     activities = []
 
-    for item in ob.objectValues('Workitem'):
-
+    for item in ob.objectValues("Workitem"):
         # first we generate the event log for each activity
         events = []
         for log in item.event_log:
-            if isinstance(log['event'], str):
-                log['event'] = log['event'].encode('utf-8')
-            events.append(parsed_template(
-                HISTORY_ACTIVITY_EVENTS,
-                {'date': str(log['time'].ISO()),
-                 'event': log['event'],
-                 'comment': log['comment'],
-                 }))
-        log_events = ''.join(events)
+            # In Python 3, ensure event is a string (decode if bytes)
+            event = log["event"]
+            if isinstance(event, bytes):
+                event = event.decode("utf-8")
+            events.append(
+                parsed_template(
+                    HISTORY_ACTIVITY_EVENTS,
+                    {
+                        "date": str(log["time"].ISO()),
+                        "event": event,
+                        "comment": log["comment"],
+                    },
+                )
+            )
+        log_events = "".join(events)
 
         # last_activity = item.lastActivityDate().rfc822()
 
         # generate the activity related information
-        activities.append(parsed_template(
-            HISTORY_ACTIVITY,
-            {'no':  i,
-             'activity': item.getActivityDetails('title'),
-             'status':  item.status,
-             'user': _get_user(item),
-             'eventlog': log_events}))
+        activities.append(
+            parsed_template(
+                HISTORY_ACTIVITY,
+                {
+                    "no": i,
+                    "activity": item.getActivityDetails("title"),
+                    "status": item.status,
+                    "user": _get_user(item),
+                    "eventlog": log_events,
+                },
+            )
+        )
         i += 1  # increment the workitem number
-    log_activities = ''.join(activities)
+    log_activities = "".join(activities)
 
     # finally, generate the entire history log
     return parsed_template(
         HISTORY_HEADER,
-        {'envelope': ob.title,
-         'link': ob.absolute_url(),
-         'history': log_activities,
-         'date': _get_today()
-         })
+        {
+            "envelope": ob.title,
+            "link": ob.absolute_url(),
+            "history": log_activities,
+            "date": _get_today(),
+        },
+    )
+
 
 # ----------------  metadata log --------------------------------
 
@@ -251,15 +265,15 @@ def _get_obligations(ob):
     engine = _get_engine(app)
     for uri in ob.dataflow_uris:
         df = engine.dataflow_lookup(uri)
-        if df.get('terminated', '0') == '1':
-            res.append("%s -- TERMINATED" % df['details_url'])
+        if df.get("terminated", "0") == "1":
+            res.append("%s -- TERMINATED" % df["details_url"])
         else:
-            res.append("%s" % df['details_url'])
+            res.append("%s" % df["details_url"])
     return ",".join(res)
 
 
 def _get_period(ob):
-    if ob.endyear == '':
+    if ob.endyear == "":
         return "%s - %s" % (ob.year, ob.partofyear)
     return "%s to %s" % (ob.year, ob.endyear)
 
@@ -267,7 +281,7 @@ def _get_period(ob):
 def _get_status(ob):
     if ob.status:
         return ob.status
-    return '(No status)'
+    return "(No status)"
 
 
 def _get_coverage(ob):
@@ -286,27 +300,27 @@ def _get_release_date(ob):
 
 
 def _get_documents(ob):
-    return [doc for doc in ob.objectValues('Report Document')]
+    return [doc for doc in ob.objectValues("Report Document")]
 
 
 def _get_feedbacks(ob):
-    return [feedback for feedback in ob.objectValues('Report Feedback')]
+    return [feedback for feedback in ob.objectValues("Report Feedback")]
 
 
 def get_metadata_content(ob):
-    """ Return the metadata associated with this envelope.
+    """Return the metadata associated with this envelope.
 
-        Example::
-            Description: some description
-            Obligations: http://example.com/envelope
-            Period: 1980 - Whole Year
-            Coverage: Austria
-            Reported: 2006-06-19 11:09:56
-            Status: running
-            Files in this envelope:
-            |   dummy.doc   uploaded on: 16 Jun 2006,    size: 99.7 KB
-            |   ----
-            |   [other files]
+    Example::
+        Description: some description
+        Obligations: http://example.com/envelope
+        Period: 1980 - Whole Year
+        Coverage: Austria
+        Reported: 2006-06-19 11:09:56
+        Status: running
+        Files in this envelope:
+        |   dummy.doc   uploaded on: 16 Jun 2006,    size: 99.7 KB
+        |   ----
+        |   [other files]
 
     """
     parsed_template = RepUtils.parse_template
@@ -315,173 +329,207 @@ def get_metadata_content(ob):
     documents = []
     restricted = []
     for doc in _get_documents(ob):
-        upload_date = doc.upload_time().strftime('%d %b %Y')
+        upload_date = doc.upload_time().strftime("%d %b %Y")
         if getSecurityManager().checkPermission(view, doc):
-            documents.append(parsed_template(
-                METADATA_DOCUMENTS,
-                {'id': doc.id,
-                 'date': upload_date,
-                 'size': doc.size()}))
+            documents.append(
+                parsed_template(
+                    METADATA_DOCUMENTS,
+                    {"id": doc.id, "date": upload_date, "size": doc.size()},
+                )
+            )
         else:
-            restricted.append(parsed_template(
-                METADATA_RESTRICTED,
-                {'id': doc.id,
-                 'date': upload_date,
-                 'size': doc.size()}))
+            restricted.append(
+                parsed_template(
+                    METADATA_RESTRICTED,
+                    {"id": doc.id, "date": upload_date, "size": doc.size()},
+                )
+            )
 
-    log_documents = ''.join(documents)
-    log_restricted = ''.join(restricted)
+    log_documents = "".join(documents)
+    log_restricted = "".join(restricted)
 
-    if log_documents == '' and log_restricted == '':
-        log_documents = 'None'
+    if log_documents == "" and log_restricted == "":
+        log_documents = "None"
 
     return parsed_template(
         METADATA_CONTENT,
-        {'envelope': ob.title,
-         'link': ob.absolute_url(),
-         'description': _get_descriptions(ob),
-         'obligations': _get_obligations(ob),
-         'period':      _get_period(ob),
-         'coverage':    _get_coverage(ob),
-         'status':      _get_status(ob),
-         'release_date': _get_release_date(ob),
-         'documents': log_documents,
-         'restricted': log_restricted,
-         'date': _get_today(),
-         })
+        {
+            "envelope": ob.title,
+            "link": ob.absolute_url(),
+            "description": _get_descriptions(ob),
+            "obligations": _get_obligations(ob),
+            "period": _get_period(ob),
+            "coverage": _get_coverage(ob),
+            "status": _get_status(ob),
+            "release_date": _get_release_date(ob),
+            "documents": log_documents,
+            "restricted": log_restricted,
+            "date": _get_today(),
+        },
+    )
 
 
 def get_feedback_content(ob):
-    """ Returns feedback items associated with this envelope.
-        Example:
+    """Returns feedback items associated with this envelope.
+    Example:
 
-        * (for automatic feedbacks)
-          Subject: Feedback item
-          Posted automatically on: 09 Sep 2008
-          Task: Automatic quality assessment
-          Referred file: file.xml
+    * (for automatic feedbacks)
+      Subject: Feedback item
+      Posted automatically on: 09 Sep 2008
+      Task: Automatic quality assessment
+      Referred file: file.xml
 
-          [ Feedback text ]
+      [ Feedback text ]
 
-        * (for manual feedbacks)
-          Subject: Feedback item
-          Envelope release: 11 Sep 2008
-          Attached files: file.doc
+    * (for manual feedbacks)
+      Subject: Feedback item
+      Envelope release: 11 Sep 2008
+      Attached files: file.doc
 
-          [ Feedback text ]
+      [ Feedback text ]
     """
     parsed_template = RepUtils.parse_template
     title = ob.title
     fbtext = ob.feedbacktext
 
-    if isinstance(fbtext, str):  # noqa: F821
-        fbtext = fbtext.encode('utf-8')
-    if isinstance(title, str):  # noqa: F821
-        title = title.encode('utf-8')
-    header = parsed_template(FEEDBACK_HEADER,
-                             {'title': 'Feedbacks for envelope %s' % title})
-    footer = parsed_template(FEEDBACK_FOOTER,
-                             {})
+    # In Python 3, ensure we work with strings (decode bytes if needed)
+    if isinstance(fbtext, bytes):
+        fbtext = fbtext.decode("utf-8")
+    if isinstance(title, bytes):
+        title = title.decode("utf-8")
+    header = parsed_template(
+        FEEDBACK_HEADER, {"title": "Feedbacks for envelope %s" % title}
+    )
+    footer = parsed_template(FEEDBACK_FOOTER, {})
 
     if ob.automatic:
         try:
-            task_name = ob.getActivityDetails('title')
+            task_name = ob.getActivityDetails("title")
         except (AttributeError, KeyError):
             task_name = ob.activity_id
-        task_name = task_name.encode('utf-8')
-        if ob.document_id and ob.document_id != 'xml':
-            refered_file = ob.document_id.encode('utf-8')
+        if isinstance(task_name, bytes):
+            task_name = task_name.decode("utf-8")
+        if ob.document_id and ob.document_id != "xml":
+            refered_file = ob.document_id
+            if isinstance(refered_file, bytes):
+                refered_file = refered_file.decode("utf-8")
         else:
-            refered_file = ''
+            refered_file = ""
 
         content = parsed_template(
             AUTOMATIC_FEEDBACK_CONTENT,
-            {'subject': title,
-             'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
-             'task': task_name,
-             'file': refered_file,
-             'content': fbtext})
+            {
+                "subject": title,
+                "posted": ob.postingdate.strftime("%d %b %Y %H:%M"),
+                "task": task_name,
+                "file": refered_file,
+                "content": fbtext,
+            },
+        )
     else:
-        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(),
-                                                     'Open %s' % file.getId(
-        ), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
-        content = parsed_template(MANUAL_FEEDBACK_CONTENT,
-                                  {'subject': title,
-                                   'posted': ob.releasedate,
-                                   'file': ', '.join(files),
-                                   'content': fbtext})
+        files = [
+            '<a href="%s" title="%s">%s</a>'
+            % (file.getId(), "Open %s" % file.getId(), file.getId())
+            for file in ob.objectValues(["File", "File (Blob)"])
+        ]
+        content = parsed_template(
+            MANUAL_FEEDBACK_CONTENT,
+            {
+                "subject": title,
+                "posted": ob.releasedate,
+                "file": ", ".join(files),
+                "content": fbtext,
+            },
+        )
     # finally, generate the entire feedback log
     return "%s%s%s" % (header, content, footer)
 
 
 def get_feedback_list(ob):
-    """ Returns feedback items associated with this envelope.
+    """Returns feedback items associated with this envelope.
 
-        Example:
+    Example:
 
-            Feedbacks for envelope Test Envelope
+        Feedbacks for envelope Test Envelope
 
-            1. Subject: Feedback item[link]
-               Posted automatically on: 09 Sep 2008
-               Task: Automatic quality assessment
-               Referred file: file.xml
+        1. Subject: Feedback item[link]
+           Posted automatically on: 09 Sep 2008
+           Task: Automatic quality assessment
+           Referred file: file.xml
 
-            2. Subject: Feedback item[link]
-               Envelope release: 11 Sep 2008
-               Attached files: file.doc
+        2. Subject: Feedback item[link]
+           Envelope release: 11 Sep 2008
+           Attached files: file.doc
 
-            ...
+        ...
     """
     feedbacks = []
     parsed_template = RepUtils.parse_template
     header = parsed_template(
-        FEEDBACK_HEADER, {'title': 'Feedbacks for envelope %s' % ob.title})
+        FEEDBACK_HEADER, {"title": "Feedbacks for envelope %s" % ob.title}
+    )
     footer = parsed_template(FEEDBACK_FOOTER, {})
     for feedback in _get_feedbacks(ob):
         if getSecurityManager().checkPermission(view, feedback):
-            files = ['<a href="%s" title="%s">%s</a>' % (
-                file.getId(),
-                'Open %s' % file.getId(),
-                file.getId())
-                for file in feedback.objectValues(['File', 'File (Blob)'])]
+            files = [
+                '<a href="%s" title="%s">%s</a>'
+                % (file.getId(), "Open %s" % file.getId(), file.getId())
+                for file in feedback.objectValues(["File", "File (Blob)"])
+            ]
             if feedback.automatic:
                 try:
-                    task_name = feedback.getActivityDetails('title')
+                    task_name = feedback.getActivityDetails("title")
                 except (AttributeError, KeyError):
                     task_name = feedback.activity_id
 
-                if feedback.document_id and feedback.document_id != 'xml':
+                if feedback.document_id and feedback.document_id != "xml":
                     refered_file = feedback.document_id
                 else:
-                    refered_file = ''
-                feedbacks.append(parsed_template(
-                    AUTOMATIC_FEEDBACKS_LIST,
-                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (
-                        feedback.id, feedback.title, feedback.title),
-                     'posted': feedback.postingdate.strftime('%d %b %Y %H:%M'),
-                     'task': task_name,
-                     'file': refered_file}))
+                    refered_file = ""
+                feedbacks.append(
+                    parsed_template(
+                        AUTOMATIC_FEEDBACKS_LIST,
+                        {
+                            "subject": '<a href="%s.html" title="%s">%s</a>'
+                            % (feedback.id, feedback.title, feedback.title),
+                            "posted": feedback.postingdate.strftime(
+                                "%d %b %Y %H:%M"
+                            ),
+                            "task": task_name,
+                            "file": refered_file,
+                        },
+                    )
+                )
             else:
-                feedbacks.append(parsed_template(
-                    MANUAL_FEEDBACKS_LIST,
-                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (
-                        feedback.id, feedback.title, feedback.title),
-                     'posted': feedback.releasedate,
-                     'file': ', '.join(files)}))
+                feedbacks.append(
+                    parsed_template(
+                        MANUAL_FEEDBACKS_LIST,
+                        {
+                            "subject": '<a href="%s.html" title="%s">%s</a>'
+                            % (feedback.id, feedback.title, feedback.title),
+                            "posted": feedback.releasedate,
+                            "file": ", ".join(files),
+                        },
+                    )
+                )
     # finally, generate the entire feedback log
-    return "%s%s%s" % (header, '\n'.join(feedbacks), footer)
+    return "%s%s%s" % (header, "\n".join(feedbacks), footer)
+
 
 # ----------------  readme log --------------------------------
 
 
 def get_readme_content(ob):
-    """ Return the README.txt content """
+    """Return the README.txt content"""
     return RepUtils.parse_template(
         README_CONTENT,
-        {'envelope': ob.title,
-         'link': ob.absolute_url(),
-         'date': _get_today(),
-         })
+        {
+            "envelope": ob.title,
+            "link": ob.absolute_url(),
+            "date": _get_today(),
+        },
+    )
+
 
 #
 # Support class to provide more similarity with Zope upload files.
@@ -494,17 +542,23 @@ def get_readme_content(ob):
 
 
 class ZZipFile(ZipFile):
-
     # for the __del__ mechanics (? see python2.7/zipfile.py)
     zef_file = None
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED,
-                 allowZip64=False):
-        ZipFile.__init__(self, file, mode=mode,
-                         compression=compression, allowZip64=allowZip64)
+    def __init__(
+        self, file, mode="r", compression=ZIP_STORED, allowZip64=False
+    ):
+        # Initialize attributes before parent __init__ in case it raises
         self.currentFilename = None
         self.zef_file = None
         self.should_close = False
+        ZipFile.__init__(
+            self,
+            file,
+            mode=mode,
+            compression=compression,
+            allowZip64=allowZip64,
+        )
 
     def __del__(self):
         fp = self.zef_file
@@ -546,7 +600,7 @@ class ZZipFile(ZipFile):
         return self.zef_file.read(size)
 
     def seek(self, pos=0):
-        """ Use this only for rewind purposes, as the base class does
+        """Use this only for rewind purposes, as the base class does
         not provide a seek mechanism. Thus, `pos` should always be 0."""
         if pos != 0:
             raise ValueError("(Z)ZipFile can only seek for start.")
@@ -558,11 +612,11 @@ class ZZipFile(ZipFile):
 
 
 def encode_zip_name(name, key):
-    return urllib.parse.quote('%s-%s' % (name, key), '')
+    return urllib.parse.quote("%s-%s" % (name, key), "")
 
 
 class ZZipFileRaw(ZZipFile):
-    """ This class extends the reading of zip files inside a zip archive
+    """This class extends the reading of zip files inside a zip archive
     to support raw retrieving of data + necessary metadata for transplanting
     a raw deflated content from zip container to other container, say gzip.
     This is only for reading!
@@ -572,13 +626,20 @@ class ZZipFileRaw(ZZipFile):
     ENCRYPTED_FLAG = 0x1
     SKIP_RAW_THRESHOLD = 300
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED,
-                 allowZip64=False):
-        ZZipFile.__init__(self, file, mode=mode,
-                          compression=compression, allowZip64=allowZip64)
+    def __init__(
+        self, file, mode="r", compression=ZIP_STORED, allowZip64=False
+    ):
+        # Initialize attributes before parent __init__ in case it raises
         self.bytesRead = 0
         self.zef_file_raw = None
         self.should_close_raw = False
+        ZZipFile.__init__(
+            self,
+            file,
+            mode=mode,
+            compression=compression,
+            allowZip64=allowZip64,
+        )
 
     def __del__(self):
         fp = self.zef_file_raw
@@ -606,9 +667,9 @@ class ZZipFileRaw(ZZipFile):
 
     # only open for read
     def openRaw(self):
-        ''' This is a nonstandard open.
+        """This is a nonstandard open.
         It is only for read.
-        '''
+        """
         # open raw
         if not self.zef_file_raw:
             if self._filePassed:
@@ -616,7 +677,7 @@ class ZZipFileRaw(ZZipFile):
                 self.should_close_raw = False
             else:
                 # open the main filename (the one on file system)
-                zef_file_raw = open(self.filename, 'rb')
+                zef_file_raw = open(self.filename, "rb")
                 self.should_close_raw = True
 
         return zef_file_raw
@@ -646,8 +707,9 @@ class ZZipFileRaw(ZZipFile):
         # seek to the start of deflated data
         if pos:
             raise IOError(
-                '''Can only seek at the begining of a file inside '''
-                '''a zip archive (pos=0)''')
+                """Can only seek at the begining of a file inside """
+                """a zip archive (pos=0)"""
+            )
         try:
             if not self.zef_file_raw:
                 self.zef_file_raw = self.openRaw()
@@ -662,13 +724,20 @@ class ZZipFileRaw(ZZipFile):
                 raise BadZipfile("Bad magic number for file header")
 
             fname = self.zef_file_raw.read(
-                fheader[zipfile._FH_FILENAME_LENGTH])
+                fheader[zipfile._FH_FILENAME_LENGTH]
+            )
             if fheader[zipfile._FH_EXTRA_FIELD_LENGTH]:
                 self.zef_file_raw.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
 
+            # Decode bytes to string for comparison with orig_filename
+            if isinstance(fname, bytes):
+                fname = fname.decode("utf-8")
             if fname != self.zinfo.orig_filename:
-                raise BadZipfile('File name in directory "%s" and \
-                    header "%s" differ.' % (self.zinfo.orig_filename, fname))
+                raise BadZipfile(
+                    'File name in directory "%s" and \
+                    header "%s" differ.'
+                    % (self.zinfo.orig_filename, fname)
+                )
         except Exception:
             if self.should_close_raw:
                 self.zef_file_raw.close()
@@ -680,7 +749,7 @@ class ZZipFileRaw(ZZipFile):
         return self.seekRaw(0)
 
     def read(self, nbytes=-1, skipRawThreshold=SKIP_RAW_THRESHOLD):
-        """ Read `nbytes` from the zip file.
+        """Read `nbytes` from the zip file.
         If the requestet chunk size is -1 then read the whole file.
         If it is below `skipRawThreshold` (but not whole file, -1) then read
         those bytes uncompressed

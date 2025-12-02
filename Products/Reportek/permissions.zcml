@@ -29,33 +29,45 @@
 
   <permission
     id="zope2.ReportekUtilitiesUser"
-    title="ReportekUtilities User"
-  />
+    title="ReportekUtilities User">
+    <role name="Manager" />
+    <role name="DataflowManager" />
+  </permission>
 
   <permission
     id="zope2.ReportekUsersManager"
-    title="Reportek Users Manager"
-  />
+    title="Reportek Users Manager">
+    <role name="Manager" />
+    <role name="DataflowManager" />
+  </permission>
 
   <permission
     id="zope2.ReportekCollectionsManager"
-    title="Reportek Collections Manager"
-  />
+    title="Reportek Collections Manager">
+    <role name="Manager" />
+    <role name="DataflowManager" />
+  </permission>
 
   <permission
     id="zope2.ReportekEnvelopesManager"
-    title="Reportek Envelopes Manager"
-  />
+    title="Reportek Envelopes Manager">
+    <role name="Manager" />
+    <role name="DataflowManager" />
+  </permission>
 
   <permission
     id="zope2.ReportekReferralsManager"
-    title="Reportek Referrals Manager"
-  />
+    title="Reportek Referrals Manager">
+    <role name="Manager" />
+    <role name="DataflowManager" />
+  </permission>
 
   <permission
     id="zope2.ReportekDataflowAdmin"
-    title="Reportek Dataflow Admin"
-  />
+    title="Reportek Dataflow Admin">
+    <role name="Manager" />
+    <role name="DataflowManager" />
+  </permission>
 
   <permission
     id="Zope2.ReportekCancelActivity"

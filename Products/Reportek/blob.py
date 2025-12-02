@@ -220,10 +220,9 @@ class FileContainer(Persistent):
     def get_fs_path(self):
         blob_dir = self.get_blob_dir()
         try:
-            this_data_file = self._blob.open("r")
-            fs_path = this_data_file.name[len(blob_dir) + 1:]
-            this_data_file.close()
-            return os.path.join(blob_dir, fs_path)
+            with self._blob.open("r") as this_data_file:
+                fs_path = this_data_file.name[len(blob_dir) + 1:]
+                return os.path.join(blob_dir, fs_path)
         except Exception:
             return ""
 

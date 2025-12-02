@@ -26,7 +26,7 @@ import logging
 import os
 import string
 import sys
-from io import StringIO
+from io import IOBase, StringIO
 from os.path import join
 from time import time
 
@@ -164,7 +164,7 @@ def manage_addDocument(
     )
     if is_object and not filename:
         filename = getattr(file, "filename")
-    is_str = file and isinstance(file, str)
+    is_str = file and isinstance(file, (str, bytes))
 
     if is_object:
         if not id:
@@ -179,9 +179,9 @@ def manage_addDocument(
         save_id = None
         id = id[
             max(
-                string.rfind(id, "/"),
-                string.rfind(id, "\\"),
-                string.rfind(id, ":"),
+                id.rfind("/"),
+                id.rfind("\\"),
+                id.rfind(":"),
             )
             + 1 :
         ]
@@ -863,9 +863,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         ) as data_file_handle:
             if hasattr(file, "read"):
                 for chunk in RepUtils.iter_file_data(file):
+                    if isinstance(chunk, str):
+                        chunk = chunk.encode("utf-8")
                     data_file_handle.write(chunk)
             else:
-                data_file_handle.write(file)
+                data = file
+                if isinstance(data, str):
+                    data = data.encode("utf-8")
+                data_file_handle.write(data)
 
         with self.data_file.open("rb") as data_file_handle:
             engine = getattr(self, ENGINE_ID, None)
@@ -921,6 +926,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 file_or_content.seek(0)
         else:
             body = file_or_content[:100]
+            # Ensure body is bytes for guess_content_type
+            if isinstance(body, str):
+                body = body.encode("utf-8")
 
         if not name:
             name = self.id.lower()
@@ -946,14 +954,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def _compute_uncompressed_size(self, file_or_content):
         if isinstance(file_or_content, FileUpload) or isinstance(
-            file_or_content, file
+            file_or_content, IOBase
         ):
             pos = file_or_content.tell()
             file_or_content.seek(0, 2)
             size = file_or_content.tell()
             file_or_content.seek(pos)
             return size
-        elif isinstance(file_or_content, str):
+        elif isinstance(file_or_content, (str, bytes)):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
             return file_or_content.len
@@ -970,9 +978,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         if not file_id:
             file_id = self.getId()
         f = getattr(self, "data_file")
-        fc = f.open()
-        dst.manage_addFile(file_id, file=fc.read())
-        fc.close()
+        with f.open() as fc:
+            dst.manage_addFile(file_id, file=fc.read())
 
     security.declareProtected("View", "xml_to_json")
 

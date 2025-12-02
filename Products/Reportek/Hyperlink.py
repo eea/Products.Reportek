@@ -18,10 +18,8 @@
 # Contributor(s):
 # Soren Roug, EEA
 
-import string
 from time import time
 
-from Products.Reportek import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from App.ImageFile import ImageFile
@@ -30,6 +28,7 @@ from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import RepUtils
 from Products.Reportek.CatalogAware import CatalogAware
 
 __doc__ = """
@@ -44,8 +43,7 @@ manage_addHyperlinkForm = PageTemplateFile("zpt/hyperlink/add", globals())
 
 
 def manage_addHyperlink(self, id="", title="", hyperlinkurl="", REQUEST=None):
-    """Adds hyperlink as a file to a folder."""
-
+    """Add hyperlink as a file to a folder."""
     # generate id from the release date
     # Normally, there can only be one hyperlink for a release
     if not id:
@@ -55,11 +53,11 @@ def manage_addHyperlink(self, id="", title="", hyperlinkurl="", REQUEST=None):
             id = id[:-1]
         id = id[
             max(
-                string.rfind(id, "/"),
-                string.rfind(id, "\\"),
-                string.rfind(id, ":"),
+                id.rfind("/"),
+                id.rfind("\\"),
+                id.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
@@ -101,7 +99,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     ################################
 
     def __init__(self, id, title="", hyperlinkurl=""):
-        """Initialize a new Hyperlink instance"""
+        """Initialize a new Hyperlink instance."""
         self.id = id
         self.title = title
         self.hyperlinkurl = hyperlinkurl
@@ -115,7 +113,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     security.declarePublic("upload_time")
 
     def upload_time(self):
-        """Return the upload time"""
+        """Return the upload time."""
         return DateTime(self._upload_time)
 
     def size(self):
@@ -131,7 +129,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
         restricted="",
         REQUEST=None,
     ):
-        """Edits the properties"""
+        """Edits the properties."""
         self.title = title
         self.hyperlinkurl = hyperlinkurl
         if applyRestriction:
@@ -150,13 +148,14 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
 
     security.declareProtected("Change Envelopes", "manage_editHyperlinkForm")
     manage_editHyperlinkForm = PageTemplateFile(
-        "zpt/hyperlink/edit", globals()
+        "zpt/hyperlink/edit",
+        globals(),
     )
 
     security.declareProtected("Change Envelopes", "manage_restrictDocument")
 
     def manage_restrictDocument(self, REQUEST=None):
-        """Restrict access to this file"""
+        """Restrict access to this file."""
         self.manage_restrict(ids=[self.id])
         if REQUEST:
             return self.messageDialog(
@@ -167,7 +166,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     security.declareProtected("Change Envelopes", "manage_unrestrictDocument")
 
     def manage_unrestrictDocument(self, REQUEST=None):
-        """Remove access restriction for this file"""
+        """Remove access restriction for this file."""
         self.manage_unrestrict(ids=[self.id])
         if REQUEST:
             return self.messageDialog(
@@ -178,7 +177,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     security.declarePublic("isRestricted")
 
     def isRestricted(self):
-        """Returns 1 if the file is restricted, 0 otherwise"""
+        """Return 1 if the file is restricted, 0 otherwise."""
         if self.acquiredRolesAreUsedBy("View"):
             return 0
         return 1

@@ -11,7 +11,7 @@ import unittest
 from Testing import ZopeTestCase
 import unittest
 from Testing import ZopeTestCase
-from Products.Five import zcml
+from Zope2.App import zcml
 
 ZopeTestCase.installProduct("PluginIndexes")
 ZopeTestCase.installProduct("PythonScripts")
@@ -184,9 +184,9 @@ class zopeEnvTestCase(BaseTest, ConfigureReportek):
         self.of.editActivitiesPullableOnRole(
             role="aRole", process="begin_end", activities=["Begin", "End"]
         )
-        assert self.of.usersAssignableTo("begin_end", "Begin") == [
-            "auser"
-        ], self.of.usersAssignableTo("begin_end", "Begin")
+        assert self.of.usersAssignableTo("begin_end", "Begin") == ["auser"], (
+            self.of.usersAssignableTo("begin_end", "Begin")
+        )
 
 
 class zopeEnvCopySupport(BaseTest, ConfigureReportek):

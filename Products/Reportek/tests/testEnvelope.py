@@ -1,149 +1,175 @@
 # -*- coding: utf-8 -*-
-import os.path
-from .common import BaseTest, BaseUnitTest, WorkflowTestCase, ConfigureReportek
-from Products.Reportek.OpenFlowEngine import OpenFlowEngineImportError
-from Products.Reportek import ContentRegistryPingger
-from Products.Reportek import Converters
-from Products.Reportek import constants
-from Products.Reportek import OpenFlowEngine
-from OFS.SimpleItem import SimpleItem
-from OFS.Folder import Folder
-import json
 import hashlib
-from zope.lifecycleevent import ObjectMovedEvent
+import json
+import os.path
 from functools import partial
-from mock import Mock, patch
-from .utils import (create_fake_root, create_upload_file, create_envelope,
-                   add_document, add_feedback, add_hyperlink,
-                   simple_addEnvelope)
-from DateTime import DateTime
+from io import BytesIO, StringIO
+
 import lxml.etree
-from io import StringIO
-from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
-ZopeTestCase.installProduct('Reportek')
-ZopeTestCase.installProduct('PythonScripts')
+from DateTime import DateTime
+from mock import Mock, patch
+from OFS.Folder import Folder
+from OFS.SimpleItem import SimpleItem
+from Testing import ZopeTestCase
+from zope.lifecycleevent import ObjectMovedEvent
+
+from Products.Reportek import (
+    ContentRegistryPingger,
+    Converters,
+    OpenFlowEngine,
+    constants,
+)
+from Products.Reportek.OpenFlowEngine import OpenFlowEngineImportError
+
+from .common import BaseTest, BaseUnitTest, ConfigureReportek, WorkflowTestCase
+from .utils import (
+    add_document,
+    add_feedback,
+    add_hyperlink,
+    create_envelope,
+    create_fake_root,
+    create_upload_file,
+    simple_addEnvelope,
+)
+
+ZopeTestCase.installProduct("Reportek")
+ZopeTestCase.installProduct("PythonScripts")
 
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class EnvelopeTestCase(BaseTest):
-
     def afterSetUp(self):
         super(EnvelopeTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.createStandardCollection()
-        self.assertTrue(hasattr(self.app, 'collection'),
-                        'Collection did not get created')
+        self.assertTrue(
+            hasattr(self.app, "collection"), "Collection did not get created"
+        )
         self.assertNotEqual(self.app.collection, None)
 
     def test_addEnvelope(self):
-        """ To create an envelope the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
-               something
-            2) There must exist a default workflow
+        """To create an envelope the following is needed:
+        1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+           something
+        2) There must exist a default workflow
         """
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003',
-                           '2004', '', 'http://rod.eionet.eu.int/localities/1',
-                           REQUEST=None, previous_delivery='')
+        simple_addEnvelope(
+            col.manage_addProduct["Reportek"],
+            "",
+            "",
+            "2003",
+            "2004",
+            "",
+            "http://rod.eionet.eu.int/localities/1",
+            REQUEST=None,
+            previous_delivery="",
+        )
         self.envelope = None
-        for env in col.objectValues('Report Envelope'):
+        for env in col.objectValues("Report Envelope"):
             self.envelope = env
             break
         self.assertNotEqual(self.envelope, None)
 
     def helpCreateEnvelope(self, startYear, endYear, duration):
-        """ To create an envelope the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
-               something
-            2) There must exist a default workflow
+        """To create an envelope the following is needed:
+        1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+           something
+        2) There must exist a default workflow
         """
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        col.manage_addProduct['Reportek'].manage_addEnvelope(
-            '', '', startYear, endYear, duration,
-            'http://rod.eionet.eu.int/localities/1', REQUEST=None,
-            previous_delivery='')
+        col.manage_addProduct["Reportek"].manage_addEnvelope(
+            "",
+            "",
+            startYear,
+            endYear,
+            duration,
+            "http://rod.eionet.eu.int/localities/1",
+            REQUEST=None,
+            previous_delivery="",
+        )
         self.envelope = None
-        for env in col.objectValues('Report Envelope'):
+        for env in col.objectValues("Report Envelope"):
             self.envelope = env
             self.envelope.messageDialog = Mock()
             break
         self.assertNotEqual(self.envelope, None)
 
     def test_endDateMultipleYears(self):
-        self.helpCreateEnvelope('2003', '2004', 'WHOLE_YEAR')
+        self.helpCreateEnvelope("2003", "2004", "WHOLE_YEAR")
         s = self.envelope.getStartDate()
-        self.assertEqual(s.strftime('%Y-%m-%d'), '2003-01-01')
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2003-01-01")
         r = self.envelope.getEndDate()
-        self.assertEqual(r.strftime('%Y-%m-%d'), '2004-12-31')
+        self.assertEqual(r.strftime("%Y-%m-%d"), "2004-12-31")
 
     def test_endDateFirstHalf(self):
-        self.helpCreateEnvelope('2003', '', 'FIRST_HALF')
+        self.helpCreateEnvelope("2003", "", "FIRST_HALF")
         s = self.envelope.getStartDate()
-        self.assertEqual(s.strftime('%Y-%m-%d'), '2003-01-01')
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2003-01-01")
         r = self.envelope.getEndDate()
-        self.assertEqual(r.strftime('%Y-%m-%d'), '2003-06-30')
+        self.assertEqual(r.strftime("%Y-%m-%d"), "2003-06-30")
 
     def test_endDateFirstQuarter(self):
-        self.helpCreateEnvelope('2009', '', 'FIRST_QUARTER')
+        self.helpCreateEnvelope("2009", "", "FIRST_QUARTER")
         s = self.envelope.getStartDate()
-        self.assertEqual(s.strftime('%Y-%m-%d'), '2009-01-01')
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2009-01-01")
         r = self.envelope.getEndDate()
-        self.assertEqual(r.strftime('%Y-%m-%d'), '2009-03-31')
+        self.assertEqual(r.strftime("%Y-%m-%d"), "2009-03-31")
 
     def test_endDateThirdQuarter(self):
-        self.helpCreateEnvelope('2009', '', 'THIRD_QUARTER')
+        self.helpCreateEnvelope("2009", "", "THIRD_QUARTER")
         s = self.envelope.getStartDate()
-        self.assertEqual(s.strftime('%Y-%m-%d'), '2009-07-01')
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2009-07-01")
         r = self.envelope.getEndDate()
-        self.assertEqual(r.strftime('%Y-%m-%d'), '2009-09-30')
+        self.assertEqual(r.strftime("%Y-%m-%d"), "2009-09-30")
 
-    @patch('Products.Reportek.Envelope.transaction.commit')
+    @patch("Products.Reportek.Envelope.transaction.commit")
     def test_endDateMultipleYearsQuarter(self, mock_commit):
-        self.helpCreateEnvelope('2004', '2009', 'FIRST_QUARTER')
+        self.helpCreateEnvelope("2004", "2009", "FIRST_QUARTER")
         s = self.envelope.getStartDate()
-        self.assertEqual(s.strftime('%Y-%m-%d'), '2004-01-01')
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2004-01-01")
         r = self.envelope.getEndDate()
-        self.assertEqual(r.strftime('%Y-%m-%d'), '2009-12-31')
+        self.assertEqual(r.strftime("%Y-%m-%d"), "2009-12-31")
         self.envelope.release_envelope()
         rdf = self.envelope.rdf(self.app.REQUEST)
-        assert rdf.find('startOfPeriod') > -1
-        assert rdf.find('endOfPeriod') > -1
+        assert rdf.find("startOfPeriod") > -1
+        assert rdf.find("endOfPeriod") > -1
 
-    @patch('Products.Reportek.Envelope.transaction.commit')
+    @patch("Products.Reportek.Envelope.transaction.commit")
     def test_DateNoDates(self, mock_commit):
-        self.helpCreateEnvelope('', '', 'FIRST_QUARTER')
+        self.helpCreateEnvelope("", "", "FIRST_QUARTER")
         s = self.envelope.getStartDate()
         self.assertEqual(s, None)
         r = self.envelope.getEndDate()
         self.assertEqual(r, None)
         self.envelope.release_envelope()
         rdf = self.envelope.rdf(self.app.REQUEST)
-        self.assertEqual(-1, rdf.find('startOfPeriod'))
+        self.assertEqual(-1, rdf.find("startOfPeriod"))
 
     def test_workitem(self):
-        """ Test the first workitem """
+        """Test the first workitem"""
         self.test_addEnvelope()
         # Check that exactly on workitem was created
-        assert len(self.envelope.objectIds('Workitem')) == 1
-        wi = self.envelope.objectValues('Workitem')[0]
+        assert len(self.envelope.objectIds("Workitem")) == 1
+        wi = self.envelope.objectValues("Workitem")[0]
         user = getSecurityManager().getUser().getUserName()
         # Activate envelope's workitem
         self.envelope.activateWorkitem(wi.id, actor=user)
         # Check that it did it correctly
-        self.assertEqual(wi.actor, 'test_user_1_')
+        self.assertEqual(wi.actor, "test_user_1_")
         self.assertEqual(self.envelope.id, wi.instance_id)
-        self.assertEqual('Begin', wi.activity_id)
+        self.assertEqual("Begin", wi.activity_id)
         self.envelope.completeWorkitem(wi.id, actor=user)
-        self.assertEqual('complete', wi.status)
+        self.assertEqual("complete", wi.status)
 
     def test_invalid_period(self):
         col = self.app.collection
@@ -151,354 +177,418 @@ class EnvelopeTestCase(BaseTest):
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
         from Products.Reportek import exceptions
+
         with self.assertRaises(exceptions.InvalidPartOfYear):
-            col.manage_addProduct['Reportek'].manage_addEnvelope(
-                '', '', '2003', '2004', 'invalid',
-                'http://rod.eionet.eu.int/localities/1', REQUEST=None,
-                previous_delivery='')
+            col.manage_addProduct["Reportek"].manage_addEnvelope(
+                "",
+                "",
+                "2003",
+                "2004",
+                "invalid",
+                "http://rod.eionet.eu.int/localities/1",
+                REQUEST=None,
+                previous_delivery="",
+            )
 
     def test_saveXML_on_released_envelope(self):
         from Products.Reportek import exceptions
+
         self.test_addEnvelope()
         self.envelope.released = True
         with self.assertRaises(exceptions.EnvelopeReleasedException):
-            self.envelope.saveXML('file_id', Mock(), '')
+            self.envelope.saveXML("file_id", Mock(), "")
 
     def test_openflow_exportToJson(self):
         self.createStandardCatalog()
-        wfe = getattr(self.app, 'WorkflowEngine')
-        pr = getattr(wfe, 'begin_end')
-        tr = getattr(pr, 'begin_end')
+        wfe = getattr(self.app, "WorkflowEngine")
+        pr = getattr(wfe, "begin_end")
+        tr = getattr(pr, "begin_end")
         tr.condition = "python: len([ i for i in range(1, 11)])"
-        pr.addActivity('activity1', application='script1')
-        pr.addActivity('activity2', application='script2')
-        self.app.manage_addFolder('Applications')
-        folder = getattr(self.app, 'Applications')
+        pr.addActivity("activity1", application="script1")
+        pr.addActivity("activity2", application="script2")
+        self.app.manage_addFolder("Applications")
+        folder = getattr(self.app, "Applications")
 
-        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
-            id='an_application')
-        script1 = getattr(folder, 'an_application')
+        folder.manage_addProduct["PythonScripts"].manage_addPythonScript(
+            id="an_application"
+        )
+        script1 = getattr(folder, "an_application")
         # test unicode
         script1.write("return 'blâ'")
         expected_type1 = script1.meta_type
         expected_checksum1 = hashlib.md5(
-            script1.read().encode('utf-8')).hexdigest()
+            script1.read().encode("utf-8")
+        ).hexdigest()
 
-        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
-            id='another_application')
-        script2 = getattr(folder, 'another_application')
+        folder.manage_addProduct["PythonScripts"].manage_addPythonScript(
+            id="another_application"
+        )
+        script2 = getattr(folder, "another_application")
         # test string with non ascii chars
-        script2.ZPythonScript_edit(params='', body="return 'blâ'")
+        script2.ZPythonScript_edit(params="", body="return 'blâ'")
         expected_type2 = script2.meta_type
-        expected_checksum2 = hashlib.md5(script2.read()).hexdigest()
+        expected_checksum2 = hashlib.md5(
+            script2.read().encode("utf-8")
+        ).hexdigest()
 
-        wfe.addApplication('script1', script1.absolute_url(1))
-        wfe.addApplication('script2', script2.absolute_url(1))
+        wfe.addApplication("script1", script1.absolute_url(1))
+        wfe.addApplication("script2", script2.absolute_url(1))
         # this application will not be exported as it is not referenced by any
         # process activity
         wfe.addApplication(
-            'script3', '/this/is/not/referenced/by/any/activity')
+            "script3", "/this/is/not/referenced/by/any/activity"
+        )
 
-        expected_role = 'Manager'
-        wfe.editActivitiesPullableOnRole(expected_role, 'begin_end', [
-                                         'Begin', 'Draft', 'Release'])
+        expected_role = "Manager"
+        wfe.editActivitiesPullableOnRole(
+            expected_role, "begin_end", ["Begin", "Draft", "Release"]
+        )
 
-        r = wfe.exportToJson(proc='begin_end')
+        r = wfe.exportToJson(proc="begin_end")
         o = json.loads(r)
-        self.assertIn('applications', o)
-        self.assertEqual(len(o['applications']), 2)
-        self.assertIn({
-            'checksum': expected_checksum1,
-            'rid': 'script1',
-            'type': expected_type1,
-            'url': script1.absolute_url(1)
-        }, o['applications'])
-        self.assertIn({
-            'checksum': expected_checksum2,
-            'rid': 'script2',
-            'type': expected_type2,
-            'url': script2.absolute_url(1)
-        }, o['applications'])
+        self.assertIn("applications", o)
+        self.assertEqual(len(o["applications"]), 2)
+        self.assertIn(
+            {
+                "checksum": expected_checksum1,
+                "rid": "script1",
+                "type": expected_type1,
+                "url": script1.absolute_url(1),
+            },
+            o["applications"],
+        )
+        self.assertIn(
+            {
+                "checksum": expected_checksum2,
+                "rid": "script2",
+                "type": expected_type2,
+                "url": script2.absolute_url(1),
+            },
+            o["applications"],
+        )
 
-        self.assertIn('processes', o)
-        proc = o['processes'][0]
+        self.assertIn("processes", o)
+        proc = o["processes"][0]
         expected_proc = {
-            'activities': [{'application': '',
-                             'complete_automatically': 1,
-                             'description': '',
-                             'finish_mode': 0,
-                             'join_mode': 'and',
-                             'kind': 'standard',
-                             'parameters': '',
-                             'pullable_roles': [expected_role],
-                             'push_application': '',
-                             'pushable_roles': [],
-                             'rid': 'Begin',
-                             'self_assignable': 1,
-                             'split_mode': 'and',
-                             'start_mode': 0,
-                             'subflow': '',
-                             'title': ''},
-                            {'application': '',
-                             'complete_automatically': 1,
-                             'description': '',
-                             'finish_mode': 0,
-                             'join_mode': 'and',
-                             'kind': 'standard',
-                             'parameters': '',
-                             'pullable_roles': [],
-                             'push_application': '',
-                             'pushable_roles': [],
-                             'rid': 'End',
-                             'self_assignable': 1,
-                             'split_mode': 'and',
-                             'start_mode': 0,
-                             'subflow': '',
-                             'title': ''},
-                            {'application': 'script1',
-                             'complete_automatically': 1,
-                             'description': '',
-                             'finish_mode': 0,
-                             'join_mode': 'and',
-                             'kind': 'standard',
-                             'parameters': '',
-                             'pullable_roles': [],
-                             'push_application': '',
-                             'pushable_roles': [],
-                             'rid': 'activity1',
-                             'self_assignable': 1,
-                             'split_mode': 'and',
-                             'start_mode': 0,
-                             'subflow': '',
-                             'title': ''},
-                            {'application': 'script2',
-                             'complete_automatically': 1,
-                             'description': '',
-                             'finish_mode': 0,
-                             'join_mode': 'and',
-                             'kind': 'standard',
-                             'parameters': '',
-                             'pullable_roles': [],
-                             'push_application': '',
-                             'pushable_roles': [],
-                             'rid': 'activity2',
-                             'self_assignable': 1,
-                             'split_mode': 'and',
-                             'start_mode': 0,
-                             'subflow': '',
-                             'title': ''}],
-            'begin': 'Begin',
-            'description': '',
-            'end': 'End',
-            'priority': 0,
-            'rid': 'begin_end',
-            'title': '',
-            'transitions': [{
-                'condition': tr.condition,
-                'description': '',
-                'from': 'Begin',
-                'rid': 'begin_end',
-                'to': 'End'}]
+            "activities": [
+                {
+                    "application": "",
+                    "complete_automatically": 1,
+                    "description": "",
+                    "finish_mode": 0,
+                    "join_mode": "and",
+                    "kind": "standard",
+                    "parameters": "",
+                    "pullable_roles": [expected_role],
+                    "push_application": "",
+                    "pushable_roles": [],
+                    "rid": "Begin",
+                    "self_assignable": 1,
+                    "split_mode": "and",
+                    "start_mode": 0,
+                    "subflow": "",
+                    "title": "",
+                },
+                {
+                    "application": "",
+                    "complete_automatically": 1,
+                    "description": "",
+                    "finish_mode": 0,
+                    "join_mode": "and",
+                    "kind": "standard",
+                    "parameters": "",
+                    "pullable_roles": [],
+                    "push_application": "",
+                    "pushable_roles": [],
+                    "rid": "End",
+                    "self_assignable": 1,
+                    "split_mode": "and",
+                    "start_mode": 0,
+                    "subflow": "",
+                    "title": "",
+                },
+                {
+                    "application": "script1",
+                    "complete_automatically": 1,
+                    "description": "",
+                    "finish_mode": 0,
+                    "join_mode": "and",
+                    "kind": "standard",
+                    "parameters": "",
+                    "pullable_roles": [],
+                    "push_application": "",
+                    "pushable_roles": [],
+                    "rid": "activity1",
+                    "self_assignable": 1,
+                    "split_mode": "and",
+                    "start_mode": 0,
+                    "subflow": "",
+                    "title": "",
+                },
+                {
+                    "application": "script2",
+                    "complete_automatically": 1,
+                    "description": "",
+                    "finish_mode": 0,
+                    "join_mode": "and",
+                    "kind": "standard",
+                    "parameters": "",
+                    "pullable_roles": [],
+                    "push_application": "",
+                    "pushable_roles": [],
+                    "rid": "activity2",
+                    "self_assignable": 1,
+                    "split_mode": "and",
+                    "start_mode": 0,
+                    "subflow": "",
+                    "title": "",
+                },
+            ],
+            "begin": "Begin",
+            "description": "",
+            "end": "End",
+            "priority": 0,
+            "rid": "begin_end",
+            "title": "",
+            "transitions": [
+                {
+                    "condition": tr.condition,
+                    "description": "",
+                    "from": "Begin",
+                    "rid": "begin_end",
+                    "to": "End",
+                }
+            ],
         }
         self.assertEqual(proc, expected_proc)
 
-    def _make_openflow_json(self, pr_id='begin_end_new', act_id='Begin',
-                            transition_id='begin_end',
-                            app_name_url=(
-                                'script1', 'Applications/an_application'),
-                            roles=['Manager']):
-
+    def _make_openflow_json(
+        self,
+        pr_id="begin_end_new",
+        act_id="Begin",
+        transition_id="begin_end",
+        app_name_url=("script1", "Applications/an_application"),
+        roles=["Manager"],
+    ):
         obj = {
-            'applications': [
-                {'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
-                 'rid': app_name_url[0],
-                 'type': 'Script (Python)',
-                 'url': app_name_url[1]},
-                {'checksum': '6d440bda5b6bc8f337e611ce7b6a172e',
-                 'rid': 'script2',
-                 'type': 'Script (Python)',
-                 'url': 'Applications/another_application'}],
-            'processes': [{'activities': [{'application': app_name_url[0],
-                                             'complete_automatically': 1,
-                                             'description': '',
-                                             'finish_mode': 0,
-                                             'join_mode': 'and',
-                                             'kind': 'standard',
-                                             'parameters': '',
-                                             'pullable_roles': roles,
-                                             'push_application': '',
-                                             'pushable_roles': [],
-                                             'rid': act_id,
-                                             'self_assignable': 1,
-                                             'split_mode': 'and',
-                                             'start_mode': 0,
-                                             'subflow': '',
-                                             'title': ''},
-                                            {'application': 'script2',
-                                             'complete_automatically': 1,
-                                             'description': '',
-                                             'finish_mode': 0,
-                                             'join_mode': 'and',
-                                             'kind': 'standard',
-                                             'parameters': '',
-                                             'pullable_roles': [],
-                                             'push_application': '',
-                                             'pushable_roles': [],
-                                             'rid': 'End',
-                                             'self_assignable': 1,
-                                             'split_mode': 'and',
-                                             'start_mode': 0,
-                                             'subflow': '',
-                                             'title': ''}],
-                            'begin': 'Begin',
-                            'description': 'Șșș',
-                            'end': 'End',
-                            'priority': 0,
-                            'rid': pr_id,
-                            'title': 'Ă title',
-                            'transitions': [
-                                {'condition': 'python: len([ i for i in range(1, 11)])',  # noqa
-                                 'description': '',
-                                 'from': 'Begin',
-                                 'rid': transition_id,
-                                 'to': 'End'}]}]
+            "applications": [
+                {
+                    "checksum": "48aaf9f159480ee25a3b56edab1c7f47",
+                    "rid": app_name_url[0],
+                    "type": "Script (Python)",
+                    "url": app_name_url[1],
+                },
+                {
+                    "checksum": "6d440bda5b6bc8f337e611ce7b6a172e",
+                    "rid": "script2",
+                    "type": "Script (Python)",
+                    "url": "Applications/another_application",
+                },
+            ],
+            "processes": [
+                {
+                    "activities": [
+                        {
+                            "application": app_name_url[0],
+                            "complete_automatically": 1,
+                            "description": "",
+                            "finish_mode": 0,
+                            "join_mode": "and",
+                            "kind": "standard",
+                            "parameters": "",
+                            "pullable_roles": roles,
+                            "push_application": "",
+                            "pushable_roles": [],
+                            "rid": act_id,
+                            "self_assignable": 1,
+                            "split_mode": "and",
+                            "start_mode": 0,
+                            "subflow": "",
+                            "title": "",
+                        },
+                        {
+                            "application": "script2",
+                            "complete_automatically": 1,
+                            "description": "",
+                            "finish_mode": 0,
+                            "join_mode": "and",
+                            "kind": "standard",
+                            "parameters": "",
+                            "pullable_roles": [],
+                            "push_application": "",
+                            "pushable_roles": [],
+                            "rid": "End",
+                            "self_assignable": 1,
+                            "split_mode": "and",
+                            "start_mode": 0,
+                            "subflow": "",
+                            "title": "",
+                        },
+                    ],
+                    "begin": "Begin",
+                    "description": "Șșș",
+                    "end": "End",
+                    "priority": 0,
+                    "rid": pr_id,
+                    "title": "Ă title",
+                    "transitions": [
+                        {
+                            "condition": "python: len([ i for i in range(1, 11)])",  # noqa
+                            "description": "",
+                            "from": "Begin",
+                            "rid": transition_id,
+                            "to": "End",
+                        }
+                    ],
+                }
+            ],
         }
         return StringIO(json.dumps(obj))
 
     def test_openflow_importFromJson(self):
-        pr_id = 'begin_end_new'
+        pr_id = "begin_end_new"
         make_json = partial(self._make_openflow_json, pr_id=pr_id)
         jsonControlObj = json.load(make_json())
         jsonStream = make_json()
 
-        wfe = getattr(self.app, 'WorkflowEngine')
+        wfe = getattr(self.app, "WorkflowEngine")
         applications = wfe._importFromJson(jsonStream)
-        proc = jsonControlObj['processes'][0]
+        proc = jsonControlObj["processes"][0]
         pr = getattr(wfe, pr_id)
-        self.assertEqual(pr.title, proc['title'])
-        self.assertEqual(pr.description, proc['description'])
-        self.assertEqual(pr.priority, int(proc['priority']))
-        self.assertEqual(pr.begin, proc['begin'])
-        self.assertEqual(pr.end, proc['end'])
+        self.assertEqual(pr.title, proc["title"])
+        self.assertEqual(pr.description, proc["description"])
+        self.assertEqual(pr.priority, int(proc["priority"]))
+        self.assertEqual(pr.begin, proc["begin"])
+        self.assertEqual(pr.end, proc["end"])
 
-        act1 = proc['activities'][0]
-        self.assertTrue(hasattr(pr, act1['rid']))
-        a1 = getattr(pr, act1['rid'])
-        act2 = proc['activities'][1]
-        self.assertTrue(hasattr(pr, act2['rid']))
-        a2 = getattr(pr, act2['rid'])
+        act1 = proc["activities"][0]
+        self.assertTrue(hasattr(pr, act1["rid"]))
+        a1 = getattr(pr, act1["rid"])
+        act2 = proc["activities"][1]
+        self.assertTrue(hasattr(pr, act2["rid"]))
+        a2 = getattr(pr, act2["rid"])
 
-        self.assertEqual(a1.title, act1['title'])
-        self.assertEqual(a2.title, act2['title'])
-        self.assertEqual(a1.description, act1['description'])
-        self.assertEqual(a2.description, act2['description'])
-        self.assertEqual(a1.split_mode, act1['split_mode'])
-        self.assertEqual(a2.split_mode, act2['split_mode'])
-        self.assertEqual(a1.join_mode, act1['join_mode'])
-        self.assertEqual(a2.join_mode, act2['join_mode'])
-        self.assertEqual(a1.self_assignable, int(act1['self_assignable']))
-        self.assertEqual(a2.self_assignable, int(act2['self_assignable']))
-        self.assertEqual(a1.start_mode, int(act1['start_mode']))
-        self.assertEqual(a2.start_mode, int(act2['start_mode']))
-        self.assertEqual(a1.finish_mode, int(act1['finish_mode']))
-        self.assertEqual(a2.finish_mode, int(act2['finish_mode']))
-        self.assertEqual(a1.complete_automatically,
-                         int(act1['complete_automatically']))
-        self.assertEqual(a2.complete_automatically,
-                         int(act2['complete_automatically']))
-        self.assertEqual(a1.subflow, str(act1['subflow']))
-        self.assertEqual(a2.subflow, str(act2['subflow']))
-        self.assertEqual(a1.push_application, str(act1['push_application']))
-        self.assertEqual(a2.push_application, str(act2['push_application']))
-        self.assertEqual(a1.application, str(act1['application']))
-        self.assertEqual(a2.application, str(act2['application']))
-        self.assertEqual(a1.parameters, str(act1['parameters']))
-        self.assertEqual(a2.parameters, str(act2['parameters']))
-        self.assertEqual(a1.kind, str(act1['kind']))
-        self.assertEqual(a2.kind, str(act2['kind']))
+        self.assertEqual(a1.title, act1["title"])
+        self.assertEqual(a2.title, act2["title"])
+        self.assertEqual(a1.description, act1["description"])
+        self.assertEqual(a2.description, act2["description"])
+        self.assertEqual(a1.split_mode, act1["split_mode"])
+        self.assertEqual(a2.split_mode, act2["split_mode"])
+        self.assertEqual(a1.join_mode, act1["join_mode"])
+        self.assertEqual(a2.join_mode, act2["join_mode"])
+        self.assertEqual(a1.self_assignable, int(act1["self_assignable"]))
+        self.assertEqual(a2.self_assignable, int(act2["self_assignable"]))
+        self.assertEqual(a1.start_mode, int(act1["start_mode"]))
+        self.assertEqual(a2.start_mode, int(act2["start_mode"]))
+        self.assertEqual(a1.finish_mode, int(act1["finish_mode"]))
+        self.assertEqual(a2.finish_mode, int(act2["finish_mode"]))
+        self.assertEqual(
+            a1.complete_automatically, int(act1["complete_automatically"])
+        )
+        self.assertEqual(
+            a2.complete_automatically, int(act2["complete_automatically"])
+        )
+        self.assertEqual(a1.subflow, str(act1["subflow"]))
+        self.assertEqual(a2.subflow, str(act2["subflow"]))
+        self.assertEqual(a1.push_application, str(act1["push_application"]))
+        self.assertEqual(a2.push_application, str(act2["push_application"]))
+        self.assertEqual(a1.application, str(act1["application"]))
+        self.assertEqual(a2.application, str(act2["application"]))
+        self.assertEqual(a1.parameters, str(act1["parameters"]))
+        self.assertEqual(a2.parameters, str(act2["parameters"]))
+        self.assertEqual(a1.kind, str(act1["kind"]))
+        self.assertEqual(a2.kind, str(act2["kind"]))
 
         pushRoles = wfe.getActivitiesPushableOnRole()
         self.assertEqual(pushRoles, {})
         pullRoles = wfe.getActivitiesPullableOnRole()
-        self.assertEqual(pullRoles, {'Manager': {'begin_end_new': ['Begin']}})
+        self.assertEqual(pullRoles, {"Manager": {"begin_end_new": ["Begin"]}})
 
-        trans = proc['transitions'][0]
-        tr = getattr(pr, trans['rid'])
-        self.assertEqual(tr.description, trans['description'])
-        self.assertEqual(tr.From, trans['from'])
-        self.assertEqual(tr.To, trans['to'])
-        self.assertEqual(tr.condition, trans['condition'])
-        app1 = {'checksum': '48aaf9f159480ee25a3b56edab1c7f47',
-                'rid': 'script1',
-                'type': 'Script (Python)',
-                'url': 'Applications/an_application'}
-        app2 = {'checksum': '6d440bda5b6bc8f337e611ce7b6a172e',
-                'rid': 'script2',
-                'type': 'Script (Python)',
-                'url': 'Applications/another_application'}
+        trans = proc["transitions"][0]
+        tr = getattr(pr, trans["rid"])
+        self.assertEqual(tr.description, trans["description"])
+        self.assertEqual(tr.From, trans["from"])
+        self.assertEqual(tr.To, trans["to"])
+        self.assertEqual(tr.condition, trans["condition"])
+        app1 = {
+            "checksum": "48aaf9f159480ee25a3b56edab1c7f47",
+            "rid": "script1",
+            "type": "Script (Python)",
+            "url": "Applications/an_application",
+        }
+        app2 = {
+            "checksum": "6d440bda5b6bc8f337e611ce7b6a172e",
+            "rid": "script2",
+            "type": "Script (Python)",
+            "url": "Applications/another_application",
+        }
         self.assertIn(app1, applications)
         self.assertIn(app2, applications)
 
     def test_openflow_importFromJson_appWithDiffPaths(self):
         self.createStandardCatalog()
 
-        wfe = getattr(self.app, 'WorkflowEngine')
-        self.app.manage_addFolder('NewApplications')
-        folder = getattr(self.app, 'NewApplications')
-        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
-            id='an_application')
-        script1 = getattr(folder, 'an_application')
+        wfe = getattr(self.app, "WorkflowEngine")
+        self.app.manage_addFolder("NewApplications")
+        folder = getattr(self.app, "NewApplications")
+        folder.manage_addProduct["PythonScripts"].manage_addPythonScript(
+            id="an_application"
+        )
+        script1 = getattr(folder, "an_application")
         script1.write("return 'blâ'")
-        wfe.addApplication('script1', script1.absolute_url(1))
-        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(
-            id='another_application')
-        script1 = getattr(folder, 'another_application')
+        wfe.addApplication("script1", script1.absolute_url(1))
+        folder.manage_addProduct["PythonScripts"].manage_addPythonScript(
+            id="another_application"
+        )
+        script1 = getattr(folder, "another_application")
         script1.write("return 'something else'")
-        wfe.addApplication('script2', script1.absolute_url(1))
+        wfe.addApplication("script2", script1.absolute_url(1))
 
-        pr_id = 'begin_end_new'
+        pr_id = "begin_end_new"
         make_json = partial(self._make_openflow_json, pr_id=pr_id)
         jsonControlObj = json.load(make_json())
         jsonStream = make_json()
 
         applications = wfe._importFromJson(jsonStream)
-        proc = jsonControlObj['processes'][0]
+        proc = jsonControlObj["processes"][0]
         pr = getattr(wfe, pr_id)
 
-        act1 = proc['activities'][0]
-        self.assertTrue(hasattr(pr, act1['rid']))
+        act1 = proc["activities"][0]
+        self.assertTrue(hasattr(pr, act1["rid"]))
 
-        self.assertEqual(act1['application'], 'script1')
+        self.assertEqual(act1["application"], "script1")
         app1 = applications[0]
-        self.assertIn('targetPath', app1)
-        self.assertEqual(app1['rid'], act1['application'])
-        self.assertNotEqual(app1['targetPath'], app1['url'])
+        self.assertIn("targetPath", app1)
+        self.assertEqual(app1["rid"], act1["application"])
+        self.assertNotEqual(app1["targetPath"], app1["url"])
         existing_type, existing_checksum = wfe._applicationDetails(
-            app1['targetPath'])
+            app1["targetPath"]
+        )
         # the content checking is still performed though
-        self.assertEqual(app1['checksum'], existing_checksum)
+        self.assertEqual(app1["checksum"], existing_checksum)
 
-        act2 = proc['activities'][1]
-        self.assertTrue(hasattr(pr, act2['rid']))
+        act2 = proc["activities"][1]
+        self.assertTrue(hasattr(pr, act2["rid"]))
 
-        self.assertEqual(act2['application'], 'script2')
+        self.assertEqual(act2["application"], "script2")
         app2 = applications[1]
-        self.assertIn('targetPath', app2)
-        self.assertEqual(app2['rid'], act2['application'])
-        self.assertNotEqual(app2['targetPath'], app2['url'])
+        self.assertIn("targetPath", app2)
+        self.assertEqual(app2["rid"], act2["application"])
+        self.assertNotEqual(app2["targetPath"], app2["url"])
         existing_type, existing_checksum = wfe._applicationDetails(
-            app2['targetPath'])
+            app2["targetPath"]
+        )
         # the content checking is still performed though
-        self.assertNotEqual(app2['checksum'], existing_checksum)
+        self.assertNotEqual(app2["checksum"], existing_checksum)
 
     def test_openflow_importFromJson_wrongId(self):
         self.createStandardCatalog()
-        wfe = getattr(self.app, 'WorkflowEngine')
+        wfe = getattr(self.app, "WorkflowEngine")
 
-        pr_id = 'begin_end_new_ă'
+        pr_id = "begin_end_new_ă"
         make_json = partial(self._make_openflow_json, pr_id)
         jsonStream = make_json()
-        expected_exception_args = ('Invalid rid', pr_id)
+        expected_exception_args = ("Invalid rid", pr_id)
         exception_args = None
         try:
             wfe._importFromJson(jsonStream)
@@ -506,11 +596,11 @@ class EnvelopeTestCase(BaseTest):
             exception_args = e.args
             self.assertEqual(exception_args[:2], expected_exception_args)
 
-        pr_id = 'begin_end_new'
-        act_id = 'B€gin'
+        pr_id = "begin_end_new"
+        act_id = "B€gin"
         make_json = partial(self._make_openflow_json, pr_id, act_id)
         jsonStream = make_json()
-        expected_exception_args = ('Invalid rid', act_id)
+        expected_exception_args = ("Invalid rid", act_id)
         exception_args = None
         try:
             wfe._importFromJson(jsonStream)
@@ -518,12 +608,13 @@ class EnvelopeTestCase(BaseTest):
             exception_args = e.args
         self.assertEqual(exception_args, expected_exception_args)
 
-        pr_id = 'begin_end_new2'
-        trans_id = 'b€gin_end'
-        make_json = partial(self._make_openflow_json,
-                            pr_id, transition_id=trans_id)
+        pr_id = "begin_end_new2"
+        trans_id = "b€gin_end"
+        make_json = partial(
+            self._make_openflow_json, pr_id, transition_id=trans_id
+        )
         jsonStream = make_json()
-        expected_exception_args = ('Invalid rid', trans_id)
+        expected_exception_args = ("Invalid rid", trans_id)
         exception_args = None
         try:
             wfe._importFromJson(jsonStream)
@@ -531,14 +622,18 @@ class EnvelopeTestCase(BaseTest):
             exception_args = e.args
         self.assertEqual(exception_args, expected_exception_args)
 
-        pr_id = 'begin_end_new3'
-        app_name = 'Draft'
-        app_url = '/Applications/Drâft'
-        make_json = partial(self._make_openflow_json, pr_id,
-                            app_name_url=(app_name, app_url))
+        pr_id = "begin_end_new3"
+        app_name = "Draft"
+        app_url = "/Applications/Drâft"
+        make_json = partial(
+            self._make_openflow_json, pr_id, app_name_url=(app_name, app_url)
+        )
         jsonStream = make_json()
         expected_exception_args = (
-            'Error adding application', app_name, app_url)
+            "Error adding application",
+            app_name,
+            app_url,
+        )
         exception_args = None
         try:
             wfe._importFromJson(jsonStream)
@@ -548,7 +643,7 @@ class EnvelopeTestCase(BaseTest):
 
     def test_openflow_importFromJson_generalException(self):
         self.createStandardCatalog()
-        wfe = getattr(self.app, 'WorkflowEngine')
+        wfe = getattr(self.app, "WorkflowEngine")
 
         jsonStream = StringIO(json.dumps({}))
         exception_args = None
@@ -560,80 +655,80 @@ class EnvelopeTestCase(BaseTest):
 
     def test_openflow_importFromJson_badRole(self):
         self.createStandardCatalog()
-        wfe = getattr(self.app, 'WorkflowEngine')
+        wfe = getattr(self.app, "WorkflowEngine")
 
-        weird_roles = ['Manager', 'destroyer']
+        weird_roles = ["Manager", "destroyer"]
         make_json = partial(self._make_openflow_json, roles=weird_roles)
         jsonStream = make_json()
         wfe._importFromJson(jsonStream)
 
         pullRoles = wfe.getActivitiesPullableOnRole()
-        self.assertNotIn('destroyer', pullRoles)
+        self.assertNotIn("destroyer", pullRoles)
 
 
-def get_xml_metadata(envelope, inline='false'):
+def get_xml_metadata(envelope, inline="false"):
     from Products.Reportek.XMLMetadata import XMLMetadata
+
     xml_data = XMLMetadata(envelope).envelopeMetadata(inline)
-    return lxml.etree.parse(StringIO(xml_data)).getroot()
+    # Use BytesIO with encoded bytes because lxml doesn't support
+    # Unicode strings with encoding declaration
+    return lxml.etree.parse(BytesIO(xml_data.encode("utf-8"))).getroot()
 
 
 class EnvelopeMetadataTest(BaseUnitTest):
-
     def setUp(self):
         self.root = create_fake_root()
         self.envelope = create_envelope(self.root)
 
     def test_metadata_of_empty_envelope(self):
         envelope_el = get_xml_metadata(self.envelope)
-        self.assertEqual(envelope_el.attrib['released'], 'false')
-        self.assertEqual(envelope_el.xpath('//file'), [])
+        self.assertEqual(envelope_el.attrib["released"], "false")
+        self.assertEqual(envelope_el.xpath("//file"), [])
 
     def test_metadata_of_envelope_with_document(self):
-        add_document(self.envelope, create_upload_file("blah", 'blah.txt'))
+        add_document(self.envelope, create_upload_file("blah", "blah.txt"))
         envelope_el = get_xml_metadata(self.envelope)
-        xml_file_list = envelope_el.xpath('//file')
+        xml_file_list = envelope_el.xpath("//file")
         self.assertEqual(len(xml_file_list), 1)
         [xml_file] = xml_file_list
-        self.assertEqual(xml_file.attrib['name'], 'blah.txt')
-        self.assertEqual(xml_file.attrib['type'], 'text/plain')
+        self.assertEqual(xml_file.attrib["name"], "blah.txt")
+        self.assertEqual(xml_file.attrib["type"], "text/plain")
 
     def test_inline_xml_document(self):
-        upload_file = create_upload_file('<foo title="bar"/>', 'baz.xml')
+        upload_file = create_upload_file('<foo title="bar"/>', "baz.xml")
         add_document(self.envelope, upload_file)
 
-        with patch.object(self.envelope, 'canViewContent'):
-            envelope_el = get_xml_metadata(self.envelope, inline='true')
+        with patch.object(self.envelope, "canViewContent"):
+            envelope_el = get_xml_metadata(self.envelope, inline="true")
 
-        xml_instance_list = envelope_el.xpath('//instance')
+        xml_instance_list = envelope_el.xpath("//instance")
         self.assertEqual(len(xml_instance_list), 1)
 
         [xml_instance] = xml_instance_list
-        self.assertEqual(xml_instance.attrib['name'], "baz.xml")
-        self.assertEqual(xml_instance.attrib['type'], "text/xml")
+        self.assertEqual(xml_instance.attrib["name"], "baz.xml")
+        self.assertEqual(xml_instance.attrib["type"], "text/xml")
 
         self.assertEqual(xml_instance[0].tag, "foo")
-        self.assertEqual(xml_instance[0].attrib['title'], "bar")
+        self.assertEqual(xml_instance[0].attrib["title"], "bar")
 
 
 class EnvelopeCustomDataflowsXmlTest(BaseUnitTest):
-
     def setUp(self):
         self.root = create_fake_root()
         self.envelope = create_envelope(self.root)
 
     def test_custom_dataflows_xml(self):
-        upload_file = create_upload_file('<foo title="bar"/>', 'baz.xml')
+        upload_file = create_upload_file('<foo title="bar"/>', "baz.xml")
         add_document(self.envelope, upload_file)
-        dom = self.envelope.getFormContentAsXML('baz.xml')
-        self.assertEqual(dom.firstChild.nodeName, 'foo')
-        self.assertEqual(dom.firstChild.attributes['title'].value, 'bar')
+        dom = self.envelope.getFormContentAsXML("baz.xml")
+        self.assertEqual(dom.firstChild.nodeName, "foo")
+        self.assertEqual(dom.firstChild.attributes["title"].value, "bar")
 
 
 class ActivityFindsApplicationTestCase(WorkflowTestCase):
-
     def setUp(self):
         super(ActivityFindsApplicationTestCase, self).setUp()
-        self.app._setOb('Applications', Folder('Applications'))
+        self.app._setOb("Applications", Folder("Applications"))
 
     def test_getApplicationUrl(self):
         """
@@ -647,9 +742,9 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         self.create_cepaa_set(test_set_id)
         expected_path = "col{}/env{}".format(test_set_id, test_set_id)
         env = self.app.unrestrictedTraverse(expected_path)
-        current_workitem = env.objectValues('Workitem')[-1]
+        current_workitem = env.objectValues("Workitem")[-1]
         current_application = env.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, 'Applications/proc1/act1')
+        self.assertEqual(current_application, "Applications/proc1/act1")
 
     def test_getApplicationUrl_finds_in_Common_folder(self):
         """
@@ -662,14 +757,14 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         self.create_cepaa_set(test_set_id)
         expected_path = "col{}/env{}".format(test_set_id, test_set_id)
         env = self.app.unrestrictedTraverse(expected_path)
-        current_workitem = env.objectValues('Workitem')[-1]
-        self.app.Applications.proc1._delOb('act1')
-        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications._setOb('Common', Folder('Common'))
-        self.app.Applications.Common._setOb('act1', app)
+        current_workitem = env.objectValues("Workitem")[-1]
+        self.app.Applications.proc1._delOb("act1")
+        app = SimpleItem("act1").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications._setOb("Common", Folder("Common"))
+        self.app.Applications.Common._setOb("act1", app)
         current_application = env.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, 'Applications/Common/act1')
+        self.assertEqual(current_application, "Applications/Common/act1")
 
     def test_getApplicationUrl_proc_folder_has_priority(self):
         """
@@ -682,13 +777,13 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         self.create_cepaa_set(test_set_id)
         expected_path = "col{}/env{}".format(test_set_id, test_set_id)
         env = self.app.unrestrictedTraverse(expected_path)
-        current_workitem = env.objectValues('Workitem')[-1]
-        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications._setOb('Common', Folder('Common'))
-        self.app.Applications.Common._setOb('act1', app)
+        current_workitem = env.objectValues("Workitem")[-1]
+        app = SimpleItem("act1").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications._setOb("Common", Folder("Common"))
+        self.app.Applications.Common._setOb("act1", app)
         current_application = env.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, 'Applications/proc1/act1')
+        self.assertEqual(current_application, "Applications/proc1/act1")
 
     def test_getApplicationUrl_finds_application_attribute(self):
         """
@@ -700,10 +795,10 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         self.create_cepaa_set(test_set_id)
         expected_path = "col{}/env{}".format(test_set_id, test_set_id)
         env = self.app.unrestrictedTraverse(expected_path)
-        current_workitem = env.objectValues('Workitem')[-1]
+        current_workitem = env.objectValues("Workitem")[-1]
         # no matching app in Applications or Applications/Common
-        self.app.Applications.proc1._delOb('act1')
-        self.wf.proc1.get('act1').application = 'act1'
+        self.app.Applications.proc1._delOb("act1")
+        self.wf.proc1.get("act1").application = "act1"
         current_application = env.getApplicationUrl(current_workitem.id)
         # WARNING:
         # app path (from the attribute) doesn't have a leading '/' in this case
@@ -713,7 +808,7 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         # e.g.:
         # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
         # and context.getMySelf() will work in this case
-        self.assertEqual('SomeFolder/act1', current_application)
+        self.assertEqual("SomeFolder/act1", current_application)
 
     def test_application_invalid_to_valid_rename(self):
         """
@@ -736,436 +831,479 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
           one of the ids in the list
         """
         self.create_cepaa_set(1)
-        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        app = SimpleItem("act1").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications.proc1._setOb("act1", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'bad_name',
+            "bad_name",
             self.app.Applications.proc1,
-            'act1'
+            "act1",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id bad_name was not mapped by path to any activity. ' \
-                  'Application act1 mapped by path to activity ' \
-                  '/WorkflowEngine/proc1/act1.'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Id bad_name was not mapped by path to any activity. "
+            "Application act1 mapped by path to activity "
+            "/WorkflowEngine/proc1/act1."
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_invalid_to_invalid_rename(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('still_bad_name').__of__(self.app.Applications.proc1)
-        app.id = 'still_bad_name'
-        self.app.Applications.proc1._setOb('still_bad_name', app)
+        app = SimpleItem("still_bad_name").__of__(self.app.Applications.proc1)
+        app.id = "still_bad_name"
+        self.app.Applications.proc1._setOb("still_bad_name", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'bad_name',
+            "bad_name",
             self.app.Applications.proc1,
-            'still_bad_name'
+            "still_bad_name",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id bad_name was not mapped by path to any activity. ' \
-                  'Id still_bad_name does not match any activity ' \
-                  'name in process /WorkflowEngine/proc1. ' \
-                  'Choose a valid name from this list: Begin, End, act1'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Id bad_name was not mapped by path to any activity. "
+            "Id still_bad_name does not match any activity "
+            "name in process /WorkflowEngine/proc1. "
+            "Choose a valid name from this list: Begin, End, act1"
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_valid_to_valid_rename(self):
         self.create_cepaa_set(1)
-        self.wf.proc1.addActivity('act2')
-        app = SimpleItem('act2').__of__(self.app.Applications.proc1)
-        app.id = 'act2'
-        self.app.Applications.proc1._setOb('act2', app)
+        self.wf.proc1.addActivity("act2")
+        app = SimpleItem("act2").__of__(self.app.Applications.proc1)
+        app.id = "act2"
+        self.app.Applications.proc1._setOb("act2", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'act1',
+            "act1",
             self.app.Applications.proc1,
-            'act2'
+            "act2",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Activity /WorkflowEngine/proc1/act1 has no application ' \
-                  'mapped by path now. '\
-                  'Application act2 mapped by path to activity' \
-                  ' /WorkflowEngine/proc1/act2.'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Activity /WorkflowEngine/proc1/act1 has no application "
+            "mapped by path now. "
+            "Application act2 mapped by path to activity"
+            " /WorkflowEngine/proc1/act2."
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_valid_to_invalid_rename(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('bad_name').__of__(self.app.Applications.proc1)
-        app.id = 'bad_name'
-        self.app.Applications.proc1._setOb('bad_name', app)
+        app = SimpleItem("bad_name").__of__(self.app.Applications.proc1)
+        app.id = "bad_name"
+        self.app.Applications.proc1._setOb("bad_name", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'act1',
+            "act1",
             self.app.Applications.proc1,
-            'bad_name'
+            "bad_name",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Activity /WorkflowEngine/proc1/act1 has no application ' \
-                  'mapped by path now. '\
-                  'Id bad_name does not match any activity name in process' \
-                  ' /WorkflowEngine/proc1. ' \
-                  'Choose a valid name from this list: Begin, End, act1'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Activity /WorkflowEngine/proc1/act1 has no application "
+            "mapped by path now. "
+            "Id bad_name does not match any activity name in process"
+            " /WorkflowEngine/proc1. "
+            "Choose a valid name from this list: Begin, End, act1"
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_valid_delete(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        app = SimpleItem("Renamed_Draft").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications.proc1._setOb("act1", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'act1',
+            "act1",
             None,  # empty newParent & empty newName means deletion
-            ''
+            "",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application act1 deleted! '
-                         'Activity /WorkflowEngine/proc1/act1 has no '
-                         'application mapped by path now.',
-                         self.app.REQUEST['manage_tabs_message'])
+        self.assertEqual(
+            "Application act1 deleted! "
+            "Activity /WorkflowEngine/proc1/act1 has no "
+            "application mapped by path now.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
 
     def test_application_invalid_delete(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
-        app.id = 'bad_name'
-        self.app.Applications.proc1._setOb('bad_name', app)
+        app = SimpleItem("Renamed_Draft").__of__(self.app.Applications.proc1)
+        app.id = "bad_name"
+        self.app.Applications.proc1._setOb("bad_name", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'bad_name',
+            "bad_name",
             None,  # empty newParent & empty newName means deletion
-            ''
+            "",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application bad_name deleted! '
-                         'Id bad_name was not mapped by path to any activity.',
-                         self.app.REQUEST['manage_tabs_message'])
+        self.assertEqual(
+            "Application bad_name deleted! "
+            "Id bad_name was not mapped by path to any activity.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
 
     def test_application_valid_create(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        app = SimpleItem("Renamed_Draft").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications.proc1._setOb("act1", app)
         event = ObjectMovedEvent(
-            app,
-            None,
-            '',
-            self.app.Applications.proc1,
-            'act1'
+            app, None, "", self.app.Applications.proc1, "act1"
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application act1 mapped by path '
-                         'to activity /WorkflowEngine/proc1/act1.',
-                         self.app.REQUEST['manage_tabs_message'])
+        self.assertEqual(
+            "Application act1 mapped by path "
+            "to activity /WorkflowEngine/proc1/act1.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
 
     def test_application_invalid_create(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('invalid_id').__of__(self.app.Applications.proc1)
-        app.id = 'invalid_id'
-        self.app.Applications.proc1._setOb('invalid_id', app)
+        app = SimpleItem("invalid_id").__of__(self.app.Applications.proc1)
+        app.id = "invalid_id"
+        self.app.Applications.proc1._setOb("invalid_id", app)
         event = ObjectMovedEvent(
-            app,
-            None,
-            '',
-            self.app.Applications.proc1,
-            'invalid_id'
+            app, None, "", self.app.Applications.proc1, "invalid_id"
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id invalid_id does not match any activity name ' \
-                  'in process /WorkflowEngine/proc1. ' \
-                  'Choose a valid name from this list: Begin, End, act1'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Id invalid_id does not match any activity name "
+            "in process /WorkflowEngine/proc1. "
+            "Choose a valid name from this list: Begin, End, act1"
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_valid_move_from_one_proc_to_another(self):
         self.create_cepaa_set(1)
         self.create_cepaa_set(2)
         # a valid movement is when proc1 and proc2 have a common activity id
         # so we add act1 to proc2 too
-        self.wf.proc2.addActivity('act1')
-        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        self.wf.proc2.addActivity("act1")
+        app = SimpleItem("act1").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications.proc1._setOb("act1", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'act1',
+            "act1",
             self.app.Applications.proc2,
-            'act1'
+            "act1",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
-            'Application act1 moved! '
-            'Activity /WorkflowEngine/proc1/act1 has no application '
-            'mapped by path now. '
-            'Application act1 mapped by path to activity '
-            '/WorkflowEngine/proc2/act1.',
-            self.app.REQUEST['manage_tabs_message'])
+            "Application act1 moved! "
+            "Activity /WorkflowEngine/proc1/act1 has no application "
+            "mapped by path now. "
+            "Application act1 mapped by path to activity "
+            "/WorkflowEngine/proc2/act1.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
 
     def test_application_invalid_move_from_one_proc_to_another(self):
         self.create_cepaa_set(1)
         self.create_cepaa_set(2)
         # this happens when proc1 and proc2 do not have a common activity id
-        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        app = SimpleItem("act1").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications.proc1._setOb("act1", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'act1',
+            "act1",
             self.app.Applications.proc2,
-            'act1'
+            "act1",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Application act1 moved! '\
-                  'Activity /WorkflowEngine/proc1/act1 has no ' \
-                  'application mapped by path now. ' \
-                  'Id act1 does not match any activity name in ' \
-                  'process /WorkflowEngine/proc2. ' \
-                  'Choose a valid name from this list: Begin, End, act2'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Application act1 moved! "
+            "Activity /WorkflowEngine/proc1/act1 has no "
+            "application mapped by path now. "
+            "Id act1 does not match any activity name in "
+            "process /WorkflowEngine/proc2. "
+            "Choose a valid name from this list: Begin, End, act2"
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_valid_move_from_exterior_to_process_folder(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        app = SimpleItem("act1").__of__(self.app.Applications.proc1)
+        app.id = "act1"
+        self.app.Applications.proc1._setOb("act1", app)
         event = ObjectMovedEvent(
-            app,
-            self.app,
-            'act1',
-            self.app.Applications.proc1,
-            'act1'
+            app, self.app, "act1", self.app.Applications.proc1, "act1"
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
-            'Application act1 mapped by path to activity '
-            '/WorkflowEngine/proc1/act1.',
-            self.app.REQUEST['manage_tabs_message'])
+            "Application act1 mapped by path to activity "
+            "/WorkflowEngine/proc1/act1.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
 
     def test_application_invalid_move_from_exterior_to_process_folder(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('act2').__of__(self.app.Applications.proc1)
-        app.id = 'act2'
-        self.app.Applications.proc1._setOb('act2', app)
+        app = SimpleItem("act2").__of__(self.app.Applications.proc1)
+        app.id = "act2"
+        self.app.Applications.proc1._setOb("act2", app)
         event = ObjectMovedEvent(
-            app,
-            self.app,
-            'act2',
-            self.app.Applications.proc1,
-            'act2'
+            app, self.app, "act2", self.app.Applications.proc1, "act2"
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id act2 does not match any activity name in process ' \
-                  '/WorkflowEngine/proc1. ' \
-                  'Choose a valid name from this list: Begin, End, act1'
-        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+        message = (
+            "Id act2 does not match any activity name in process "
+            "/WorkflowEngine/proc1. "
+            "Choose a valid name from this list: Begin, End, act1"
+        )
+        self.assertEqual(message, self.app.REQUEST["manage_tabs_message"])
 
     def test_application_valid_move_from_process_folder_to_exterior(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('act1').__of__(self.app)
-        app.id = 'act1'
-        self.app._setOb('act1', app)
+        app = SimpleItem("act1").__of__(self.app)
+        app.id = "act1"
+        self.app._setOb("act1", app)
         event = ObjectMovedEvent(
             app,
             self.app.Applications.proc1,
-            'act1',
+            "act1",
             self.app,
-            'act1',
-        )
-        # simulate a ObjectMovedEvent catch
-        OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application act1 moved! '
-                         'Activity /WorkflowEngine/proc1/act1 has no '
-                         'application mapped by path now.',
-                         self.app.REQUEST['manage_tabs_message'])
-
-    def test_application_invalid_move_from_process_folder_to_exterior(self):
-        self.create_cepaa_set(1)
-        app = SimpleItem('act2').__of__(self.app)
-        app.id = 'act2'
-        self.app._setOb('act2', app)
-        event = ObjectMovedEvent(
-            app,
-            self.app.Applications.proc1,
-            'act2',
-            self.app,
-            'act2',
+            "act1",
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
-            'Application act2 moved! '
-            'Id act2 was not mapped by path to any activity.',
-            self.app.REQUEST['manage_tabs_message'])
+            "Application act1 moved! "
+            "Activity /WorkflowEngine/proc1/act1 has no "
+            "application mapped by path now.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
+
+    def test_application_invalid_move_from_process_folder_to_exterior(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem("act2").__of__(self.app)
+        app.id = "act2"
+        self.app._setOb("act2", app)
+        event = ObjectMovedEvent(
+            app,
+            self.app.Applications.proc1,
+            "act2",
+            self.app,
+            "act2",
+        )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual(
+            "Application act2 moved! "
+            "Id act2 was not mapped by path to any activity.",
+            self.app.REQUEST["manage_tabs_message"],
+        )
 
 
 class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
-
     def afterSetUp(self):
         super(EnvelopeRdfTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.createStandardCollection()
-        self.assertTrue(hasattr(self.app, 'collection'),
-                        'Collection did not get created')
+        self.assertTrue(
+            hasattr(self.app, "collection"), "Collection did not get created"
+        )
         self.assertNotEqual(self.app.collection, None)
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '',
-                           '2003', '2004', '',
-                           'http://rod.eionet.eu.int/localities/1',
-                           REQUEST=None, previous_delivery='')
+        simple_addEnvelope(
+            col.manage_addProduct["Reportek"],
+            "",
+            "",
+            "2003",
+            "2004",
+            "",
+            "http://rod.eionet.eu.int/localities/1",
+            REQUEST=None,
+            previous_delivery="",
+        )
         self.envelope = None
-        for env in col.objectValues('Report Envelope'):
+        for env in col.objectValues("Report Envelope"):
             self.envelope = env
             break
-        self.envelope.id = 'envu2nsuq'
-        self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
+        self.envelope.id = "envu2nsuq"
+        self.envelope.reportingdate = DateTime("2014/05/02 09:58:41 UTC")
         self.engine.content_registry_ping = Mock()
         # add subobjects of type document, feedback, hyperlink
-        content = 'test content for our document'
+        content = "test content for our document"
         self.doc = add_document(
-            self.envelope, create_upload_file(content, 'foo.txt'))
-        self. doc2 = add_document(self.envelope,
-                                  create_upload_file(content, 'foo.txt'),
-                                  id='file2', restricted=True)
+            self.envelope, create_upload_file(content, "foo.txt")
+        )
+        self.doc2 = add_document(
+            self.envelope,
+            create_upload_file(content, "foo.txt"),
+            id="file2",
+            restricted=True,
+        )
         # self.doc = add_document(self.envelope,
         # create_upload_file(content,
         #                   'foo space foo.xml'))
         self.doc.upload_time = Mock(
-            return_value=DateTime('2014/05/02 09:58:41 UTC'))
+            return_value=DateTime("2014/05/02 09:58:41 UTC")
+        )
         self.doc2.upload_time = Mock(
-            return_value=DateTime('2014/05/02 09:58:42 UTC'))
+            return_value=DateTime("2014/05/02 09:58:42 UTC")
+        )
 
-        feedbacktext = 'feedback text'
+        feedbacktext = "feedback text"
         setattr(
             self.root.getPhysicalRoot(),
             constants.CONVERTERS_ID,
-            Converters.Converters())
+            Converters.Converters(),
+        )
         safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
-        getattr(self.root.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(
-            return_value=safe_html)
+        getattr(
+            self.root.getPhysicalRoot(), constants.CONVERTERS_ID
+        ).__getitem__ = Mock(return_value=safe_html)
         self.feed = add_feedback(
-            self.envelope, feedbacktext, feedbackId='feedback1399024721')
-        self.feed2 = add_feedback(self.envelope, feedbacktext,
-                                  feedbackId='feedback1399024722',
-                                  restricted=True, idx=1)
-        postingdate = DateTime('2014/05/02 09:58:41 UTC')
+            self.envelope, feedbacktext, feedbackId="feedback1399024721"
+        )
+        self.feed2 = add_feedback(
+            self.envelope,
+            feedbacktext,
+            feedbackId="feedback1399024722",
+            restricted=True,
+            idx=1,
+        )
+        postingdate = DateTime("2014/05/02 09:58:41 UTC")
         self.feed.postingdate = postingdate
         self.feed2.postingdate = postingdate
-        self.link = add_hyperlink(self.envelope, 'hyper/link')
+        self.link = add_hyperlink(self.envelope, "hyper/link")
         self.envelope._content_registry_ping = Mock()
 
     def test_subobjectsForContentRegistry(self):
         objsByType = self.envelope._getObjectsForContentRegistry()
         expectedObjsByType = {
-            'Report Hyperlink': [self.link],
-            'Report Feedback': [self.feed, self.feed2],
-            'Report Document': [self.doc, self.doc2]
+            "Report Hyperlink": [self.link],
+            "Report Feedback": [self.feed, self.feed2],
+            "Report Document": [self.doc, self.doc2],
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
-    @patch('Products.Reportek.Envelope.transaction.commit')
+    @patch("Products.Reportek.Envelope.transaction.commit")
     def test_rdf(self, mock_commit):
         self.envelope.release_envelope()
-        self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
+        self.envelope.reportingdate = DateTime("2014/05/02 09:58:41 UTC")
         rdf = self.envelope.rdf(self.app.REQUEST)
-        f = open(os.path.join(TESTDIR, 'rdf.xml'), 'r')
+        f = open(os.path.join(TESTDIR, "rdf.xml"), "r")
         expected = f.read()
         f.close()
         self.assertEqual(str(rdf), expected)
 
-    @patch('Products.Reportek.Envelope.transaction.commit')
+    @patch("Products.Reportek.Envelope.transaction.commit")
     def test_space_in_name(self, mock_commit):
-        self.doc.id = 'another document id with space.txt'
+        self.doc.id = "another document id with space.txt"
         self.envelope.release_envelope()
-        self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
+        self.envelope.reportingdate = DateTime("2014/05/02 09:58:41 UTC")
         rdf = self.envelope.rdf(self.app.REQUEST)
-        f = open(os.path.join(TESTDIR, 'rdf_space.xml'), 'r')
+        f = open(os.path.join(TESTDIR, "rdf_space.xml"), "r")
         expected = f.read()
         f.close()
         self.assertEqual(str(rdf), expected)
 
 
 class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
-
     def afterSetUp(self):
         super(EnvelopeCRTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.createStandardCollection()
-        self.assertTrue(hasattr(self.app, 'collection'),
-                        'Collection did not get created')
+        self.assertTrue(
+            hasattr(self.app, "collection"), "Collection did not get created"
+        )
         self.assertNotEqual(self.app.collection, None)
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
         self.envelope = simple_addEnvelope(
-            col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
-            'http://rod.eionet.eu.int/localities/1', REQUEST=None,
-            previous_delivery='')
-        self.engine.cr_api_url = 'http://none'
+            col.manage_addProduct["Reportek"],
+            "",
+            "",
+            "2003",
+            "2004",
+            "",
+            "http://rod.eionet.eu.int/localities/1",
+            REQUEST=None,
+            previous_delivery="",
+        )
+        self.engine.cr_api_url = "http://none"
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
         ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()  # noqa
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock(  # noqa
-            return_value=(True, 'Pinged'))
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = (
+            Mock(  # noqa
+                return_value=(True, "Pinged")
+            )
+        )
         # add subobjects of type document, feedback, hyperlink
-        content = 'test content for our document'
+        content = "test content for our document"
         self.doc = add_document(
-            self.envelope, create_upload_file(content, 'foo.txt'))
+            self.envelope, create_upload_file(content, "foo.txt")
+        )
 
-        feedbacktext = 'feedback text'
+        feedbacktext = "feedback text"
         setattr(
             self.root.getPhysicalRoot(),
             constants.CONVERTERS_ID,
-            Converters.Converters())
+            Converters.Converters(),
+        )
         safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
-        getattr(self.root.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(
-            return_value=safe_html)
+        getattr(
+            self.root.getPhysicalRoot(), constants.CONVERTERS_ID
+        ).__getitem__ = Mock(return_value=safe_html)
         self.feed = add_feedback(self.envelope, feedbacktext)
-        self.link = add_hyperlink(self.envelope, 'hyper/link')
+        self.link = add_hyperlink(self.envelope, "hyper/link")
 
     def test_subobjectsForContentRegistry(self):
         objsByType = self.envelope._getObjectsForContentRegistry()
         expectedObjsByType = {
-            'Report Hyperlink': [self.link],
-            'Report Feedback': [self.feed],
-            'Report Document': [self.doc]
+            "Report Hyperlink": [self.link],
+            "Report Feedback": [self.feed],
+            "Report Document": [self.doc],
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
     def test_ping_create(self):
-        expectedUris = set([
-            self.envelope.absolute_url() + '/rdf',
-            self.doc.absolute_url(),
-            self.feed.absolute_url(),
-            self.link.absolute_url(),
-        ])
+        expectedUris = set(
+            [
+                self.envelope.absolute_url() + "/rdf",
+                self.doc.absolute_url(),
+                self.feed.absolute_url(),
+                self.link.absolute_url(),
+            ]
+        )
         self.envelope.content_registry_ping()
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)  # noqa
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called
+        )  # noqa
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
@@ -1174,20 +1312,23 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
         self.assertEqual(len(kwargs), 2)
-        ping_argument = kwargs.get('ping_argument')
-        self.assertEqual(ping_argument, 'create')
+        ping_argument = kwargs.get("ping_argument")
+        self.assertEqual(ping_argument, "create")
 
     def test_ping_delete(self):
-        expectedUris = set([
-            self.envelope.absolute_url() + '/rdf',
-            self.doc.absolute_url(),
-            self.feed.absolute_url(),
-            self.link.absolute_url(),
-        ])
+        expectedUris = set(
+            [
+                self.envelope.absolute_url() + "/rdf",
+                self.doc.absolute_url(),
+                self.feed.absolute_url(),
+                self.link.absolute_url(),
+            ]
+        )
         self.envelope.content_registry_ping(delete=True)
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)  # noqa
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called
+        )  # noqa
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
@@ -1196,20 +1337,23 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
         self.assertEqual(len(kwargs), 2)
-        ping_argument = kwargs.get('ping_argument')
-        self.assertEqual(ping_argument, 'delete')
+        ping_argument = kwargs.get("ping_argument")
+        self.assertEqual(ping_argument, "delete")
 
     def test_ping_sync(self):
-        expectedUris = set([
-            self.envelope.absolute_url() + '/rdf',
-            self.doc.absolute_url(),
-            self.feed.absolute_url(),
-            self.link.absolute_url(),
-        ])
-        self.envelope.content_registry_ping(async=False)
+        expectedUris = set(
+            [
+                self.envelope.absolute_url() + "/rdf",
+                self.doc.absolute_url(),
+                self.feed.absolute_url(),
+                self.link.absolute_url(),
+            ]
+        )
+        self.envelope.content_registry_ping(_async=False)
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)  # noqa
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called
+        )  # noqa
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
@@ -1218,5 +1362,5 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
         self.assertEqual(len(kwargs), 2)
-        ping_argument = kwargs.get('ping_argument')
-        self.assertEqual(ping_argument, 'create')
+        ping_argument = kwargs.get("ping_argument")
+        self.assertEqual(ping_argument, "create")

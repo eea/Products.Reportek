@@ -1708,9 +1708,13 @@ class Envelope(
         for feedback in self.objectValues("Report Feedback"):
             if security_manager.checkPermission("View", feedback):
                 # Add the feedback content as HTML
+                content = zip_content.get_feedback_content(feedback)
+                # Ensure content is bytes for zipfile.writestr in Python 3
+                if isinstance(content, str):
+                    content = content.encode("utf-8")
                 zip_file.writestr(
                     "{}.html".format(feedback.getId()),
-                    zip_content.get_feedback_content(feedback),
+                    content,
                 )
 
                 # Add feedback attachments
@@ -1740,7 +1744,11 @@ class Envelope(
         }
 
         for filename, content_generator in list(metadata.items()):
-            zip_file.writestr(filename, content_generator(self))
+            content = content_generator(self)
+            # Ensure content is bytes for zipfile.writestr in Python 3
+            if isinstance(content, str):
+                content = content.encode("utf-8")
+            zip_file.writestr(filename, content)
 
     def _invalidate_zip_cache(self):
         """delete zip cache files"""
@@ -1826,15 +1834,15 @@ class Envelope(
             "application/x-zip-compressed",
         ]:
             try:
-                data_file = document.data_file.open()
-                zf = zip_content.ZZipFile(data_file)
-                for zipinfo in zf.infolist():
-                    fname = zipinfo.filename
-                    if isinstance(fname, str):
-                        fname = fname.encode("utf-8")
-                    files.append(fname)
-                zf.close()
-                data_file.close()
+                with document.data_file.open() as data_file:
+                    zf = zip_content.ZZipFile(data_file)
+                    for zipinfo in zf.infolist():
+                        fname = zipinfo.filename
+                        # In Python 3, zipfile filenames are strings
+                        if isinstance(fname, bytes):
+                            fname = fname.decode("utf-8")
+                        files.append(fname)
+                    zf.close()
             # This version of Python reports IOError on empty files
             # We might get Value error if the opened zip was not an actual zip
             except (BadZipfile, IOError, ValueError):
@@ -1860,7 +1868,7 @@ class Envelope(
 
     def _getObjectsForContentRegistry(self):
         objByMetatype = {}
-        metatypes = ["Report Document", "Report Hyperlink", "Report Feedback"]
+        metatypes = ["Report Feedback", "Report Document", "Report Hyperlink"]
         for t in metatypes:
             objByMetatype[t] = [o for o in self.objectValues(t)]
         return objByMetatype

@@ -28,23 +28,14 @@ import logging
 import re
 from collections import defaultdict
 
-from . import process
-from . import RepUtils
 import transaction
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
-
-# custom exceptions imports
-from .exceptions import CannotPickProcess, NoProcessAvailable
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
-
-# from webdav.WriteLockInterface import WriteLockInterface
-# product imports
-from .Toolz import Toolz
 from ZODB.PersistentMapping import PersistentMapping
 
 import Products
@@ -52,7 +43,27 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.RepUtils import getToolByName
 
+from . import RepUtils, process
+
+# custom exceptions imports
+from .exceptions import CannotPickProcess, NoProcessAvailable
+
+# from webdav.WriteLockInterface import WriteLockInterface
+# product imports
+from .Toolz import Toolz
+
 logger = logging.getLogger("Reportek")
+
+
+def checkAsciiId(id):
+    """Check that id contains only ASCII characters.
+
+    Raises ValueError if non-ASCII characters are found.
+    """
+    try:
+        id.encode("ascii")
+    except UnicodeEncodeError:
+        raise ValueError("Id contains non-ASCII characters")
 
 
 def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
@@ -474,6 +485,8 @@ class OpenFlowEngine(Folder, Toolz):
 
     def addApplication(self, name, link, REQUEST=None):
         """adds an application declaration"""
+        checkAsciiId(name)
+        checkAsciiId(link)
         if name not in self._applications:
             self._applications[name] = {"url": link}
             self._p_changed = 1
@@ -510,13 +523,15 @@ class OpenFlowEngine(Folder, Toolz):
         """List application declaration;
         returns a list of dictionaries with keys: name, link
         """
-        return list(map(
-            lambda x, self=self: {
-                "name": x,
-                "link": self._applications[x]["url"],
-            },
-            sorted(self._applications.keys()),
-        ))
+        return list(
+            map(
+                lambda x, self=self: {
+                    "name": x,
+                    "link": self._applications[x]["url"],
+                },
+                sorted(self._applications.keys()),
+            )
+        )
 
     ##################################################
     # IMPORT/EXPORT functions                        #
@@ -651,6 +666,7 @@ class OpenFlowEngine(Folder, Toolz):
         for pr in obj["processes"]:
             try:
                 pr_id = str(pr["rid"])
+                checkAsciiId(pr_id)
                 checkValidId(self, pr_id)
             except Exception as e:
                 raise OpenFlowEngineImportError(
@@ -673,6 +689,7 @@ class OpenFlowEngine(Folder, Toolz):
             for act in pr.get("activities", []):
                 try:
                     act_id = str(act["rid"])
+                    checkAsciiId(act_id)
                     checkValidId(process, act_id)
                 except Exception:
                     raise OpenFlowEngineImportError(
@@ -711,6 +728,7 @@ class OpenFlowEngine(Folder, Toolz):
             for trans in pr.get("transitions", []):
                 try:
                     trans_id = str(trans["rid"])
+                    checkAsciiId(trans_id)
                     checkValidId(process, trans_id)
                 except Exception:
                     raise OpenFlowEngineImportError(

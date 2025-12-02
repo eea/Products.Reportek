@@ -4,7 +4,7 @@ from mock import patch, Mock
 from .fileuploadmock import FileUploadMock
 from .common import BaseTest, ConfigureReportek
 import os
-from io import StringIO
+
 from Testing import ZopeTestCase
 
 ZopeTestCase.installProduct("Reportek")
@@ -88,8 +88,9 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             "resultCode": "0",
             "resultDescription": "Conversion successful.",
         }
-        myfile = StringIO("-- some reporting data --")
-        myfile.filename = "Rivers_empty.xls"
+        myfile = FileUploadMock(
+            "Rivers_empty.xls", "-- some reporting data --"
+        )
         res = self.envelope.convert_excel_file(myfile)
         self.assertEqual(1, res)
         document = self.envelope["Rivers_empty.xls"]
@@ -114,7 +115,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         Verify the content_type is 'application/vnd.ms-excel'
         The expected result is 1
         """
-        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+        xml_content = b"""<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="https://schema.eu/schema1 https://schema.eu/schema.xsd">
          </report>"""
@@ -141,13 +142,10 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             "resultCode": "0",
             "resultDescription": "Conversion successful.",
         }
-        myfile = StringIO("-- some reporting data --")
-        myfile.filename = "Rivers_2011.xls"
+        myfile = FileUploadMock("Rivers_2011.xls", "-- some reporting data --")
         res = self.envelope.convert_excel_file(myfile)
         self.assertEqual(1, res)
-        self.assertEqual(
-            5, len(self.envelope.objectValues("Report Document"))
-        )
+        self.assertEqual(5, len(self.envelope.objectValues("Report Document")))
         document = self.envelope["Rivers_2011.xls"]
         self.assertEqual("application/vnd.ms-excel", document.content_type)
         document = self.envelope["Rivers_2011_StationsRivers.xml"]

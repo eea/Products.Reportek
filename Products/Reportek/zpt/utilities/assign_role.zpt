@@ -150,8 +150,10 @@
                           <ul tal:condition="collection/roles"
                               tal:define="local_roles collection/roles">
                             <li tal:repeat="user python: sorted(local_roles.keys())">
-                              <span tal:replace="user"/>
-                              (<span tal:replace="python:', '.join(local_roles[user])"/>)
+                              <tal:block tal:define="user_roles python: local_roles.get(user, [])">
+                                <span tal:replace="user"/>
+                                (<span tal:replace="python:', '.join(user_roles)"/>)
+                              </tal:block>
                             </li>
                           </ul>
                         </td>

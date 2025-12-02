@@ -1,10 +1,11 @@
 import hashlib
 
-from .common import BaseUnitTest
 from mock import patch
 from path import path
 
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
+
+from .common import BaseUnitTest
 
 FILE1_NAME = "sample.xls"
 FILE1_CRC = 811920726
@@ -23,7 +24,7 @@ class TestZZipFile(BaseUnitTest):
         pass
 
     def test_open_zip_fd(self):
-        fh = open(self.inputZipPath)
+        fh = open(self.inputZipPath, "rb")
         zf = ZZipFile(fh)
         # zf = self.zf
         fileInZip = zf.namelist()[0]
@@ -120,7 +121,7 @@ class TestZZipFileRaw(BaseUnitTest):
         self.inputZipPath = path(__file__).parent.abspath() / "zipMany.zip"
 
     def test_raw_open_zip_fd(self):
-        fh = open(self.inputZipPath)
+        fh = open(self.inputZipPath, "rb")
         zf = ZZipFileRaw(fh)
         fileInZip = zf.namelist()[0]
         self.assertEqual(fileInZip, FILE1_NAME)

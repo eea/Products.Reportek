@@ -23,6 +23,7 @@
 
 import logging
 import re
+from io import BytesIO, StringIO
 
 import requests
 from AccessControl import ClassSecurityInfo
@@ -30,7 +31,6 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
-from io import StringIO
 from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -199,7 +199,7 @@ class RemoteRESTApplication(SimpleItem):
                             ).replace("https:/", "https://")
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
-                                attach = StringIO(resp.content)
+                                attach = BytesIO(resp.content)
                                 attach.filename = (
                                     "%s_results.zip" % workitem.getMySelf().id
                                 )
@@ -228,11 +228,16 @@ class RemoteRESTApplication(SimpleItem):
                     )
                     messages = "Your delivery didn't pass validation."
                     if data:
-                        attach = StringIO()
+                        attach = BytesIO()
                         for item in data.get("messages"):
                             attach.write(
-                                "%s: %s\n"
-                                % (item.get("type"), item.get("description"))
+                                (
+                                    "%s: %s\n"
+                                    % (
+                                        item.get("type"),
+                                        item.get("description"),
+                                    )
+                                ).encode("utf-8")
                             )
                         attach.flush()
                         attach.seek(0)

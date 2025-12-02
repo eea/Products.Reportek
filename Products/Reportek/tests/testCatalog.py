@@ -1,10 +1,11 @@
 #
-from .common import BaseTest, ConfigureReportek, WorkflowTestCase
 from mock import Mock, patch
 from Testing import ZopeTestCase
 
 from Products.Reportek import constants
 from Products.Reportek.RepUtils import getToolByName
+
+from .common import BaseTest, ConfigureReportek, WorkflowTestCase
 
 ZopeTestCase.installProduct("Reportek")
 ZopeTestCase.installProduct("PythonScripts")
@@ -201,7 +202,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
 
         for query, ok_results in definitions:
             results = self.root.Catalog(**query)
-            self.assertItemsEqual([b.getObject() for b in results], ok_results)
+            self.assertCountEqual([b.getObject() for b in results], ok_results)
 
     def test_document_indexes(self):
         from Products.Reportek.Document import Document
@@ -243,6 +244,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
         from Products.Reportek.Envelope import Envelope
 
         process = Mock()
+        process.absolute_url.return_value = "WorkflowEngine/mock_process"
+        process.begin = "Begin"
         # self.root._p_jar = Mock()
 
         collection = Collection(id="test_collection")
@@ -280,6 +283,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
         from Products.Reportek.Envelope import Envelope
 
         process = Mock()
+        process.absolute_url.return_value = "WorkflowEngine/mock_process"
+        process.begin = "Begin"
 
         mock_DateTime.return_value = DateTime("2012/05/25")
         first_envelope = Envelope(
