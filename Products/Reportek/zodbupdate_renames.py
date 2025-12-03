@@ -9,6 +9,9 @@ that can be safely deleted later.
 
 from persistent import Persistent
 
+# Shorthand for the replacement class path
+_REMOVED = "Products.Reportek.zodbupdate_renames RemovedObject"
+
 
 class RemovedObject(Persistent):
     """Placeholder for obsolete Zope 2 classes that have been removed.
@@ -23,60 +26,68 @@ class RemovedObject(Persistent):
 # Format: 'old.module.path ClassName': 'new.module.path NewClassName'
 RENAMES = {
     # Remove SiteRoot from Products.SiteAccess
-    "Products.SiteAccess.SiteRoot SiteRoot": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.SiteAccess.SiteRoot.SiteRoot": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.SiteAccess.SiteRoot": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "Products.SiteAccess.SiteRoot SiteRoot": _REMOVED,
+    "Products.SiteAccess.SiteRoot.SiteRoot": _REMOVED,
+    "Products.SiteAccess.SiteRoot": _REMOVED,
     # Remove other obsolete Zope 2 classes
-    "Products.SiteErrorLog.SiteErrorLog.SiteErrorLog": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.TemporaryFolder.TemporaryFolder.MountedTemporaryFolder": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "Products.SiteErrorLog.SiteErrorLog.SiteErrorLog": _REMOVED,
+    "Products.TemporaryFolder.TemporaryFolder.MountedTemporaryFolder": (
+        _REMOVED
+    ),
     # Remove obsolete App.Product classes
-    "App.Product ProductFolder": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "App.Product Product": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "App.Factory Factory": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "App.Permission Permission": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "App.Product ProductFolder": _REMOVED,
+    "App.Product Product": _REMOVED,
+    "App.Factory Factory": _REMOVED,
+    "App.Permission Permission": _REMOVED,
     # Remove obsolete HelpSys classes
-    "HelpSys.HelpSys ProductHelp": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "HelpSys.HelpTopic STXTopic": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "HelpSys.APIHelpTopic APIHelpTopic": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "HelpSys.APIHelpTopic APIDoc": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "HelpSys.APIHelpTopic MethodDoc": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "HelpSys.APIHelpTopic AttributeDoc": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "HelpSys.HelpSys ProductHelp": _REMOVED,
+    "HelpSys.HelpTopic STXTopic": _REMOVED,
+    "HelpSys.APIHelpTopic APIHelpTopic": _REMOVED,
+    "HelpSys.APIHelpTopic APIDoc": _REMOVED,
+    "HelpSys.APIHelpTopic MethodDoc": _REMOVED,
+    "HelpSys.APIHelpTopic AttributeDoc": _REMOVED,
     # Remove obsolete ZCatalog and SearchIndex classes
-    "Products.ZCatalog.Vocabulary Vocabulary": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "SearchIndex.GlobbingLexicon GlobbingLexicon": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "SearchIndex.UnTextIndex UnTextIndex": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "SearchIndex.UnKeywordIndex UnKeywordIndex": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.ZCatalog.CatalogPathAwareness CatalogAware": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.ZCatalog.CatalogPathAwareness CatalogPathAware": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.ZCatalog CatalogPathAwareBase": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "Products.ZCatalog.Vocabulary Vocabulary": _REMOVED,
+    "SearchIndex.GlobbingLexicon GlobbingLexicon": _REMOVED,
+    "SearchIndex.UnTextIndex UnTextIndex": _REMOVED,
+    "SearchIndex.UnKeywordIndex UnKeywordIndex": _REMOVED,
+    "Products.ZCatalog.CatalogPathAwareness CatalogAware": _REMOVED,
+    "Products.ZCatalog.CatalogPathAwareness CatalogPathAware": _REMOVED,
+    "Products.ZCatalog CatalogPathAwareBase": _REMOVED,
     # Remove obsolete PluginIndexes.TextIndex classes
-    "Products.PluginIndexes.TextIndex.Vocabulary Vocabulary": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.PluginIndexes.TextIndex.GlobbingLexicon GlobbingLexicon": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.PluginIndexes.TextIndex.TextIndex TextIndex": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter.ZopeSplitter ZopeSplitter": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter Splitter": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.PluginIndexes.TextIndex.Lexicon Lexicon": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "Products.PluginIndexes.TextIndex.Vocabulary Vocabulary": _REMOVED,
+    "Products.PluginIndexes.TextIndex.GlobbingLexicon GlobbingLexicon": (
+        _REMOVED
+    ),
+    "Products.PluginIndexes.TextIndex.TextIndex TextIndex": _REMOVED,
+    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter.ZopeSplitter "
+    "ZopeSplitter": _REMOVED,
+    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter Splitter": (
+        _REMOVED
+    ),
+    "Products.PluginIndexes.TextIndex.Lexicon Lexicon": _REMOVED,
     # Remove obsolete ZClasses classes
-    "ZClasses.ZClass ZClass": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.ZClass ZObject": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.ZClass PersistentClass": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses._pmc ZClassPersistentMetaClass": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.Property ZInstanceSheets": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.ZClass ZClassSheets": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.Method ZClassMethodsSheet": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.Property ZInstanceSheetsSheet": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.Property ZCommonSheet": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.Property ZInstanceSheet": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "ZClasses.Method MWp": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "ZClasses.ZClass ZClass": _REMOVED,
+    "ZClasses.ZClass ZObject": _REMOVED,
+    "ZClasses.ZClass PersistentClass": _REMOVED,
+    "ZClasses._pmc ZClassPersistentMetaClass": _REMOVED,
+    "ZClasses.Property ZInstanceSheets": _REMOVED,
+    "ZClasses.ZClass ZClassSheets": _REMOVED,
+    "ZClasses.Method ZClassMethodsSheet": _REMOVED,
+    "ZClasses.Property ZInstanceSheetsSheet": _REMOVED,
+    "ZClasses.Property ZCommonSheet": _REMOVED,
+    "ZClasses.Property ZInstanceSheet": _REMOVED,
+    "ZClasses.Method MWp": _REMOVED,
     # Remove obsolete ZopeTutorial classes
-    "Products.ZopeTutorial.TutorialTopic TutorialTopic": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Products.ZopeTutorial.TutorialTopic GlossaryTopic": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "Products.ZopeTutorial.TutorialTopic TutorialTopic": _REMOVED,
+    "Products.ZopeTutorial.TutorialTopic GlossaryTopic": _REMOVED,
     # Remove obsolete ExternalMethod classes
-    "Products.ExternalMethod.ExternalMethod ExternalMethod": "Products.Reportek.zodbupdate_renames RemovedObject",
-    # Remove problematic DTMLFile instances that cause Python 3 unpickling errors
-    "App.special_dtml DTMLFile": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "Globals DTMLFile": "Products.Reportek.zodbupdate_renames RemovedObject",
-    "DocumentTemplate.DT_HTML DTMLFile": "Products.Reportek.zodbupdate_renames RemovedObject",
+    "Products.ExternalMethod.ExternalMethod ExternalMethod": _REMOVED,
+    # Remove problematic DTMLFile instances
+    # (these cause Python 3 unpickling errors)
+    "App.special_dtml DTMLFile": _REMOVED,
+    "Globals DTMLFile": _REMOVED,
+    "DocumentTemplate.DT_HTML DTMLFile": _REMOVED,
 }
 
 
@@ -89,8 +100,9 @@ def decode_app_before_traverse(state):
     """
     Clean up broken BeforeTraverse hooks from Application objects.
 
-    This decode rule removes BeforeTraverse hooks that reference RemovedObjects,
-    particularly the obsolete SiteRoot hooks from Products.SiteAccess.
+    This decode rule removes BeforeTraverse hooks that reference
+    RemovedObjects, particularly the obsolete SiteRoot hooks from
+    Products.SiteAccess.
 
     Returns True if the state was modified, False otherwise.
     """
@@ -108,7 +120,7 @@ def decode_app_before_traverse(state):
             hooks_to_remove = []
 
             for priority, value in list(bt.items()):
-                # Handle both tuple format (name, hook) and direct hook format
+                # Handle both tuple format (name, hook) and direct hook
                 if isinstance(value, tuple) and len(value) == 2:
                     name, hook = value
                 else:
@@ -124,8 +136,9 @@ def decode_app_before_traverse(state):
                     if class_name == "RemovedObject":
                         hooks_to_remove.append(priority)
 
-                # For NameCaller hooks, check if they reference a RemovedObject
-                # This handles the case where NameCaller.name points to a RemovedObject
+                # For NameCaller hooks, check if they reference a
+                # RemovedObject. This handles the case where
+                # NameCaller.name points to a RemovedObject
                 if (
                     hasattr(hook, "__class__")
                     and hook.__class__.__name__ == "NameCaller"
