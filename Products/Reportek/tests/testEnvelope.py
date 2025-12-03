@@ -4,11 +4,11 @@ import json
 import os.path
 from functools import partial
 from io import BytesIO, StringIO
+from unittest.mock import Mock, patch
 
 import lxml.etree
 from AccessControl import getSecurityManager
 from DateTime import DateTime
-from mock import Mock, patch
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from Testing import ZopeTestCase
@@ -1302,8 +1302,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.envelope.content_registry_ping()
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called
-        )  # noqa
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called  # noqa
+        )
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
@@ -1327,8 +1327,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.envelope.content_registry_ping(delete=True)
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called
-        )  # noqa
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called  # noqa
+        )
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
@@ -1352,8 +1352,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.envelope.content_registry_ping(_async=False)
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called
-        )  # noqa
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called  # noqa
+        )
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]

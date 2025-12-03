@@ -244,7 +244,7 @@ class process(CatalogAware, Folder):
         return sorted(self.objectIds("Activity"))
 
     def listUnreferedActivities(self):
-        """Returns a list of activities with no transitions going to them"""
+        """Return a list of activities with no transitions going to them."""
         activities = {}  # use dict in order to avoid duplicates
         for t in self.objectValues("Transition"):
             activities[t.From] = ""
@@ -478,7 +478,7 @@ def process_to_dot(process):
         cond_desc = condition
         tooltip = "{0} -> {1}".format(t.From, t.To)
         if condition.startswith(cond_prefix):
-            condition = condition[len(cond_prefix):]
+            condition = condition[len(cond_prefix) :]
         if condition:
             condition = namify(condition, "cond")
         line = "{short_tr_from} -> {short_tr_to}".format(**locals())

@@ -695,7 +695,8 @@ class Envelope(
             except Exception as e:
                 msg = (
                     "ApplicationException while trying to display: {} "
-                    "for envelope: {}, with workitem_id: {} - Error: {}".format(
+                    "for envelope: {}, with workitem_id: {}"
+                    " - Error: {}".format(
                         l_application_url,
                         self.absolute_url(),
                         l_default_tab,
@@ -1960,13 +1961,13 @@ class Envelope(
                             % RepUtils.xmlEncode(o.data_file.size)
                         )
                         xmlChunk.append(
-                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>'
+                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>'  # noqa
                             % o.upload_time().HTML4()
-                        )  # noqa
+                        )
                         xmlChunk.append(
-                            '<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>'
+                            '<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>'  # noqa
                             % o.upload_time().HTML4()
-                        )  # noqa
+                        )
                         xmlChunk.append(
                             '<dct:isPartOf rdf:resource="%s"/>'
                             % RepUtils.xmlEncode(
@@ -1978,9 +1979,9 @@ class Envelope(
                             % RepUtils.xmlEncode(o.content_type)
                         )
                         xmlChunk.append(
-                            '<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>'
+                            '<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>'  # noqa
                             % repr(o.isRestricted()).lower()
-                        )  # noqa
+                        )
                         if o.content_type == "text/xml":
                             for location in RepUtils.xmlEncode(
                                 o.xml_schema_location
@@ -2006,13 +2007,13 @@ class Envelope(
                             % RepUtils.xmlEncode(o.title_or_id())
                         )
                         xmlChunk.append(
-                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>'
+                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>'  # noqa
                             % o.upload_time().HTML4()
-                        )  # noqa
+                        )
                         xmlChunk.append(
-                            '<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>'
+                            '<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>'  # noqa
                             % o.upload_time().HTML4()
-                        )  # noqa
+                        )
                         xmlChunk.append(
                             '<dct:isPartOf rdf:resource="%s"/>'
                             % RepUtils.xmlEncode(
@@ -2037,13 +2038,13 @@ class Envelope(
                             % RepUtils.xmlEncode(o.title_or_id())
                         )
                         xmlChunk.append(
-                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>'
+                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>'  # noqa
                             % o.postingdate.HTML4()
-                        )  # noqa
+                        )
                         xmlChunk.append(
-                            '<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>'
+                            '<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>'  # noqa
                             % o.releasedate.HTML4()
-                        )  # noqa
+                        )
                         xmlChunk.append(
                             '<dct:isPartOf rdf:resource="%s"/>'
                             % RepUtils.xmlEncode(
@@ -2065,9 +2066,9 @@ class Envelope(
                             % RepUtils.xmlEncode(o.content_type)
                         )
                         xmlChunk.append(
-                            '<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>'
+                            '<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>'  # noqa
                             % repr(o.isRestricted()).lower()
-                        )  # noqa
+                        )
                         if o.document_id and o.document_id != "xml":
                             xmlChunk.append(
                                 '<cr:feedbackFor rdf:resource="%s/%s"/>'

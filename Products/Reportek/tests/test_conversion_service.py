@@ -318,7 +318,8 @@ class ConversionServiceTest(BaseUnitTest):
             with item.data_file.open("wb") as datafile:
                 datafile.write(b"test file")
 
-        # Capture file contents when requests.post is called, before files are closed
+        # Capture file contents when requests.post is called,
+        # before files are closed
         captured_files = {}
 
         def capture_files(*args, **kwargs):

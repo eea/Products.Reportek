@@ -68,7 +68,7 @@ class BuildCollections(BaseAdmin):
                         country["uri"],
                         "",
                         obligations,
-                        **kwargs,
+                        **kwargs
                     )
                     messages["success"].append(country["name"])
                 except KeyError:

@@ -217,8 +217,8 @@ class XMLMetadata:
         if company_id:
             if old_company_id:
                 r_env = (
-                    '<envelope released="%s" company_id="%s" old_company_id="%s" acceptable="%s" %s>'
-                    % (  # noqa
+                    '<envelope released="%s" company_id="%s" old_company_id="%s" acceptable="%s" %s>'  # noqa
+                    % (
                         tf[self.envelope.released],
                         company_id,
                         old_company_id,
@@ -228,8 +228,8 @@ class XMLMetadata:
                 )
             else:
                 r_env = (
-                    '<envelope released="%s" company_id="%s" acceptable="%s" %s>'
-                    % (  # noqa
+                    '<envelope released="%s" company_id="%s" acceptable="%s" %s>'  # noqa
+                    % (
                         tf[self.envelope.released],
                         company_id,
                         acceptable,

@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import unittest
 from datetime import date, timedelta
 
 import transaction
@@ -12,11 +11,8 @@ from OFS.SimpleItem import SimpleItem
 from Testing import ZopeTestCase as ztc
 from zope.testbrowser import browser as testbrowser_module
 from zope.testbrowser.browser import Browser
-from ZPublisher.WSGIPublisher import publish_module
-
-# Add 'nohost' to the allowed hosts for testbrowser (used by Zope test URLs)
-testbrowser_module._allowed.add("nohost")
 from Zope2.App import zcml
+from ZPublisher.WSGIPublisher import publish_module
 
 import Products.Five
 import Products.GenericSetup
@@ -28,9 +24,10 @@ from Products.Reportek import (
 )
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.ReportekEngine import ReportekEngine
+from Products.Reportek.tests.common import BaseTest
 
-from .common import BaseTest
-
+# Add 'nohost' to the allowed hosts for testbrowser (used by Zope test URLs)
+testbrowser_module._allowed.add("nohost")
 ztc.installProduct("PluginIndexes")
 ztc.installProduct("PythonScripts")
 ztc.installProduct("PageTemplates")
