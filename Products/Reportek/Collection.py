@@ -408,44 +408,34 @@ class Collection(
         return getattr(self, constants.DATAFLOW_MAPPINGS, None)
 
     def getCountryName(self, country_uri=None):
-        """Returns country name from the country uri"""
+        """Return country name from the country uri."""
         dummycounty = {"name": "Unknown", "iso": "xx"}
         engine = self.getEngine()
         if country_uri:
             try:
-                return str(
-                    [
-                        x["name"]
-                        for x in engine.localities_table()
-                        if str(x["uri"]) == country_uri
-                    ][0]
+                return next(
+                    x["name"]
+                    for x in engine.localities_table()
+                    if x["uri"] == country_uri
                 )
             except Exception:
                 return dummycounty["name"]
-        return str(
-            engine.localities_dict()
-            .get(self.country, dummycounty)["name"]
-            .encode("utf-8")
-        )
+        return engine.localities_dict().get(self.country, dummycounty)["name"]
 
     def getCountryCode(self, country_uri=None):
-        """Returns country ISO code from the country uri"""
+        """Return country ISO code from the country uri."""
         dummycounty = {"name": "Unknown", "iso": "xx"}
         engine = self.getEngine()
         if country_uri:
             try:
-                return str(
-                    [
-                        x["iso"]
-                        for x in engine.localities_table()
-                        if str(x["uri"]) == country_uri
-                    ][0]
+                return next(
+                    x["iso"]
+                    for x in engine.localities_table()
+                    if x["uri"] == country_uri
                 )
             except Exception:
                 return dummycounty["iso"]
-        return str(
-            engine.localities_dict().get(self.country, dummycounty)["iso"]
-        )
+        return engine.localities_dict().get(self.country, dummycounty)["iso"]
 
     security.declareProtected("View", "get_dataflow_uris")
 
