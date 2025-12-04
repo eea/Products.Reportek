@@ -4,9 +4,9 @@
                        modules/AccessControl/getSecurityManager;
                        has_permission
                        python:SecurityManager.checkPermission('View management screens', template);
-                       default_restricted python:request.SESSION.get('default_restricted', '');
-                       force_restricted python:request.SESSION.get('force_restricted', '');
-                       disallow python: request.SESSION.get('disallow', '')">
+                       default_restricted python:(request.SESSION or {}).get('default_restricted', '');
+                       force_restricted python:(request.SESSION or {}).get('force_restricted', '');
+                       disallow python:(request.SESSION or {}).get('disallow', '')">
     <div id="operations">
       <ul>
         <li>
@@ -36,10 +36,10 @@
     </p>
 
     <form action="manage_addMMRXLSFile" method="post" enctype="multipart/form-data" name="form">
-      <tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
+      <tal:block tal:repeat="item python:(request.SESSION or {}).get('required_schema', [])">
         <input type="hidden" name="required_schema:list" tal:attributes="value item" />
       </tal:block>
-      <input type="hidden" name="replace_xml" tal:attributes="value python:request.SESSION.get('replace_xml', 0)" />
+      <input type="hidden" name="replace_xml" tal:attributes="value python:(request.SESSION or {}).get('replace_xml', 0)" />
 
       <label for="file" i18n:translate="">File</label>
       <input type="file" name="file" id="file" size="25" value="" />
@@ -54,10 +54,10 @@
       <input type="submit" value="Add" i18n:attributes="value" />
     </form>
 
-    <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
+    <tal:block tal:condition="python:request.SESSION and 'required_schema' in request.SESSION">
       <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
     </tal:block>
-    <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
+    <tal:block tal:condition="python:request.SESSION and 'replace_xml' in request.SESSION">
       <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
     </tal:block>
   </tal:block>

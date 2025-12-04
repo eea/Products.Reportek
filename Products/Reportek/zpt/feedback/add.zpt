@@ -36,9 +36,9 @@
                        modules/AccessControl/getSecurityManager;
                        has_permission
                        python:SecurityManager.checkPermission('View management screens', template);
-                       default_restricted python:request.SESSION.get('default_restricted', '');
-                       force_restricted python:request.SESSION.get('force_restricted', '');
-                       disallow python: request.SESSION.get('disallow', '')">
+                       default_restricted python:(request.SESSION or {}).get('default_restricted', '');
+                       force_restricted python:(request.SESSION or {}).get('force_restricted', '');
+                       disallow python:(request.SESSION or {}).get('disallow', '')">
       <p class="form-help" i18n:translate="">Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback.
       </p>
 
@@ -48,7 +48,7 @@
         <table>
           <tr>
             <th style="width: 15%" i18n:translate="">Subject</th>
-            <td><input type="text" name="title:utf8:ustring" size="60" style="width:85%" /></td> 
+            <td><input type="text" name="title:utf8:ustring" size="60" style="width:85%" /></td>
           </tr>
           <tr>
             <th style="width: 15%" i18n:translate="">Feedback text</th>

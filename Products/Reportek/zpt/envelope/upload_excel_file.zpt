@@ -4,9 +4,9 @@
                        modules/AccessControl/getSecurityManager;
                        has_permission
                        python:SecurityManager.checkPermission('View management screens', template);
-                       default_restricted python:request.SESSION.get('default_restricted', '');
-                       force_restricted python:request.SESSION.get('force_restricted', '');
-                       disallow python: request.SESSION.get('disallow', '')">
+                       default_restricted python:(request.SESSION or {}).get('default_restricted', '');
+                       force_restricted python:(request.SESSION or {}).get('force_restricted', '');
+                       disallow python:(request.SESSION or {}).get('disallow', '')">
       <div id="operations">
         <ul>
           <li>

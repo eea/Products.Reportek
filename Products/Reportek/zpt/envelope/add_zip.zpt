@@ -6,11 +6,11 @@
     <p i18n:translate="">The zipfile upload makes it possible for you to add a large number of files in one upload. The zipfile will be uploaded and unwrapped.</p>
 
     <tal:block define="
-      default_restricted python:request.SESSION.get('default_restricted', '');
-      force_restricted python:request.SESSION.get('force_restricted', '');
-      replace_xml python:request.SESSION.get('replace_xml', 0);
-      required_schema python:request.SESSION.get('required_schema', []);
-      disallow python: request.SESSION.get('disallow', '')">
+      default_restricted python:(request.SESSION or {}).get('default_restricted', '');
+      force_restricted python:(request.SESSION or {}).get('force_restricted', '');
+      replace_xml python:(request.SESSION or {}).get('replace_xml', 0);
+      required_schema python:(request.SESSION or {}).get('required_schema', []);
+      disallow python:(request.SESSION or {}).get('disallow', '')">
 
       <form action="manage_addDDzipfile" method="post" enctype="multipart/form-data" name="form">
 
@@ -47,10 +47,10 @@
       </table>
       </form>
 
-      <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
+      <tal:block tal:condition="python:request.SESSION and 'required_schema' in request.SESSION">
           <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
       </tal:block>
-      <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
+      <tal:block tal:condition="python:request.SESSION and 'replace_xml' in request.SESSION">
           <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
       </tal:block>
 

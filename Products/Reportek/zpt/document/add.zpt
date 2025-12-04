@@ -14,9 +14,9 @@
       </div>
 
       <tal:block define="
-        default_restricted python:request.SESSION.get('default_restricted', '');
-        force_restricted python:request.SESSION.get('force_restricted', '');
-        disallow python: request.SESSION.get('disallow', '')">
+        default_restricted python:(request.SESSION or {}).get('default_restricted', False);
+        force_restricted python:(request.SESSION or {}).get('force_restricted', False);
+        disallow python:(request.SESSION or {}).get('disallow', False)">
 
       <form action="manage_addDocument" method="post" enctype="multipart/form-data" name="form">
         <table cellspacing="5" cellpadding="0">

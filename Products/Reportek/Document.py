@@ -83,7 +83,9 @@ ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
 logger = logging.getLogger("Reportek")
 
-manage_addDocumentForm = PageTemplateFile("zpt/document/add")
+manage_addDocumentForm = PageTemplateFile(
+    os.path.join(package_home(globals()), "zpt/document/add.zpt")
+)
 
 
 def error_message(ctx, message, action=None, REQUEST=None):
@@ -181,7 +183,7 @@ def manage_addDocument(
                 id.rfind("\\"),
                 id.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
