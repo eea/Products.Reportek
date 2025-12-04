@@ -2,7 +2,7 @@
 <tal:block tal:replace="structure context/manage_tabs" />
 
 <p class="form-help" i18n:translate="">
-	To change property values, edit the values and click "Save changes". 
+	To change property values, edit the values and click "Save changes".
 </p>
 
 <form action="manage_settings" method="post">
@@ -22,7 +22,7 @@
 				<tal:block tal:repeat="group groups">
 					<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
 						<tal:block tal:repeat="item python:items[group]">
-							<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'"
+							<option tal:define="terminated python:'terminated' in item and item['terminated']=='1'"
 											tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] == here.workflow">
 								[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
 								<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
@@ -53,7 +53,7 @@
 	<tr>
 		<td><label for="max_size" class="form-label" i18n:translate="">Upper limit for file size</td>
 			<tal:block tal:define="max_size python:getattr(here, 'max_size', 10)">
-				<td i18n:translate=""><input type="text" name="max_size" id="max_size" size="70" 
+				<td i18n:translate=""><input type="text" name="max_size" id="max_size" size="70"
 						tal:attributes="value max_size"/>MB (default 10.00 MB)
 		    </td>
 		  </tal:block>

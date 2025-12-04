@@ -26,8 +26,8 @@ This is done with a push-application in the activity.
 				<tal:block repeat="activity python:process.objectValues('Activity')">
 					<tal:block
 						define="list python:here.getActivitiesPushableOnRole()"
-						condition="python:list.has_key(role)">
-						<tal:block condition="python:list[role].has_key(process.id)">
+						condition="python:role in list">
+						<tal:block condition="python:process.id in list[role]">
 							<option value=""
 									selected=""
 									tal:content="activity/id"
@@ -45,8 +45,8 @@ This is done with a push-application in the activity.
 					</tal:block>
 					<tal:block
 						define="list python:here.getActivitiesPushableOnRole()"
-						condition="python:list.has_key(role)">
-						<tal:block condition="not:python:list[role].has_key(process.id)">
+						condition="python:role in list">
+						<tal:block condition="python:process.id not in list[role]">
 							<option
 								value=""
 								tal:content="activity/id"
@@ -58,7 +58,7 @@ This is done with a push-application in the activity.
 					</tal:block>
 					<tal:block
 						define="list python:here.getActivitiesPushableOnRole()"
-						condition="not:python:list.has_key(role)">
+						condition="python:role not in list">
 						<option
 								value=""
 								tal:content="activity/id"

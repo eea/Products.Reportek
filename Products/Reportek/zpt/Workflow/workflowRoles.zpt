@@ -23,21 +23,21 @@ This page sets what roles can do what.
 	<td tal:content="role">Role</td>
 	<td style="text-align: center" i18n:translate="">
 		<a href="" tal:attributes="href string:manage_editActivitiesPushableOnRole?role=${role}"
-		   tal:condition="python:here.getActivitiesPushableOnRole().has_key(role)">
+		   tal:condition="python:role in here.getActivitiesPushableOnRole()">
 		   assigned
 		</a>
 		<a href="" tal:attributes="href string:manage_editActivitiesPushableOnRole?role=${role}"
-		   tal:condition="not:python:here.getActivitiesPushableOnRole().has_key(role)">
+		   tal:condition="python:role not in here.getActivitiesPushableOnRole()">
 		   not assigned
 		</a>
 	</td>
 	<td style="text-align: center" i18n:translate="">
 		<a href="" tal:attributes="href string:manage_editActivitiesPullableOnRole?role=${role}"
-		   tal:condition="python:here.getActivitiesPullableOnRole().has_key(role)">
+		   tal:condition="python:role in here.getActivitiesPullableOnRole()">
 		   assigned
 		</a>
 		<a href="" tal:attributes="href string:manage_editActivitiesPullableOnRole?role=${role}"
-		   tal:condition="not:python:here.getActivitiesPullableOnRole().has_key(role)">
+		   tal:condition="python:role not in here.getActivitiesPullableOnRole()">
 		   not assigned
 		</a>
 	</td>

@@ -39,7 +39,7 @@
           <td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
           <td style="width:6em"><tal:block tal:condition="python:hasattr(item, 'size')"><span tal:replace="item/size" /></tal:block></td>
           <td>
-            <tal:block tal:condition="python:qa_4_files.has_key(item.id)">
+            <tal:block tal:condition="python:item.id in qa_4_files">
               <tal:block tal:repeat="script_item python:qa_4_files[item.id]">
                 <tal:block tal:condition="python:item.canHaveOnlineQA(script_item[3])">
                   <tal:block tal:condition="python:script_item[0] != -1" tal:define="script_item_id python:script_item[0]; script_item_title python:script_item[1];">

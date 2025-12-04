@@ -27,9 +27,9 @@
         <input type="submit" class="fileop" name="bulkAcceptTime:method" value="Apply" i18n:attributes="value" />
       </form><br />
 
-      <tal:block tal:condition="python:request.SESSION.has_key('msg')">
+      <tal:block tal:condition="python:request.SESSION and 'msg' in request.SESSION">
         <h2 i18n:translate="">Information</h2>
-        <tal:block tal:define="msg python:request.SESSION.get('msg', {'info':{}, 'err':{}}); info python:msg['info'].keys(); err python:msg['err'].keys()">
+        <tal:block tal:define="msg python:(request.SESSION or {}).get('msg', {'info':{}, 'err':{}}); info python:msg['info'].keys(); err python:msg['err'].keys()">
           <tal:block tal:condition="python:len(info)>0">
             <div class="system-msg" tal:repeat="item info">
               <strong tal:content="item" />
@@ -47,7 +47,7 @@
         </tal:block>
       </tal:block>
 
-      <tal:block tal:condition="python:request.SESSION.has_key('msg')">
+      <tal:block tal:condition="python:request.SESSION and 'msg' in request.SESSION">
         <tal:block tal:define="dummy python:request.SESSION.delete('msg')" />
       </tal:block>
 
