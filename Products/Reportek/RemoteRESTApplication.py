@@ -39,7 +39,7 @@ from Products.Reportek.interfaces import IQAApplication
 logger = logging.getLogger(__name__ + ".gisqa")
 
 manage_addRemoteRESTApplicationForm = PageTemplateFile(
-    "zpt/rest_add", globals()
+    "zpt/remote/rest_add", globals()
 )
 
 
