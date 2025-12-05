@@ -367,6 +367,12 @@ def utTruncString(s, p_size=50):
         return s
 
 
+def utSortObjsListByAttr(p_list, p_attr, p_desc=1):
+    """Sort a list of objects by an attribute value."""
+    p_list.sort(key=operator.attrgetter(p_attr), reverse=bool(p_desc))
+    return p_list
+
+
 def utSortObjsListByMethod(p_list, p_method, p_desc=1):
     """Sort a list of objects by calling a method on each object."""
 
