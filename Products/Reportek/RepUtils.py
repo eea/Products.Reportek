@@ -368,31 +368,17 @@ def utTruncString(s, p_size=50):
 
 
 def utSortObjsListByMethod(p_list, p_method, p_desc=1):
-    """Sort a list of objects by an attribute values"""
-    l_len = len(p_list)
-    l_temp = map(
-        None,
-        list(map(lambda x, y: getattr(x, y)(), p_list, (p_method,) * l_len)),
-        range(l_len),
-        p_list,
-    )
-    l_temp.sort()
-    if p_desc:
-        l_temp.reverse()
-    return list(map(operator.getitem, l_temp, (-1,) * l_len))
+    """Sort a list of objects by calling a method on each object."""
 
+    def get_method_result(obj):
+        return getattr(obj, p_method)()
 
-def utSortObjsListByMethod2(p_list, p_method, p_desc=1):
-    """Sort a list of objects by an attribute values"""
-
-    p_list.sort(key=operator.attrgetter(p_method))
-    if p_desc:
-        p_list.reverse()
+    p_list.sort(key=get_method_result, reverse=bool(p_desc))
     return p_list
 
 
 def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
-    """Sort a list of objects by the result of one of their functions"""
+    """Sort a list of objects by the result of one of their functions."""
     l_temp = map(
         None,
         list(
