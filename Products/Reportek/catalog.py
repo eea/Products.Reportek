@@ -9,9 +9,9 @@ reporting.
 import logging
 import os
 import time
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 from time import process_time
 
 from AccessControl.class_init import InitializeClass
@@ -93,7 +93,7 @@ def catalog_rebuild(root, catalog="Catalog"):
 
 class MaintenanceView(BrowserView):
     def __call__(self):
-        return maintenance.__of__(self.aq_parent)()
+        return maintenance.__of__(self.context)()
 
 
 maintenance = PageTemplateFile("zpt/manage_maintenance.zpt", globals())
@@ -112,7 +112,7 @@ class RebuildView(BrowserView):
         elapse = time.time() - elapse
         c_elapse = process_time() - c_elapse
 
-        msg = "Catalog Rebuilt\n" "Total time: %s\n" "Total CPU time: %s" % (
+        msg = "Catalog Rebuilt\nTotal time: %s\nTotal CPU time: %s" % (
             repr(elapse),
             repr(c_elapse),
         )
