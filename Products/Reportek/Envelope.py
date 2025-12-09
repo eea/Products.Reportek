@@ -713,8 +713,10 @@ class Envelope(
         return self.overview(REQUEST)
 
     security.declareProtected("View management screens", "manage_main_inh")
-    manage_main_inh = EnvelopeInstance.manage_main
-    # EnvelopeInstance.manage_main._setName("manage_main")
+
+    def manage_main_inh(self, obj, *args, **kw):
+        """Inherited manage_main from EnvelopeInstance."""
+        return EnvelopeInstance.manage_main(obj, *args, **kw)
 
     security.declareProtected("View", "manage_main")
 
