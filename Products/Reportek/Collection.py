@@ -1400,8 +1400,8 @@ class Collection(
 
     @property
     def Description(self):
-        if isinstance(self.descr, str):  # noqa: F821
-            return self.descr.encode("utf-8")
+        if isinstance(self.descr, bytes):
+            return self.descr.decode("utf-8", errors="replace")
 
         return self.descr
 

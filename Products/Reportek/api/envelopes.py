@@ -5,6 +5,17 @@ from DateTime import DateTime
 from ZODB.blob import POSKeyError
 
 from Products.Five import BrowserView
+
+
+class BytesEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles bytes objects."""
+
+    def default(self, obj):
+        if isinstance(obj, bytes):
+            return obj.decode("utf-8", errors="replace")
+        return super().default(obj)
+
+
 from Products.Reportek.blob import StorageError
 from Products.Reportek.constants import (
     DEFAULT_CATALOG,
@@ -167,9 +178,7 @@ class EnvelopesAPI(BrowserView):
                         for zfile in zipfiles:
                             if not isinstance(zfile, str):
                                 zfile = str(zfile, errors="ignore")
-                            archived_files.append(
-                                zfile.encode("utf-8", "ignore")
-                            )
+                            archived_files.append(zfile)
                     except (POSKeyError, StorageError, SystemError) as e:
                         t = "An error occured trying\
                              to access file: {}".format(doc.absolute_url(0))
@@ -664,4 +673,4 @@ class EnvelopesAPI(BrowserView):
                     if envelope_data:
                         results.append(envelope_data)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
-        return json.dumps(data, indent=4)
+        return json.dumps(data, indent=4, cls=BytesEncoder)

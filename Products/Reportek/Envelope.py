@@ -2331,8 +2331,8 @@ class Envelope(
 
     @property
     def Description(self):
-        if isinstance(self.descr, str):
-            return self.descr.encode("utf-8")
+        if isinstance(self.descr, bytes):
+            return self.descr.decode("utf-8", errors="replace")
 
         return self.descr
 
