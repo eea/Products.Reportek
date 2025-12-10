@@ -36,10 +36,10 @@
             <tal:block
               condition="not:python:SecurityManager.checkPermission('View', item)">
               <tal:block define="dummy python:request.set('therearerestrictions',1)"/>
-              <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt alt-no-access"/>
+              <img src="/++resource++images/lockicon.gif" alt="No access" width="16" height="16" i18n:attributes="alt alt-no-access"/>
             </tal:block>
               <img tal:condition="item/get_accept_time"
-                   src="/misc_/Reportek/accepted" alt="Document accepted by the client"
+                   src="/++resource++images/accepted.gif" alt="Document accepted by the client"
                    i18n:attributes="alt document-accepted"/>
           </td>
           <td><em tal:content="item/title">title</em></td>
@@ -52,7 +52,7 @@
 
         <tr tal:condition="not:python:item.meta_type=='Report Document'" valign="baseline">
           <td tal:content="python:path('repeat/item/number')+(int(request.get('page', '1'))-1)*20"></td>
-          <td><img src="misc_/Reportek/hyperlink_gif" alt="Hyperlink icon" i18n:attributes="alt alt-hyperlink-icon"/></td>
+          <td><img src="++resource++images/hyperlink.gif" alt="Hyperlink icon" i18n:attributes="alt alt-hyperlink-icon"/></td>
           <tal:block condition="python:SecurityManager.checkPermission('View', item)">
             <td><a tal:attributes="href item/id" tal:content="item/id">id</a></td>
             <td style="white-space:nowrap">
@@ -62,7 +62,7 @@
             <td i18n:translate="">(Limited)</td>
             <td style="white-space:nowrap">
               <tal:block define="dummy python:request.set('therearerestrictions',1)"/>
-              <img src="/misc_/Reportek/lockicon_gif" alt="No access"
+              <img src="/++resource++images/lockicon.gif" alt="No access"
                    i18n:attributes="alt no-access" width="16" height="16" />
             </td>
           </tal:block>
@@ -85,7 +85,7 @@
 
   <p tal:condition="python:request.get('therearerestrictions', 0) > 0" i18n:translate="">
     Access limitations may apply for files, which are not (yet) released for public view. Files marked with
-    <img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:name="lock-icon" i18n:attributes="alt alt-padlock" /> are unavailable.
+    <img src="/++resource++images/lockicon.gif" alt="Padlock" width="16" height="16" i18n:name="lock-icon" i18n:attributes="alt alt-padlock" /> are unavailable.
     You must log in to get access.
   </p>
 

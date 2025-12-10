@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser">
+
+    <!-- Static resource directories -->
+    <browser:resourceDirectory name="static" directory="www/static" />
+
+    <!-- Image resources (replaces misc_ registration)
+         Access via: ++resource++images/collection.gif -->
+    <browser:resourceDirectory name="images" directory="www/images" />
+
+    <!-- Individual resources needed by five:registerClass -->
+    <browser:resource name="reportek_tools.gif" file="www/images/tools.gif" />
+
+</configure>

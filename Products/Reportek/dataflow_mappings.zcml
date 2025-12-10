@@ -1,34 +1,42 @@
-<configure xmlns="http://namespaces.zope.org/zope"
-        xmlns:browser="http://namespaces.zope.org/browser"
-        xmlns:five="http://namespaces.zope.org/five">
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:five="http://namespaces.zope.org/five"
+>
 
     <browser:resource
-            name="dataflow_mappings_record.gif"
-            file="www/dataflow_mappings_record.gif"/>
+        name="dataflow_mappings_record.gif"
+        file="www/images/dataflow_mappings_record.gif"
+    />
 
     <browser:resource
-            name="dataflow_mappings.gif"
-            file="www/dataflow_mappings.gif"/>
+        name="dataflow_mappings.gif"
+        file="www/images/dataflow_mappings.gif"
+    />
 
     <five:registerClass
-            class=".DataflowMappings.DataflowMappings"
-            meta_type="Reportek Dataflow Mappings"
-            icon="dataflow_mappings.gif"
-            permission="zope2.ViewManagementScreens"
-            global="True"/>
+        class=".DataflowMappings.DataflowMappings"
+        meta_type="Reportek Dataflow Mappings"
+        icon="dataflow_mappings.gif"
+        permission="zope2.ViewManagementScreens"
+        global="True"
+    />
 
     <five:registerClass
-            class=".DataflowMappingsRecord.DataflowMappingsRecord"
-            meta_type="Dataflow Mappings Record"
-            addview="add_record"
-            icon="dataflow_mappings_record.gif"
-            permission="zope2.ViewManagementScreens"
-            global="False"/>
+        class=".DataflowMappingsRecord.DataflowMappingsRecord"
+        meta_type="Dataflow Mappings Record"
+        addview="add_record"
+        icon="dataflow_mappings_record.gif"
+        permission="zope2.ViewManagementScreens"
+        global="False"
+    />
 
-    <browser:page for="zope.browser.interfaces.IAdding"
-            name="add_record"
-            class=".DataflowMappingsRecord.AddForm"
-            template="zpt/dataflow-mappings/add_record.zpt"
-            permission="zope2.ViewManagementScreens"/>
+    <browser:page
+        for="zope.browser.interfaces.IAdding"
+        name="add_record"
+        class=".DataflowMappingsRecord.AddForm"
+        template="zpt/dataflow-mappings/add_record.zpt"
+        permission="zope2.ViewManagementScreens"
+    />
 
 </configure>

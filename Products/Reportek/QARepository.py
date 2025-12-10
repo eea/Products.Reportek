@@ -45,7 +45,7 @@ class QARepository(Folder):
     """ """
 
     meta_type = "Reportek QARepository"
-    icon = "misc_/Reportek/QARepository"
+    icon = "++resource++images/qarepo.gif"
 
     # security stuff
     security = ClassSecurityInfo()

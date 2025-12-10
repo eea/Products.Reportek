@@ -41,11 +41,11 @@
                     <input type="checkbox" name="ids:list" tal:attributes="value item/id" />
                 </td>
                 <td>
-                    <img tal:attributes="src string:/misc_/Reportek/collection.gif" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" />
+                    <img tal:attributes="src string:/++resource++images/collection.gif" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" />
                 </td>
                 <td>
                     <a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" />
-                    <img tal:condition="item/restricted" src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:attributes="alt" />
+                    <img tal:condition="item/restricted" src="++resource++images/lockicon.gif" alt="Padlock" width="16" height="16" i18n:attributes="alt" />
                 </td>
                 <tal:block tal:condition="envs">
                     <tal:block tal:condition="isBdrDeployment">

@@ -48,9 +48,7 @@
         permission="zope2.View"
     />
 
-    <browser:resourceDirectory name="static" directory="www/static" />
-
-    <browser:resource name="reportek_tools.gif" file="www/tools.gif" />
+    <include file="resources.zcml" />
 
     <five:registerClass
         class=".ReportekUtilities.ReportekUtilities"

@@ -99,7 +99,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """Stores generic attributes for Reportek"""
 
     meta_type = "Reportek Engine"
-    icon = "misc_/Reportek/Converters"
+    icon = "++resource++images/converter.gif"
 
     security = ClassSecurityInfo()
 

@@ -7,7 +7,7 @@
     <p i18n:translate="">
         This page displays all the history of tasks that have executed in this envelope.
         If you want to see more details about a task, just expand the <img
-          src="/misc_/Reportek/plus_gif" alt="Expand item for more information"
+          src="/++resource++images/plus.gif" alt="Expand item for more information"
           i18n:name="plus-icon"
           i18n:attributes="alt alt-expand-item"/> icon next to it.
     </p>
@@ -19,11 +19,11 @@
           <td valign="top">
             <a rel="nofollow" tal:attributes="href python:view.get_toggle_url(item.id, expanded)">
               <img tal:condition="expanded"
-                   src="/misc_/Reportek/minus_gif"
+                   src="/++resource++images/minus.gif"
                    alt="Collapse item"
                    i18n:attributes="alt alt-collapse-item"/>
               <img tal:condition="not:expanded"
-                   src="/misc_/Reportek/plus_gif"
+                   src="/++resource++images/plus.gif"
                    alt="Expand item for more information"
                    i18n:attributes="alt alt-expand-item"/>
             </a>

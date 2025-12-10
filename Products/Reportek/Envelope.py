@@ -317,7 +317,7 @@ class Envelope(
     """
 
     meta_type = "Report Envelope"
-    icon = "misc_/Reportek/envelope.gif"
+    icon = "++resource++images/envelope.gif"
 
     # location of the file-repository
     _repository = ["reposit"]
@@ -1638,7 +1638,7 @@ class Envelope(
         cache_key = zip_content.encode_zip_name(envelope_path, zip_type)
         cached_zip_path = zip_cache / cache_key
 
-        if cached_zip_path.isfile():
+        if cached_zip_path.is_file():
             with cached_zip_path.open("rb") as data_file:
                 return stream_response(
                     RESPONSE, data_file, response_zip_name, "application/x-zip"
@@ -1759,7 +1759,7 @@ class Envelope(
         for flag in ["public", "all"]:
             cache_key = zip_content.encode_zip_name(envelope_path, flag)
             cached_zip_path = zip_cache / cache_key
-            if cached_zip_path.isfile():
+            if cached_zip_path.is_file():
                 cached_zip_path.unlink()
 
     def _add_file_from_zip(self, zipfile, name, restricted=""):

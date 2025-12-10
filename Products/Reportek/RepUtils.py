@@ -802,8 +802,8 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
 def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME  # noqa
     zip_cache = Path(zc_path) / "zip_cache"
-    if not zip_cache.isdir():
-        zip_cache.mkdir()
+    if not zip_cache.is_dir():
+        zip_cache.mkdir_p()  # Create parent directories if needed
 
     return zip_cache
 

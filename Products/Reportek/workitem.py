@@ -36,7 +36,7 @@ class workitem(
     """describes a single workitem of the history graph"""
 
     meta_type = "Workitem"
-    icon = "misc_/Reportek/Workitem.gif"
+    icon = "++resource++images/Workitem.gif"
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
     # assertions.

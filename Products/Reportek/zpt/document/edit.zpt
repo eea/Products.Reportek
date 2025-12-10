@@ -53,7 +53,7 @@
         <tr>
           <th align="left" i18n:translate="">Document accepted by the client</th>
           <td>
-            <tal:block tal:condition="here/get_accept_time"><img src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" /></tal:block>
+            <tal:block tal:condition="here/get_accept_time"><img src="++resource++images/accepted.gif" alt="Document accepted by the client" i18n:attributes="alt" /></tal:block>
             <tal:block tal:condition="python:not here.get_accept_time()"><tal:block i18n:translate="">not yet</tal:block></tal:block>
           </td>
         </tr>

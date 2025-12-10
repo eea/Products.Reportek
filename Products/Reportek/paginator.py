@@ -514,7 +514,7 @@ InitializeClass(DiggPage)
 
 class PaginationView(BrowserView):
     def __call__(self, **kwargs):
-        return pagination.__of__(self.aq_parent)(**kwargs)
+        return pagination.__of__(self.context)(**kwargs)
 
 
 pagination = PageTemplateFile("zpt/envelope/documents_pagination", globals())

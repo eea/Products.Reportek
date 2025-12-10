@@ -139,7 +139,7 @@ class Collection(
     """
 
     meta_type = "Report Collection"
-    icon = "misc_/Reportek/collection.gif"
+    icon = "++resource++images/collection.gif"
     security = ClassSecurityInfo()
 
     manage_options = (

@@ -59,7 +59,7 @@ class Converters(Folder):
     """ """
 
     meta_type = "Reportek Converters"
-    icon = "misc_/Reportek/Converters"
+    icon = "++resource++images/converter.gif"
 
     # security stuff
     security = ClassSecurityInfo()

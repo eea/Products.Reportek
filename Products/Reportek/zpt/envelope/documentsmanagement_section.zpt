@@ -31,9 +31,9 @@
             </tal:block>
             <tal:block tal:condition="python:not has_permission">
               <tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
-              <img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt alt-lock" />
+              <img src="++resource++images/lockicon.gif" alt="No access" width="16" height="16" i18n:attributes="alt alt-lock" />
             </tal:block>
-            <img tal:condition="item/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt alt-document-accepted" />
+            <img tal:condition="item/get_accept_time" src="++resource++images/accepted.gif" alt="Document accepted by the client" i18n:attributes="alt alt-document-accepted" />
           </td>
           <td><em tal:content="item/title" /></td>
           <td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
@@ -62,13 +62,13 @@
           </td>
           <td><a title="Hyperlink" tal:attributes="href string:${item/id}/manage_editHyperlinkForm" tal:content="item/id" i18n:attributes="title" /></td>
           <td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
-            <a tal:attributes="title item/hyperlinkurl; href item/hyperlinkurl"><img src="misc_/Reportek/link_gif" width="16" height="16" alt="icon" i18n:attributes="alt alt-icon"/></a>
+            <a tal:attributes="title item/hyperlinkurl; href item/hyperlinkurl"><img src="++resource++images/link.gif" width="16" height="16" alt="icon" i18n:attributes="alt alt-icon"/></a>
             <tal:block tal:condition="has_permission">
               <tal:block tal:condition="item/isRestricted" i18n:translate="">(Limited)</tal:block>
             </tal:block>
             <tal:block tal:condition="python:not has_permission">
               <tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
-              <img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt alt-no-access" />
+              <img src="++resource++images/lockicon.gif" alt="No access" width="16" height="16" i18n:attributes="alt alt-no-access" />
             </tal:block>
           </td>
           <td><em tal:content="item/title" /></td>
@@ -100,7 +100,7 @@
       </tal:block>
       </form>
 
-      <p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:attributes="alt alt-padlock"/> are unavailable. You must log in to get access.</p>
+      <p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="++resource++images/lockicon.gif" alt="Padlock" width="16" height="16" i18n:attributes="alt alt-padlock"/> are unavailable. You must log in to get access.</p>
 
     </fieldset>
   </div>

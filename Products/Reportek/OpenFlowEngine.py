@@ -82,7 +82,7 @@ class OpenFlowEngine(Folder, Toolz):
     """A openflow contains all the processes of the openflow"""
 
     # __implements__ = (WriteLockInterface,)
-    icon = "misc_/Reportek/openflowEngine_gif"
+    icon = "++resource++images/openflowEngine.gif"
     meta_type = "Workflow Engine"
 
     security = ClassSecurityInfo()

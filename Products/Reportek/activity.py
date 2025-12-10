@@ -36,7 +36,7 @@ class activity(CatalogAware, SimpleItem):
     the instance"""
 
     meta_type = "Activity"
-    icon = "misc_/Reportek/Activity.gif"
+    icon = "++resource++images/Activity.gif"
 
     manage_options = (
         {"label": "Properties", "action": "manage_editForm"},

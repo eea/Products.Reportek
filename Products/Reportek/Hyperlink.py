@@ -74,7 +74,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     """A Hyperlink allows indexing and conversions."""
 
     meta_type = "Report Hyperlink"
-    icon = "misc_/Reportek/hyperlink_gif"
+    icon = "++resource++images/hyperlink.gif"
 
     # what management options are there?
     manage_options = (
@@ -106,8 +106,8 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
 
     # Compatibility with Document
     security.declarePublic("icon_gif")
-    icon_gif = ImageFile("www/hyperlink.gif", globals())
-    # icon_gif = ImageFile("www/hyperlink_big.gif", globals())
+    icon_gif = ImageFile("www/images/hyperlink.gif", globals())
+    # icon_gif = ImageFile("www/images/hyperlink_big.gif", globals())
 
     security.declarePublic("upload_time")
 

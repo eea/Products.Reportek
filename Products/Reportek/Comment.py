@@ -22,6 +22,7 @@
 # $Id$
 
 from io import StringIO
+
 from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view
@@ -30,10 +31,10 @@ from OFS.Image import manage_addFile
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
-from Products.Reportek.RepUtils import cleanup_id, generate_id, getFilename
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
+from Products.Reportek.RepUtils import cleanup_id, generate_id, getFilename
 
 __version__ = "$Rev$"[6:-2]
 
@@ -47,7 +48,7 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
     """class that implements a comment"""
 
     meta_type = "Report Feedback Comment"
-    icon = "misc_/Reportek/feedback_comment_png"
+    icon = "++resource++images/comment.png"
 
     security = ClassSecurityInfo()
 
@@ -182,8 +183,10 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
             or self.REQUEST.AUTHENTICATED_USER.getUserName() == owner.getId()
         )
 
-    comment_upload = PageTemplateFile("zpt/comment_upload")
-    comment_delete_file = PageTemplateFile("zpt/comment_delete_file")
+    comment_upload = PageTemplateFile("zpt/comment_upload", globals())
+    comment_delete_file = PageTemplateFile(
+        "zpt/comment_delete_file", globals()
+    )
 
 
 InitializeClass(CommentItem)
@@ -287,12 +290,12 @@ class CommentsManager:
         return date.strftime("%d %b %Y %H:%M:%S")
 
     security.declareProtected(view, "comments_box")
-    comments_box = PageTemplateFile("zpt/comments_box")
+    comments_box = PageTemplateFile("zpt/comments_box", globals())
 
     security.declareProtected(ADD_PERMISSION, "comment_add_html")
-    comment_add_html = PageTemplateFile("zpt/comment_add")
+    comment_add_html = PageTemplateFile("zpt/comment_add", globals())
 
-    comment_edit = PageTemplateFile("zpt/comment_edit")
+    comment_edit = PageTemplateFile("zpt/comment_edit", globals())
 
 
 InitializeClass(CommentsManager)

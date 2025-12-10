@@ -10,4 +10,11 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="*"
+        name="modification_time"
+        class=".browser.modification_time.ModificationTimeView"
+        permission="zope2.View"
+        />
+
 </configure>

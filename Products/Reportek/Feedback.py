@@ -229,7 +229,7 @@ class ReportFeedback(
     """
 
     meta_type = "Report Feedback"
-    icon = "misc_/Reportek/feedback_gif"
+    icon = "++resource++images/feedback.gif"
 
     # what management options are there?
     manage_options = (

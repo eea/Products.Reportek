@@ -34,7 +34,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sorted-az-coverage"
                 title="Sorted A..Z by Coverage - Click to reverse" >Coverage
-                <img src="misc_/Reportek/sort_asc" alt="" />
+                <img src="++resource++images/sort_asc.gif" alt="" />
               </a>
           </th>
           <th tal:condition="python:how=='desc'" class="sorted" scope="col">
@@ -43,7 +43,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sorted-za-coverage"
                 title="Sorted Z..A by Coverage - Click to reverse">Coverage
-                <img src="misc_/Reportek/sort_desc" alt="" />
+                <img src="++resource++images/sort_desc.gif" alt="" />
               </a>
           </th>
           </tal:block>
@@ -53,7 +53,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sortable"
                 title="Sortable">Coverage
-                <img src="misc_/Reportek/sortnot" alt="" />
+                <img src="++resource++images/sortnot.gif" alt="" />
               </a>
           </th>
           <th i18n:translate="">Envelope</th>
@@ -66,7 +66,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sorted-az-user"
                 title="Sorted A..Z by user - Click to reverse" >User
-                <img src="misc_/Reportek/sort_asc" alt="" />
+                <img src="++resource++images/sort_asc.gif" alt="" />
               </a>
           </th>
           <th tal:condition="python:how=='desc'" class="sorted" scope="col">
@@ -75,7 +75,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sorted-za-user"
                 title="Sorted Z..A by user - Click to reverse">User
-                <img src="misc_/Reportek/sort_desc" alt="" />
+                <img src="++resource++images/sort_desc.gif" alt="" />
               </a>
           </th>
           </tal:block>
@@ -85,7 +85,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sortable"
                 title="Sortable">User
-                <img src="misc_/Reportek/sortnot" alt="" />
+                <img src="++resource++images/sortnot.gif" alt="" />
               </a>
           </th>
           <tal:block tal:condition="python:sortby=='reportingdate'">
@@ -95,7 +95,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sorted-az-reportingdate"
                 title="Sorted A..Z by last reporting date - Click to reverse" >Reported
-                <img src="misc_/Reportek/sort_asc" alt="" />
+                <img src="++resource++images/sort_asc.gif" alt="" />
               </a>
           </th>
           <th tal:condition="python:how=='desc'" class="sorted" scope="col">
@@ -104,7 +104,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sorted-az-reportingdate"
                 title="Sorted A..Z by last reporting date - Click to reverse">Reported
-                <img src="misc_/Reportek/sort_desc" alt="" />
+                <img src="++resource++images/sort_desc.gif" alt="" />
               </a>
           </th>
           </tal:block>
@@ -114,7 +114,7 @@
                 i18n:translate=""
                 i18n:attributes="title title-sortable"
                 title="Sortable">Reported
-                <img src="misc_/Reportek/sortnot" alt="" />
+                <img src="++resource++images/sortnot.gif" alt="" />
               </a>
           </th>
         </tr>

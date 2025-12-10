@@ -100,7 +100,7 @@ class Referral(
     """
 
     meta_type = "Repository Referral"
-    icon = "misc_/Reportek/referral.gif"
+    icon = "++resource++images/referral.gif"
 
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security

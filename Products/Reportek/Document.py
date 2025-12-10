@@ -264,7 +264,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         The document's binary content as :class:`.FileContainer` object.
     """
 
-    icon = "misc_/Reportek/document_gif"
+    icon = "++resource++images/document.gif"
 
     manage_options = (
         {"label": "Edit", "action": "manage_main"},

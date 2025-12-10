@@ -125,7 +125,7 @@
                             </td>
                             <td>
                                 <img tal:condition="accept_time"
-                                     src="misc_/Reportek/accepted"
+                                     src="++resource++images/accepted.gif"
                                      alt="Document accepted by the client"
                                      i18n:attributes="alt alt-document-accepted"/>
                                 <span i18n:translate="" tal:condition="not:accept_time">
@@ -187,7 +187,7 @@
                 </td>
                 <td>
                     <img tal:condition="accept_time"
-                         src="misc_/Reportek/accepted"
+                         src="++resource++images/accepted.gif"
                          alt="Document accepted by the client"
                          i18n:attributes="alt alt-document-accepted"/>
                     <span i18n:translate="" tal:condition="not:accept_time">

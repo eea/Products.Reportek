@@ -9,7 +9,7 @@
         tal:condition="batch"
         tal:repeat="feedb_item batch">
         <td style="width:34px">
-          <img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" i18n:attributes="alt alt-fb-icon"/>
+          <img src="/++resource++images/feedback.gif" alt="Feedback icon" i18n:attributes="alt alt-fb-icon"/>
         </td>
         <td tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                         fb_status python: getattr(feedb_item, 'feedback_status', None)">
@@ -25,7 +25,7 @@
           </tal:block>
           <tal:block condition="not:python:SecurityManager.checkPermission('View', feedb_item)">
             <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
-            <img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" i18n:attributes="alt alt-no-access"/>
+            <img src="++resource++images/lockicon.gif" alt="No access" style="width: 16px; height: 16px" i18n:attributes="alt alt-no-access"/>
           </tal:block>
           <tal:block condition="feedb_item/automatic"
                      define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">

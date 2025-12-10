@@ -71,7 +71,7 @@ class process(CatalogAware, Folder):
     meta_type = "Process"
 
     security = ClassSecurityInfo()
-    icon = "misc_/Reportek/Process.gif"
+    icon = "++resource++images/Process.gif"
 
     _properties = (
         {"id": "title", "type": "string", "mode": "w"},

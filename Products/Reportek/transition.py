@@ -66,7 +66,7 @@ class transition(CatalogAware, SimpleItem):
     )
 
     meta_type = "Transition"
-    icon = "misc_/Reportek/Transition.gif"
+    icon = "++resource++images/Transition.gif"
 
     security.declareProtected("Manage OpenFlow", "edit")
 

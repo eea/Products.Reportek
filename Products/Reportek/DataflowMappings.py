@@ -1,13 +1,17 @@
+import os
+from collections import UserList
+
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
-from .constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG, ENGINE_ID
-from .DataflowMappingsRecord import DataflowMappingsRecord
+from App.Common import package_home
 from OFS.Folder import Folder
-from collections import UserList
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.RepUtils import getToolByName
+
+from .constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG, ENGINE_ID
+from .DataflowMappingsRecord import DataflowMappingsRecord
 
 __doc__ = """Container for mappings between dataflows and XML schemas"""
 
@@ -124,12 +128,18 @@ class DataflowMappings(Folder):
 
     security.declarePublic("dataflows_select")
     dataflows_select = PageTemplateFile(
-        "zpt/dataflow-mappings/dataflows_select", globals()
+        os.path.join(
+            package_home(globals()),
+            "zpt/dataflow-mappings/dataflows_select.zpt",
+        )
     )
 
     security.declarePublic("dataflows_select")
     dataflows_select = PageTemplateFile(
-        "zpt/dataflow-mappings/dataflows_select", globals()
+        os.path.join(
+            package_home(globals()),
+            "zpt/dataflow-mappings/dataflows_select.zpt",
+        )
     )
 
     def get_xls_conversion_type(self, dataflow_uris=None, web_form_only=False):
@@ -153,7 +163,11 @@ class DataflowMappings(Folder):
         return ("split", False)
 
     security.declareProtected("View management screens", "index_html")
-    index_html = PageTemplateFile("zpt/dataflow-mappings/index")
+    index_html = PageTemplateFile(
+        os.path.join(
+            package_home(globals()), "zpt/dataflow-mappings/index.zpt"
+        )
+    )
 
 
 InitializeClass(DataflowMappings)

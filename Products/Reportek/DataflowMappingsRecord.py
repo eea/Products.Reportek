@@ -1,12 +1,12 @@
 import logging
-from os import environ
-
-from . import messages
-import requests
+import os
 import xmlrpc.client
+
+import requests
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
+from App.Common import package_home
 from OFS.SimpleItem import SimpleItem
 from ZODB.PersistentList import PersistentList
 
@@ -15,6 +15,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG
 from Products.Reportek.RepUtils import getToolByName
+
+from . import messages
 
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
@@ -106,7 +108,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     def load_from_dd(self, REQUEST):
         """ """
         resp = requests.get(
-            environ["DATADICTIONARY_SCHEMAS_URL"],
+            os.environ["DATADICTIONARY_SCHEMAS_URL"],
             params={
                 "obligationId": self.dataflow_uri.replace(
                     ".eu.int", ".europa.eu"
@@ -198,7 +200,11 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             x for x in self._mappings if x["url"] not in schemas
         )
 
-    _edit = PageTemplateFile("zpt/dataflow-mappings/edit_record.zpt")
+    _edit = PageTemplateFile(
+        os.path.join(
+            package_home(globals()), "zpt/dataflow-mappings/edit_record.zpt"
+        )
+    )
 
     security.declareProtected(view_management_screens, "edit")
 
