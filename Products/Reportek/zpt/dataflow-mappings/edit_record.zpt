@@ -40,7 +40,7 @@
         <div class="select-container" style="width:50%"
           tal:define="req_obl python: [context.dataflow_uri];
                       rod_data context/api/@@obligations">
-          <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+          <metal:block use-macro="context/@@engineMacros/macros/select2-obligations" />
         </div>
       </td>
     </tr>

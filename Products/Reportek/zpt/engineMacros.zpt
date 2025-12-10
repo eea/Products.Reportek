@@ -1,5 +1,5 @@
 <metal:block define-macro="obligationsSelect">
-  <tal:def tal:define="u python:context.getUniqueValuesFor('dataflow_uris');">
+  <tal:def tal:define="u python:getattr(context, 'getUniqueValuesFor', lambda x: [])('dataflow_uris');">
     <select
       size="15"
       id="dataflows"
@@ -53,7 +53,7 @@
     size="15"
     id="xml_schema_location"
     name="xml_schema_location"
-    tal:define="values python:context.getUniqueValuesFor('xml_schema_location');"
+    tal:define="values python:getattr(context, 'getUniqueValuesFor', lambda x: [])('xml_schema_location');"
   >
     <tal:block repeat="value values">
       <option tal:attributes="value value;" tal:content="value" />
@@ -113,7 +113,7 @@
   <metal:block define-slot="previous_link">
     <a
       href="previousbatch"
-      tal:define="p batch/previous"
+      tal:define="batch batch|nothing; p python:batch.previous if batch else None"
       tal:condition="p"
       i18n:translate=""
       tal:attributes="href python:'?query_start=%s&'
@@ -154,7 +154,7 @@
       </tr>
     </thead>
     <tbody>
-      <tal:block repeat="result batch">
+      <tal:block tal:define="batch batch|nothing" repeat="result python:batch or []">
         <tr
           tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''"
         >
@@ -176,7 +176,7 @@
   <metal:block define-slot="next_link">
     <a
       href="nextbatch"
-      tal:define="n batch/next"
+      tal:define="batch batch|nothing; n python:batch.next if batch else None"
       tal:condition="n"
       i18n:translate=""
       tal:attributes="href python:'?query_start=%s&'
@@ -231,7 +231,7 @@
       <option tal:condition="empty_select"></option>
       <tal:block
         define="req_uris python: request.get('dataflow_uris', []);
-                         req_uris python: req_uris if isinstance(req_uris, list) else [req_uris];
+                         req_uris python: [req_uris] if isinstance(req_uris, str) else list(req_uris or []);
                          req_obl req_obl|request/obligations|context/dataflow_uris|req_uris;
                          rod_data rod_data | context/api/@@assigned_obligations | options/context/api/@@assigned_obligations;"
         repeat="instrument python:sorted(rod_data.keys())"

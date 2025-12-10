@@ -2698,3 +2698,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
 
 InitializeClass(ReportekEngine)
+
+
+# Browser view for exposing engineMacros template macros without rendering
+from Products.Five import BrowserView
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+
+
+class EngineMacrosView(BrowserView):
+    """View that exposes template macros without rendering the template."""
+
+    _template = ViewPageTemplateFile("zpt/engineMacros.zpt")
+
+    @property
+    def macros(self):
+        return self._template.macros
