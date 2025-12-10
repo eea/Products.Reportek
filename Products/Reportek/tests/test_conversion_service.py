@@ -1,5 +1,5 @@
 from mock import MagicMock, Mock, call, patch
-from path import path
+from path import Path
 
 from Products.Reportek import conversion_registry
 from Products.Reportek.Converter import LocalHttpConverter
@@ -66,7 +66,7 @@ class ConversionServiceTest(BaseUnitTest):
         )
         self.app._setObject("testfile", document)
         with self.app.testfile.data_file.open("wb") as datafile:
-            tests = path(__file__).parent.abspath()
+            tests = Path(__file__).parent.abspath()
             datafile.write((tests / "onefile.rar").bytes())
 
         mock_local_converters.return_value = [
@@ -114,7 +114,7 @@ class ConversionServiceTest(BaseUnitTest):
         )
         self.app._setObject("testfile", document)
         with self.app.testfile.data_file.open("wb") as datafile:
-            tests = path(__file__).parent.abspath()
+            tests = Path(__file__).parent.abspath()
             datafile.write((tests / "onefile.rar").bytes())
 
         from Products.Reportek.constants import CONVERTERS_ID

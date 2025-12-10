@@ -28,7 +28,7 @@ setup(
         "Zope2",
         "collective.monkeypatcher",
         "lxml",
-        "path.py",
+        "path",
         "plone.caching",
         "plone.cachepurging",
         "plone.keyring",

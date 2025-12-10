@@ -8,7 +8,7 @@ from AccessControl.class_init import InitializeClass
 from App.Dialogs import MessageDialog
 from DateTime import DateTime
 from OFS.Folder import Folder
-from path import path
+from path import Path
 from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -400,14 +400,14 @@ class process(CatalogAware, Folder):
         """Workflow graph description"""
         converters_url = self.Converters.get_local_http_converters_url()
         converter_path = "convert/graphviz"
-        dot = path(__file__).parent / "www" / "workflow_graph_description.dot"
+        dot = Path(__file__).parent / "www" / "workflow_graph_description.dot"
         resp = requests.post(
             converters_url + converter_path, files={"file": dot.bytes()}
         )
         if resp.status_code == 200:
             out = resp.content
         else:
-            www = path(__file__).parent / "www"
+            www = Path(__file__).parent / "www"
             out = (www / "graphviz-error.png").bytes()
         RESPONSE.setHeader("Content-Type", "image/png")
         return out
@@ -437,7 +437,7 @@ class process(CatalogAware, Folder):
             out = resp.content
 
         elif output == "png":
-            www = path(__file__).parent / "www"
+            www = Path(__file__).parent / "www"
             out = (www / "graphviz-error.png").bytes()
 
         RESPONSE.setHeader("Content-Type", "image/png")
@@ -478,7 +478,7 @@ def process_to_dot(process):
         cond_desc = condition
         tooltip = "{0} -> {1}".format(t.From, t.To)
         if condition.startswith(cond_prefix):
-            condition = condition[len(cond_prefix):]
+            condition = condition[len(cond_prefix) :]
         if condition:
             condition = namify(condition, "cond")
         line = "{short_tr_from} -> {short_tr_to}".format(**locals())

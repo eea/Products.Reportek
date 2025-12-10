@@ -3,7 +3,7 @@ import re
 from DateTime import DateTime
 from mock import MagicMock, Mock, call, patch
 from OFS.Folder import Folder
-from path import path
+from path import Path
 
 from Products.Reportek import constants
 from Products.Reportek.Collection import Collection
@@ -265,7 +265,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(path(__file__).parent.abspath() / "result.zip").bytes(),
+            content=(Path(__file__).parent.abspath() / "result.zip").bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -298,7 +298,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(path(__file__).parent.abspath() / "result.zip").bytes(),
+            content=(Path(__file__).parent.abspath() / "result.zip").bytes(),
         )
         self.col1.env1.manage_addFeedback = Mock()
         restapp = self.app.Applications.proc1.act1
@@ -328,7 +328,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     },
                 }
             ),
-            content=(path(__file__).parent.abspath() / "result.zip").bytes(),
+            content=(Path(__file__).parent.abspath() / "result.zip").bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -384,7 +384,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             Mock(
                 status_code=200,
                 content=(
-                    path(__file__).parent.abspath() / "result.zip"
+                    Path(__file__).parent.abspath() / "result.zip"
                 ).bytes(),
             ),
         ]
@@ -424,7 +424,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         self.assertEqual("env1_results.zip", attach.__name__)
         with attach.data_file.open() as f:
             self.assertEqual(
-                (path(__file__).parent.abspath() / "result.zip").bytes(),
+                (Path(__file__).parent.abspath() / "result.zip").bytes(),
                 f.read(),
             )
 

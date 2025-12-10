@@ -49,7 +49,7 @@ from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
 from App.Common import rfc1123_date
 from DateTime import DateTime
-from path import path
+from path import Path
 from zope.component import getUtility
 
 # from zope.datetime import rfc1123_date
@@ -472,7 +472,7 @@ def cookId(file):
                 filename.rfind("\\"),
                 filename.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         return id
     return file
@@ -801,7 +801,7 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
 
 def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME  # noqa
-    zip_cache = path(zc_path) / "zip_cache"
+    zip_cache = Path(zc_path) / "zip_cache"
     if not zip_cache.isdir():
         zip_cache.mkdir()
 
