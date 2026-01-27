@@ -101,18 +101,14 @@ class SatelliteRegistryManagement(BaseAdmin):
                     return self.index(error="Unable to change company status")
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate(
-                        "Products.Reportek.RegistryManagement.get_company_details"
-                    )  # noqa
+                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_company_details")  # noqa
             if self.request.get("orgaction") == "sync":
                 sync_res = api.sync_company(orgid, domain=domain)
                 if not sync_res:
                     return self.index(error="Unable to sync company")
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate(
-                        "Products.Reportek.RegistryManagement.get_company_details"
-                    )  # noqa
+                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_company_details")  # noqa
                     return self.index(
                         info_message=sync_res.get("message"), error=False
                     )
@@ -122,9 +118,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                     return self.index(error="Unable to sync auditor")
                 else:
                     # We need to clear the auditor_details cache
-                    global_cache.invalidate(
-                        "Products.Reportek.RegistryManagement.get_auditor_details"
-                    )  # noqa
+                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_auditor_details")  # noqa
                     return self.index(
                         info_message=sync_res.get("message"), error=False
                     )
