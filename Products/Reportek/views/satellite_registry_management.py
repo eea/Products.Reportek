@@ -101,14 +101,18 @@ class SatelliteRegistryManagement(BaseAdmin):
                     return self.index(error="Unable to change company status")
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_company_details")  # noqa
+                    global_cache.invalidate(
+                        "Products.Reportek.RegistryManagement.get_company_details"
+                    )  # noqa
             if self.request.get("orgaction") == "sync":
                 sync_res = api.sync_company(orgid, domain=domain)
                 if not sync_res:
                     return self.index(error="Unable to sync company")
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_company_details")  # noqa
+                    global_cache.invalidate(
+                        "Products.Reportek.RegistryManagement.get_company_details"
+                    )  # noqa
                     return self.index(
                         info_message=sync_res.get("message"), error=False
                     )
@@ -118,7 +122,9 @@ class SatelliteRegistryManagement(BaseAdmin):
                     return self.index(error="Unable to sync auditor")
                 else:
                     # We need to clear the auditor_details cache
-                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_auditor_details")  # noqa
+                    global_cache.invalidate(
+                        "Products.Reportek.RegistryManagement.get_auditor_details"
+                    )  # noqa
                     return self.index(
                         info_message=sync_res.get("message"), error=False
                     )
@@ -396,6 +402,16 @@ class SatelliteRegistryManagement(BaseAdmin):
         if self.is_permitted(domain):
             response = api.getCompaniesExcelExport(domain=domain)
             return response.content
+
+    def multi_year_licences(self):
+        """Multi year licences ecr proxy."""
+        api = self.get_api()
+        if not api:
+            return None
+        params = dict(self.request.form) or None
+        my_licences = api.get_multi_year_licences(params)
+        self.request.response.setHeader("Content-Type", "application/json")
+        return json.dumps(my_licences, indent=2)
 
     def get_stocks(self):
         api = self.get_api()

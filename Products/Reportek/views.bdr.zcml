@@ -105,6 +105,13 @@
       attribute="get_stocks"/>
 
   <browser:page
+      name="multi_year_licences"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      attribute="multi_year_licences"/>
+
+  <browser:page
       name="stocks_json_dummy"
       for=".interfaces.IRegistryManagement"
       permission="zope2.ODSStocksAdministration"
