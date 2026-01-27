@@ -248,6 +248,15 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         return response.json()
 
+    def get_multi_year_licences(self, params=None):
+        page = "multi_year_licences"
+        url = "/".join([self.baseUrl, page])
+        response = self.do_api_request(
+            url, params=params, headers={"Authorization": self.token}
+        )
+        if response:
+            return response.json()
+
     def get_stocks(self):
         page = "stocks"
         url = "/".join([self.baseUrl, page])
