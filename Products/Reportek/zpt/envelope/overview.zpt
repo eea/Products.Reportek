@@ -287,7 +287,8 @@
     </tal:block>
     <tal:block condition="not:python:context.canViewContent()">
       <h1 i18n:translate="">Not available</h1>
-      <p i18n:translate="">This envelope is not yet available for public view. Work is still in progress.</p>
+      <p i18n:translate="">This envelope is not yet available for public view.
+            Work is still in progress.</p>
     </tal:block>
   </metal:block>
 </metal:block>
