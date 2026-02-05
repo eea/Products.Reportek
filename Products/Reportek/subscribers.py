@@ -83,11 +83,34 @@ def handle_audit_unassigned_event(obj, event):
     try:
         obl_process = obj.unrestrictedTraverse(obj.process_path)
         if obl_process and obj.status != "complete":
-            end_act = obl_process.end
-            wk = obj.getListOfWorkitems()[-1]
+            target_act = obl_process.end
+            wks = obj.getListOfWorkitems()
+            wk = wks[-1]
+            activity = wk.activity_id
+            # Check which activities are usable for Owner
+            role_map = obl_process.getActivitiesPullableOnRole()
+            o_activities = role_map["Owner"][obl_process.id]
+            a_activities = role_map["AuditorFgas"][obl_process.id]
+            if activity not in o_activities:
+                lifecycle = [w.activity_id for w in wks]
+                if any(act in lifecycle for act in a_activities):
+                    target_act = obl_process.end
+                    if "AutomaticQA" in lifecycle:
+                        if (
+                            len(obj.objectIds("Report Feedback")) > 0
+                            and not obj.has_unknown_qa_result
+                            and obj.successful_qa
+                        ):
+                            target_act = o_activities[-1]
+                else:
+                    target_act = obl_process.begin
             obj.falloutWorkitem(wk.id)
-            obj.fallinWorkitem(wk.id, end_act)
+            obj.fallinWorkitem(wk.id, target_act)
             obj.endFallinWorkitem(wk.id)
-            logger.info("Audit unassigned for: {}".format(obj.absolute_url()))
+            logger.info(
+                "Audit unassigned for: {}. Moved envelope to {}".format(
+                    obj.absolute_url(), target_act
+                )
+            )
     except Exception as e:
         logger.error("Error completing audit envelope: {}".format(e))
