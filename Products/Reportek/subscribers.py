@@ -104,13 +104,13 @@ def handle_audit_unassigned_event(obj, event):
                             target_act = o_activities[-1]
                 else:
                     target_act = obl_process.begin
-            obj.falloutWorkitem(wk.id)
-            obj.fallinWorkitem(wk.id, target_act)
-            obj.endFallinWorkitem(wk.id)
-            logger.info(
-                "Audit unassigned for: {}. Moved envelope to {}".format(
-                    obj.absolute_url(), target_act
+                obj.falloutWorkitem(wk.id)
+                obj.fallinWorkitem(wk.id, target_act)
+                obj.endFallinWorkitem(wk.id)
+                logger.info(
+                    "Audit unassigned for: {}. Moved envelope to {}".format(
+                        obj.absolute_url(), target_act
+                    )
                 )
-            )
     except Exception as e:
         logger.error("Error completing audit envelope: {}".format(e))
