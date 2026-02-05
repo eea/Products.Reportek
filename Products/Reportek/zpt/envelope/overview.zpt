@@ -11,13 +11,8 @@
       <script type="text/javascript">
         function confirmUnassign(event) {
           event.preventDefault();
-          var link = event.target;
-          var isReleased = link.getAttribute("data-released") === "true";
-          var audited = link.getAttribute("data-audited") === "true";
-          var message = audited
-            ? "Envelope not submitted to DG Clima! Are you sure you want to unassign the auditor? This action is irreversible and will complete the current envelope with no further action being possible on it. Submission to DG Clima will no longer be possible after this."
-            : "Are you sure you want to unassign the auditor? This action is irreversible and will complete the current envelope with no further action being possible on it.";
-
+          var message =
+            "Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established.";
           if (confirm(message)) {
             var link = event.target;
             fetch(link.href, {
@@ -288,7 +283,7 @@
     <tal:block condition="not:python:context.canViewContent()">
       <h1 i18n:translate="">Not available</h1>
       <p i18n:translate="">This envelope is not yet available for public view.
-            Work is still in progress.</p>
+                  Work is still in progress.</p>
     </tal:block>
   </metal:block>
 </metal:block>
