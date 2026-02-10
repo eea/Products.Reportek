@@ -1,10 +1,9 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
-
   <metal:block fill-slot="head">
     <!-- CSS Resources -->
     <tal:css>
-      <link rel="stylesheet" href="++resource++static/select2-3.5.0/select2.css"/>
-      <link rel="stylesheet" href="++resource++static/style.css"/>
+      <link rel="stylesheet" href="++resource++static/select2-3.5.0/select2.css" />
+      <link rel="stylesheet" href="++resource++static/style.css" />
     </tal:css>
 
     <!-- JavaScript Resources -->
@@ -25,15 +24,16 @@
   <metal:block fill-slot="content">
     <!-- Status Messages -->
     <tal:messages>
-      <p class="important-msg" tal:condition="request/done | nothing"
-         i18n:translate="">Operations completed successfully.</p>
+      <p class="important-msg" tal:condition="request/done | nothing" i18n:translate="">
+        Operations completed successfully.
+      </p>
 
       <p class="important-msg" tal:condition="options/error | nothing">
-        <span tal:replace="options/error"/>
+        <span tal:replace="options/error" />
       </p>
 
       <p class="important-msg" tal:condition="options/info_message | nothing">
-        <span tal:replace="options/info_message"/>
+        <span tal:replace="options/info_message" />
       </p>
     </tal:messages>
 
@@ -50,7 +50,7 @@
       <tal:block condition="company">
         <!-- Company Details -->
         <h1 tal:content="company/name" />
-        <hr/>
+        <hr />
 
         <div class="overflow">
           <metal:details use-macro="here/partials/macros/organisation_details" />
@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <hr/>
+        <hr />
 
         <!-- EU Legal Representative -->
         <tal:representative condition="company/representative" define="representative company/representative">
@@ -88,15 +88,16 @@
 
         <!-- Reporting Folder -->
         <h2 i18n:translate="">Reporting folder</h2>
-        <tal:folder define="active_path python: company.get('path', '');
-                           previous_paths python: company.get('previous_paths', []);">
+        <tal:folder
+          define="active_path python: company.get('path', '');
+                           previous_paths python: company.get('previous_paths', []);"
+        >
           <tal:eu condition="python: not '/non-eu/' in active_path">
             <span i18n:translate="">You can see the company deliveries here:</span>
-            <a tal:condition="active_path"
-               tal:attributes="href active_path"
-               tal:content="active_path" />
-            <span tal:condition="python: not active_path"
-                  i18n:translate="">Company does not have an active reporting folder</span>
+            <a tal:condition="active_path" tal:attributes="href active_path" tal:content="active_path" />
+            <span tal:condition="python: not active_path" i18n:translate=""
+              >Company does not have an active reporting folder</span
+            >
 
             <tal:previous condition="previous_paths">
               <p><strong i18n:translate="">Previous reporting folders:</strong></p>
@@ -118,16 +119,25 @@
           <h2 id="licences-stocks" i18n:translate="">Licences and Stocks</h2>
           <ul>
             <li>
-              <a tal:attributes="href string:${here/absolute_url}/organisation_details_licences?&id=${company/company_id}&domain=${company/domain}"
-                 i18n:translate="">Licences</a>
+              <a
+                tal:attributes="href string:${here/absolute_url}/organisation_details_licences?&id=${company/company_id}&domain=${company/domain}"
+                i18n:translate=""
+                >Licences</a
+              >
             </li>
             <li>
-              <a tal:attributes="href string:${here/absolute_url}/organisation_details_stocks?&id=${company/company_id}&domain=${company/domain}"
-                 i18n:translate="">Stocks</a>
+              <a
+                tal:attributes="href string:${here/absolute_url}/organisation_details_stocks?&id=${company/company_id}&domain=${company/domain}"
+                i18n:translate=""
+                >Stocks</a
+              >
             </li>
             <li>
-              <a tal:attributes="href string:${here/absolute_url}/organisation_details_process_agent_uses?&id=${company/company_id}&domain=${company/domain}"
-                 i18n:translate="">Process Agent Uses</a>
+              <a
+                tal:attributes="href string:${here/absolute_url}/organisation_details_process_agent_uses?&id=${company/company_id}&domain=${company/domain}"
+                i18n:translate=""
+                >Process Agent Uses</a
+              >
             </li>
           </ul>
         </tal:ods>
@@ -142,6 +152,7 @@
                 <th i18n:translate="">First name</th>
                 <th i18n:translate="">Last name</th>
                 <th i18n:translate="">Email</th>
+                <th i18n:translate="">Type</th>
               </tr>
             </thead>
             <tbody>
@@ -150,9 +161,9 @@
                 <td tal:content="user/first_name"></td>
                 <td tal:content="user/last_name"></td>
                 <td>
-                  <a tal:attributes="href string:mailto:${user/email}"
-                     tal:content="user/email" />
+                  <a tal:attributes="href string:mailto:${user/email}" tal:content="user/email" />
                 </td>
+                <td tal:content="user/type"></td>
               </tr>
             </tbody>
           </table>
@@ -161,8 +172,7 @@
         <!-- Auditors Table -->
         <h2 id="auditors" i18n:translate="">Auditors</h2>
         <div class="table-responsive">
-          <p tal:condition="not:company/auditors"
-             i18n:translate="">No audited reports</p>
+          <p tal:condition="not:company/auditors" i18n:translate="">No audited reports</p>
 
           <table class="table" tal:condition="company/auditors">
             <thead>
@@ -178,22 +188,30 @@
             <tbody>
               <tr tal:repeat="audit_company company/auditors">
                 <td>
-                  <a tal:attributes="href string:${here/absolute_url}/auditor_details?id=${audit_company/auditor/auditor_uid}"
-                     tal:content="audit_company/auditor/name"></a>
+                  <a
+                    tal:attributes="href string:${here/absolute_url}/auditor_details?id=${audit_company/auditor/auditor_uid}"
+                    tal:content="audit_company/auditor/name"
+                  ></a>
                 </td>
                 <td>
-                  <a tal:attributes="href string:mailto:${audit_company/user/email}"
-                     tal:content="string:${audit_company/user/first_name} ${audit_company/user/last_name}" />
+                  <a
+                    tal:attributes="href string:mailto:${audit_company/user/email}"
+                    tal:content="string:${audit_company/user/first_name} ${audit_company/user/last_name}"
+                  />
                 </td>
                 <td tal:content="python: audit_company['start_date'] or '-'"></td>
                 <td tal:content="python: audit_company['end_date'] or '-'"></td>
                 <td>
-                  <a tal:attributes="href string:${audit_company/reporting_envelope_url}"
-                     tal:content="audit_company/reporting_envelope_url" />
+                  <a
+                    tal:attributes="href string:${audit_company/reporting_envelope_url}"
+                    tal:content="audit_company/reporting_envelope_url"
+                  />
                 </td>
                 <td>
-                  <a tal:attributes="href string:${audit_company/verification_envelope_url}"
-                     tal:content="audit_company/verification_envelope_url" />
+                  <a
+                    tal:attributes="href string:${audit_company/verification_envelope_url}"
+                    tal:content="audit_company/verification_envelope_url"
+                  />
                 </td>
               </tr>
             </tbody>
@@ -202,33 +220,34 @@
 
         <!-- JavaScript for Action Handling -->
         <script type="text/javascript">
-          $(document).ready(function() {
-            $(".org-action").on("click", function(evt) {
+          $(document).ready(function () {
+            $(".org-action").on("click", function (evt) {
               evt.preventDefault();
 
               const actionId = $(this).attr("id");
               const action = actionId.split("-action")[0];
               let orgAction, newVal;
 
-              if (action.includes('_status')) {
-                newVal = action.split('_status')[0];
-                orgAction = 'statusupdate';
+              if (action.includes("_status")) {
+                newVal = action.split("_status")[0];
+                orgAction = "statusupdate";
               } else if (action === "sync") {
-                orgAction = 'sync';
+                orgAction = "sync";
               }
 
-              let confirmMessage = '';
+              let confirmMessage = "";
               if (orgAction === "statusupdate") {
-                confirmMessage = newVal === "disabled"
-                  ? "Are you sure you want to set the company's status to DISABLED?"
-                  : "Are you sure you want to set the company's status to VALID?";
+                confirmMessage =
+                  newVal === "disabled"
+                    ? "Are you sure you want to set the company's status to DISABLED?"
+                    : "Are you sure you want to set the company's status to VALID?";
               } else if (orgAction === "sync") {
                 confirmMessage = "Are you sure you want to trigger manual company sync?";
               }
 
               if (confirmMessage && confirm(confirmMessage)) {
                 const form = $("#action-form");
-                $("input[name='newval']").val(newVal || '');
+                $("input[name='newval']").val(newVal || "");
                 $("input[name='orgaction']").val(orgAction);
                 form.submit();
               }
@@ -244,5 +263,4 @@
       </div>
     </tal:block>
   </metal:block>
-
 </metal:block>
