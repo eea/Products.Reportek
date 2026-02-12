@@ -824,59 +824,104 @@ class Collection(
 
         return status
 
+    def _get_licences_data(self, registry_method, all_years=False):
+        """Helper method to fetch licence data from registry"""
+        res = {"licences": [], "result": "Ok", "message": ""}
+
+        if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+            return res
+
+        if not registry_method:
+            return res
+
+        engine = self.getEngine()
+        registry = engine.get_registry(self)
+
+        if not (self.company_id and registry):
+            return res
+
+        registry_name = getattr(registry, "registry_name", None)
+        if registry_name != "FGAS Registry":
+            return res
+
+        domain = "FGAS"
+        for obl in self.dataflow_uris:
+            if obl in engine.er_ods_obligations:
+                domain = "ODS"
+                break
+
+        data = json.loads(self.REQUEST.get("BODY") or "{}")
+        if not isinstance(data, dict):
+            res["result"] = "Fail"
+            res["message"] = "Malformed body"
+            return res
+
+        year = self.REQUEST.get("year")
+        if not year:
+            if all_years:
+                year = ""
+            elif "year" in data:
+                year = str(data.get("year"))
+                del data["year"]
+            else:
+                # Default to the previous year
+                year = str(DateTime().year() - 1)
+
+        response = registry_method(
+            self.company_id,
+            domain=domain,
+            year=year,
+            data=json.dumps(data),
+        )
+
+        if response is not None:
+            if response.status_code != requests.codes.ok:
+                res["result"] = "Fail"
+                res["message"] = response.reason
+            else:
+                res.update(response.json())
+                res["result"] = "Ok"
+                res["message"] = ""
+        else:
+            res["result"] = "Fail"
+            res["message"] = None
+
+        return res
+
+    security.declareProtected("View", "aggregated_multi_year_licences")
+
+    def aggregated_multi_year_licences(self, all_years=False):
+        """Return the ODS multi year licences for the company"""
+        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        engine = self.getEngine()
+        registry = engine.get_registry(self)
+        res = self._get_licences_data(
+            registry.get_aggregated_multi_year_licences if registry else None,
+            all_years=all_years,
+        )
+
+        # FLOAT_REPR is deprecated in python 3.6
+        json.encoder.FLOAT_REPR = lambda o: (
+            ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
+        )
+
+        return json.dumps(res, indent=4)
+
     security.declareProtected("View", "aggregated_licences")
 
     def aggregated_licences(self, all_years=False):
         """Return the ODS licences for the company"""
-        res = {"licences": [], "result": "Ok", "message": ""}
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            engine = self.getEngine()
-            registry = engine.get_registry(self)
+        engine = self.getEngine()
+        registry = engine.get_registry(self)
+        res = self._get_licences_data(
+            registry.get_company_licences if registry else None,
+            all_years=all_years,
+        )
 
-            if self.company_id and registry:
-                registry_name = getattr(registry, "registry_name", None)
-                if registry_name == "FGAS Registry":
-                    domain = "FGAS"
-                    for obl in self.dataflow_uris:
-                        if obl in engine.er_ods_obligations:
-                            domain = "ODS"
-                            break
-
-                    data = json.loads(self.REQUEST.get("BODY") or "{}")
-                    if not isinstance(data, dict):
-                        res["result"] = "Fail"
-                        res["message"] = "Malformed body"
-                    year = self.REQUEST.get("year")
-                    if not year:
-                        if all_years:
-                            year = ""
-                        elif "year" in data:
-                            year = str(data.get("year"))
-                            del data["year"]
-                        else:
-                            # Default to the previous year
-                            year = str(DateTime().year() - 1)
-                    response = registry.get_company_licences(
-                        self.company_id,
-                        domain=domain,
-                        year=year,
-                        data=json.dumps(data),
-                    )
-                    if response is not None:
-                        if response.status_code != requests.codes.ok:
-                            res["result"] = "Fail"
-                            res["message"] = response.reason
-                        else:
-                            res.update(response.json())
-                            res["result"] = "Ok"
-                            res["message"] = ""
-                    else:
-                        res["result"] = "Fail"
-                        res["message"] = None
         # FLOAT_REPR is deprecated in python 3.6
-        json.encoder.FLOAT_REPR = (
-            lambda o: ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
+        json.encoder.FLOAT_REPR = lambda o: (
+            ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
         )
 
         return json.dumps(res, indent=4)
