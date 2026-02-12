@@ -879,7 +879,14 @@ class Collection(
                 res["result"] = "Fail"
                 res["message"] = response.reason
             else:
-                res.update(response.json())
+                response_data = response.json()
+                # Handle both dict and list responses
+                if isinstance(response_data, dict):
+                    res.update(response_data)
+                elif isinstance(response_data, list):
+                    res["licences"] = response_data
+                else:
+                    res["licences"] = response_data
                 res["result"] = "Ok"
                 res["message"] = ""
         else:
