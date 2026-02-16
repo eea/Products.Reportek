@@ -39,7 +39,8 @@ get_aggregated_multi_year_licences returns list:
           "type": "export",
           "quantity": 20000.0
       },
-      # Single-year licence (no long_licence_number, has_certex_data, licence_type):
+      # Single-year licence
+      # (no long_licence_number, has_certex_data, licence_type):
       {
           "substance": "HCFC-142b (virgin)",
           "s_orig_country_name": "SG",
@@ -166,7 +167,7 @@ class CollectionLicencesTest(BaseTest):
         self.assertEqual(len(result_data["licences"]), 2)
 
         # Verify the registry method was called correctly
-        self.mock_registry.get_aggregated_multi_year_licences.assert_called_once()
+        self.mock_registry.get_aggregated_multi_year_licences.assert_called_once()  # noqa
         call_args = (
             self.mock_registry.get_aggregated_multi_year_licences.call_args
         )
@@ -194,7 +195,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({}), year="2025")
 
-        result = self.root.test_col.aggregated_multi_year_licences()
+        self.root.test_col.aggregated_multi_year_licences()
 
         # Verify ODS domain was used
         call_args = (
@@ -217,9 +218,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({}), year=None)
 
-        result = self.root.test_col.aggregated_multi_year_licences(
-            all_years=True
-        )
+        self.root.test_col.aggregated_multi_year_licences(all_years=True)
 
         # Verify empty year was used
         call_args = (
@@ -250,7 +249,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({}), year=None)
 
-        result = self.root.test_col.aggregated_multi_year_licences()
+        self.root.test_col.aggregated_multi_year_licences()
 
         # Verify previous year (2025) was used
         call_args = (
@@ -273,7 +272,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({"year": 2024}), year=None)
 
-        result = self.root.test_col.aggregated_multi_year_licences()
+        self.root.test_col.aggregated_multi_year_licences()
 
         # Verify year from body was used and removed from data
         call_args = (
@@ -349,10 +348,10 @@ class CollectionLicencesTest(BaseTest):
 
     @patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR)
     def test_aggregated_multi_year_licences_malformed_body(self):
-        """Test aggregated_multi_year_licences with malformed JSON raises ValueError"""
+        """Test aggregated_multi_year_licences with malformed JSON raises
+        ValueError"""
         self._setup_request_mock("not a json", year="2025")
 
-        # The code doesn't catch JSON parse errors, so it should raise ValueError
         with self.assertRaises(ValueError):
             self.root.test_col.aggregated_multi_year_licences()
 
@@ -383,7 +382,7 @@ class CollectionLicencesTest(BaseTest):
     def test_aggregated_multi_year_licences_none_response(
         self, req_codes_mock
     ):
-        """Test aggregated_multi_year_licences with None response from registry"""
+        """Test aggregated_multi_year_licences with None response from ecr."""
         req_codes_mock.ok = 200
 
         self.mock_registry.get_aggregated_multi_year_licences = Mock(
@@ -479,7 +478,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({}), year="2025")
 
-        result = self.root.test_col.aggregated_licences()
+        self.root.test_col.aggregated_licences()
 
         # Verify ODS domain was used
         call_args = self.mock_registry.get_company_licences.call_args
@@ -502,7 +501,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({}), year=None)
 
-        result = self.root.test_col.aggregated_licences(all_years=True)
+        self.root.test_col.aggregated_licences(all_years=True)
 
         # Verify empty year was used
         call_args = self.mock_registry.get_company_licences.call_args
@@ -530,7 +529,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({}), year=None)
 
-        result = self.root.test_col.aggregated_licences()
+        self.root.test_col.aggregated_licences()
 
         # Verify previous year (2025) was used
         call_args = self.mock_registry.get_company_licences.call_args
@@ -552,7 +551,7 @@ class CollectionLicencesTest(BaseTest):
 
         self._setup_request_mock(json.dumps({"year": 2024}), year=None)
 
-        result = self.root.test_col.aggregated_licences()
+        self.root.test_col.aggregated_licences()
 
         # Verify year from body was used and removed from data
         call_args = self.mock_registry.get_company_licences.call_args
@@ -627,7 +626,6 @@ class CollectionLicencesTest(BaseTest):
         """Test aggregated_licences with malformed JSON raises ValueError"""
         self._setup_request_mock("not a json", year="2025")
 
-        # The code doesn't catch JSON parse errors, so it should raise ValueError
         with self.assertRaises(ValueError):
             self.root.test_col.aggregated_licences()
 
