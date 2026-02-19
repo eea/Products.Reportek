@@ -1310,11 +1310,92 @@ class Collection(
             return envs[0].reportingdate
 
     def get_children(self, m_types, sort_on, desc=1):
-        objs = self.objectValues(m_types)
-        objs.sort(key=operator.attrgetter(sort_on))
-        if desc:
-            objs.reverse()
-        return objs
+        """Return sorted children."""
+        objs = list(self.objectValues(m_types))
+
+        # Local bindings for speed in the hot loop
+        _attrgetter = operator.attrgetter
+        _getattr = getattr
+        _hasattr = hasattr
+        _isinstance = isinstance
+        _basestring = basestring
+
+        import numbers
+
+        def _is_numeric(val):
+            return isinstance(val, numbers.Real) and not isinstance(val, bool)
+
+        if callable(sort_on):
+
+            def raw_getter(ob):
+                try:
+                    return sort_on(ob)
+                except Exception:
+                    return None
+        else:
+            try:
+                _getter = _attrgetter(sort_on)
+            except Exception:
+                _getter = None
+
+            def raw_getter(ob):
+                if _getter is not None:
+                    try:
+                        val = _getter(ob)
+                    except Exception:
+                        val = _getattr(ob, sort_on, None)
+                else:
+                    val = _getattr(ob, sort_on, None)
+
+                # If it's a bound method, call it (no args)
+                if callable(val):
+                    try:
+                        return val()
+                    except Exception:
+                        return None
+                return val
+
+        def normalize(val):
+            if val is None:
+                return (3, None)  # None last
+            if _is_numeric(val):
+                return (0, val)
+            if _isinstance(val, _basestring):
+                try:
+                    return (2, val.lower())
+                except Exception:
+                    return (2, unicode(val).lower())
+            try:
+                if _hasattr(val, "ISO8601"):
+                    try:
+                        return (1, val.ISO8601())
+                    except Exception:
+                        return (4, repr(val))
+                if _hasattr(val, "isoformat"):
+                    try:
+                        return (1, val.isoformat())
+                    except Exception:
+                        return (4, repr(val))
+            except Exception:
+                return (4, repr(val))
+            return (4, repr(val))
+
+        def tie_for(ob):
+            try:
+                if _hasattr(ob, "getId"):
+                    tid = ob.getId()
+                    if tid is not None:
+                        return tid
+            except Exception:
+                pass
+            return "id-%s" % (id(ob),)
+
+        def key_for(ob):
+            raw = raw_getter(ob)
+            typ, norm = normalize(raw)
+            return (typ, norm, tie_for(ob))
+
+        return sorted(objs, key=key_for, reverse=bool(desc))
 
     def get_catalog_children(self, m_types, sort_on, sort_order="reverse"):
         path = "/".join(self.getPhysicalPath())
