@@ -265,7 +265,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
+            content=(
+                Path(__file__).parent.absolute() / "result.zip").read_bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -298,7 +299,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
+            content=(
+                Path(__file__).parent.absolute() / "result.zip").read_bytes(),
         )
         self.col1.env1.manage_addFeedback = Mock()
         restapp = self.app.Applications.proc1.act1
@@ -328,7 +330,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     },
                 }
             ),
-            content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
+            content=(
+                Path(__file__).parent.absolute() / "result.zip").read_bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
