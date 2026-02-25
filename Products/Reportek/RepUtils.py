@@ -803,7 +803,7 @@ def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME  # noqa
     zip_cache = Path(zc_path) / "zip_cache"
     if not zip_cache.is_dir():
-        zip_cache.mkdir(parents=True, exist_ok=True)  # Create parent directories if needed
+        zip_cache.mkdir(parents=True, exist_ok=True)
 
     return zip_cache
 
