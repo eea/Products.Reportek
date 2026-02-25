@@ -131,11 +131,18 @@
       </tr>
 
       <tr>
-        <th i18n:translate="">Business profile</th>
-        <td tal:define="profiles company/businessprofile|nothing;
-                        profiles python: profiles.split(',') if profiles else [];">
+        <th i18n:translate="">Business profiles</th>
+        <td tal:define="profiles python:company.get('businessprofiles', []);
+                        dummy python: profiles.sort(key=lambda x: x.get('code', ''));">
           <ul class="types">
-            <li tal:repeat="profile profiles" tal:content="profile"></li>
+            <tal:rep tal:repeat="profile profiles">
+              <li>
+                <div class="profile-item">
+                  <span class="profile-short-code" tal:content="profile/short_code" /> -
+                  <span class="profile-code" tal:content="profile/code" />
+                </div>
+              </li>
+            </tal:rep>
           </ul>
         </td>
       </tr>

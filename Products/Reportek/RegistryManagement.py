@@ -249,6 +249,15 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         return response.json()
 
+    def get_multi_year_licences(self, params=None):
+        page = "multi_year_licences"
+        url = "/".join([self.baseUrl, page])
+        response = self.do_api_request(
+            url, params=params, headers={"Authorization": self.token}
+        )
+        if response:
+            return response.json()
+
     def get_stocks(self):
         page = "stocks"
         url = "/".join([self.baseUrl, page])
@@ -295,30 +304,22 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def get_company_licences(self, company_id, year, data, domain="FGAS"):
+    def _get_aggregated_licences(
+        self, company_id, year, data, licence_type, domain="FGAS"
+    ):
+        """Helper method to fetch aggregated licence data from registry API"""
+        url_parts = [
+            self.baseUrl,
+            "undertaking",
+            domain,
+            company_id,
+            licence_type,
+        ]
         if year:
-            url = "/".join(
-                [
-                    self.baseUrl,
-                    "undertaking",
-                    domain,
-                    company_id,
-                    "licences",
-                    year,
-                    "aggregated",
-                ]
-            )
-        else:
-            url = "/".join(
-                [
-                    self.baseUrl,
-                    "undertaking",
-                    domain,
-                    company_id,
-                    "licences",
-                    "aggregated",
-                ]
-            )
+            url_parts.append(year)
+        url_parts.append("aggregated")
+
+        url = "/".join(url_parts)
         response = self.do_api_request(
             url,
             method="post",
@@ -327,6 +328,18 @@ class FGASRegistryAPI(BaseRegistryAPI):
             raw=True,
         )
         return response
+
+    def get_aggregated_multi_year_licences(
+        self, company_id, year, data, domain="FGAS"
+    ):
+        return self._get_aggregated_licences(
+            company_id, year, data, "multi_year_licences", domain
+        )
+
+    def get_company_licences(self, company_id, year, data, domain="FGAS"):
+        return self._get_aggregated_licences(
+            company_id, year, data, "licences", domain
+        )
 
     def get_company_stocks(self, company_id):
         url = "/".join([self.baseUrl, "stocks", company_id])

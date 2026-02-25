@@ -397,6 +397,16 @@ class SatelliteRegistryManagement(BaseAdmin):
             response = api.getCompaniesExcelExport(domain=domain)
             return response.content
 
+    def multi_year_licences(self):
+        """Multi year licences ecr proxy."""
+        api = self.get_api()
+        if not api:
+            return None
+        params = dict(self.request.form) or None
+        my_licences = api.get_multi_year_licences(params)
+        self.request.response.setHeader("Content-Type", "application/json")
+        return json.dumps(my_licences, indent=2)
+
     def get_stocks(self):
         api = self.get_api()
         if not api:

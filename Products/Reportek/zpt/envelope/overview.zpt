@@ -1,39 +1,43 @@
-<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'" />
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="head">
-    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-    <link href="++resource++static/style.css" rel="stylesheet"/>
-    <link href="++resource++static/envelope.css" rel="stylesheet"/>
-    <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet" />
+    <link href="++resource++static/style.css" rel="stylesheet" />
+    <link href="++resource++static/envelope.css" rel="stylesheet" />
+    <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet" />
     <script type="text/javascript" charset="utf8" src="++resource++static/jquery-3.5.1.min.js"></script>
     <script src="++resource++static/active_status.js"></script>
     <tal:block tal:condition="isBdrDeployment">
       <script type="text/javascript">
         function confirmUnassign(event) {
           event.preventDefault();
-          if (confirm('Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established.')) {
+          var message =
+            "Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established.";
+          if (confirm(message)) {
             var link = event.target;
             fetch(link.href, {
-              method: 'GET',
-              credentials: 'same-origin'
+              method: "GET",
+              credentials: "same-origin",
             })
-            .then(function(response) {
-              if (!response.ok) {
-                throw new Error('Network response was not ok');
-              }
-              return response.json();
-            })
-            .then(function(data) {
-              if (data.success) {
-                window.location.reload();
-              } else {
-                alert('Failed to unassign auditor: ' + (data.message || 'Unknown error'));
-              }
-            })
-            .catch(function(error) {
-              console.error('Error:', error);
-              alert('An error occurred while trying to unassign the auditor. Please try again or contact support if the problem persists.');
-            });
+              .then(function (response) {
+                if (!response.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return response.json();
+              })
+              .then(function (data) {
+                if (data.success) {
+                  window.location.reload();
+                } else {
+                  alert("Failed to unassign auditor: " + (data.message || "Unknown error"));
+                }
+              })
+              .catch(function (error) {
+                console.error("Error:", error);
+                alert(
+                  "An error occurred while trying to unassign the auditor. Please try again or contact support if the problem persists.",
+                );
+              });
           }
           return false;
         }
@@ -42,36 +46,54 @@
   </metal:block>
   <metal:block fill-slot="content">
     <tal:block condition="python:context.canViewContent()">
-      <div tal:replace="structure python:context.envelope_tabs(tab='overview')"/>
+      <div tal:replace="structure python:context.envelope_tabs(tab='overview')" />
 
       <div id="operations">
         <ul>
           <tal:block condition="python:context.canAddFeedback()">
-            <li><a href="manage_addFeedbackForm" title="Post feedback for this release"
-                   i18n:attributes="title"
-                   i18n:translate="">Add feedback</a></li>
-          </tal:block>
             <li>
-                <form method="GET" action="envelope_zip">
-                    <tal:authenticator tal:define="authenticator context/@@authenticator">
-                      <span tal:replace="structure python: authenticator.authenticator('envelope_zip')"/>
-                    </tal:authenticator>
-                    <button i18n:attributes="title" title="Download zipped envelope with available files"
-                    i18n:translate="" type="submit" class="btn-ops">Zip envelope</button>
-                </form>
+              <a
+                href="manage_addFeedbackForm"
+                title="Post feedback for this release"
+                i18n:attributes="title"
+                i18n:translate=""
+                >Add feedback</a
+              >
             </li>
-            <tal:block tal:condition="context/is_audit_assigned">
-              <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
-                <li tal:condition="python:'Owner' in roles_in_context or 'Manager' in roles_in_context">
-                  <a href="unassign_auditor"
-                     onclick="return confirmUnassign(event)"
-                     title="Unassign auditor"
-                     i18n:attributes="title"
-                     i18n:translate="">Unassign auditor</a>
-                </li>
-              </tal:def>
-            </tal:block>
-          <div tal:replace="structure python:context.activity_operations(REQUEST=context.REQUEST)"/>
+          </tal:block>
+          <li>
+            <form method="GET" action="envelope_zip">
+              <tal:authenticator tal:define="authenticator context/@@authenticator">
+                <span tal:replace="structure python: authenticator.authenticator('envelope_zip')" />
+              </tal:authenticator>
+              <button
+                i18n:attributes="title"
+                title="Download zipped envelope with available files"
+                i18n:translate=""
+                type="submit"
+                class="btn-ops"
+              >
+                Zip envelope
+              </button>
+            </form>
+          </li>
+          <tal:block tal:condition="context/is_audit_assigned">
+            <tal:def tal:define="roles_in_context python: request.AUTHENTICATED_USER.getRolesInContext(context);">
+              <li tal:condition="python:'Owner' in roles_in_context or 'Manager' in roles_in_context">
+                <a
+                  href="unassign_auditor"
+                  onclick="return confirmUnassign(event);"
+                  tal:attributes="data-released python: 'true' if context.released else 'false';
+                                  data-audited python: 'true' if len(here.objectIds('Report Feedback')) > 0 and not here.has_unknown_qa_result and here.successful_qa else 'false'"
+                  title="Unassign auditor"
+                  i18n:attributes="title"
+                  i18n:translate=""
+                  >Unassign auditor</a
+                >
+              </li>
+            </tal:def>
+          </tal:block>
+          <div tal:replace="structure python:context.activity_operations(REQUEST=context.REQUEST)" />
         </ul>
       </div>
 
@@ -80,7 +102,9 @@
       <div class="metadata">
         <table border="0" cellspacing="2" cellpadding="2">
           <tbody>
-            <tr tal:attributes="class python: 'hidden-content' if context.is_fgas() or context.is_ods() or context.is_fgas_verification() else ''">
+            <tr
+              tal:attributes="class python: 'hidden-content' if context.is_fgas() or context.is_ods() or context.is_fgas_verification() else ''"
+            >
               <th i18n:translate="">Description</th>
               <td tal:content="python:context.descr"></td>
             </tr>
@@ -89,40 +113,56 @@
               <td tal:define="engine context/getEngine">
                 <tal:block condition="python:context.dataflow_uris" repeat="uri python:context.dataflow_uris">
                   <tal:block define="df python:engine.dataflow_lookup(uri)">
-                    <a tal:attributes="href python:df['details_url']"
-                       tal:content="python:df['TITLE']"></a>
+                    <a tal:attributes="href python:df['details_url']" tal:content="python:df['TITLE']"></a>
                     <tal:block condition="python:df.get('terminated', '0') == '1'">
-                     <em i18n:translate="">Terminated</em>
+                      <em i18n:translate="">Terminated</em>
                     </tal:block>
-                    <br/>
+                    <br />
                   </tal:block>
                 </tal:block>
 
                 <tal:block condition="python:not context.dataflow_uris">
-                  <span style="color:maroon;font-weight:bold"
-                        title="The obligation tag makes it possible for the requesters to find the delivery"
-                        i18n:attributes="title"
-                        i18n:translate="">
-                    Notice: this envelope has no obligation tag</span>
+                  <span
+                    style="color: maroon; font-weight: bold"
+                    title="The obligation tag makes it possible for the requesters to find the delivery"
+                    i18n:attributes="title"
+                    i18n:translate=""
+                  >
+                    Notice: this envelope has no obligation tag</span
+                  >
                 </tal:block>
               </td>
             </tr>
             <tr>
               <th>
-                <span tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())" i18n:translate="">Period</span>
-                <span tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()" i18n:translate="">Transaction year</span>
+                <span
+                  tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())"
+                  i18n:translate=""
+                  >Period</span
+                >
+                <span
+                  tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()"
+                  i18n:translate=""
+                  >Transaction year</span
+                >
               </th>
-              <tal:block tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())">
-                <td tal:condition="python:context.endyear == ''"
-                    tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)">
-                </td>
-                <td tal:condition="not:python:context.endyear == ''"
-                    tal:content="python:'%s to %s' %(context.year, context.endyear)">
-                </td>
+              <tal:block
+                tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())"
+              >
+                <td
+                  tal:condition="python:context.endyear == ''"
+                  tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)"
+                ></td>
+                <td
+                  tal:condition="not:python:context.endyear == ''"
+                  tal:content="python:'%s to %s' %(context.year, context.endyear)"
+                ></td>
               </tal:block>
-              <tal:block tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()">
+              <tal:block
+                tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()"
+              >
                 <td>
-                  <span tal:content="context/get_transaction_year"/>
+                  <span tal:content="context/get_transaction_year" />
                 </td>
               </tal:block>
             </tr>
@@ -141,17 +181,19 @@
             <tal:block tal:condition="isBdrDeployment">
               <tr>
                 <th i18n:translate="">Acceptability status</th>
-                <td tal:define="statuses
+                <td
+                  tal:define="statuses
                                   python:{
                                         True: 'Data delivery is acceptable',
                                         False: 'Data delivery is not acceptable',};
                                 ok_acceptable python: context.is_acceptable() and context.successful_qa;
                                 unknown python: context.has_unknown_qa_result and ok_acceptable;"
-                    tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
-                </td>
+                  tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')"
+                ></td>
               </tr>
               <tal:block tal:condition="python: context.audit_info">
-                <tr tal:define="a_info context/audit_info;
+                <tr
+                  tal:define="a_info context/audit_info;
                                 auditor_uid python: a_info.get('auditor_uid', '');
                                 auditor_name python: a_info.get('auditor_name', '');
                                 auditor_address python: a_info.get('auditor_address', '');
@@ -160,15 +202,16 @@
                                 audit_end_date python: a_info.get('audit_end_date', '');
                                 audit_start_date python: a_info.get('audit_start_date', '');
                                 v_action python: {True: 'granted', False: 'revoked'}.get(context.is_audit_assigned);
-                                t_date python: audit_start_date if context.is_audit_assigned else audit_end_date">
+                                t_date python: audit_start_date if context.is_audit_assigned else audit_end_date"
+                >
                   <th i18n:translate="">Auditor assignment status</th>
                   <td
                     tal:define="
                         format_vars python:[auditor_uid, auditor_name, auditor_address, lead_auditor_name, lead_auditor_email, v_action, t_date];
                         safe_vars python:[v.decode('utf-8') if isinstance(v, str) else v for v in format_vars];
                         fgas_ver_status python:u'An assignment of this envelope to auditor {}, {}, {} (lead auditor: {}, {}) has been {} on {}.'.format(*safe_vars)"
-                    tal:content="python: fgas_ver_status">
-                  </td>
+                    tal:content="python: fgas_ver_status"
+                  ></td>
                 </tr>
               </tal:block>
             </tal:block>
@@ -181,24 +224,29 @@
                         <span i18n:translate="" class="title">Status: </span>
                         <span i18n:translate="">
                           Envelope is <span i18n:name="status" tal:replace="context/status"></span>
-                          <tal:def tal:define="fb_ta python: context.get('feedbackTA');
+                          <tal:def
+                            tal:define="fb_ta python: context.get('feedbackTA');
                                               fb_cor python: context.get('feedbackCoR');
-                                              ff_fb python: fb_ta or fb_cor">
-                            <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
+                                              ff_fb python: fb_ta or fb_cor"
+                          >
+                            <span tal:condition="python: ff_fb">
+                              (<span tal:content="ff_fb/title_or_id|nothing" />)</span
+                            >
                           </tal:def>
                         </span>
                       </div>
                     </div>
                   </div>
                 </tal:block>
-                <tal:block define="activeW python:context.getListOfWorkitems('active');
+                <tal:block
+                  define="activeW python:context.getListOfWorkitems('active');
                                    inactiveW python:context.getListOfWorkitems('inactive');
                                    of_interest python: [context.getListOfWorkitems(status=['active', 'complete'])[-1]] if not inactiveW and not context.status == 'complete' else [];
                                    w_items python:[wi for wi in context.getListOfWorkitems()];
                                    last python: w_items[-1].activity_id if w_items else None;
-                                   ">
-                  <metal:block use-macro="here/macros/tasks_in_progress">
-                  </metal:block>
+                                   "
+                >
+                  <metal:block use-macro="here/macros/tasks_in_progress"> </metal:block>
                 </tal:block>
               </td>
             </tr>
@@ -211,31 +259,31 @@
         <p i18n:translate="">
           If you want to stay updated about events in this envelope
           <span i18n:name="subscribe">
-            <a href="ReportekEngine/subscriptions_html" i18n:translate="">
-              Subscribe to receive notifications
-            </a>
-          </span> for this country and the current dataflow(s).
+            <a href="ReportekEngine/subscriptions_html" i18n:translate=""> Subscribe to receive notifications </a>
+          </span>
+          for this country and the current dataflow(s).
         </p>
       </div>
 
-      <form id="objectItems" method="post"
-            tal:define="action_url python:context.absolute_url()"
-            tal:attributes="action string:${action_url}/">
+      <form
+        id="objectItems"
+        method="post"
+        tal:define="action_url python:context.absolute_url()"
+        tal:attributes="action string:${action_url}/"
+      >
+        <div tal:replace="structure context/documents_section" />
 
-      <div tal:replace="structure context/documents_section"/>
+        <tal:block condition="not:context/released">
+          <strong i18n:translate="">Remember to release the envelope when you have uploaded all files</strong>
+        </tal:block>
 
-      <tal:block condition="not:context/released">
-      <strong i18n:translate="">Remember to release the envelope when you have uploaded all files</strong>
-      </tal:block>
-
-      <div tal:replace="structure context/feedback_section"/>
-
+        <div tal:replace="structure context/feedback_section" />
       </form>
     </tal:block>
     <tal:block condition="not:python:context.canViewContent()">
       <h1 i18n:translate="">Not available</h1>
       <p i18n:translate="">This envelope is not yet available for public view.
-      Work is still in progress.</p>
+                  Work is still in progress.</p>
     </tal:block>
   </metal:block>
 </metal:block>
