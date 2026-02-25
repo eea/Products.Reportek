@@ -3,7 +3,7 @@ import zipfile
 from io import BytesIO
 
 from DateTime import DateTime
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from Products.Reportek import Converters, constants
 from Products.Reportek.Envelope import Envelope

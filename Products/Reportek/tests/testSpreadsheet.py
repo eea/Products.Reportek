@@ -1,6 +1,6 @@
 # flake8: noqa
 from Products.Reportek.Converters import Converters
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 from .fileuploadmock import FileUploadMock
 from .common import BaseTest, ConfigureReportek
 import os

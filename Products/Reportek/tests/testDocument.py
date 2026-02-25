@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 
 import transaction
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from Testing import ZopeTestCase
 from zExceptions import Redirect
 

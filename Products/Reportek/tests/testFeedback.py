@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from plone.protect.interfaces import IDisableCSRFProtection
 from Testing import ZopeTestCase
 from zope.interface import alsoProvides

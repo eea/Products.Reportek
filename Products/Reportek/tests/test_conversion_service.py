@@ -1,4 +1,4 @@
-from mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, Mock, call, patch
 from path import Path
 
 from Products.Reportek import conversion_registry

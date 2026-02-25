@@ -81,8 +81,6 @@ class OrgCollections(BrowserView):
                 or not org_name):
             self.request.response.setStatus(400)
             return json.dumps({"updated": False})
-        if isinstance(org_name, str):
-            org_name = org_name.encode('utf-8')
 
         oldcompany_account = self.request.form.get('oldcompany_account')
         if oldcompany_account:

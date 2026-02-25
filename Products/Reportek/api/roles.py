@@ -34,11 +34,11 @@ class RolesMGMTAPI(BrowserView):
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         if self.request.method == "POST":
             data = json.loads(self.request.get("BODY") or "{}")
-            uid = data.get("uid", "").encode("utf-8")
-            obl_folder = data.get("obl_folder", "").encode("utf-8")
-            country = data.get("country", "").encode("utf-8")
-            c_folder = data.get("c_folder", "").encode("utf-8")
-            action = data.get("action", "").encode("utf-8")
+            uid = data.get("uid", "")
+            obl_folder = data.get("obl_folder", "")
+            country = data.get("country", "")
+            c_folder = data.get("c_folder", "")
+            action = data.get("action", "")
             user = None
             wrapped_user = None
             res = {"message": "", "errors": []}

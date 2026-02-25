@@ -1,7 +1,7 @@
 import re
 
 from DateTime import DateTime
-from mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, Mock, call, patch
 from OFS.Folder import Folder
 from path import Path
 

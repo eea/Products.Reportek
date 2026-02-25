@@ -5,7 +5,7 @@ from copy import deepcopy
 from io import BytesIO, StringIO
 
 from App.Common import package_home
-from mock import Mock
+from unittest.mock import Mock
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from Testing import ZopeTestCase

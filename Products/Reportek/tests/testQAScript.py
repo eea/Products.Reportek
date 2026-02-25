@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from Products.Reportek.QAScript import QAScript
 

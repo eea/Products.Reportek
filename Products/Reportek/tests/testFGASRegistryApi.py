@@ -3,7 +3,7 @@
 import json
 
 from .common import BaseTest
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from Products.Reportek.Collection import Collection
 from Products.Reportek.RegistryManagement import FGASRegistryAPI

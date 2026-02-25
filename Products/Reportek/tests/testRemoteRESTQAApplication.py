@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from Products.Reportek import Converters, constants
 from Products.Reportek.RemoteRestQaApplication import RemoteRestQaApplication
 from .utils import create_envelope, create_fake_root

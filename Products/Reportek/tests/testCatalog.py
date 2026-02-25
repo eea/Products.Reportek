@@ -1,5 +1,5 @@
 #
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from Testing import ZopeTestCase
 
 from Products.Reportek import constants

@@ -1,5 +1,5 @@
 from .common import BaseUnitTest
-from mock import Mock
+from unittest.mock import Mock
 from .utils import create_fake_root, makerequest
 
 from Products.Reportek.constants import DATAFLOW_MAPPINGS

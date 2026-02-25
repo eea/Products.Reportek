@@ -1,6 +1,6 @@
 # flake8: noqa
 from .common import BaseUnitTest
-from mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch, MagicMock
 from Products.Reportek.constants import DF_URL_PREFIX
 
 

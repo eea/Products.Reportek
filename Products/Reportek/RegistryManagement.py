@@ -491,8 +491,6 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     if ver:
                         if ver.startswith("/"):
                             ver = ver.lstrip("/")
-                        if isinstance(ver, str):
-                            ver = ver.encode("utf-8")
                         audit_paths.append(ver)
             else:
                 authpaths = data["reporter"]

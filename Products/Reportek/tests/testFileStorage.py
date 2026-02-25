@@ -3,7 +3,7 @@ import zipfile
 from io import BytesIO, StringIO
 
 import transaction
-from mock import Mock, call, patch
+from unittest.mock import Mock, call, patch
 from plone.protect.interfaces import IDisableCSRFProtection
 from zope.interface import alsoProvides
 

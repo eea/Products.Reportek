@@ -140,35 +140,33 @@ class xpdl_handler(ContentHandler):
         # get participants
         elif name == "Participant":
             obj = participant(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Name", "").encode("utf-8"),
-                attrs.get("Description", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Name", ""),
+                attrs.get("Description", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "ParticipantType":
-            self.stack[-1].obj.participant_type = attrs.get("Type", "").encode(
-                "utf-8"
-            )
+            self.stack[-1].obj.participant_type = attrs.get("Type", "")
         elif name == "ExtendedAttribute":  # merg la toate
             self.stack[-1].obj.extendedattributes[
-                attrs.get("Name", "").encode("utf-8")
-            ] = attrs.get("Value", "").encode("utf-8")
+                attrs.get("Name", "")
+            ] = attrs.get("Value", "")
         # get application
         elif name == "Application":
             obj = application(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Name", "").encode("utf-8"),
-                attrs.get("Description", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Name", ""),
+                attrs.get("Description", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         # get processes
         elif name == "WorkflowProcess":
             obj = workflowprocess(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Name", "").encode("utf-8"),
-                attrs.get("Description", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Name", ""),
+                attrs.get("Description", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
@@ -187,9 +185,9 @@ class xpdl_handler(ContentHandler):
         # get activities
         elif name == "Activity":
             obj = activity(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Name", "").encode("utf-8"),
-                attrs.get("Description", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Name", ""),
+                attrs.get("Description", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
@@ -200,8 +198,8 @@ class xpdl_handler(ContentHandler):
             pass
         elif name == "Tool":
             obj = tool(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Type", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Type", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
@@ -211,13 +209,13 @@ class xpdl_handler(ContentHandler):
             self.stack.append(stackObj)
         elif name == "SubFlow":
             obj = subflow(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Execution", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Execution", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "Loop":
-            obj = loop(attrs.get("Kind", "").encode("utf-8"))
+            obj = loop(attrs.get("Kind", ""))
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "Performer":
@@ -247,31 +245,31 @@ class xpdl_handler(ContentHandler):
             self.stack.append(stackObj)
         elif name == "Join":
             obj = generic_tag()
-            obj.type = attrs.get("Type", "").encode("utf-8")
+            obj.type = attrs.get("Type", "")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "Split":
             obj = splittransition()
-            obj.type = attrs.get("Type", "").encode("utf-8")
+            obj.type = attrs.get("Type", "")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "TransitionRef":
             obj = transitionref()
-            obj.id = attrs.get("Id", "").encode("utf-8")
+            obj.id = attrs.get("Id", "")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "Transition":
             obj = transition(
-                attrs.get("Id", "").encode("utf-8"),
-                attrs.get("Name", "").encode("utf-8"),
-                attrs.get("From", "").encode("utf-8"),
-                attrs.get("To", "").encode("utf-8"),
+                attrs.get("Id", ""),
+                attrs.get("Name", ""),
+                attrs.get("From", ""),
+                attrs.get("To", ""),
             )
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
         elif name == "Condition":
             obj = generic_tag()
-            obj.type = attrs.get("Type", "").encode("utf-8")
+            obj.type = attrs.get("Type", "")
             stackObj = saxstack_struct(obj)
             self.stack.append(stackObj)
 

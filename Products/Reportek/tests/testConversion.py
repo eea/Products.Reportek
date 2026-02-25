@@ -2,12 +2,12 @@
 from Products.Reportek.Converters import Converters
 from Products.Reportek.constants import CONVERTERS_ID
 from .common import BaseTest
-from mock import Mock
+from unittest.mock import Mock
 from Testing import ZopeTestCase
 from .common import ConfigureReportek
 from .fileuploadmock import FileUploadMock
 from zExceptions import Redirect
-from mock import patch
+from unittest.mock import patch
 
 ZopeTestCase.installProduct("Reportek")
 ZopeTestCase.installProduct("PythonScripts")

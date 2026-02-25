@@ -3,7 +3,7 @@
 from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
 from .common import BaseTest, WorkflowTestCase, ConfigureReportek
 
-from mock import Mock
+from unittest.mock import Mock
 
 
 class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
@@ -25,7 +25,7 @@ class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
 
     def test_overview_with_rights(self):
         from .utils import chase_response, load_json
-        from mock import Mock
+        from unittest.mock import Mock
         from AccessControl.User import User
 
         self.envelope.canViewContent = Mock(return_value=1)
@@ -54,7 +54,7 @@ class FindProcessTestCase(BaseTest, ConfigureReportek):
         super(FindProcessTestCase, self).afterSetUp()
         # don't createStandardDependencies; we need a clean slate here
         self.col = self.createStandardCollection()
-        from mock import Mock
+        from unittest.mock import Mock
 
         self.app.REQUEST.AUTHENTICATED_USER = Mock()
         self.app.REQUEST.AUTHENTICATED_USER.getUserName.return_value = "gigel"

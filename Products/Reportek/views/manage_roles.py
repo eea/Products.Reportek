@@ -220,13 +220,7 @@ class ManageRoles(BaseAdmin):
             for user in list(ecas_db.values()):
                 username = user.username
                 email = user.email
-                if isinstance(username, str):  # noqa: F821
-                    username = username.encode('utf-8')
-                if isinstance(email, str):  # noqa: F821
-                    email = email.encode('utf-8')
                 if username:
-                    if isinstance(username, str):  # noqa: F821
-                        username = username.encode('utf-8')
                     if term in username:
                         result = {
                             'uid': username,

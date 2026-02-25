@@ -921,11 +921,6 @@ class Collection(
             all_years=all_years,
         )
 
-        # FLOAT_REPR is deprecated in python 3.6
-        json.encoder.FLOAT_REPR = lambda o: (
-            ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
-        )
-
         return json.dumps(res, indent=4)
 
     security.declareProtected("View", "aggregated_licences")
@@ -938,11 +933,6 @@ class Collection(
         res = self._get_licences_data(
             registry.get_company_licences if registry else None,
             all_years=all_years,
-        )
-
-        # FLOAT_REPR is deprecated in python 3.6
-        json.encoder.FLOAT_REPR = lambda o: (
-            ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
         )
 
         return json.dumps(res, indent=4)
@@ -1332,7 +1322,7 @@ class Collection(
         _getattr = getattr
         _hasattr = hasattr
         _isinstance = isinstance
-        _basestring = basestring
+        _basestring = str
 
         import numbers
 
@@ -1378,7 +1368,7 @@ class Collection(
                 try:
                     return (2, val.lower())
                 except Exception:
-                    return (2, unicode(val).lower())
+                    return (2, str(val).lower())
             try:
                 if _hasattr(val, "ISO8601"):
                     try:

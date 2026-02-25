@@ -1,6 +1,6 @@
 import hashlib
 
-from mock import patch
+from unittest.mock import patch
 from path import Path
 
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw

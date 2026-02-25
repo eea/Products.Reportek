@@ -33,7 +33,7 @@ import transaction
 import ZODB
 import ZODB.blob
 import ZODB.MappingStorage
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 from OFS.Folder import Folder
 
 

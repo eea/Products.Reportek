@@ -430,7 +430,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         )
                     if isinstance(srv_res, list):
                         paths = [
-                            f.get("name").encode("utf-8") for f in srv_res
+                            f.get("name") for f in srv_res
                         ]
                         up_files = ""
                         for x in paths:

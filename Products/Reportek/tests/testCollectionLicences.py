@@ -62,7 +62,7 @@ BDR adds these fields to the response:
 
 import json
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from Products.Reportek import DEPLOYMENT_BDR
 from Products.Reportek.Collection import Collection

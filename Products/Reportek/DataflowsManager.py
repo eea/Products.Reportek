@@ -124,7 +124,7 @@ class DataflowsManager:
             prefix = "{}/obligations".format(self.dfm_obl_url_prefix)
             dflows = [
                 {
-                    "LAST_UPDATE": c.get("lastUpdate").encode("utf-8"),
+                    "LAST_UPDATE": c.get("lastUpdate"),
                     "PK_RA_ID": str(c.get("obligationId")),
                     "PK_SOURCE_ID": str(c.get("sourceId")),
                     "SOURCE_TITLE": c.get("sourceAlias"),
@@ -134,7 +134,7 @@ class DataflowsManager:
                     ),
                     "terminated": (
                         "1"
-                        if c.get("terminate").encode("utf-8") == "Y"
+                        if c.get("terminate") == "Y"
                         else "0"
                     ),
                     "uri": "{}/{}".format(prefix, c.get("obligationId")),
