@@ -183,7 +183,7 @@ def manage_addDocument(
                 id.rfind("\\"),
                 id.rfind(":"),
             )
-            + 1 :
+            + 1:
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)

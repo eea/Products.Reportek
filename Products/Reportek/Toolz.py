@@ -200,7 +200,7 @@ class Toolz:
                 max(
                     file_id.rfind("/"), file_id.rfind("\\"), file_id.rfind(":")
                 )
-                + 1 :
+                + 1:
             ]
         return RepUtils.cleanup_id(file_id.strip())
 

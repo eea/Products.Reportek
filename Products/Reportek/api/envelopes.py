@@ -5,6 +5,14 @@ from DateTime import DateTime
 from ZODB.blob import POSKeyError
 
 from Products.Five import BrowserView
+from Products.Reportek.blob import StorageError
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    DF_URL_PREFIX,
+    ENGINE_ID,
+)
+from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
 
 
 class BytesEncoder(json.JSONEncoder):
@@ -14,16 +22,6 @@ class BytesEncoder(json.JSONEncoder):
         if isinstance(obj, bytes):
             return obj.decode("utf-8", errors="replace")
         return super().default(obj)
-
-
-from Products.Reportek.blob import StorageError
-from Products.Reportek.constants import (
-    DEFAULT_CATALOG,
-    DF_URL_PREFIX,
-    ENGINE_ID,
-)
-from Products.Reportek.RepUtils import getToolByName
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
 
 
 class EnvelopesAPI(BrowserView):

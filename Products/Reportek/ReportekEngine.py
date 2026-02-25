@@ -58,6 +58,8 @@ from zope.i18n.negotiator import normalize_lang
 from zope.interface import alsoProvides, implementer
 
 import Products
+from Products.Five import BrowserView
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import (
     BdrAuthorizationMiddleware,
@@ -2698,11 +2700,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
 
 InitializeClass(ReportekEngine)
-
-
-# Browser view for exposing engineMacros template macros without rendering
-from Products.Five import BrowserView
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 
 class EngineMacrosView(BrowserView):
