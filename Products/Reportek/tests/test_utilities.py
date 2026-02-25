@@ -189,9 +189,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
     # _setup_fixture = 0
 
     def addObject(self, container, name, id, product="Reportek", **kw):
-        getattr(container.manage_addProduct[product], "manage_add%s" % name)(
-            id=id, **kw
-        )
+        from Products.Reportek.Collection import manage_addCollection
+
+        manage_addCollection(container, id=id, **kw)
         transaction.savepoint()
         return getattr(container, id)
 

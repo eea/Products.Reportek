@@ -16,7 +16,7 @@ FILE3_NAME = "excel-examples.xls"
 
 class TestZZipFile(BaseUnitTest):
     def setUp(self):
-        self.inputZipPath = Path(__file__).parent.abspath() / "zipMany.zip"
+        self.inputZipPath = Path(__file__).parent.absolute() / "zipMany.zip"
         # fh = open(self.inputZipPath)
         # self.zf = ZZipFile(fh)
 
@@ -118,7 +118,7 @@ class TestZZipFileRaw(BaseUnitTest):
     }
 
     def setUp(self):
-        self.inputZipPath = Path(__file__).parent.abspath() / "zipMany.zip"
+        self.inputZipPath = Path(__file__).parent.absolute() / "zipMany.zip"
 
     def test_raw_open_zip_fd(self):
         fh = open(self.inputZipPath, "rb")

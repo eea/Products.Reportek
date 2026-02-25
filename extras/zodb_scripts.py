@@ -18,7 +18,7 @@ ext_map = {
 }
 
 
-repo = Path(__file__).abspath().parent / "zodb_scripts"
+repo = Path(__file__).absolute().parent / "zodb_scripts"
 
 
 def get_zodb_scripts(app):

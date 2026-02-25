@@ -66,7 +66,7 @@ class ConversionServiceTest(BaseUnitTest):
         )
         self.app._setObject("testfile", document)
         with self.app.testfile.data_file.open("wb") as datafile:
-            tests = Path(__file__).parent.abspath()
+            tests = Path(__file__).parent.absolute()
             datafile.write((tests / "onefile.rar").bytes())
 
         mock_local_converters.return_value = [
@@ -114,7 +114,7 @@ class ConversionServiceTest(BaseUnitTest):
         )
         self.app._setObject("testfile", document)
         with self.app.testfile.data_file.open("wb") as datafile:
-            tests = Path(__file__).parent.abspath()
+            tests = Path(__file__).parent.absolute()
             datafile.write((tests / "onefile.rar").bytes())
 
         from Products.Reportek.constants import CONVERTERS_ID

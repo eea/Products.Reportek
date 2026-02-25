@@ -265,7 +265,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(Path(__file__).parent.abspath() / "result.zip").bytes(),
+            content=(Path(__file__).parent.absolute() / "result.zip").bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -298,7 +298,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(Path(__file__).parent.abspath() / "result.zip").bytes(),
+            content=(Path(__file__).parent.absolute() / "result.zip").bytes(),
         )
         self.col1.env1.manage_addFeedback = Mock()
         restapp = self.app.Applications.proc1.act1
@@ -328,7 +328,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     },
                 }
             ),
-            content=(Path(__file__).parent.abspath() / "result.zip").bytes(),
+            content=(Path(__file__).parent.absolute() / "result.zip").bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -384,7 +384,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             Mock(
                 status_code=200,
                 content=(
-                    Path(__file__).parent.abspath() / "result.zip"
+                    Path(__file__).parent.absolute() / "result.zip"
                 ).bytes(),
             ),
         ]
@@ -424,7 +424,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         self.assertEqual("env1_results.zip", attach.__name__)
         with attach.data_file.open() as f:
             self.assertEqual(
-                (Path(__file__).parent.abspath() / "result.zip").bytes(),
+                (Path(__file__).parent.absolute() / "result.zip").bytes(),
                 f.read(),
             )
 

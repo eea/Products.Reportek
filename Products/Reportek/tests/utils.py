@@ -173,8 +173,8 @@ def startZServer(number_of_threads=1, log=None):
 def makerequest(app, stdout=sys.stdout, environ={}):
     """Wraps the app into a fresh REQUEST."""
     from ZPublisher.BaseRequest import RequestContainer
-    from ZPublisher.Request import Request
-    from ZPublisher.Response import Response
+    from ZPublisher.HTTPRequest import HTTPRequest as Request
+    from ZPublisher.HTTPResponse import HTTPResponse as Response
 
     response = Response(stdout=stdout)
     new_environ = {}

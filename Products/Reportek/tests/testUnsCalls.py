@@ -36,8 +36,9 @@ class UNSCallsTest(BaseUnitTest):
         xmlrpc_patch = patch("Products.Reportek.ReportekEngine.xmlrpc.client")
         self._patches = [xmlrpc_patch]
         self.xmlrpc_server = Mock()
-        xmlrpc_patch.start().ServerProxy.return_value = self.xmlrpc_server
-        xmlrpc_patch.start().Server.return_value = self.xmlrpc_server
+        xmlrpc_mock = xmlrpc_patch.start()
+        xmlrpc_mock.ServerProxy.return_value = self.xmlrpc_server
+        xmlrpc_mock.Server.return_value = self.xmlrpc_server
         ReportekEngine.uns_notifications_enabled = MagicMock(return_value=True)
         self.engine = ReportekEngine()
         self.engine.UNS_server = "http://uns.example.com"

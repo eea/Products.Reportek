@@ -20,8 +20,9 @@ class CollectionTestCase(BaseTest):
         # title, descr,year, endyear, partofyear, country, locality,
         # dataflow_uris,allow_collections=0, allow_envelopes=0, id='',
         # REQUEST=None
-        self.app.manage_addProduct['Reportek'].manage_addCollection(
-            'TestTitle', 'Desc',
+        from Products.Reportek.Collection import manage_addCollection
+        manage_addCollection(
+            self.app, 'TestTitle', 'Desc',
             '2003', '2004', '', 'http://rod.eionet.eu.int/localities/1',
             '', [], allow_collections=1, allow_envelopes=1, id='colle')
         self.assertTrue(hasattr(self.app, 'colle'),
