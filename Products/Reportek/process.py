@@ -8,7 +8,7 @@ from AccessControl.class_init import InitializeClass
 from App.Dialogs import MessageDialog
 from DateTime import DateTime
 from OFS.Folder import Folder
-from path import Path
+from pathlib import Path
 from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -402,13 +402,13 @@ class process(CatalogAware, Folder):
         converter_path = "convert/graphviz"
         dot = Path(__file__).parent / "www" / "workflow_graph_description.dot"
         resp = requests.post(
-            converters_url + converter_path, files={"file": dot.bytes()}
+            converters_url + converter_path, files={"file": dot.read_bytes()}
         )
         if resp.status_code == 200:
             out = resp.content
         else:
             www = Path(__file__).parent / "www"
-            out = (www / "graphviz-error.png").bytes()
+            out = (www / "graphviz-error.png").read_bytes()
         RESPONSE.setHeader("Content-Type", "image/png")
         return out
 
@@ -438,7 +438,7 @@ class process(CatalogAware, Folder):
 
         elif output == "png":
             www = Path(__file__).parent / "www"
-            out = (www / "graphviz-error.png").bytes()
+            out = (www / "graphviz-error.png").read_bytes()
 
         RESPONSE.setHeader("Content-Type", "image/png")
         if output == "svg":

@@ -49,7 +49,7 @@ from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
 from App.Common import rfc1123_date
 from DateTime import DateTime
-from path import Path
+from pathlib import Path
 from zope.component import getUtility
 
 # from zope.datetime import rfc1123_date
@@ -803,7 +803,7 @@ def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME  # noqa
     zip_cache = Path(zc_path) / "zip_cache"
     if not zip_cache.is_dir():
-        zip_cache.mkdir_p()  # Create parent directories if needed
+        zip_cache.mkdir(parents=True, exist_ok=True)  # Create parent directories if needed
 
     return zip_cache
 
