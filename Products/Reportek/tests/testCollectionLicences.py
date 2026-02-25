@@ -62,11 +62,11 @@ BDR adds these fields to the response:
 
 import json
 
-from common import BaseTest
 from mock import Mock, patch
 
 from Products.Reportek import DEPLOYMENT_BDR
 from Products.Reportek.Collection import Collection
+from Products.Reportek.tests.common import BaseTest
 
 
 class CollectionLicencesTest(BaseTest):
