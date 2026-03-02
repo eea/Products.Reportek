@@ -39,6 +39,8 @@ setup(
         "xmltodict==0.11.0",
         "eea.rabbitmq.client",
         "contextlib2",
+        "Beaker",
+        "redis",
     ],
     entry_points="""
           # -*- Entry points: -*-
@@ -51,5 +53,8 @@ setup(
 
           [zodbupdate]
           renames = Products.Reportek.zodbupdate_renames:RENAMES
+
+          [paste.filter_app_factory]
+          beaker_session = Products.Reportek.session:beaker_session_filter_factory
           """,
 )

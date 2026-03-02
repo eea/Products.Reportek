@@ -232,4 +232,9 @@
         factory="Products.Reportek.indexing.PortalCatalogProcessor"
     />
 
+    <subscriber
+        for="zope.traversing.interfaces.IBeforeTraverseEvent"
+        handler=".session.extract_beaker_session"
+    />
+
 </configure>
