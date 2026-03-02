@@ -40,6 +40,7 @@ setup(
         "eea.rabbitmq.client",
         "contextlib2",
         "Beaker",
+        "beakeredis",
         "redis",
     ],
     entry_points="""
