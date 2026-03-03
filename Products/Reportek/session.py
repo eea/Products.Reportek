@@ -20,7 +20,7 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
         logger.info("Beaker session backend is DISABLED. Passing WSGI app through unmodified.")
         return app
 
-    redis_url = os.environ.get('REDIS_SESSION_URL', 'redis://redis:6379/0')
+    redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
     secret = os.environ.get('SESSION_SECRET', 'secret_key')
 
     logger.info("Injecting Beaker session backend via Redis: {0}".format(redis_url))
