@@ -37,7 +37,7 @@ Documents have the ability to display their content converted to text or HTML - 
 The folder ``Converters`` is automatically added in the Root folder after the product is installed. In order to use the converters installed on the server (local converters) you must add an object of type ``Converter`` in the ``Converters`` folder specifying the path to the actual converter file, the type of the files that can be converted by it and the type of the output files.
     
 (eg. If you have installed the pdftotext converter then type in the Converter path (including the arguments) something like: 
-``pdftotext -raw %s`` for Linux or something like ``"C:\Program Files\pdftotext" -raw %s`` for Windows.)
+``pdftotext -raw %s`` for Linux or something like ``"C:\Program Files\pdftotext" -raw %s`` for Windows)
 
 Once a converter is added in the Report Document list, you will be given the possibility to choose among the available conversions (*View document as*) for every type of document.
 
