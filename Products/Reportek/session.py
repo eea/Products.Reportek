@@ -24,7 +24,8 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
 
     if not use_beaker:
         logger.info(
-            "Beaker session backend is DISABLED. Passing WSGI app through unmodified."
+            "Beaker session backend is DISABLED. "
+            "Passing WSGI app through unmodified."
         )
         return app
 

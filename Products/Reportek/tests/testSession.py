@@ -1,7 +1,6 @@
 import unittest
 
 from AccessControl.ZopeGuards import guarded_getattr
-from zope.publisher.browser import TestRequest
 from ZPublisher.pubevents import PubStart
 
 from Products.Reportek.session import (
@@ -41,8 +40,8 @@ class TestZopeBeakerSessionWrapper(unittest.TestCase):
         self.assertNotIn("a", self.wrapper)
 
     def test_has_key(self):
-        self.assertTrue(self.wrapper.has_key("a"))
-        self.assertFalse(self.wrapper.has_key("nonexistent"))
+        self.assertTrue("a" in self.wrapper)
+        self.assertFalse("nonexistent" in self.wrapper)
 
     def test_getId(self):
         self.assertEqual(self.wrapper.getId(), "mock_id_123")
@@ -74,7 +73,8 @@ class TestZopeBeakerSessionWrapper(unittest.TestCase):
         self.assertNotIn("e", self.beaker)
 
     def test_security_access(self):
-        # We simulate RestrictedPython's guarded getattr to ensure methods are accessible
+        # We simulate RestrictedPython's guarded getattr to ensure
+        # methods are accessible
         self.assertTrue(guarded_getattr(self.wrapper, "set"))
         self.assertTrue(guarded_getattr(self.wrapper, "get"))
         self.assertTrue(guarded_getattr(self.wrapper, "delete"))
@@ -85,7 +85,8 @@ class TestZopeBeakerSessionWrapper(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             guarded_getattr(self.wrapper, "_beaker_session")
 
-        # In RestrictedPython, accessing _ attributes throws an Unauthorized error
+        # In RestrictedPython, accessing _ attributes throws an
+        # Unauthorized error
         self.assertEqual(type(context.exception).__name__, "Unauthorized")
 
 

@@ -43,18 +43,18 @@ setup(
         "redis",
     ],
     entry_points="""
-          # -*- Entry points: -*-
-          [console_scripts]
-          zip_cache_cleanup = Products.Reportek.RepUtils:cleanup_zip_cache
-          automatic_qa = Products.Reportek.scripts.automatic_qa:main
-          auto_fallin = Products.Reportek.scripts.auto_fallin:main
-          auto_cleanup = Products.Reportek.scripts.auto_cleanup:main
-          auto_env_cleanup = Products.Reportek.scripts.auto_env_cleanup:main
+    # -*- Entry points: -*-
+    [console_scripts]
+    zip_cache_cleanup = Products.Reportek.RepUtils:cleanup_zip_cache
+    automatic_qa = Products.Reportek.scripts.automatic_qa:main
+    auto_fallin = Products.Reportek.scripts.auto_fallin:main
+    auto_cleanup = Products.Reportek.scripts.auto_cleanup:main
+    auto_env_cleanup = Products.Reportek.scripts.auto_env_cleanup:main
 
-          [zodbupdate]
-          renames = Products.Reportek.zodbupdate_renames:RENAMES
+    [zodbupdate]
+    renames = Products.Reportek.zodbupdate_renames:RENAMES
 
-          [paste.filter_app_factory]
-          beaker_session = Products.Reportek.session:beaker_session_filter_factory
-          """,
+    [paste.filter_app_factory]
+    beaker_session = Products.Reportek.session:beaker_session_filter_factory
+    """,
 )
