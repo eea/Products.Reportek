@@ -233,7 +233,7 @@
     />
 
     <subscriber
-        for="zope.traversing.interfaces.IBeforeTraverseEvent"
+        for="ZPublisher.interfaces.IPubStart"
         handler=".session.extract_beaker_session"
     />
 

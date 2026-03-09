@@ -1,10 +1,12 @@
-import os
 import logging
-from beaker.middleware import SessionMiddleware
-from zope.traversing.interfaces import IBeforeTraverseEvent
-from zope.component import adapter
+import os
 
-logger = logging.getLogger('Products.Reportek.session')
+from beaker.middleware import SessionMiddleware
+from zope.component import adapter
+from ZPublisher.interfaces import IPubStart
+
+logger = logging.getLogger("Products.Reportek.session")
+
 
 def beaker_session_filter_factory(app, global_conf, **local_conf):
     """
@@ -14,31 +16,99 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
     configured for Redis. Otherwise, it simply returns the unmodified
     Zope application.
     """
-    use_beaker = os.environ.get('USE_BEAKER_SESSION', '0').lower() in ('1', 'true', 'yes')
+    use_beaker = os.environ.get("USE_BEAKER_SESSION", "0").lower() in (
+        "1",
+        "true",
+        "yes",
+    )
 
     if not use_beaker:
-        logger.info("Beaker session backend is DISABLED. Passing WSGI app through unmodified.")
+        logger.info(
+            "Beaker session backend is DISABLED. Passing WSGI app through unmodified."
+        )
         return app
 
-    redis_url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-    secret = os.environ.get('SESSION_SECRET', 'secret_key')
+    redis_url = os.environ.get("REDIS_URL", "redis://redis:6379/0")
+    secret = os.environ.get("SESSION_SECRET", "secret_key")
 
-    logger.info("Injecting Beaker session backend via Redis: {0}".format(redis_url))
-    
+    logger.info(
+        "Injecting Beaker session backend via Redis: {0}".format(redis_url)
+    )
+
     # Configure Beaker to use Redis
     session_opts = {
-        'session.type': 'ext:redis',
-        'session.url': redis_url,
-        'session.secret': secret,
-        'session.key': 'beaker.session',
-        'session.auto': True,
-        'session.cookie_expires': True, # expire on browser close by default
+        "session.type": "ext:redis",
+        "session.url": redis_url,
+        "session.secret": secret,
+        "session.key": "beaker.session",
+        "session.auto": True,
+        "session.cookie_expires": True,  # expire on browser close by default
         # Add timeout or max_age if persistent sessions are needed
     }
 
     return SessionMiddleware(app, session_opts)
 
-@adapter(IBeforeTraverseEvent)
+
+class ZopeBeakerSessionWrapper:
+    """
+    Wraps a Beaker session to provide the API expected by Zope legacy code,
+    such as .set(key, value) and .delete(key).
+    """
+
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    def __init__(self, beaker_session):
+        self._beaker_session = beaker_session
+
+    def set(self, key, value):
+        self._beaker_session[key] = value
+
+    def get(self, key, default=None):
+        return self._beaker_session.get(key, default)
+
+    def delete(self, key):
+        if key in self._beaker_session:
+            del self._beaker_session[key]
+
+    def has_key(self, key):
+        return key in self._beaker_session
+
+    def getId(self):
+        return getattr(self._beaker_session, "id", None)
+
+    def invalidate(self):
+        if hasattr(self._beaker_session, "invalidate"):
+            self._beaker_session.invalidate()
+
+    def keys(self):
+        return self._beaker_session.keys()
+
+    def values(self):
+        return self._beaker_session.values()
+
+    def items(self):
+        return self._beaker_session.items()
+
+    def update(self, d):
+        self._beaker_session.update(d)
+
+    def clear(self):
+        self._beaker_session.clear()
+
+    def __getitem__(self, key):
+        return self._beaker_session[key]
+
+    def __setitem__(self, key, value):
+        self._beaker_session[key] = value
+
+    def __delitem__(self, key):
+        del self._beaker_session[key]
+
+    def __contains__(self, key):
+        return key in self._beaker_session
+
+
+@adapter(IPubStart)
 def extract_beaker_session(event):
     """
     Subscribes to IBeforeTraverseEvent to intercept the request early.
@@ -46,6 +116,8 @@ def extract_beaker_session(event):
     so Zope code continues to work securely as a drop-in replacement.
     """
     request = event.request
-    
-    if 'beaker.session' in request.environ:
-        request.SESSION = request.environ['beaker.session']
+    if "beaker.session" in request.environ:
+        logger.info("SETTING request.SESSION: {}")
+        request.SESSION = ZopeBeakerSessionWrapper(
+            request.environ["beaker.session"]
+        )
