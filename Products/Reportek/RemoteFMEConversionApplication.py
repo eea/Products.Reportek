@@ -905,7 +905,9 @@ class RemoteFMEConversionApplication(SimpleItem):
                         log_sum = soup.find(
                             "span", attrs={"id": "feedbackStatus"}
                         )
-                        fb_status = log_sum.get("class", "UNKNOWN")
+                        fb_status = log_sum.get("class", ["UNKNOWN"])
+                        if isinstance(fb_status, list):
+                            fb_status = fb_status[0] if fb_status else "UNKNOWN"
                         fb_message = log_sum.text
                     if len(content) > FEEDBACKTEXT_LIMIT:
                         f.seek(0)
