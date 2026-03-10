@@ -34,7 +34,7 @@ import transaction
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
-from BTrees.OOBTree import TreeSet
+from persistent.list import PersistentList
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 from persistent.dict import PersistentDict
@@ -240,7 +240,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             )
 
             if not act_metadata["getResult"].get(job_id):
-                act_metadata["getResult"][job_id] = TreeSet()
+                act_metadata["getResult"][job_id] = PersistentList()
                 wk.addEvent(
                     "{} job in progress: #{} for {}".format(
                         self.app_name, job_id, l_file_id
@@ -250,7 +250,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             if not jobs_summary.get(job_id):
                 jobs_summary[job_id] = PersistentDict({"completed": False})
 
-            act_metadata["getResult"][job_id].add(payload)
+            act_metadata["getResult"][job_id].append(payload)
             jobs_summary[job_id]["last_status"] = PersistentDict(
                 {
                     "status": payload.get("jobStatus"),
