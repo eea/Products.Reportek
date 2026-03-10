@@ -252,7 +252,24 @@ class ReportekCatalog(ZCatalog):
             if w is None:
                 # BBB
                 w = IndexableObjectWrapper(obj, self)
-        ZCatalog.catalog_object(self, w, uid, idxs, update_metadata, pghandler)
+        try:
+            ZCatalog.catalog_object(
+                self, w, uid, idxs, update_metadata, pghandler)
+        except TypeError as e:
+            if 'not supported between' in str(e):
+                import traceback
+                log.error('catalog_object TypeError for uid=%s', uid)
+                log.error('%s', traceback.format_exc())
+                for idx_name in (idxs or self._catalog.indexes):
+                    try:
+                        val = getattr(w, idx_name, None)
+                        if callable(val):
+                            val = val()
+                        log.error('  %s: %r (%s)', idx_name, val,
+                                  type(val).__name__)
+                    except Exception as ex:
+                        log.error('  %s: ERROR %s', idx_name, ex)
+            raise
 
     @security.private
     def indexObject(self, object):
