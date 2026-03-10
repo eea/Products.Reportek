@@ -31,7 +31,7 @@ class BaseRemoteApplication(SimpleItem):
         fb_message = 'N/A'
         f = getattr(fb, 'feedbacktext', string_content)
         if f:
-            soup = bs(f)
+            soup = bs(f, features="html.parser")
             log_sum = soup.find('span', attrs={'id': 'feedbackStatus'})
             if log_sum:
                 fb_status = log_sum.get('class', 'UNKNOWN')

@@ -132,9 +132,9 @@ class ContentRegistryPingger(object):
         messageBody = ""
         try:
             if "<html" in message:
-                messageBody = bs(message).find("body").text
+                messageBody = bs(message, features="html.parser").find("body").text
             elif "<?xml" in message:
-                messageBody = bs(message).find("response").text
+                messageBody = bs(message, features="lxml-xml").find("response").text
         except Exception:
             messageBody = message
 

@@ -901,7 +901,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 with doc.data_file.open() as f:
                     content = f.read()
                     if doc.content_type == "text/html":
-                        soup = bs(content)
+                        soup = bs(content, features="html.parser")
                         log_sum = soup.find(
                             "span", attrs={"id": "feedbackStatus"}
                         )
