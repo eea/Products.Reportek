@@ -37,7 +37,7 @@ setup(
         "clamd",
         "zipstream",
         "xmltodict==0.11.0",
-        "eea.rabbitmq.client",
+        "pika>=1.3",
         "contextlib2",
         "Beaker",
         "redis",
