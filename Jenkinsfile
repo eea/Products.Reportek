@@ -118,7 +118,7 @@ pipeline {
             node(label: 'docker') {
               script {
                 try {
-                  sh '''docker pull eeacms/reportek-base-dr:z5; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5 coverage'''
+                  sh '''docker pull eeacms/reportek-base-dr:z5; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5 bash -c "cd /opt/zope/src/Products.Reportek && /opt/zope/bin/coverage run /opt/zope/bin/zope-testrunner --test-path . -v -vv -s Products.Reportek && /opt/zope/bin/coverage xml --include='*/Products/Reportek/*'"'''
                   sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
                   sh '''docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
@@ -158,7 +158,7 @@ pipeline {
                 // make sure you have the same path to the code as in the coverage report
                  sh '''sed -i "s|/opt/zope/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
                 // run sonar scanner
-                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./ -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
+                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./Products/  -Dsonar.projectKey=$GIT_NAME -Dsonar.projectName=$GIT_NAME -Dsonar.branch.name=$BRANCH_NAME"
                 sh '''try=2; while [ \$try -gt 0 ]; do curl -s -XPOST -u "${SONAR_AUTH_TOKEN}:" "${SONAR_HOST_URL}api/project_tags/set?project=${GIT_NAME}-${BRANCH_NAME}&tags=${SONARQUBE_TAGS},${BRANCH_NAME}" > set_tags_result; if [ \$(grep -ic error set_tags_result ) -eq 0 ]; then try=0; else cat set_tags_result; echo "... Will retry"; sleep 60; try=\$(( \$try - 1 )); fi; done'''
             }
           }
