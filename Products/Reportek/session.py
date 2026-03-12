@@ -37,7 +37,9 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
     )
 
     timeout = int(os.environ.get("SESSION_MANAGER_TIMEOUT", "30")) * 60
-    cookie_expires_env = os.environ.get("SESSION_COOKIE_EXPIRES", "true").lower()
+    cookie_expires_env = os.environ.get(
+        "SESSION_COOKIE_EXPIRES", "true"
+    ).lower()
     if cookie_expires_env in ("true", "1", "yes"):
         cookie_expires = True  # expire on browser close
     elif cookie_expires_env in ("false", "0", "no"):
@@ -53,7 +55,7 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
         "session.key": "beaker.session",
         "session.auto": True,
         "session.cookie_expires": cookie_expires,
-        "session.timeout": timeout,  # expire server-side after inactivity (seconds)
+        "session.timeout": timeout,  # expire server-side inactivity (seconds)
     }
 
     return SessionMiddleware(app, session_opts)
