@@ -36,6 +36,15 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
         "Injecting Beaker session backend via Redis: {0}".format(redis_url)
     )
 
+    timeout = int(os.environ.get("SESSION_MANAGER_TIMEOUT", "30")) * 60
+    cookie_expires_env = os.environ.get("SESSION_COOKIE_EXPIRES", "true").lower()
+    if cookie_expires_env in ("true", "1", "yes"):
+        cookie_expires = True  # expire on browser close
+    elif cookie_expires_env in ("false", "0", "no"):
+        cookie_expires = False  # never expire
+    else:
+        cookie_expires = int(cookie_expires_env)  # seconds
+
     # Configure Beaker to use Redis
     session_opts = {
         "session.type": "ext:redis",
@@ -43,8 +52,8 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
         "session.secret": secret,
         "session.key": "beaker.session",
         "session.auto": True,
-        "session.cookie_expires": True,  # expire on browser close by default
-        # Add timeout or max_age if persistent sessions are needed
+        "session.cookie_expires": cookie_expires,
+        "session.timeout": timeout,  # expire server-side after inactivity (seconds)
     }
 
     return SessionMiddleware(app, session_opts)
