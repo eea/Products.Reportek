@@ -1,7 +1,7 @@
 import logging
 import os.path
 from gzip import GzipFile
-from io import StringIO
+from io import IOBase, StringIO
 from time import localtime, strftime, time
 
 import OFS.SimpleItem as _SimpleItem
@@ -385,7 +385,7 @@ def get_content_type(file_or_content):
 
 def compute_uncompressed_size(file_or_content):
     if isinstance(file_or_content, FileUpload) or isinstance(
-        file_or_content, file
+        file_or_content, IOBase
     ):
         pos = file_or_content.tell()
         file_or_content.seek(0, 2)

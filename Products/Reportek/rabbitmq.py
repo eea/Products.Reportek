@@ -1,5 +1,5 @@
-""" Configuration and utilities for RabbitMQ client.
-"""
+"""Configuration and utilities for RabbitMQ client."""
+
 import logging
 import os
 from contextlib import contextmanager
@@ -14,7 +14,8 @@ ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     "%(asctime)s - "
     "%(name)s/%(filename)s/%(funcName)s - "
-    "%(levelname)s - %(message)s")
+    "%(levelname)s - %(message)s"
+)
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
@@ -25,14 +26,16 @@ class RabbitMQConnector(object):
     Replaces eea.rabbitmq.client which is incompatible with pika>=1.0.
     """
 
-    def __init__(self, rabbit_host, rabbit_port, rabbit_username,
-                 rabbit_password):
+    def __init__(
+        self, rabbit_host, rabbit_port, rabbit_username, rabbit_password
+    ):
         self.__rabbit_connection = None
         self.__rabbit_channel = None
         self.__rabbit_host = rabbit_host
         self.__rabbit_port = rabbit_port
         self.__rabbit_credentials = pika.PlainCredentials(
-            rabbit_username, rabbit_password)
+            rabbit_username, rabbit_password
+        )
 
     def open_connection(self):
         try:
@@ -41,16 +44,23 @@ class RabbitMQConnector(object):
                     host=self.__rabbit_host,
                     port=self.__rabbit_port,
                     credentials=self.__rabbit_credentials,
-                    heartbeat=0))
+                    heartbeat=0,
+                )
+            )
             self.__rabbit_channel = self.__rabbit_connection.channel()
         except Exception as err:
             logger.error(
-                'CONNECTING to RabbitMQ at %s:%s FAILED with error: %s',
-                self.__rabbit_host, self.__rabbit_port, err)
+                "CONNECTING to RabbitMQ at %s:%s FAILED with error: %s",
+                self.__rabbit_host,
+                self.__rabbit_port,
+                err,
+            )
         else:
             logger.info(
-                'CONNECTING to RabbitMQ at %s:%s OK',
-                self.__rabbit_host, self.__rabbit_port)
+                "CONNECTING to RabbitMQ at %s:%s OK",
+                self.__rabbit_host,
+                self.__rabbit_port,
+            )
 
     def close_connection(self):
         try:
@@ -59,32 +69,36 @@ class RabbitMQConnector(object):
             self.__rabbit_channel = None
         except Exception as err:
             logger.error(
-                'DISCONNECTING from RabbitMQ at %s:%s FAILED with error: %s',
-                self.__rabbit_host, self.__rabbit_port, err)
+                "DISCONNECTING from RabbitMQ at %s:%s FAILED with error: %s",
+                self.__rabbit_host,
+                self.__rabbit_port,
+                err,
+            )
         else:
             logger.info(
-                'DISCONNECTING from RabbitMQ at %s:%s OK',
-                self.__rabbit_host, self.__rabbit_port)
+                "DISCONNECTING from RabbitMQ at %s:%s OK",
+                self.__rabbit_host,
+                self.__rabbit_port,
+            )
 
     def get_channel(self):
         return self.__rabbit_channel
 
     def get_queue_status(self, queue_name):
         return self.__rabbit_channel.queue_declare(
-            queue=queue_name, passive=True)
+            queue=queue_name, passive=True
+        )
 
     def is_queue_empty(self, queue_name):
         status = self.get_queue_status(queue_name)
         is_empty = status.method.message_count == 0
-        logger.info('QUEUE %s is empty = %s', queue_name, is_empty)
+        logger.info("QUEUE %s is empty = %s", queue_name, is_empty)
         return is_empty
 
     def declare_queue(self, queue_name):
         self.__rabbit_channel.queue_declare(
-            queue=queue_name,
-            durable=True,
-            exclusive=False,
-            auto_delete=False)
+            queue=queue_name, durable=True, exclusive=False, auto_delete=False
+        )
         logger.info("DECLARE QUEUE '%s'", queue_name)
 
     def send_message(self, queue_name, body):
@@ -93,15 +107,18 @@ class RabbitMQConnector(object):
             body = body.encode("utf-8")
             properties["content_encoding"] = "utf-8"
         self.__rabbit_channel.basic_publish(
-            exchange='',
+            exchange="",
             routing_key=queue_name,
             body=body,
-            properties=pika.BasicProperties(**properties))
-        logger.info('SENT %r in %r', body, queue_name)
+            properties=pika.BasicProperties(**properties),
+        )
+        logger.info("SENT %r in %r", body, queue_name)
 
     def get_message(self, queue_name):
         return self.__rabbit_channel.basic_get(
-            queue=queue_name, auto_ack=False)
+            queue=queue_name, auto_ack=False
+        )
+
 
 RABBITMQ_HOST = str(os.environ.get("RABBITMQ_HOST", "") or "localhost")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "") or "5672")
@@ -110,27 +127,24 @@ RABBITMQ_PASS = str(os.environ.get("RABBITMQ_PASS", ""))
 
 
 def get_rabbitmq_client_settings():
-    """ Return the settings from env variables
-    """
+    """Return the settings from env variables"""
     s = {}
-    s['hostname'] = RABBITMQ_HOST
-    s['port'] = RABBITMQ_PORT
-    s['username'] = RABBITMQ_USER
-    s['password'] = RABBITMQ_PASS
+    s["hostname"] = RABBITMQ_HOST
+    s["port"] = RABBITMQ_PORT
+    s["username"] = RABBITMQ_USER
+    s["password"] = RABBITMQ_PASS
     return s
 
 
 @contextmanager
 def get_rabbitmq_conn(queue, context=None, dq=True):
-    """ Context manager to connect to RabbitMQ
-    """
+    """Context manager to connect to RabbitMQ"""
 
     s = get_rabbitmq_client_settings()
 
-    rb = RabbitMQConnector(s.get('hostname'),
-                           s.get('port'),
-                           s.get('username'),
-                           s.get('password'))
+    rb = RabbitMQConnector(
+        s.get("hostname"), s.get("port"), s.get("username"), s.get("password")
+    )
     rb.open_connection()
     if dq:
         rb.declare_queue(queue)
@@ -142,15 +156,13 @@ def get_rabbitmq_conn(queue, context=None, dq=True):
 
 @contextmanager
 def get_rabbitmq_conn_nodqueue(queue, context=None):
-    """ Context manager to connect to RabbitMQ
-    """
+    """Context manager to connect to RabbitMQ"""
 
     s = get_rabbitmq_client_settings()
 
-    rb = RabbitMQConnector(s.get('hostname'),
-                           s.get('port'),
-                           s.get('username'),
-                           s.get('password'))
+    rb = RabbitMQConnector(
+        s.get("hostname"), s.get("port"), s.get("username"), s.get("password")
+    )
     rb.open_connection()
 
     yield rb
@@ -159,8 +171,7 @@ def get_rabbitmq_conn_nodqueue(queue, context=None):
 
 
 def consume_messages(consumer, queue=None, context=None):
-    """ Executes the callback on all messages existing in the queue
-    """
+    """Executes the callback on all messages existing in the queue"""
 
     with get_rabbitmq_conn(queue, context) as conn:
         while not conn.is_queue_empty(queue):
@@ -170,8 +181,7 @@ def consume_messages(consumer, queue=None, context=None):
 
 
 class MessagesDataManager(object):
-    """ Transaction aware data manager for RabbitMQ connections
-    """
+    """Transaction aware data manager for RabbitMQ connections"""
 
     def __init__(self):
         self.sp = 0
@@ -220,10 +230,12 @@ class MessagesDataManager(object):
                     count += 1
                     if count >= 3:
                         logger.exception(
-                            "RabbitMQ Connection exception: {}".format(str(e)))
+                            "RabbitMQ Connection exception: {}".format(str(e))
+                        )
                         raise Exception(
-                            '''Temporary network issue! Please
-                             click the browser's back button and try again.''')
+                            """Temporary network issue! Please
+                             click the browser's back button and try again."""
+                        )
 
         self.txn = None
         self.messages = []
@@ -240,13 +252,12 @@ class MessagesDataManager(object):
         self.messages.append((queue, msg, dq))
 
     def _checkTransaction(self, txn):
-        if (txn is not self.txn and self.txn is not None):
+        if txn is not self.txn and self.txn is not None:
             raise TypeError("Transaction missmatch", txn, self.txn)
 
 
 class Savepoint(object):
-    """ Savepoint implementation to allow rollback of queued messages
-    """
+    """Savepoint implementation to allow rollback of queued messages"""
 
     def __init__(self, dm):
         self.dm = dm
@@ -258,8 +269,11 @@ class Savepoint(object):
         if self.transaction is not self.dm.transaction:
             raise TypeError("Attempt to rollback stale rollback")
         if self.dm.sp < self.sp:
-            raise TypeError("Attempt to roll back to invalid save point",
-                            self.sp, self.dm.sp)
+            raise TypeError(
+                "Attempt to roll back to invalid save point",
+                self.sp,
+                self.dm.sp,
+            )
         self.dm.sp = self.sp
         self.dm.messages = self.messages[:]
 
@@ -275,8 +289,7 @@ def send_message_nodqueue(msg, queue, context=None):
 
 
 def queue_msg(msg, queue=None, dq=True):
-    """ Queues a rabbitmq message in the given queue
-    """
+    """Queues a rabbitmq message in the given queue"""
 
     _mdm = MessagesDataManager()
     transaction.get().join(_mdm)

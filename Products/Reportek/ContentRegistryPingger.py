@@ -2,11 +2,13 @@ import logging
 import threading
 
 import requests
+
 # from BeautifulSoup import BeautifulSoup as bs
 from bs4 import BeautifulSoup as bs
-from .config import DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
 
 from Products.Reportek.rabbitmq import send_message
+
+from .config import DEPLOYMENT_CDR, REPORTEK_DEPLOYMENT
 
 logger = logging.getLogger("Reportek")
 
@@ -132,9 +134,13 @@ class ContentRegistryPingger(object):
         messageBody = ""
         try:
             if "<html" in message:
-                messageBody = bs(message, features="html.parser").find("body").text
+                messageBody = (
+                    bs(message, features="html.parser").find("body").text
+                )
             elif "<?xml" in message:
-                messageBody = bs(message, features="lxml-xml").find("response").text
+                messageBody = (
+                    bs(message, features="lxml-xml").find("response").text
+                )
         except Exception:
             messageBody = message
 

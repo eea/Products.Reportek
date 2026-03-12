@@ -429,9 +429,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                             workitem, "upload", err=err, dec_retry=True
                         )
                     if isinstance(srv_res, list):
-                        paths = [
-                            f.get("name") for f in srv_res
-                        ]
+                        paths = [f.get("name") for f in srv_res]
                         up_files = ""
                         for x in paths:
                             up_files += "<li>%s</li>" % (x)
@@ -907,7 +905,9 @@ class RemoteFMEConversionApplication(SimpleItem):
                         )
                         fb_status = log_sum.get("class", ["UNKNOWN"])
                         if isinstance(fb_status, list):
-                            fb_status = fb_status[0] if fb_status else "UNKNOWN"
+                            fb_status = (
+                                fb_status[0] if fb_status else "UNKNOWN"
+                            )
                         fb_message = log_sum.text
                     if len(content) > FEEDBACKTEXT_LIMIT:
                         f.seek(0)
