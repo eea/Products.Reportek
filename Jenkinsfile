@@ -118,8 +118,8 @@ pipeline {
             node(label: 'docker') {
               script {
                 try {
-                  sh '''docker pull eeacms/reportek-base-dr:z5; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5 bash -c "cd /opt/zope/src/Products.Reportek && /opt/zope/bin/coverage run /opt/zope/bin/zope-testrunner --test-path . -v -vv -s Products.Reportek && /opt/zope/bin/coverage xml --include='*/Products/Reportek/*'"'''
-                  sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/parts/xmltestreport/testreports/. xunit-reports/'''
+                  sh '''docker pull eeacms/reportek-base-dr:z5; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5 coverage'''
+                  sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/testreports/. xunit-reports/'''
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
                   sh '''docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
                   stash name: "coverage.xml", includes: "coverage.xml"
