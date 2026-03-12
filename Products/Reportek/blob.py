@@ -301,13 +301,13 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
         if self.data_file.content_type.startswith("text/html"):
             with self.data_file.open() as data_file_handle:
                 separator = "HEADER-FOOTER-SPLIT"
-                html = self._view_tmpl(content=separator).encode("utf-8")
+                html = self._view_tmpl(content=separator)
                 header, footer = html.split(separator)
                 RESPONSE.setHeader("Content-Type", "text/html")
-                RESPONSE.write(header)
+                RESPONSE.write(header.encode("utf-8"))
                 for chunk in RepUtils.iter_file_data(data_file_handle):
                     RESPONSE.write(chunk)
-                RESPONSE.write(footer)
+                RESPONSE.write(footer.encode("utf-8"))
 
         else:
             link = '<a href="{url}">Download</a>'.format(

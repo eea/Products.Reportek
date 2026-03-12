@@ -31,18 +31,18 @@ import logging
 import re
 
 import plone.protect.interfaces
-
-# Product specific imports
-from Products.Reportek import RepUtils
 import transaction
 from AccessControl import ClassSecurityInfo
 
 # Zope imports
 from AccessControl.class_init import InitializeClass
-from Products.Reportek.constants import QAREPOSITORY_ID
 from zope.interface import alsoProvides
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+
+# Product specific imports
+from Products.Reportek import RepUtils
+from Products.Reportek.constants import QAREPOSITORY_ID
 from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException
 
@@ -463,11 +463,11 @@ class EnvelopeRemoteServicesManager:
                 elif restricted == "0":
                     self.manage_unrestrict([file_id], None)
             REQUEST.RESPONSE.setHeader("Content-Type", "text/plain")
-            REQUEST.RESPONSE.write("1" + file_id)
+            REQUEST.RESPONSE.write(("1" + file_id).encode("utf-8"))
             return "1"
         except Exception as err:
             REQUEST.RESPONSE.setHeader("Content-Type", "text/plain")
-            REQUEST.RESPONSE.write("0" + str(err))
+            REQUEST.RESPONSE.write(("0" + str(err)).encode("utf-8"))
             return "0"
 
     security.declareProtected("Change Envelopes", "fetchFile")

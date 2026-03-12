@@ -21,7 +21,7 @@ class ErrorView(object):
             data = {
                 "errors": [error],
             }
-            return self.request.response.write(json.dumps(data, indent=4))
+            return json.dumps(data, indent=4)
 
         ctx = aq_parent(self)
         if hasattr(ctx, "standard_error_message"):
