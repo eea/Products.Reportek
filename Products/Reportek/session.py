@@ -129,7 +129,7 @@ def extract_beaker_session(event):
     """
     request = event.request
     if "beaker.session" in request.environ:
-        logger.info("SETTING request.SESSION: {}")
+        logger.debug("SETTING request.SESSION: {}")
         request.SESSION = ZopeBeakerSessionWrapper(
             request.environ["beaker.session"]
         )
