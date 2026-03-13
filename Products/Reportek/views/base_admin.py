@@ -2,6 +2,8 @@ import json
 from collections import defaultdict
 from operator import itemgetter
 
+from AccessControl.class_init import InitializeClass
+from AccessControl.SecurityInfo import ClassSecurityInfo
 from zope.browsermenu.menu import getMenu
 
 from Products.Five import BrowserView
@@ -11,6 +13,10 @@ from Products.Reportek.RepUtils import getToolByName
 
 class BaseAdmin(BrowserView):
     """Base view for users administration"""
+
+    security = ClassSecurityInfo()
+    security.declarePublic("get_breadcrumbs")  # noqa: S104
+    security.declarePublic("get_available_menu_items")  # noqa: S104
 
     def __init__(self, *args, **kwargs):
         super(BaseAdmin, self).__init__(*args, **kwargs)
@@ -255,7 +261,7 @@ class BaseAdmin(BrowserView):
 
         for item in self.request.get("PARENTS"):
             crumb = {
-                "title": item.title_or_id,
+                "title": item.title_or_id(),
                 "url": item.absolute_url(),
             }
             breadcrumbs.append(crumb)
@@ -287,3 +293,6 @@ class BaseAdmin(BrowserView):
 
     def get_available_menu_items(self):
         return getMenu("reportek_utilities", self.context, self.request)
+
+
+InitializeClass(BaseAdmin)
