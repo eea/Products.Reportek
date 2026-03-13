@@ -98,7 +98,7 @@ def allowedRolesAndUsers(obj):
         acl_users = obj.unrestrictedTraverse('acl_users', None)
         if acl_users is not None:
             localroles = acl_users._getAllLocalRoles(obj)
-    except AttributeError:
+    except (AttributeError, KeyError):
         localroles = _mergedLocalRoles(obj)
     for user, roles in list(localroles.items()):
         if allowed.intersection(roles):
