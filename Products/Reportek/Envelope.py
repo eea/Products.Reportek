@@ -714,9 +714,9 @@ class Envelope(
 
     security.declareProtected("View management screens", "manage_main_inh")
 
-    def manage_main_inh(self, obj, *args, **kw):
+    def manage_main_inh(self, *args, **kw):
         """Inherited manage_main from EnvelopeInstance."""
-        return EnvelopeInstance.manage_main(obj, *args, **kw)
+        return EnvelopeInstance.manage_main.__of__(self)(*args, **kw)
 
     security.declareProtected("View", "manage_main")
 
@@ -726,14 +726,9 @@ class Envelope(
         if getSecurityManager().checkPermission(
             "View management screens", self
         ):
-            return self.manage_main_inh(self, *args, **kw)
+            return self.manage_main_inh(*args, **kw)
         else:
-            # args is a tuple, the first element being the object instance,
-            # the second the REQUEST
-            if len(args) > 1:
-                return self.index_html(args[1])
-            else:
-                return self.index_html()
+            return self.index_html(*args, **kw)
 
     security.declareProtected("View", "getDocuments")
 

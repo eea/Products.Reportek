@@ -241,9 +241,9 @@ class Collection(
 
     security.declareProtected("View management screens", "manage_main_inh")
 
-    def manage_main_inh(self, obj, *args, **kw):
+    def manage_main_inh(self, *args, **kw):
         """Inherited manage_main from Folder."""
-        return Folder.manage_main(obj, *args, **kw)
+        return Folder.manage_main.__of__(self)(*args, **kw)
 
     security.declareProtected("View", "manage_main")
 
@@ -252,9 +252,9 @@ class Collection(
         if getSecurityManager().checkPermission(
             "View management screens", self
         ):
-            return self.manage_main_inh(self, *args, **kw)
+            return self.manage_main_inh(*args, **kw)
         else:
-            return self.index_html(self, *args, **kw)
+            return self.index_html(*args, **kw)
 
     security.declareProtected("Add Collections", "manage_addCollectionForm")
     manage_addCollectionForm = manage_addCollectionForm
