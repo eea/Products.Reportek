@@ -11,21 +11,24 @@ setup(
     version=VERSION,
     description="Products Reportek",
     long_description_content_type="text/x-rst",
-    long_description=(
-        open("README.rst").read()
-        + "\n"
-        + open(os.path.join("docs", "changelog.rst")).read()
-    ),
+    long_description=open("README.rst").read(),
     author="European Environment Agency: DIS1 P-Team",
     author_email="eea-edw-c-team-alerts@googlegroups.com",
     url="https://github.com/eea/Products.Reportek",
+    python_requires=">=3.8",
+    classifiers=[
+        "Framework :: Zope :: 5",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.12",
+        "License :: OSI Approved :: Mozilla Public License 1.1 (MPL 1.1)",
+    ],
     packages=find_packages(),
     include_package_data=True,
     license="MPL",
     zip_safe=False,
     install_requires=[
         "Products.PluggableAuthService",
-        "Zope2",
+        "Zope>=5",
         "collective.monkeypatcher",
         "lxml",
         "plone.caching",
