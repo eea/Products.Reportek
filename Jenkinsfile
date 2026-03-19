@@ -5,6 +5,7 @@ pipeline {
         GIT_NAME = "Products.Reportek"
         GIT_SRC = "https://github.com/eea/Products.Reportek.git"
         SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,cdrtest.eionet.europa.eu,cdrsandbox.eionet.europa.eu,mdr.eionet.europa.eu"
+        GIT_RELEASE_BRANCHES = "z5 master"
     }
 
  stages {
@@ -197,7 +198,7 @@ pipeline {
       steps {
         node(label: 'docker') {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'eea-jenkins', usernameVariable: 'EGGREPO_USERNAME', passwordVariable: 'EGGREPO_PASSWORD'],string(credentialsId: 'eea-jenkins-token', variable: 'GITHUB_TOKEN'),[$class: 'UsernamePasswordMultiBinding', credentialsId: 'pypi-jenkins', usernameVariable: 'PYPI_USERNAME', passwordVariable: 'PYPI_PASSWORD']]) {
-            sh '''docker pull eeacms/gitflow; docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" eeacms/gitflow'''
+            sh '''docker pull eeacms/gitflow; docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" -e GIT_RELEASE_BRANCHES="$GIT_RELEASE_BRANCHES" eeacms/gitflow'''
           }
         }
       }
