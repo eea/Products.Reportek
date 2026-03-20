@@ -37,7 +37,7 @@ setup(
         "requests",
         "xlwt",
         "clamd",
-        "zipstream",
+        "zipstream-ng",
         "xmltodict==0.11.0",
         "pika>=1.3",
         "contextlib2",
