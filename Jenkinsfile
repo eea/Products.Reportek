@@ -17,7 +17,7 @@ pipeline {
       steps {
             node(label: 'docker') {
               script {
-                if (!(env.BRANCH_NAME != "z5" && env.BRANCH_NAME != "master" && (env.CHANGE_ID == null || env.CHANGE_ID == '')) ) {
+                if ( env.BRANCH_NAME != "z5-develop" || env.CHANGE_ID ) {
                   return
                 }
                 checkout scm
