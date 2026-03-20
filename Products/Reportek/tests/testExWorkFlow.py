@@ -102,23 +102,13 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         process = "begin_end"
         activities = ["Begin", "End"]
         result = self.app.Catalog.searchResults(meta_type="Workitem")
-        assert len(result) == 1, "%s workitems listed instead of 1" % len(
-            result
-        )
-        result = [
-            o.getObject() for o in result if role in o.getObject().push_roles
-        ]
-        assert len(result) == 0, "%s workitems listed instead of 0" % len(
-            result
-        )
+        assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
+        result = [o.getObject() for o in result if role in o.getObject().push_roles]
+        assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPushableOnRole(role, process, activities)
         result = self.app.Catalog.searchResults(meta_type="Workitem")
-        result = [
-            o.getObject() for o in result if role in o.getObject().push_roles
-        ]
-        assert len(result) == 1, "%s workitems listed instead of 1" % len(
-            result
-        )
+        result = [o.getObject() for o in result if role in o.getObject().push_roles]
+        assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
 
     def testWorkitemsListForRolePull(self):
         role = "testRole"
@@ -126,23 +116,13 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         activities = ["Begin", "End"]
         result = self.app.Catalog.searchResults(meta_type="Workitem")
 
-        assert len(result) == 1, "%s workitems listed instead of 1" % len(
-            result
-        )
-        result = [
-            o.getObject() for o in result if role in o.getObject().pull_roles
-        ]
-        assert len(result) == 0, "%s workitems listed instead of 0" % len(
-            result
-        )
+        assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
+        result = [o.getObject() for o in result if role in o.getObject().pull_roles]
+        assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPullableOnRole(role, process, activities)
         result = self.app.Catalog.searchResults(meta_type="Workitem")
-        result = [
-            o.getObject() for o in result if role in o.getObject().pull_roles
-        ]
-        assert len(result) == 1, "%s workitems listed instead of 1" % len(
-            result
-        )
+        result = [o.getObject() for o in result if role in o.getObject().pull_roles]
+        assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
 
 
 class zopeEnvTestCase(BaseTest, ConfigureReportek):

@@ -123,11 +123,7 @@ class TestExtractBeakerSession(unittest.TestCase):
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(
-        unittest.TestLoader().loadTestsFromTestCase(
-            TestZopeBeakerSessionWrapper
-        )
+        unittest.TestLoader().loadTestsFromTestCase(TestZopeBeakerSessionWrapper)
     )
-    suite.addTest(
-        unittest.TestLoader().loadTestsFromTestCase(TestExtractBeakerSession)
-    )
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestExtractBeakerSession))
     return suite

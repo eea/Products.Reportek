@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-""" A script to cleanup envelopes older than inactive_for.
+"""A script to cleanup envelopes older than inactive_for.
 
 * Call it with its exported console script main():
 
     bin/instance run bin/auto_env_cleanup --inactive_for 30 --limit 30
 
 """
+
 from Products.Reportek.scripts import get_zope_site
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.constants import DEFAULT_CATALOG
@@ -20,12 +21,12 @@ def get_envelopes(catalog, inactive_for, limit):
     if limit:
         limit = int(limit)
     query = {
-        'meta_type': 'Report Envelope',
-        'bobobase_modification_time': {
-            'range': 'max',
-            'query': DateTime() - int(inactive_for)
+        "meta_type": "Report Envelope",
+        "bobobase_modification_time": {
+            "range": "max",
+            "query": DateTime() - int(inactive_for),
         },
-        '_limit': limit
+        "_limit": limit,
     }
 
     brains = catalog.searchResults(**query)
@@ -45,21 +46,25 @@ def do_cleanup(site, inactive_for=30, limit=None):
     for b in b_envs:
         try:
             env = b.getObject()
-        except Exception as e:
+        except Exception:
             print("Unable to retrieve envelope object")
         processed.append(env.absolute_url())
         col = env.getParentNode()
         if col.getPhysicalPath() not in cols_removed:
-            terminated = [df for df in col.dataflow_uris
-                          if engine.dataflow_lookup(df).get(
-                            'terminated') == '1']
+            terminated = [
+                df
+                for df in col.dataflow_uris
+                if engine.dataflow_lookup(df).get("terminated") == "1"
+            ]
             if terminated and len(terminated) == len(col.dataflow_uris):
-                print("Removing {}. Terminated obligations: {}".format(
-                        col.absolute_url(),
-                        terminated))
+                print(
+                    "Removing {}. Terminated obligations: {}".format(
+                        col.absolute_url(), terminated
+                    )
+                )
                 col_par = col.getParentNode()
                 changed = False
-                if not getattr(col_par, 'can_move_released', False):
+                if not getattr(col_par, "can_move_released", False):
                     col_par.can_move_released = True
                     changed = True
                 print("Parent collection: {}".format(col_par.absolute_url()))
@@ -70,14 +75,19 @@ def do_cleanup(site, inactive_for=30, limit=None):
                         del col_par.can_move_released
                     col_count += 1
                 except Exception as e:
-                    print("Unable to delete collection: {}: {}".format(
-                        col.absolute_url(), str(e)))
+                    print(
+                        "Unable to delete collection: {}: {}".format(
+                            col.absolute_url(), str(e)
+                        )
+                    )
             else:
-                print("Removing {}. Last modified date: {}".format(
-                    env.absolute_url(),
-                    env.bobobase_modification_time()))
+                print(
+                    "Removing {}. Last modified date: {}".format(
+                        env.absolute_url(), env.bobobase_modification_time()
+                    )
+                )
                 changed = False
-                if not getattr(col, 'can_move_released', False):
+                if not getattr(col, "can_move_released", False):
                     col.can_move_released = True
                     changed = True
                 try:
@@ -89,30 +99,31 @@ def do_cleanup(site, inactive_for=30, limit=None):
                 except Exception as e:
                     print("Something went wrong: {}".format(str(e)))
         else:
-            print("Parent collection for: {} already deleted".format(
-                env.absolute_url()))
+            print(
+                "Parent collection for: {} already deleted".format(env.absolute_url())
+            )
             env_count += 1
 
     transaction.commit()
-    print("Removed {} collections and {} envelopes".format(col_count,
-                                                           env_count))
+    print("Removed {} collections and {} envelopes".format(col_count, env_count))
     print("Processed: \n{}\nRemoved: \n{}".format(processed, envs_removed))
 
 
 def main():
-    """ cleanup old files in a pre-defined container
-    """
+    """cleanup old files in a pre-defined container"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--inactive_for',
-        help='Inactive for how many days. Default: 30 days',
-        dest='inactive_for',
-        default=30)
+        "--inactive_for",
+        help="Inactive for how many days. Default: 30 days",
+        dest="inactive_for",
+        default=30,
+    )
     parser.add_argument(
-        '--limit',
-        help='Limit deletions to how many results. Default: 0 (unlimited)',
-        dest='limit',
-        default=None)
+        "--limit",
+        help="Limit deletions to how many results. Default: 0 (unlimited)",
+        dest="limit",
+        default=None,
+    )
     args = parser.parse_args(sys.argv[3:])
     site = get_zope_site()
     do_cleanup(site, inactive_for=args.inactive_for, limit=args.limit)

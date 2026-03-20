@@ -113,9 +113,7 @@ class RemoteFMEConversionApplication(SimpleItem):
     )
 
     security.declareProtected("View configuration", "index_html")
-    index_html = PageTemplateFile(
-        "zpt/RemoteFMEConversionApplicationView", globals()
-    )
+    index_html = PageTemplateFile("zpt/RemoteFMEConversionApplicationView", globals())
 
     def __init__(
         self,
@@ -187,9 +185,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         self.app_name = REQUEST.form.get("app_name")
         self.nRetries = int(REQUEST.form.get("nRetries"))
         if REQUEST is not None:
-            return self.manage_settings_html(
-                manage_tabs_message="Saved changes."
-            )
+            return self.manage_settings_html(manage_tabs_message="Saved changes.")
 
     def get_fme_token(self):
         """Retrieves the token from FME"""
@@ -201,9 +197,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             "timeunit": self.FMETokenTimeUnit,
         }
         t_unit = {"second": 1, "minute": 60, "hour": 3600, "day": 86400}
-        offset = int(self.FMETokenExpiration) * t_unit.get(
-            self.FMETokenTimeUnit
-        )
+        offset = int(self.FMETokenExpiration) * t_unit.get(self.FMETokenTimeUnit)
         expires = DateTime(datetime.now() + timedelta(seconds=offset))
         try:
             resp = requests.post(
@@ -217,9 +211,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             else:
                 logger.error(
                     """FME authentication request failed. Could not"""
-                    """ retrieve token: {}-{}""".format(
-                        resp.status_code, resp.content
-                    )
+                    """ retrieve token: {}-{}""".format(resp.status_code, resp.content)
                 )
         except Exception as e:
             logger.error(
@@ -263,9 +255,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     e_files = [
                         f
                         for f in env.objectValues("Report Document")
-                        if f.title_or_id()
-                        .lower()
-                        .endswith("." + e.strip().lower())
+                        if f.title_or_id().lower().endswith("." + e.strip().lower())
                     ]
                     if e_files:
                         for e_file in e_files:
@@ -276,9 +266,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     e_file.bobobase_modification_time()
                                 )
                             ):
-                                latest[grp_prefix] = (
-                                    e_file.bobobase_modification_time()
-                                )
+                                latest[grp_prefix] = e_file.bobobase_modification_time()
             if not latest:
                 err = "No convertible files found in the envelope. "
                 "Convertible file extensions for this workflow: {}.".format(
@@ -304,9 +292,7 @@ class RemoteFMEConversionApplication(SimpleItem):
     def get_auth_header(self, workitem_id):
         token = self.get_token(workitem_id)
         if token:
-            return {
-                "Authorization": "fmetoken token={}".format(token.get("token"))
-            }
+            return {"Authorization": "fmetoken token={}".format(token.get("token"))}
         return {}
 
     def get_headers(self, workitem_id):
@@ -344,9 +330,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 headers = self.get_headers(workitem_id)
                 res = requests.delete(url, headers=headers)
                 if res.status_code == 204:
-                    self.__update_storage(
-                        workitem, "cleanup", status="completed"
-                    )
+                    self.__update_storage(workitem, "cleanup", status="completed")
             except Exception as e:
                 self.__update_storage(
                     workitem, "cleanup", err=e, status="failed", dec_retry=True
@@ -404,8 +388,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     params[k] = v
             files = self.get_files(workitem_id)
             files = [
-                ("files", (f.title_or_id(), f.data_file.open("rb")))
-                for f in files
+                ("files", (f.title_or_id(), f.data_file.open("rb"))) for f in files
             ]
             tokenized_folder = self.get_env_path_tokenized(workitem_id)
             url = "/".join([url, tokenized_folder])
@@ -413,9 +396,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 headers = self.get_headers(workitem_id)
                 # We need to explicitly remove the content-type on file upload
                 del headers["Content-Type"]
-                res = requests.post(
-                    url, params=params, files=files, headers=headers
-                )
+                res = requests.post(url, params=params, files=files, headers=headers)
                 if res.status_code == 200:
                     try:
                         srv_res = res.json()
@@ -444,9 +425,7 @@ class RemoteFMEConversionApplication(SimpleItem):
 
                 else:
                     err = "HTTP: {}: {}".format(res.status_code, res.content)
-                    self.__update_storage(
-                        workitem, "upload", err=err, dec_retry=True
-                    )
+                    self.__update_storage(workitem, "upload", err=err, dec_retry=True)
             except Exception as e:
                 self.__update_storage(
                     workitem, "upload", status="failed", err=e, dec_retry=True
@@ -455,9 +434,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             for file in files:
                 file[-1][-1].close()
 
-    def get_uploaded_files(
-        self, workitem_id, single_file=False, shapefile=False
-    ):
+    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
         """Return a list of uploaded files"""
         workitem = getattr(self, workitem_id)
         env = workitem.getMySelf()
@@ -475,14 +452,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                     )
                     if files:
                         return files[-1]
-            zips = [
-                f
-                for f in upload_storage["paths"]
-                if f.lower().endswith(".zip")
-            ]
-            convs = [
-                f for f in upload_storage["paths"] if f.split(".")[0] in zips
-            ]
+            zips = [f for f in upload_storage["paths"] if f.lower().endswith(".zip")]
+            convs = [f for f in upload_storage["paths"] if f.split(".")[0] in zips]
             for z in zips:
                 if z not in convs:
                     return z
@@ -503,19 +474,13 @@ class RemoteFMEConversionApplication(SimpleItem):
         """Execute the workspace"""
         workitem = getattr(self, workitem_id)
         results = getattr(workitem, self.app_name, {}).get("results")
-        url = "/".join(
-            [self.FMEServer, self.FMETransformation, self.FMEWorkspace]
-        )
+        url = "/".join([self.FMEServer, self.FMETransformation, self.FMEWorkspace])
         wks_params = {}
         # Load the params setup on an application level
         if self.FMEWorkspaceParams:
             wks_params = self.FMEWorkspaceParams.format(
-                GET_FILE=self.get_uploaded_files(
-                    workitem_id, single_file=True
-                ),
-                GET_SHAPEFILE=self.get_uploaded_files(
-                    workitem_id, shapefile=True
-                ),
+                GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
+                GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
                 ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id),
                 FMEUPLOADDIR=self.FMEUploadDir,
                 GET_ENV_OBLIGATION=self.get_env_obligation(workitem_id),
@@ -547,9 +512,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     "status": "pending",
                     "inputfile": inputfile,
                 }
-                workitem.addEvent(
-                    "FME job id: {} started".format(res.json().get("id"))
-                )
+                workitem.addEvent("FME job id: {} started".format(res.json().get("id")))
                 self.__update_storage(workitem, "fmw_exec", status="completed")
             else:
                 err = "HTTP: {}: {}".format(res.status_code, res.content)
@@ -574,21 +537,14 @@ class RemoteFMEConversionApplication(SimpleItem):
         if results:
             for job_id in list(results.keys()):
                 if (
-                    results[job_id].get("status")
-                    not in ["completed", "failed"]
+                    results[job_id].get("status") not in ["completed", "failed"]
                     and results[job_id].get("retries_left")
-                    and results[job_id]
-                    .get("next_run")
-                    .lessThanEqualTo(DateTime())
+                    and results[job_id].get("next_run").lessThanEqualTo(DateTime())
                 ):
                     inputfile = results[job_id].get("inputfile")
-                    url = "/".join(
-                        [self.FMEServer, rest_endpoint, str(job_id)]
-                    )
+                    url = "/".join([self.FMEServer, rest_endpoint, str(job_id)])
                     try:
-                        res = requests.get(
-                            url, headers=self.get_headers(workitem_id)
-                        )
+                        res = requests.get(url, headers=self.get_headers(workitem_id))
                         if res.status_code == 200:
                             fme_status = {
                                 "SUBMITTED": "",
@@ -617,19 +573,15 @@ class RemoteFMEConversionApplication(SimpleItem):
                             ]
                             if fme_status == "SUCCESS":
                                 if response.get("result"):
-                                    job_status = response["result"].get(
-                                        "status"
-                                    )
+                                    job_status = response["result"].get("status")
                                     if job_status == "SUCCESS":
                                         try:
                                             workitem.addEvent(
                                                 """FME job id: {}"""
                                                 """ finished""".format(job_id)
                                             )
-                                            dl_res = (
-                                                self.handle_res_zip_download(
-                                                    workitem_id
-                                                )
+                                            dl_res = self.handle_res_zip_download(
+                                                workitem_id
                                             )
                                             if dl_res[0] != 1:
                                                 msg = "{}: {}".format(
@@ -694,15 +646,11 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     dec_retry=True,
                                 )
                             elif fme_status in abort:
-                                dl_res = self.handle_res_zip_download(
-                                    workitem_id
-                                )
+                                dl_res = self.handle_res_zip_download(workitem_id)
                                 if dl_res[0] != 1:
                                     msg = "{}: {}".format(dl_res[0], dl_res[1])
                                     workitem.addEvent(msg)
-                                err = "FME Status: {}. Aborting".format(
-                                    fme_status
-                                )
+                                err = "FME Status: {}. Aborting".format(fme_status)
                                 self.__update_storage(
                                     workitem,
                                     "results",
@@ -752,9 +700,9 @@ class RemoteFMEConversionApplication(SimpleItem):
             "retries_left"
         ):
             self.upload_to_fme(workitem_id)
-        elif upload_storage.get(
-            "status"
-        ) != "completed" and not upload_storage.get("retries_left"):
+        elif upload_storage.get("status") != "completed" and not upload_storage.get(
+            "retries_left"
+        ):
             err = "File upload failed! Aborting."
             workitem.addEvent(err)
             workitem.failure = True
@@ -900,24 +848,16 @@ class RemoteFMEConversionApplication(SimpleItem):
                     content = f.read()
                     if doc.content_type == "text/html":
                         soup = bs(content, features="html.parser")
-                        log_sum = soup.find(
-                            "span", attrs={"id": "feedbackStatus"}
-                        )
+                        log_sum = soup.find("span", attrs={"id": "feedbackStatus"})
                         fb_status = log_sum.get("class", ["UNKNOWN"])
                         if isinstance(fb_status, list):
-                            fb_status = (
-                                fb_status[0] if fb_status else "UNKNOWN"
-                            )
+                            fb_status = fb_status[0] if fb_status else "UNKNOWN"
                         fb_message = log_sum.text
                     if len(content) > FEEDBACKTEXT_LIMIT:
                         f.seek(0)
-                        feedback_ob.manage_uploadFeedback(
-                            f, filename="qa-output"
-                        )
+                        feedback_ob.manage_uploadFeedback(f, filename="qa-output")
                         feedback_attach = feedback_ob.objectValues()[0]
-                        feedback_attach.data_file.content_type = (
-                            doc.content_type
-                        )
+                        feedback_attach.data_file.content_type = doc.content_type
                         feedback_ob.feedbacktext = "{}</br>{}".format(
                             feedback_ob.feedbacktext,
                             (
@@ -957,15 +897,11 @@ class RemoteFMEConversionApplication(SimpleItem):
         try:
             res = requests.delete(url, headers=self.get_headers(workitem_id))
             if res.status_code == 204:
-                workitem.addEvent(
-                    "FME job id: {} deleted successfully".format(job_id)
-                )
+                workitem.addEvent("FME job id: {} deleted successfully".format(job_id))
             else:
                 running_endpoint = "fmerest/v3/transformations/jobs/running"
                 url = "/".join([self.FMEServer, running_endpoint, str(job_id)])
-                res = requests.delete(
-                    url, headers=self.get_headers(workitem_id)
-                )
+                res = requests.delete(url, headers=self.get_headers(workitem_id))
                 if res.status_code == 204:
                     workitem.addEvent(
                         "FME job id: {} deleted successfully".format(job_id)
@@ -977,9 +913,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         )
                     )
         except Exception as e:
-            workitem.addEvent(
-                "FME job id: {} delete failed: {}".format(job_id, str(e))
-            )
+            workitem.addEvent("FME job id: {} delete failed: {}".format(job_id, str(e)))
 
         self.handle_cleanup(workitem_id)
         workitem.addEvent("FME Cleanup completed.")
@@ -989,9 +923,7 @@ class RemoteFMEConversionApplication(SimpleItem):
     def __finish(self, workitem_id, REQUEST=None):
         """Completes the workitem and forwards it"""
         self.activateWorkitem(workitem_id, actor="openflow_engine")
-        self.completeWorkitem(
-            workitem_id, actor="openflow_engine", REQUEST=REQUEST
-        )
+        self.completeWorkitem(workitem_id, actor="openflow_engine", REQUEST=REQUEST)
 
 
 InitializeClass(RemoteFMEConversionApplication)

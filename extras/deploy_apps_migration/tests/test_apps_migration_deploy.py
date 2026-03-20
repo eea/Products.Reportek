@@ -65,9 +65,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
             for app in apps:
                 app_obj = getattr(self.root, app, None)
                 if not app_obj:
-                    self.fail(
-                        '"%s" application was not found at "/%s"' % (app, app)
-                    )
+                    self.fail('"%s" application was not found at "/%s"' % (app, app))
                 self.assertEqual(app_obj.absolute_url(), "%s" % app)
         host_folder = "Applications"
         move_apps(self.root, delete=True)
@@ -75,9 +73,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
         for proc, apps in grouped_apps:
             host_folder_obj = getattr(self.root, host_folder)
             if not getattr(host_folder_obj, proc, None):
-                self.fail(
-                    '"%s" folder was not found in %s' % (proc, host_folder)
-                )
+                self.fail('"%s" folder was not found in %s' % (proc, host_folder))
             for app in apps:
                 path = "Applications/%s/%s" % (proc, app)
                 if apps_list(self.root)[app] > 1:
@@ -185,9 +181,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
         """Test with wrong application name"""
         self.root.WorkflowEngine.manage_addProcess("proc3", BeginEnd=0)
         self.root.WorkflowEngine.proc3.addActivity("act1", application="worng")
-        self.root.WorkflowEngine.proc3.addActivity(
-            "act2", application="mitsake"
-        )
+        self.root.WorkflowEngine.proc3.addActivity("act2", application="mitsake")
         try:
             with self.log_file.open("ab") as log_file:
                 move_apps(self.root, log=log_file)
@@ -219,9 +213,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
 
     def test_apps_list(self):
         apps = apps_list(self.root)
-        self.assertEqual(
-            [("app3", 1), ("app2", 2), ("app1", 1)], list(apps.items())
-        )
+        self.assertEqual([("app3", 1), ("app2", 2), ("app1", 1)], list(apps.items()))
 
     def test_update_path_to_QA_application_in_ReportekEngine(self):
         self.create_app("qa_application")

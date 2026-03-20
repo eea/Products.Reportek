@@ -112,8 +112,7 @@ class BaseDelivery(ReportekContent):
         if self.year != "":
             startDT = self.getStartDate()  # returns DateTime
             return DateTime(
-                startDT.strftime("%Y/")
-                + endmonths.get(self.partofyear, "12/31")
+                startDT.strftime("%Y/") + endmonths.get(self.partofyear, "12/31")
             )
         return None
 
@@ -127,12 +126,7 @@ class BaseDelivery(ReportekContent):
         if self.endyear != "":
             try:
                 if self.endyear > self.year:
-                    return (
-                        startDate
-                        + "/P"
-                        + str(self.endyear - self.year + 1)
-                        + "Y"
-                    )
+                    return startDate + "/P" + str(self.endyear - self.year + 1) + "Y"
                 if self.endyear == self.year:
                     return startDate
             except Exception:
@@ -219,15 +213,9 @@ class BaseDelivery(ReportekContent):
                 userid = "-"
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     company = (
-                        company_meta[0]
-                        if company_meta[0]
-                        else self.aq_parent.title
+                        company_meta[0] if company_meta[0] else self.aq_parent.title
                     )
-                    userid = (
-                        company_meta[1]
-                        if company_meta[1]
-                        else self.aq_parent.id
-                    )
+                    userid = company_meta[1] if company_meta[1] else self.aq_parent.id
                 obligations = [obl[0] for obl in self.getObligations()]
 
                 env_data = {
@@ -263,18 +251,14 @@ class BaseDelivery(ReportekContent):
 
     def rdf(self, REQUEST):
         """Returns the delivery metadata in RDF format."""
-        REQUEST.RESPONSE.setHeader(
-            "content-type", "application/rdf+xml; charset=utf-8"
-        )
+        REQUEST.RESPONSE.setHeader("content-type", "application/rdf+xml; charset=utf-8")
         res = []
         res_a = res.append
         engine = self.getEngine()
         http_res = getattr(engine, "exp_httpres", False)
 
         res_a('<?xml version="1.0" encoding="utf-8"?>')
-        res_a(
-            '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"'
-        )
+        res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
         res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
         res_a(' xmlns:dcat="http://www.w3.org/ns/dcat#"')
         res_a(' xmlns:dct="http://purl.org/dc/terms/"')
@@ -289,9 +273,7 @@ class BaseDelivery(ReportekContent):
         res_a("<dct:title>%s</dct:title>" % xmlEncode(self.title_or_id()))
 
         if self.descr:
-            res_a(
-                "<dct:description>%s</dct:description>" % xmlEncode(self.descr)
-            )
+            res_a("<dct:description>%s</dct:description>" % xmlEncode(self.descr))
 
         if self.country:
             res.append(
@@ -299,9 +281,7 @@ class BaseDelivery(ReportekContent):
                 % self.country.replace("eionet.eu.int", "eionet.europa.eu")
             )
         if self.locality != "":
-            res.append(
-                "<coverageNote>%s</coverageNote>" % xmlEncode(self.locality)
-            )
+            res.append("<coverageNote>%s</coverageNote>" % xmlEncode(self.locality))
 
         period = self.getPeriod()
         if period != "":
@@ -311,16 +291,14 @@ class BaseDelivery(ReportekContent):
         if startDT:
             res.append(
                 """<startOfPeriod rdf:datatype="http://www.w3.org/2001"""
-                """/XMLSchema#date">%s</startOfPeriod>"""
-                % startDT.strftime("%Y-%m-%d")
+                """/XMLSchema#date">%s</startOfPeriod>""" % startDT.strftime("%Y-%m-%d")
             )
 
         endDT = self.getEndDate()
         if endDT:
             res.append(
                 """<endOfPeriod rdf:datatype="http://www.w3.org/2001"""
-                """/XMLSchema#date">%s</endOfPeriod>"""
-                % endDT.strftime("%Y-%m-%d")
+                """/XMLSchema#date">%s</endOfPeriod>""" % endDT.strftime("%Y-%m-%d")
             )
 
         for flow in self.dataflow_uris:

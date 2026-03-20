@@ -53,9 +53,7 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             if fname and lname and email:
                 if not re.match(r"[\.\w]{1,}[@]\w+[.]\w+", email):
-                    return self.index(
-                        error="Please use a valid email address."
-                    )
+                    return self.index(error="Please use a valid email address.")
 
                 response = api.addEmail(fname, lname, email)
                 if response["success"]:
@@ -95,33 +93,33 @@ class SatelliteRegistryManagement(BaseAdmin):
             status = self.request.get("newval")
             orgid = self.request.get("orgid")
             if orgid and status:
-                if not api.updateCompanyStatus(
-                    orgid, status.upper(), domain=domain
-                ):
+                if not api.updateCompanyStatus(orgid, status.upper(), domain=domain):
                     return self.index(error="Unable to change company status")
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_company_details")  # noqa
+                    global_cache.invalidate(
+                        "Products.Reportek.RegistryManagement.get_company_details"
+                    )  # noqa
             if self.request.get("orgaction") == "sync":
                 sync_res = api.sync_company(orgid, domain=domain)
                 if not sync_res:
                     return self.index(error="Unable to sync company")
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_company_details")  # noqa
-                    return self.index(
-                        info_message=sync_res.get("message"), error=False
-                    )
+                    global_cache.invalidate(
+                        "Products.Reportek.RegistryManagement.get_company_details"
+                    )  # noqa
+                    return self.index(info_message=sync_res.get("message"), error=False)
             if self.request.get("orgaction") == "syncauditor":
                 sync_res = api.sync_auditor(orgid)
                 if not sync_res:
                     return self.index(error="Unable to sync auditor")
                 else:
                     # We need to clear the auditor_details cache
-                    global_cache.invalidate("Products.Reportek.RegistryManagement.get_auditor_details")  # noqa
-                    return self.index(
-                        info_message=sync_res.get("message"), error=False
-                    )
+                    global_cache.invalidate(
+                        "Products.Reportek.RegistryManagement.get_auditor_details"
+                    )  # noqa
+                    return self.index(info_message=sync_res.get("message"), error=False)
         return self.index(error=False)
 
     def get_api(self):
@@ -133,10 +131,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         role_mapping = {"FGAS": "ClientFG", "ODS": "ClientODS"}
         user = self.request.AUTHENTICATED_USER
         user_roles = user.getRolesInContext(self.context)
-        if (
-            role_mapping.get(domain, "") in user_roles
-            or "Manager" in user_roles
-        ):
+        if role_mapping.get(domain, "") in user_roles or "Manager" in user_roles:
             return True
         return False
 
@@ -146,9 +141,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
-            companies = api.get_registry_companies(
-                domain=domain, detailed=True
-            )
+            companies = api.get_registry_companies(domain=domain, detailed=True)
             self.request.response.setHeader("Content-Type", "application/json")
             return json.dumps(companies, indent=2)
 
@@ -174,9 +167,7 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             api = self.get_api()
             self.request.response.setHeader("Content-Type", "application/json")
-            return json.dumps(
-                api.existsCompany(params, domain=domain), indent=2
-            )
+            return json.dumps(api.existsCompany(params, domain=domain), indent=2)
 
     def get_company_json(self):
         self.request.response.setHeader("Content-Type", "application/json")
@@ -242,14 +233,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         )
         for person in company.get("person"):
             first_name = (
-                person.get("first_name", "")
-                if person.get("first_name", "")
-                else ""
+                person.get("first_name", "") if person.get("first_name", "") else ""
             )
             last_name = (
-                person.get("last_name", "")
-                if person.get("last_name", "")
-                else ""
+                person.get("last_name", "") if person.get("last_name", "") else ""
             )
             person["name"] = " ".join([first_name, last_name])
             person["phone"] = ""
@@ -273,16 +260,12 @@ class SatelliteRegistryManagement(BaseAdmin):
         if account_uid:
             # Search for oldcompany_account first
             company = [
-                c
-                for c in companies
-                if str(c.get("oldcompany_account")) == account_uid
+                c for c in companies if str(c.get("oldcompany_account")) == account_uid
             ]
             if not company:
                 # Fallback to search for new company id
                 company = [
-                    c
-                    for c in companies
-                    if str(c.get("company_id")) == account_uid
+                    c for c in companies if str(c.get("company_id")) == account_uid
                 ]
             if company:
                 result.append(self.prep_company_xml(company[0]))
@@ -513,9 +496,7 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         return api.getAllEmails()
 
-    def lockedCompany(
-        self, company_id, old_collection_id, country_code, domain
-    ):
+    def lockedCompany(self, company_id, old_collection_id, country_code, domain):
         api = self.get_api()
         if not api:
             return None
@@ -533,9 +514,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         if self.is_permitted(domain):
             self.request.response.setHeader("Content-Type", "application/json")
             return json.dumps(
-                self.lockedCompany(
-                    company_id, old_collection_id, country_code, domain
-                )
+                self.lockedCompany(company_id, old_collection_id, country_code, domain)
             )
 
     def lockDownCompany(

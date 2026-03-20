@@ -40,15 +40,11 @@ class ConversionServiceTest(BaseUnitTest):
     def test_only_http_converters(self, mock_local_converters):
         """no local converters, only http"""
         converters = [
-            LocalHttpConverter(**CONVERTER_PARAMS()).__of__(
-                self.app.Converters
-            )
+            LocalHttpConverter(**CONVERTER_PARAMS()).__of__(self.app.Converters)
         ]
         params = CONVERTER_PARAMS()
         params.update({"id": "http_list_7zip"})
-        converters.append(
-            LocalHttpConverter(**params).__of__(self.app.Converters)
-        )
+        converters.append(LocalHttpConverter(**params).__of__(self.app.Converters))
         mock_local_converters.return_value = converters
         local_converters = self.app.Converters._get_local_converters()
         self.assertEqual(
@@ -61,18 +57,14 @@ class ConversionServiceTest(BaseUnitTest):
     def test_http_converter(self, mock_requests, mock_local_converters):
         from Products.Reportek.Document import Document
 
-        document = Document(
-            "testfile", "", content_type="application/x-rar-compressed"
-        )
+        document = Document("testfile", "", content_type="application/x-rar-compressed")
         self.app._setObject("testfile", document)
         with self.app.testfile.data_file.open("wb") as datafile:
             tests = Path(__file__).parent.absolute()
             datafile.write((tests / "onefile.rar").read_bytes())
 
         mock_local_converters.return_value = [
-            LocalHttpConverter(**CONVERTER_PARAMS()).__of__(
-                self.app.Converters
-            )
+            LocalHttpConverter(**CONVERTER_PARAMS()).__of__(self.app.Converters)
         ]
         local_converters = self.app.Converters._get_local_converters()
 
@@ -105,13 +97,9 @@ class ConversionServiceTest(BaseUnitTest):
         from Products.Reportek.Document import Document
 
         mock_local_converters.return_value = [
-            LocalHttpConverter(**CONVERTER_PARAMS()).__of__(
-                self.app.Converters
-            )
+            LocalHttpConverter(**CONVERTER_PARAMS()).__of__(self.app.Converters)
         ]
-        document = Document(
-            "testfile", "", content_type="application/x-rar-compressed"
-        )
+        document = Document("testfile", "", content_type="application/x-rar-compressed")
         self.app._setObject("testfile", document)
         with self.app.testfile.data_file.open("wb") as datafile:
             tests = Path(__file__).parent.absolute()
@@ -138,9 +126,7 @@ class ConversionServiceTest(BaseUnitTest):
     def test_run_conversion_remote(self, mock_requests):
         from Products.Reportek.Document import Document
 
-        document = Document(
-            "testfile", "", content_type="application/x-rar-compressed"
-        )
+        document = Document("testfile", "", content_type="application/x-rar-compressed")
         self.app.Converters._setObject("testfile", document)
 
         with self.app.Converters.testfile.data_file.open("wb") as datafile:
@@ -269,9 +255,7 @@ class ConversionServiceTest(BaseUnitTest):
         [conv] = self.app.Converters._get_local_converters()
         from Products.Reportek.Document import Document
 
-        document = Document(
-            "testfile", "", content_type="application/x-rar-compressed"
-        )
+        document = Document("testfile", "", content_type="application/x-rar-compressed")
         self.app.Converters._setObject("testfile", document)
 
         with self.app.Converters.testfile.data_file.open("wb") as datafile:
@@ -336,9 +320,7 @@ class ConversionServiceTest(BaseUnitTest):
 
         file_url = "/Converters/test.shp"
         shp_conv(file_url, shp_conv.id)
-        self.assertEqual(
-            set(["file", "shx", "dbf"]), set(captured_files.keys())
-        )
+        self.assertEqual(set(["file", "shx", "dbf"]), set(captured_files.keys()))
         for content in captured_files.values():
             self.assertEqual(b"test file", content)
 

@@ -11,8 +11,11 @@
 request = container.REQUEST
 RESPONSE = request.RESPONSE
 
-if 'AUTHENTICATED_USER' in request and request['AUTHENTICATED_USER'].getUserName() != 'Anonymous User':
-    userobj = request['AUTHENTICATED_USER']
+if (
+    "AUTHENTICATED_USER" in request
+    and request["AUTHENTICATED_USER"].getUserName() != "Anonymous User"
+):
+    userobj = request["AUTHENTICATED_USER"]
     print("""<h2>Logged in as<br />%s</h2>""" % userobj.getUserName())
     print("""<ul>
 <li><a href="/loggedout">Logout</a></li>""")

@@ -51,9 +51,7 @@ class EmptyPage(InvalidPage):
 
 
 class Paginator(object):
-    def __init__(
-        self, object_list, per_page, orphans=0, allow_empty_first_page=True
-    ):
+    def __init__(self, object_list, per_page, orphans=0, allow_empty_first_page=True):
         self.object_list = object_list
         self.per_page = per_page
         self.orphans = orphans
@@ -382,9 +380,7 @@ class DiggPaginator(ExPaginator):
         max_padding = int(ceil(self.body / 2.0) - 1)
         self.padding = kwargs.pop("padding", min(4, max_padding))
         if self.padding > max_padding:
-            raise ValueError(
-                "padding too large for body (max %d)" % max_padding
-            )
+            raise ValueError("padding too large for body (max %d)" % max_padding)
         super(DiggPaginator, self).__init__(*args, **kwargs)
 
     def page(self, number, *args, **kwargs):
@@ -409,8 +405,7 @@ class DiggPaginator(ExPaginator):
             map(
                 int,
                 [
-                    floor(number - body / 2.0)
-                    + 1,  # +1 = shift odd body to right
+                    floor(number - body / 2.0) + 1,  # +1 = shift odd body to right
                     floor(number + body / 2.0),
                 ],
             )
@@ -419,9 +414,7 @@ class DiggPaginator(ExPaginator):
         if main_range[0] < 1:
             main_range = list(map(abs(main_range[0] - 1).__add__, main_range))
         if main_range[1] > num_pages:
-            main_range = list(
-                map((num_pages - main_range[1]).__add__, main_range)
-            )
+            main_range = list(map((num_pages - main_range[1]).__add__, main_range))
 
         # Determine leading and trailing ranges; if possible and appropriate,
         # combine them with the main range, in which case the resulting main

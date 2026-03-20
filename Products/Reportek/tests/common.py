@@ -148,10 +148,7 @@ class ConfigureReportek:
             self.app._setObject(ctool_id, catalog)
             tool_obj = catalog
             sm = getSiteManager(self.app)
-            if (
-                tool_obj is not None
-                and sm.queryUtility(IReportekCatalog) is None
-            ):
+            if tool_obj is not None and sm.queryUtility(IReportekCatalog) is None:
                 sm.registerUtility(tool_obj, IReportekCatalog)
             catalog.meta_types = [
                 {"name": "FieldIndex", "instance": FieldIndex},
@@ -282,14 +279,10 @@ class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.root.management_page_charset = "utf-8"
         self.root.buttons_loginout = ""
         self.root.buttons_py = ""
-        dropdown = open(
-            self.get_abs_path("data/dropdownmenus.txt", globals()), "rb"
-        )
+        dropdown = open(self.get_abs_path("data/dropdownmenus.txt", globals()), "rb")
         self.root.manage_addFile(id="dropdownmenus.txt", file=dropdown)
         dropdown.close()
-        self.root["breadcrumb"] = PageTemplateFile(
-            "data/breadcrumb.pt", globals()
-        )
+        self.root["breadcrumb"] = PageTemplateFile("data/breadcrumb.pt", globals())
         self.root["standard_template.pt"] = PageTemplateFile(
             "data/standard_template.pt", globals()
         )
@@ -495,9 +488,7 @@ class WorkflowTestCase(BaseTest):
         }
         col = self.addCollection(self.app, **col_args)
 
-        self.app.Templates.StartActivity = Mock(
-            return_value="Test Application"
-        )
+        self.app.Templates.StartActivity = Mock(return_value="Test Application")
         self.app.Templates.StartActivity.title_or_id = Mock(
             return_value="Start Activity Template"
         )

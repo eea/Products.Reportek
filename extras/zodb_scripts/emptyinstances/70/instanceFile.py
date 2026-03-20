@@ -9,5 +9,5 @@
 # title=Empty instance for Directive on waste 75/442
 ##
 l_parent = context.xmlexports.waste  # noqa: F821
-l_file = getattr(l_parent, 'emptyinstance_75442.xml')
+l_file = getattr(l_parent, "emptyinstance_75442.xml")
 return l_file  # noqa: F999

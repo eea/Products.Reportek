@@ -10,5 +10,5 @@
 ##
 # Example code:
 
-print(DateTime('2012-01-01'))
+print(DateTime("2012-01-01"))
 return printed

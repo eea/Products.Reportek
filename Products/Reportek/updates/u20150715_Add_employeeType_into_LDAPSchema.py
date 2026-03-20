@@ -12,30 +12,32 @@ from Products.Reportek.config import DEPLOYMENT_BDR
 import transaction
 
 VERSION = 4
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=False):
-    acl_users = app.unrestrictedTraverse('/acl_users')
+    acl_users = app.unrestrictedTraverse("/acl_users")
 
     trans = transaction.begin()
     try:
-        ldapplugins = acl_users.objectIds('LDAP Multi Plugin')
+        ldapplugins = acl_users.objectIds("LDAP Multi Plugin")
 
         for plugin_id in ldapplugins:
             plugin = acl_users[plugin_id]
-            ldapfolder = getattr(plugin, 'acl_users')
+            ldapfolder = getattr(plugin, "acl_users")
 
             if ldapfolder:
-                ldapfolder.manage_addLDAPSchemaItem(ldap_name='employeeType',
-                                                    friendly_name='disabled')
-                print(("Added 'employeeType' with friendly name 'disabled' to\
-                        %s" % ldapfolder.absolute_url()))
+                ldapfolder.manage_addLDAPSchemaItem(
+                    ldap_name="employeeType", friendly_name="disabled"
+                )
+                print(
+                    (
+                        "Added 'employeeType' with friendly name 'disabled' to\
+                        %s"
+                        % ldapfolder.absolute_url()
+                    )
+                )
                 trans.commit()
                 return True
     except Exception:

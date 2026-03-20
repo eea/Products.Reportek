@@ -9,6 +9,7 @@
 # title=Extract all envelopes in RDF format
 ##
 from Products.PythonScripts.standard import html_quote, url_quote
+
 request = container.REQUEST
 RESPONSE = request.RESPONSE
 
@@ -18,17 +19,23 @@ print("""<?xml version="1.0" encoding="utf-8" ?>
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
   xmlns:rod="http://rod.eionet.europa.eu/schema.rdf#">""")
 
-RESPONSE.setHeader('content-type', 'application/rdf+xml;charset=utf-8')
+RESPONSE.setHeader("content-type", "application/rdf+xml;charset=utf-8")
 
 s_url = request.SERVER_URL
-print("""<rdf:Description rdf:about="">
+print(
+    """<rdf:Description rdf:about="">
    <rdfs:label>Deliveries from %s</rdfs:label>
-</rdf:Description>""" % s_url)
+</rdf:Description>"""
+    % s_url
+)
 # dow = context.ZopeTime().dow()
 # reportingdate=context.ZopeTime() - 360 - dow, reportingdate_usage='range:min'
-for item in container.Catalog(meta_type='Report Envelope', released=1):
+for item in container.Catalog(meta_type="Report Envelope", released=1):
     try:
-        print("""<rod:Delivery rdf:about="%s%s"/>""" % (s_url, html_quote(url_quote(item.getPath()))))
+        print(
+            """<rod:Delivery rdf:about="%s%s"/>"""
+            % (s_url, html_quote(url_quote(item.getPath())))
+        )
     except:
         print("""<!-- deleted envelope %s -->""" % item.id)
 

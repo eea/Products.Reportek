@@ -38,21 +38,15 @@ class BuildCollections(BaseAdmin):
 
         for iso in countries:
             # get country uri
-            country = [c for c in self.localities_rod if c.get("iso") == iso][
-                0
-            ]
+            country = [c for c in self.localities_rod if c.get("iso") == iso][0]
             if country:
                 target_path = str(country["iso"].lower())
                 try:
                     if pattern:
                         pattern = engine.clean_pattern(pattern)
-                        target_path = "/".join(
-                            [str(country["iso"].lower()), pattern]
-                        )
+                        target_path = "/".join([str(country["iso"].lower()), pattern])
 
-                    target = engine.getPhysicalRoot().restrictedTraverse(
-                        target_path
-                    )
+                    target = engine.getPhysicalRoot().restrictedTraverse(target_path)
                     kwargs = {
                         "allow_collections": allow_collections,
                         "allow_envelopes": allow_envelopes,
@@ -68,7 +62,7 @@ class BuildCollections(BaseAdmin):
                         country["uri"],
                         "",
                         obligations,
-                        **kwargs
+                        **kwargs,
                     )
                     messages["success"].append(country["name"])
                 except KeyError:

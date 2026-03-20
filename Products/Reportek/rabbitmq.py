@@ -12,9 +12,7 @@ logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
-    "%(asctime)s - "
-    "%(name)s/%(filename)s/%(funcName)s - "
-    "%(levelname)s - %(message)s"
+    "%(asctime)s - %(name)s/%(filename)s/%(funcName)s - %(levelname)s - %(message)s"
 )
 ch.setFormatter(formatter)
 logger.addHandler(ch)
@@ -26,9 +24,7 @@ class RabbitMQConnector(object):
     Replaces eea.rabbitmq.client which is incompatible with pika>=1.0.
     """
 
-    def __init__(
-        self, rabbit_host, rabbit_port, rabbit_username, rabbit_password
-    ):
+    def __init__(self, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
         self.__rabbit_connection = None
         self.__rabbit_channel = None
         self.__rabbit_host = rabbit_host
@@ -85,9 +81,7 @@ class RabbitMQConnector(object):
         return self.__rabbit_channel
 
     def get_queue_status(self, queue_name):
-        return self.__rabbit_channel.queue_declare(
-            queue=queue_name, passive=True
-        )
+        return self.__rabbit_channel.queue_declare(queue=queue_name, passive=True)
 
     def is_queue_empty(self, queue_name):
         status = self.get_queue_status(queue_name)
@@ -115,9 +109,7 @@ class RabbitMQConnector(object):
         logger.info("SENT %r in %r", body, queue_name)
 
     def get_message(self, queue_name):
-        return self.__rabbit_channel.basic_get(
-            queue=queue_name, auto_ack=False
-        )
+        return self.__rabbit_channel.basic_get(queue=queue_name, auto_ack=False)
 
 
 RABBITMQ_HOST = str(os.environ.get("RABBITMQ_HOST", "") or "localhost")

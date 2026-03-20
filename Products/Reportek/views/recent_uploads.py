@@ -47,14 +47,10 @@ class RecentUploads(BaseAdmin):
                     key=lambda e: e.lastActivityDate,
                 )
                 feedbacks = env.objectValues("Report Feedback")
-                files = env.objectValues(
-                    ["Report Document", "Report Hyperlink"]
-                )
+                files = env.objectValues(["Report Document", "Report Hyperlink"])
                 records.append(
                     {
-                        "reportingdate": env.reportingdate.strftime(
-                            "%Y-%m-%d"
-                        ),
+                        "reportingdate": env.reportingdate.strftime("%Y-%m-%d"),
                         "country": env.getCountryName(),
                         "title": env.title,
                         "link": "/".join(env.getPhysicalPath()),

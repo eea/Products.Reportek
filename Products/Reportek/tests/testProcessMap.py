@@ -32,15 +32,13 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
     def test_getDataflows(self):
         """Test that the dataflows were added correctly"""
         assert (
-            list(map(inline_replace, self.exampledataflows))
-            == self.wf.getDataflows()
+            list(map(inline_replace, self.exampledataflows)) == self.wf.getDataflows()
         )
 
     def test_getCountries(self):
         """Test that the countries were added correctly"""
         assert (
-            list(map(inline_replace, self.examplelocalities))
-            == self.wf.getCountries()
+            list(map(inline_replace, self.examplelocalities)) == self.wf.getCountries()
         )
 
     def test_processmap(self):

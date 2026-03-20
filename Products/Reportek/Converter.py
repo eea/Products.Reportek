@@ -112,7 +112,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = ct_extraparams
         self.description = description
         # Drop everything up to period.
-        self.suffix = suffix[suffix.find(".") + 1:]
+        self.suffix = suffix[suffix.find(".") + 1 :]
         self.internal = internal
 
     # security stuff
@@ -142,14 +142,12 @@ class Converter(SimpleItem):
         self.ct_extraparams = RepUtils.utConvertLinesToList(ct_extraparams)
         self.description = description
         # Drop everything up to period.
-        self.suffix = suffix[suffix.find(".") + 1:]
+        self.suffix = suffix[suffix.find(".") + 1 :]
         self.internal = internal
         self._p_changed = 1
         if REQUEST:
             message = "Content changed."
-            return self.manage_settings_html(
-                self, REQUEST, manage_tabs_message=message
-            )
+            return self.manage_settings_html(self, REQUEST, manage_tabs_message=message)
 
     security.declareProtected(view_management_screens, "getExtraParameters")
 
@@ -160,9 +158,7 @@ class Converter(SimpleItem):
     security.declareProtected(view_management_screens, "manage_settings_html")
     manage_settings_html = PageTemplateFile("zpt/converters/item_edit")
 
-    def __call__(
-        self, file_url, converter_id, output_file_name="", REQUEST=None
-    ):
+    def __call__(self, file_url, converter_id, output_file_name="", REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized("You are not authorized to view this document")
@@ -184,15 +180,11 @@ class Converter(SimpleItem):
                 "%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url)
             )
         if converter_obj.ct_output and not converter_obj.ct_output == "flash":
-            self.REQUEST.RESPONSE.setHeader(
-                "Content-Type", converter_obj.ct_output
-            )
+            self.REQUEST.RESPONSE.setHeader("Content-Type", converter_obj.ct_output)
 
             # generate 'filename'
             if not output_file_name:
-                if converter_obj.ct_output in list(
-                    constants.CONTENT_TYPES.keys()
-                ):
+                if converter_obj.ct_output in list(constants.CONTENT_TYPES.keys()):
                     output_file_name = "%s%s" % (
                         file_obj.id[: file_obj.id.rfind(".")],
                         constants.CONTENT_TYPES[converter_obj.ct_output],
@@ -298,9 +290,7 @@ class RemoteConverter(Converter):
                 )
                 % message,
             )
-            self.REQUEST.SESSION.set(
-                "redirect_to", self.REQUEST["HTTP_REFERER"]
-            )
+            self.REQUEST.SESSION.set("redirect_to", self.REQUEST["HTTP_REFERER"])
             return file_obj.note()
 
 
@@ -348,12 +338,8 @@ class LocalHttpConverter(Converter):
         if accepts_shp:
             shp_container = file_obj.aq_parent
             file_name = file_obj.id.split(".")[0]
-            shx_file = shp_container.unrestrictedTraverse(
-                ".".join([file_name, "shx"])
-            )
-            dbf_file = shp_container.unrestrictedTraverse(
-                ".".join([file_name, "dbf"])
-            )
+            shx_file = shp_container.unrestrictedTraverse(".".join([file_name, "shx"]))
+            dbf_file = shp_container.unrestrictedTraverse(".".join([file_name, "dbf"]))
             shx_data = self.get_file_data(shx_file)
             dbf_data = self.get_file_data(dbf_file)
             files["shx"] = shx_data
@@ -363,9 +349,7 @@ class LocalHttpConverter(Converter):
             if hasattr(dbf_data, "close"):
                 file_handles.append(dbf_data)
         try:
-            resp = requests.post(
-                url, files=files, data={"extraparams": extra_params}
-            )
+            resp = requests.post(url, files=files, data={"extraparams": extra_params})
             response = ConversionResult(resp)
             return response
         finally:

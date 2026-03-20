@@ -91,9 +91,7 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
         id = ids[-1]
         v = self._getOb(id, self)
         if v.wl_isLocked():
-            raise ResourceLockedError(
-                'Object "%s" is locked via WebDAV' % v.getId()
-            )
+            raise ResourceLockedError('Object "%s" is locked via WebDAV' % v.getId())
 
         if v is self:
             raise BadRequest("%s does not exist" % escape(ids[-1]))
@@ -106,9 +104,7 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
 
     if REQUEST is not None:
         if processes:
-            app_folder = getattr(
-                self.getPhysicalRoot(), APPLICATIONS_FOLDER_ID, None
-            )
+            app_folder = getattr(self.getPhysicalRoot(), APPLICATIONS_FOLDER_ID, None)
             app_ids = app_folder.objectIds()
 
             if app_folder:

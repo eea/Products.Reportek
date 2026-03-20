@@ -182,9 +182,7 @@ class Toolz:
         return RepUtils.utSortObjsListByAttr(p_obj_list, p_attr, p_sort_order)
 
     def tlzSortObjsListByMethod(self, p_obj_list, p_attr, p_sort_order=0):
-        return RepUtils.utSortObjsListByMethod(
-            p_obj_list, p_attr, p_sort_order
-        )
+        return RepUtils.utSortObjsListByMethod(p_obj_list, p_attr, p_sort_order)
 
     def truncate(self, text):
         if len(text) <= 80:
@@ -197,10 +195,7 @@ class Toolz:
         """
         if file_id:
             file_id = file_id[
-                max(
-                    file_id.rfind("/"), file_id.rfind("\\"), file_id.rfind(":")
-                )
-                + 1:
+                max(file_id.rfind("/"), file_id.rfind("\\"), file_id.rfind(":")) + 1 :
             ]
         return RepUtils.cleanup_id(file_id.strip())
 
@@ -223,11 +218,7 @@ class Toolz:
         result = dict(dict1)  # Create a copy of dict1
         for k, v in dict2.items():
             # If both values are dicts, merge them recursively
-            if (
-                k in result
-                and isinstance(result[k], dict)
-                and isinstance(v, dict)
-            ):
+            if k in result and isinstance(result[k], dict) and isinstance(v, dict):
                 result[k] = self.merge_dicts_recursive(result[k], v)
             # Otherwise just overwrite with value from dict2
             else:

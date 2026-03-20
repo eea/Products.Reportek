@@ -12,10 +12,14 @@ def _patched_registered_objects(self):
         if isinstance(app, ProductDispatcher):
             app = self.request.PARENTS[-3]
 
-    return list(itertools.chain.from_iterable([
-        conn._registered_objects
-        # skip the 'temporary' connection since it stores session objects
-        # which get written all the time
-        for name, conn in list(app._p_jar.connections.items())
-        if name != 'temporary'
-    ]))
+    return list(
+        itertools.chain.from_iterable(
+            [
+                conn._registered_objects
+                # skip the 'temporary' connection since it stores session objects
+                # which get written all the time
+                for name, conn in list(app._p_jar.connections.items())
+                if name != "temporary"
+            ]
+        )
+    )

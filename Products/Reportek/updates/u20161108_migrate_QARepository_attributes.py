@@ -14,19 +14,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 VERSION = 11
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 def migrate_QARepository_attributes(app):
-    qa_repo = app.unrestrictedTraverse('/' + QAREPOSITORY_ID)
-    if hasattr(qa_repo, 'setstate'):
+    qa_repo = app.unrestrictedTraverse("/" + QAREPOSITORY_ID)
+    if hasattr(qa_repo, "setstate"):
         del qa_repo.setstate
         qa_repo._p_changed = 1
-        logger.info('Changed attributes for QARepository')
+        logger.info("Changed attributes for QARepository")
     return True
 
 
@@ -35,5 +31,5 @@ def update(app, skipMigrationCheck=False):
     if not migrate_QARepository_attributes(app):
         return
 
-    logger.info('QARepository attributes have been migrated')
+    logger.info("QARepository attributes have been migrated")
     return True

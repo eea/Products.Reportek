@@ -181,9 +181,7 @@ class Referral(
         """Define manage main to be context aware"""
         #       manage_main_inh = Referral.inheritedAttribute ("manage_main")
 
-        if getSecurityManager().checkPermission(
-            "View management screens", self
-        ):
+        if getSecurityManager().checkPermission("View management screens", self):
             return self.manage_prop(*(self,) + args, **kw)
         else:
             return self.index_html(*(self,) + args, **kw)
@@ -195,8 +193,7 @@ class Referral(
         res = []
         res.append("<link>%s</link>" % RepUtils.xmlEncode(self.referral_url))
         res.append(
-            '<hasFile rdf:resource="%s"/>'
-            % RepUtils.xmlEncode(self.referral_url)
+            '<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(self.referral_url)
         )
 
         return res

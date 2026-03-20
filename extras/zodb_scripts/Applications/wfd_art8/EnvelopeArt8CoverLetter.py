@@ -50,32 +50,36 @@ DK 1050 Copenhagen K
 
 <ol>""" % (
     context.getMySelf().dataflow_lookup(  # noqa: F821
-        list(context.getMySelf().dataflow_uris)[0])['TITLE'],  # noqa: F821
-        list(context.getMySelf().dataflow_uris)[0],  # noqa: F821
-        list(context.getMySelf().dataflow_uris)[0],  # noqa: F821
-        context.getMySelf().getCountryName(),  # noqa: F821
-        DateTime().strftime('%d %B %Y'),
-        context.getMySelf().title_or_id(),  # noqa: F821
-        context.getMySelf().absolute_url(),  # noqa: F821
-        context.getMySelf().absolute_url())  # noqa: F821
+        list(context.getMySelf().dataflow_uris)[0]
+    )["TITLE"],  # noqa: F821
+    list(context.getMySelf().dataflow_uris)[0],  # noqa: F821
+    list(context.getMySelf().dataflow_uris)[0],  # noqa: F821
+    context.getMySelf().getCountryName(),  # noqa: F821
+    DateTime().strftime("%d %B %Y"),
+    context.getMySelf().title_or_id(),  # noqa: F821
+    context.getMySelf().absolute_url(),  # noqa: F821
+    context.getMySelf().absolute_url(),
+)  # noqa: F821
 
 
 documents_list = context.getMySelf().objectValues(  # noqa: F821
-    ['Report Document', 'Report Hyperlink'])
+    ["Report Document", "Report Hyperlink"]
+)
 documents_list.sort(key=lambda ob: ob.getId().lower())
 for f in documents_list:
-    l_ret += '<li>%s</li>' % (f.title_or_id())
-    if f.meta_type == 'Report Document':
+    l_ret += "<li>%s</li>" % (f.title_or_id())
+    if f.meta_type == "Report Document":
         zip_files = context.getMySelf().getZipInfo(f)  # noqa: F821
         if zip_files:
             l_ret += '<div class="zip_content">'
-            l_ret += '<em>files contained inside the ' + f.title_or_id() +\
-                ' archive:</em>'
-            l_ret += '<ul>'
+            l_ret += (
+                "<em>files contained inside the " + f.title_or_id() + " archive:</em>"
+            )
+            l_ret += "<ul>"
             for file in zip_files:
-                l_ret += '<li>%s</li>' % file
-            l_ret += '</ul>'
-            l_ret += '</div>'
+                l_ret += "<li>%s</li>" % file
+            l_ret += "</ul>"
+            l_ret += "</div>"
 l_ret += """
 
 </ol>
@@ -91,12 +95,19 @@ l_ret += """
   sent officially to the European Commission as proof of reporting delivery.
   </p>
 
-""" % (context.getMySelf().getLDAPUserCanonicalName(  # noqa: F821
-    context.getMySelf().getLDAPUser(  # noqa: F821
-        context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)))),  # noqa: F821
-        context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)))  # noqa: F821
+""" % (
+    context.getMySelf().getLDAPUserCanonicalName(  # noqa: F821
+        context.getMySelf().getLDAPUser(  # noqa: F821
+            context.getMySelf().getPreviousActor(str(int(workitem_id) - 2))
+        )
+    ),  # noqa: F821
+    context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)),
+)  # noqa: F821
 
-context.getMySelf().manage_addFeedback(title="Confirmation of receipt",  # noqa: F821
-                                       feedbacktext=l_ret, automatic=1,
-                                       content_type='text/html')
+context.getMySelf().manage_addFeedback(
+    title="Confirmation of receipt",  # noqa: F821
+    feedbacktext=l_ret,
+    automatic=1,
+    content_type="text/html",
+)
 context.getMySelf().completeWorkitem(workitem_id)  # noqa: F821

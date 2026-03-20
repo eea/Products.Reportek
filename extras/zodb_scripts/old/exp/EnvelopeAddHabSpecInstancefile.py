@@ -11,8 +11,10 @@
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
 
-context.manage_addDocument('habitat001.xml', "Habitat questionnaire",
-                           """<?xml version="1.0" encoding="UTF-8"?>
+context.manage_addDocument(
+    "habitat001.xml",
+    "Habitat questionnaire",
+    """<?xml version="1.0" encoding="UTF-8"?>
 <habitat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://cdrtest.eionet.europa.eu/xmlexports/dir9243eec/schema.xsd">
 	<national>
 		<code label="Habitat Code"/>
@@ -62,6 +64,9 @@ context.manage_addDocument('habitat001.xml', "Habitat questionnaire",
 		</conclusion>
 	</regional>
 </habitat>
-""", 'text/xml', '')
+""",
+    "text/xml",
+    "",
+)
 
 context.completeWorkitem(workitem_id)

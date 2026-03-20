@@ -18,47 +18,45 @@ except Exception:
 
 if country:  # noqa: F821
     collections = context.Catalog(  # noqa: F821
-        meta_type=['Report Collection'],
-        dataflow_uris='http://rod.eionet.europa.eu/obligations/%s' %
-        dataflow_uris,  # noqa: F821
-        country=country)  # noqa: F821
+        meta_type=["Report Collection"],
+        dataflow_uris="http://rod.eionet.europa.eu/obligations/%s" % dataflow_uris,  # noqa: F821
+        country=country,
+    )  # noqa: F821
 else:
     collections = context.Catalog(  # noqa: F821
-        meta_type=['Report Collection'],
-        dataflow_uris='http://rod.eionet.europa.eu/obligations/%s' %
-        dataflow_uris)  # noqa: F821
+        meta_type=["Report Collection"],
+        dataflow_uris="http://rod.eionet.europa.eu/obligations/%s" % dataflow_uris,
+    )  # noqa: F821
 
 for brain in collections:
     collection = context.Catalog.getobject(brain.data_record_id_)  # noqa: F821
 
     # get local reporters
     for user, roles in collection.get_local_roles():
-        if 'Reporter' in list(roles):
-            local_users[user] = ''
+        if "Reporter" in list(roles):
+            local_users[user] = ""
 
     # get top-level reporters (country reporters)
     path = collection.restrictedTraverse(collection.getPhysicalPath()[1])
     for user, roles in path.get_local_roles():
-        if 'Reporter' in list(roles):
-            global_users[user] = ''
+        if "Reporter" in list(roles):
+            global_users[user] = ""
 
 
 ulocal = []
 for user in local_users:
     user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)  # noqa: F821
     if user_ob:
-        ulocal.append('%s <%s>' %
-                      (str(user_ob.cn, 'latin-1'), user_ob.mail))
+        ulocal.append("%s <%s>" % (str(user_ob.cn, "latin-1"), user_ob.mail))
 
 uglobal = []
 for user in global_users:
     user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)  # noqa: F821
     if user_ob:
-        uglobal.append('%s <%s>' %
-                       (str(user_ob.cn, 'latin-1'), user_ob.mail))
+        uglobal.append("%s <%s>" % (str(user_ob.cn, "latin-1"), user_ob.mail))
 
 if separator:
-    delimiter = ', '
+    delimiter = ", "
 else:
-    delimiter = '; '
+    delimiter = "; "
 return delimiter.join(ulocal), delimiter.join(uglobal)  # noqa: F999

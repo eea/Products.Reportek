@@ -5,10 +5,45 @@ pipeline {
         GIT_NAME = "Products.Reportek"
         GIT_SRC = "https://github.com/eea/Products.Reportek.git"
         SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,cdrtest.eionet.europa.eu,cdrsandbox.eionet.europa.eu,mdr.eionet.europa.eu"
+        GIT_RELEASE_BRANCHES = "z5 master"
     }
 
  stages {
 
+      stage('RuffFix Code') {
+        when {
+          not { buildingTag() }
+        }
+      steps {
+            node(label: 'docker') {
+              script {
+                if ( env.BRANCH_NAME != "z5-develop" || env.CHANGE_ID ) {
+                  return
+                }
+                checkout scm
+                fix_result = sh(script: '''docker run --pull=always --name="$BUILD_TAG-ruff-fix" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e EXCLUDE_LIST="Extensions,extensions,skins,extras" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/ruff fix-all ''', returnStatus: true)
+                sh '''docker cp $BUILD_TAG-ruff-fix:/code/$GIT_NAME .'''
+                sh '''cp -rf $GIT_NAME/* .'''
+                sh '''rm -rf $GIT_NAME'''
+                sh '''docker rm -v $BUILD_TAG-ruff-fix'''
+                FOUND_FIX = sh(script: '''git diff --name-only '*.py' | wc -l''', returnStdout: true).trim()
+
+                if (FOUND_FIX != '0') {
+                  withCredentials([string(credentialsId: 'eea-jenkins-token', variable: 'GITHUB_TOKEN')]) {
+                    sh '''sed -i "s|url = .*|url = https://eea-jenkins:$GITHUB_TOKEN@github.com/eea/$GIT_NAME.git|" .git/config'''
+                  }
+                  sh '''git fetch origin $GIT_BRANCH:$GIT_BRANCH'''
+                  sh '''git checkout $GIT_BRANCH'''
+                  sh '''git add -- '*.py' '''
+                  sh '''git commit -m "style: Automated code fix" '''
+                  sh '''git push --set-upstream origin $GIT_BRANCH'''
+                  sh '''exit 1'''
+                }
+              }
+            }
+          }
+       }
+   
 
     stage('Cosmetics') {
       when {
@@ -45,18 +80,7 @@ pipeline {
                 }
               }
             }
-          },
-
-          "PyLint": {
-            node(label: 'docker') {
-              script {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
-                }
-              }
-            }
           }
-
         )
       }
     }
@@ -80,16 +104,19 @@ pipeline {
             }
           },
 
-          "Flake8": {
-            node(label: 'docker') {
-              sh '''docker run -i --rm --pull=always --name="$BUILD_TAG-flake8"  -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/flake8 flake8 --extend-ignore=W605,W606'''
-            }
-          },
-
           "i18n": {
             node(label: 'docker') {
               sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
             }
+          },
+
+
+          "Ruff": {
+            node(label: 'docker') {
+              script {
+                sh '''docker run --pull=always --name="$BUILD_TAG-ruff-fix" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" -e EXCLUDE_LIST="Extensions,extensions,skins,extras"  eeacms/ruff check'''
+                }
+              }
           }
         )
       }
@@ -137,6 +164,7 @@ pipeline {
     stage('Report to SonarQube') {
       when {
         not { buildingTag() }
+        not { environment name: 'CHANGE_ID', value: '' }
       }
       steps {
         node(label: 'docker') {
@@ -191,13 +219,13 @@ pipeline {
       when {
         allOf {
           environment name: 'CHANGE_ID', value: ''
-          branch 'master'
+          branch 'z5'
         }
       }
       steps {
         node(label: 'docker') {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'eea-jenkins', usernameVariable: 'EGGREPO_USERNAME', passwordVariable: 'EGGREPO_PASSWORD'],string(credentialsId: 'eea-jenkins-token', variable: 'GITHUB_TOKEN'),[$class: 'UsernamePasswordMultiBinding', credentialsId: 'pypi-jenkins', usernameVariable: 'PYPI_USERNAME', passwordVariable: 'PYPI_PASSWORD']]) {
-            sh '''docker pull eeacms/gitflow; docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" eeacms/gitflow'''
+            sh '''docker pull eeacms/gitflow; docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" -e GIT_RELEASE_BRANCHES="$GIT_RELEASE_BRANCHES" eeacms/gitflow'''
           }
         }
       }

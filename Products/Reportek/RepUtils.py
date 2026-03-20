@@ -102,12 +102,7 @@ bad_chars = (
 )
 
 good_chars = (
-    "___________AAAAAA"
-    "aaaaaaCcEEEE"
-    "EeeeeeIIIIii"
-    "iiNnOOOOOOoo"
-    "ooooSssUUUUu"
-    "uuuYYyyZz"
+    "___________AAAAAAaaaaaaCcEEEEEeeeeeIIIIiiiiNnOOOOOOooooooSssUUUUuuuuYYyyZz"
 )
 
 TRANSMAP = str.maketrans(bad_chars, good_chars)
@@ -350,9 +345,7 @@ def utSortByAttr(p_obj_list, p_attr, p_sort_order=0):
 
 def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
     """Sort a list of objects by one of the attributes"""
-    l_temp = list(
-        zip((p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list)
-    )
+    l_temp = list(zip((p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list))
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
@@ -472,7 +465,7 @@ def cookId(file):
                 filename.rfind("\\"),
                 filename.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         return id
     return file
@@ -820,8 +813,9 @@ def cleanup_zip_cache(days=7):
         file_path = os.path.join(zip_cache, f)
         delete = os.stat(file_path).st_mtime < z_limit
         l_msg = (
-            "Automatically removed file {} because "
-            "it was older than {} days".format(f, days)
+            "Automatically removed file {} because it was older than {} days".format(
+                f, days
+            )
         )
         if f.endswith(".temp"):
             delete = os.stat(file_path).st_mtime < t_limit
@@ -832,9 +826,7 @@ def cleanup_zip_cache(days=7):
                 removed.append(f)
                 logger.info(l_msg)
             except OSError as e:
-                logger.warning(
-                    "Unable to remove file: {} ({})".format(f, str(e))
-                )
+                logger.warning("Unable to remove file: {} ({})".format(f, str(e)))
     print(("Cleanup done! Removed {} files".format(len(removed))))
 
 
@@ -947,9 +939,7 @@ def parse_uri(uri, replace=False):
     """
     if replace:
         new_uri = uri.replace("https://", "http://")
-        logger.info(
-            "Original uri: %s has been replaced with uri: %s" % (uri, new_uri)
-        )
+        logger.info("Original uri: %s has been replaced with uri: %s" % (uri, new_uri))
         uri = new_uri
     return uri
 

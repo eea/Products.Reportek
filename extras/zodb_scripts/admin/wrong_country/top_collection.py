@@ -8,5 +8,5 @@
 # parameters=obj
 # title=Retrieves the top collection of an collection or envelope
 ##
-topparent_id = obj.absolute_url(1).split('/')[0]  # noqa: F821
-return getattr(context.restrictedTraverse('/'), topparent_id)  # noqa: F999
+topparent_id = obj.absolute_url(1).split("/")[0]  # noqa: F821
+return getattr(context.restrictedTraverse("/"), topparent_id)  # noqa: F999

@@ -10,23 +10,23 @@
 ##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
-transmap = string.maketrans(' ', '-')
+transmap = string.maketrans(" ", "-")
 
 filename = "general-report.xml"
 title = "General report for Art 17"
 filecontent = []
 
 bioregions = {
-    'ALP': 'Alpine',
-    'ATL': 'Atlantic',
-    'BOR': 'Boreal',
-    'CON': 'Continental',
-    'MED': 'Mediterranean',
-    'MAC': 'Macaronesian',
-    'PAN': 'Pannonian',
-    'ATS': 'Atlantic sea',
-    'BLT': 'Baltic',
-    'MDS': 'Mediterranean Sea'
+    "ALP": "Alpine",
+    "ATL": "Atlantic",
+    "BOR": "Boreal",
+    "CON": "Continental",
+    "MED": "Mediterranean",
+    "MAC": "Macaronesian",
+    "PAN": "Pannonian",
+    "ATS": "Atlantic sea",
+    "BLT": "Baltic",
+    "MDS": "Mediterranean Sea",
 }
 
 
@@ -36,8 +36,9 @@ filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
     <legal-texts label="List of legal texts that transpose the Directive at national and/or regional level (Can be replaced by Internet address)"/>
   </legal-framework>
 """)
-for r in ['ALP', 'ATL', 'BOR']:
-    filecontent.append("""
+for r in ["ALP", "ATL", "BOR"]:
+    filecontent.append(
+        """
    <regional label="2. State of designation of Natura 2000">
         <region label="Biogeographic region" desc="%s">%s</region>
     <terrestrial label="Terrestrial">
@@ -61,7 +62,9 @@ for r in ['ALP', 'ATL', 'BOR']:
       </areas-of-conservation>
     </marine>
   </regional>
-""" % (bioregions[r], r))
+"""
+        % (bioregions[r], r)
+    )
 filecontent.append("""
   <management-tools label="3. Management tools - Art. 6(1)">
     <management-plans label="3.1 Management plans &amp; management Bodies">
@@ -178,7 +181,6 @@ filecontent.append("""
   </supporting-measures>
 </report>
 """)
-context.manage_addDocument(
-    filename, title, ''.join(filecontent), 'text/xml', '')
+context.manage_addDocument(filename, title, "".join(filecontent), "text/xml", "")
 
 context.completeWorkitem(workitem_id)

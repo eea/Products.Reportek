@@ -1,12 +1,16 @@
 import datetime
 
-from plone.caching.interfaces import (ICachingOperation, ICachingOperationType,
-                                      _)
-from Products.Reportek.caching.utils import (cacheStop, doNotCache,
-                                             getLastModifiedAnnotation,
-                                             isModified, notModified,
-                                             parseDateTime, setCacheHeaders,
-                                             visibleToRole)
+from plone.caching.interfaces import ICachingOperation, ICachingOperationType, _
+from Products.Reportek.caching.utils import (
+    cacheStop,
+    doNotCache,
+    getLastModifiedAnnotation,
+    isModified,
+    notModified,
+    parseDateTime,
+    setCacheHeaders,
+    visibleToRole,
+)
 from zope.component import adapter
 from zope.interface import Interface, implementer, provider
 from zope.publisher.interfaces.http import IHTTPRequest
@@ -37,17 +41,16 @@ class BaseCaching(object):
         is a string to add as a Vary header value in the response.
     """
 
-    title = _('Generic caching')
+    title = _("Generic caching")
     description = _(
-        'Through this operation, all standard caching functions '
-        'can be performed via various combinations of the optional '
-        'parameter settings. For most cases, it\'s probably easier '
-        'to use one of the other simpler operations (Strong caching, '
-        'Moderate caching, Weak caching, or No caching).'
+        "Through this operation, all standard caching functions "
+        "can be performed via various combinations of the optional "
+        "parameter settings. For most cases, it's probably easier "
+        "to use one of the other simpler operations (Strong caching, "
+        "Moderate caching, Weak caching, or No caching)."
     )
-    prefix = 'Products.Reportek.caching.baseCaching'
-    options = ('maxage', 'smaxage', 'lastModified',
-               'vary', 'anonOnly')
+    prefix = "Products.Reportek.caching.baseCaching"
+    options = ("maxage", "smaxage", "lastModified", "vary", "anonOnly")
 
     # Default option values
     maxage = smaxage = vary = None
@@ -58,25 +61,25 @@ class BaseCaching(object):
         self.request = request
 
     def interceptResponse(self, rulename, response, class_=None):
-
         # anonOnly = self.anonOnly
         lastModified = self.lastModified
 
         lastModified = getLastModifiedAnnotation(
-            self.published, self.request, lastModified=lastModified)
+            self.published, self.request, lastModified=lastModified
+        )
 
         # Remove Range from request if the If-Range condition is not fulfilled
-        if_range = self.request.environ.get('HTTP_IF_RANGE', '').strip('"')
+        if_range = self.request.environ.get("HTTP_IF_RANGE", "").strip('"')
         if if_range:
-            if 'HTTP_RANGE' in self.request.environ:
+            if "HTTP_RANGE" in self.request.environ:
                 if_range_dt = parseDateTime(if_range)
                 delta_sec = datetime.timedelta(seconds=1)
                 if if_range_dt and (lastModified - if_range_dt) < delta_sec:
                     pass
                 else:
-                    del self.request.environ['HTTP_RANGE']
+                    del self.request.environ["HTTP_RANGE"]
             # If-Range check is done here so we could remove it from request
-            del self.request.environ['HTTP_IF_RANGE']
+            del self.request.environ["HTTP_IF_RANGE"]
 
         # Check for cache stop request variables
         if cacheStop(self.request, rulename):
@@ -94,7 +97,6 @@ class BaseCaching(object):
         return None
 
     def modifyResponse(self, rulename, response, class_=None):
-
         maxage = self.maxage
         smaxage = self.smaxage
 
@@ -102,7 +104,8 @@ class BaseCaching(object):
         vary = self.vary
 
         lastModified = getLastModifiedAnnotation(
-            self.published, self.request, self.lastModified)
+            self.published, self.request, self.lastModified
+        )
 
         # Check for cache stop request variables
         if cacheStop(self.request, rulename):
@@ -122,7 +125,7 @@ class BaseCaching(object):
         # Check if the content can be cached in shared caches
         public = True
         if proxyCache:
-            public = public and visibleToRole(self.published, role='Anonymous')
+            public = public and visibleToRole(self.published, role="Anonymous")
 
         if proxyCache and not public:
             # This is private so keep it out of both shared and browser caches
@@ -145,18 +148,18 @@ class WeakCaching(BaseCaching):
     operation to help make the UI approachable by mortals
     """
 
-    title = _('Weak caching')
+    title = _("Weak caching")
     description = _(
-        'Cache in browser but expire immediately and enable 304 '
-        'responses on subsequent requests. 304\'s require configuration '
-        'of the \'Last-modified\' settings. If '
-        'Last-Modified  header is insufficient to ensure freshness, turn on '
+        "Cache in browser but expire immediately and enable 304 "
+        "responses on subsequent requests. 304's require configuration "
+        "of the 'Last-modified' settings. If "
+        "Last-Modified  header is insufficient to ensure freshness, turn on "
     )
-    prefix = 'Products.Reportek.caching.weakCaching'
+    prefix = "Products.Reportek.caching.weakCaching"
     sort = 3
 
     # Configurable options
-    options = ('lastModified', 'vary', 'anonOnly')
+    options = ("lastModified", "vary", "anonOnly")
 
     # Default option values
     maxage = 0
@@ -170,20 +173,20 @@ class ModerateCaching(BaseCaching):
     operation to help make the UI approachable by mortals
     """
 
-    title = _('Moderate caching')
+    title = _("Moderate caching")
     description = _(
-        'Cache in browser but expire immediately (same as \'weak caching\'), '
-        'and cache in proxy (default: 24 hrs). '
-        'Use a purgable caching reverse proxy for best results. '
-        'Caution: If proxy cannot be purged, or cannot be configured '
-        'to remove the \'s-maxage\' token from the response, then stale '
-        'responses might be seen until the cached entry expires.')
-    prefix = 'Products.Reportek.caching.moderateCaching'
+        "Cache in browser but expire immediately (same as 'weak caching'), "
+        "and cache in proxy (default: 24 hrs). "
+        "Use a purgable caching reverse proxy for best results. "
+        "Caution: If proxy cannot be purged, or cannot be configured "
+        "to remove the 's-maxage' token from the response, then stale "
+        "responses might be seen until the cached entry expires."
+    )
+    prefix = "Products.Reportek.caching.moderateCaching"
     sort = 2
 
     # Configurable options
-    options = ('smaxage', 'lastModified',
-               'vary', 'anonOnly')
+    options = ("smaxage", "lastModified", "vary", "anonOnly")
 
     # Default option values
     maxage = 0
@@ -200,19 +203,18 @@ class StrongCaching(BaseCaching):
     operation to help make the UI approachable by mortals
     """
 
-    title = _('Strong caching')
+    title = _("Strong caching")
     description = _(
-        'Cache in browser and proxy (default: 24 hrs). '
-        'Caution: Only use for stable resources '
-        'that never change without changing their URL, or resources '
-        'for which temporary staleness is not critical.'
+        "Cache in browser and proxy (default: 24 hrs). "
+        "Caution: Only use for stable resources "
+        "that never change without changing their URL, or resources "
+        "for which temporary staleness is not critical."
     )
-    prefix = 'Products.Reportek.caching.strongCaching'
+    prefix = "Products.Reportek.caching.strongCaching"
     sort = 1
 
     # Configurable options
-    options = ('maxage', 'smaxage', 'lastModified',
-               'vary', 'anonOnly')
+    options = ("maxage", "smaxage", "lastModified", "vary", "anonOnly")
 
     # Default option values
     maxage = 86400
@@ -228,10 +230,9 @@ class NoCaching(object):
     out of all caches.
     """
 
-    title = _('No caching')
-    description = _('Use this operation to keep the response '
-                    'out of all caches.')
-    prefix = 'Products.Reportek.caching.noCaching'
+    title = _("No caching")
+    description = _("Use this operation to keep the response out of all caches.")
+    prefix = "Products.Reportek.caching.noCaching"
     sort = 4
     options = ()
 

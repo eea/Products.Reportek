@@ -12,48 +12,59 @@ l_envelope = context.getMySelf()  # noqa: F821
 
 
 def getActorDraft():
-    latestDraftWokitem = [wi for wi in context.getListOfWorkitems()  # noqa: F821
-                          if wi.activity_id == 'Draft'][-1]
+    latestDraftWokitem = [
+        wi
+        for wi in context.getListOfWorkitems()  # noqa: F821
+        if wi.activity_id == "Draft"
+    ][-1]
     return latestDraftWokitem.actor
 
 
 def getFeedbackForEnvelope():
-    fbs = l_envelope.objectValues('Report Feedback')
-    return [x.absolute_url() for x in fbs
-            if x.title.find('envelope') > -1][0]
+    fbs = l_envelope.objectValues("Report Feedback")
+    return [x.absolute_url() for x in fbs if x.title.find("envelope") > -1][0]
 
 
 def getFeedbackForFiles(ptype):
-    if ptype == 'species':
-        lschema = 'http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art17_species.xsd'  # noqa: E501
-    elif ptype == 'birds':
-        lschema = 'http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art12_birds.xsd'  # noqa: E501
-    elif ptype == 'red_lists':
-        lschema = 'http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art12_birds.xsd'  # noqa: E501
+    if ptype == "species":
+        lschema = "http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art17_species.xsd"  # noqa: E501
+    elif ptype == "birds":
+        lschema = "http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art12_birds.xsd"  # noqa: E501
+    elif ptype == "red_lists":
+        lschema = "http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art12_birds.xsd"  # noqa: E501
     else:
-        lschema = 'http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art17_habitats.xsd'  # noqa: E501
-    lfiles = [x for x in l_envelope.objectValues(
-        'Report Document') if x.xml_schema_location == lschema]
+        lschema = "http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art17_habitats.xsd"  # noqa: E501
+    lfiles = [
+        x
+        for x in l_envelope.objectValues("Report Document")
+        if x.xml_schema_location == lschema
+    ]
     lret = []
     for x in lfiles:
-        lret.extend(['<a href="%s">%s</a>' % (f.absolute_url(),
-                                              f.title_or_id())
-                     for f in l_envelope.objectValues('Report Feedback')
-                     if f.document_id == x.id and
-                     f.title.find('XML Schema validation') != -1])
+        lret.extend(
+            [
+                '<a href="%s">%s</a>' % (f.absolute_url(), f.title_or_id())
+                for f in l_envelope.objectValues("Report Feedback")
+                if f.document_id == x.id and f.title.find("XML Schema validation") != -1
+            ]
+        )
     if not lret:
-        return '(no feedback available for the %s report)' % ptype
-    return '(see %s)' % ', '.join(lret)
+        return "(no feedback available for the %s report)" % ptype
+    return "(see %s)" % ", ".join(lret)
 
 
 list_of_obligations = []
 
 for obl in context.dataflow_uris:  # noqa: F821
-    list_of_obligations.append("""
-        <strong>%s</strong> (<a href="%s">%s</a>)""" % (
-            context.dataflow_lookup(obl)['TITLE'],  # noqa: F821
-            obl.replace('eionet.eu.int', 'eionet.europa.eu'),
-            obl.replace('eionet.eu.int', 'eionet.europa.eu')))
+    list_of_obligations.append(
+        """
+        <strong>%s</strong> (<a href="%s">%s</a>)"""
+        % (
+            context.dataflow_lookup(obl)["TITLE"],  # noqa: F821
+            obl.replace("eionet.eu.int", "eionet.europa.eu"),
+            obl.replace("eionet.eu.int", "eionet.europa.eu"),
+        )
+    )
 
 obligations_para = "<br/>\n".join(list_of_obligations)
 
@@ -63,9 +74,9 @@ l_ret_head = """
 <p>Your delivery can not be accepted as one or more of the acceptance
  conditions were not met:</p>
 """
-art17 = ['http://rod.eionet.europa.eu/obligations/269']
-art12 = ['http://rod.eionet.europa.eu/obligations/278']
-red = ['http://rod.eionet.europa.eu/obligations/690']
+art17 = ["http://rod.eionet.europa.eu/obligations/269"]
+art12 = ["http://rod.eionet.europa.eu/obligations/278"]
+red = ["http://rod.eionet.europa.eu/obligations/690"]
 # Article 17
 if l_envelope.dataflow_uris == art17:
     l_ret_body = """
@@ -78,8 +89,11 @@ if l_envelope.dataflow_uris == art17:
 <li>species report does not conform to the data model defined in the XML
  schema %s</li>
 </ul>
-""" % (getFeedbackForEnvelope(), getFeedbackForFiles('habitats'),
-       getFeedbackForFiles('species'))
+""" % (
+        getFeedbackForEnvelope(),
+        getFeedbackForFiles("habitats"),
+        getFeedbackForFiles("species"),
+    )
 # Article 12
 elif l_envelope.dataflow_uris == art12:
     l_ret_body = """
@@ -90,7 +104,7 @@ elif l_envelope.dataflow_uris == art12:
 <li>bird species report does not conform to the data model defined in the XML
  Schema %s</li>
 </ul>
-""" % (getFeedbackForEnvelope(), getFeedbackForFiles('birds'))
+""" % (getFeedbackForEnvelope(), getFeedbackForFiles("birds"))
 # Red lists
 elif l_envelope.dataflow_uris == red:
     l_ret_body = """
@@ -101,12 +115,12 @@ elif l_envelope.dataflow_uris == red:
 <li>bird species report does not conform to the data model defined in the XML
  Schema %s</li>
 </ul>
-""" % (getFeedbackForEnvelope(), getFeedbackForFiles('red_lists'))
+""" % (getFeedbackForEnvelope(), getFeedbackForFiles("red_lists"))
 
 # Article 17 or 12
 if l_envelope.dataflow_uris in [
-    ['http://rod.eionet.europa.eu/obligations/269'],
-    ['http://rod.eionet.europa.eu/obligations/278']
+    ["http://rod.eionet.europa.eu/obligations/269"],
+    ["http://rod.eionet.europa.eu/obligations/278"],
 ]:
     l_ret_foot = """
 <p>The conditions for accepting Member State deliveries are outlined in
@@ -118,8 +132,10 @@ if l_envelope.dataflow_uris in [
 
 <p>The delivery was submitted by: <em>%s</em> (user name: <em>%s</em>)</p>
 
-""" % (context.getLDAPUserCanonicalName(context.getLDAPUser(getActorDraft())),  # noqa: F821
-       getActorDraft())
+""" % (
+        context.getLDAPUserCanonicalName(context.getLDAPUser(getActorDraft())),  # noqa: F821
+        getActorDraft(),
+    )
 # Red lists
 else:
     l_ret_foot = """
@@ -132,12 +148,17 @@ else:
 
 <p>The delivery was submitted by: <em>%s</em> (user name: <em>%s</em>)</p>
 
-""" % (context.getLDAPUserCanonicalName(context.getLDAPUser(getActorDraft())),  # noqa: F821
-       getActorDraft())
+""" % (
+        context.getLDAPUserCanonicalName(context.getLDAPUser(getActorDraft())),  # noqa: F821
+        getActorDraft(),
+    )
 
 l_ret = l_ret_head + l_ret_body + l_ret_foot
 
 context.manage_addFeedback(  # noqa: F821
     title="Automatic validation: Data delivery was not acceptable",
-    feedbacktext=l_ret, automatic=1, content_type='text/html')
+    feedbacktext=l_ret,
+    automatic=1,
+    content_type="text/html",
+)
 context.completeWorkitem(workitem_id)  # noqa: F821

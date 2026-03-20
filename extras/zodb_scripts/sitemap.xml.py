@@ -9,6 +9,7 @@
 # title=Extract all envelopes in RDF format for one year back
 ##
 from Products.PythonScripts.standard import html_quote
+
 request = container.REQUEST
 RESPONSE = request.RESPONSE
 
@@ -17,12 +18,14 @@ print("""<?xml version="1.0" encoding="utf-8" ?>
    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">""")
 
-RESPONSE.setHeader('content-type', 'text/xml;charset=utf-8')
+RESPONSE.setHeader("content-type", "text/xml;charset=utf-8")
 
 serverurl = html_quote(request.SERVER_URL)
-for item in container.Catalog(meta_type='Report Envelope', released=1):
+for item in container.Catalog(meta_type="Report Envelope", released=1):
     try:
-        print("""<url><loc>%s%s</loc></url>""" % (serverurl, html_quote(item.getPath())))
+        print(
+            """<url><loc>%s%s</loc></url>""" % (serverurl, html_quote(item.getPath()))
+        )
     except:
         print("""<!-- deleted envelope %s -->""" % item.id)
 

@@ -2,15 +2,19 @@ from Products.Reportek.indexer import indexer
 from zope.interface import Interface
 from Products.Reportek.RepUtils import _mergedLocalRoles
 from AccessControl.ImplPython import rolesForPermissionOn
-from Products.Reportek.interfaces import (ICollection, IDocument, IEnvelope,
-                                          IFeedback, IReportekContent,
-                                          IWorkitem)
+from Products.Reportek.interfaces import (
+    ICollection,
+    IDocument,
+    IEnvelope,
+    IFeedback,
+    IReportekContent,
+    IWorkitem,
+)
 
 
 @indexer(IReportekContent)
 def dummy_released(obj):
-    """ dummy to prevent indexing child objects
-    """
+    """dummy to prevent indexing child objects"""
     APPLIES = [IWorkitem, ICollection, IDocument, IFeedback]
     for i in APPLIES:
         if i.providedBy(obj):
@@ -27,8 +31,7 @@ def envelope_released(obj):
 
 @indexer(IReportekContent)
 def dummy_activity_id(obj):
-    """ dummy to prevent indexing child objects
-    """
+    """dummy to prevent indexing child objects"""
     APPLIES = [ICollection, IDocument, IEnvelope]
     for i in APPLIES:
         if i.providedBy(obj):
@@ -39,22 +42,19 @@ def dummy_activity_id(obj):
 # we get conflicting configuration if we register it for IReportekContent
 @indexer(IFeedback)
 def fb_activity_id(obj):
-    """ return value of activity_id
-    """
+    """return value of activity_id"""
     return obj.activity_id
 
 
 @indexer(IWorkitem)
 def wk_activity_id(obj):
-    """ return value of activity_id
-    """
+    """return value of activity_id"""
     return obj.activity_id
 
 
 @indexer(IWorkitem)
 def wk_process_path(obj):
-    """ return value of process_path needed for pull/push role edit
-    """
+    """return value of process_path needed for pull/push role edit"""
     return obj.process_path
 
 
@@ -85,24 +85,24 @@ def allowedRolesAndUsers(obj):
     # 'Access contents information' is the correct permission for
     # accessing and displaying metadata of an item.
     # 'View' should be reserved for accessing the item itself.
-    allowed = set(rolesForPermissionOn('View', obj))
+    allowed = set(rolesForPermissionOn("View", obj))
 
     # shortcut roles and only index the most basic system role if the object
     # is viewable by either of those
-    if 'Anonymous' in allowed:
-        return ['Anonymous']
-    elif 'Authenticated' in allowed:
-        return ['Authenticated']
+    if "Anonymous" in allowed:
+        return ["Anonymous"]
+    elif "Authenticated" in allowed:
+        return ["Authenticated"]
     localroles = {}
     try:
-        acl_users = obj.unrestrictedTraverse('acl_users', None)
+        acl_users = obj.unrestrictedTraverse("acl_users", None)
         if acl_users is not None:
             localroles = acl_users._getAllLocalRoles(obj)
     except (AttributeError, KeyError):
         localroles = _mergedLocalRoles(obj)
     for user, roles in list(localroles.items()):
         if allowed.intersection(roles):
-            allowed.update(['user:' + user])
-    if 'Owner' in allowed:
-        allowed.remove('Owner')
+            allowed.update(["user:" + user])
+    if "Owner" in allowed:
+        allowed.remove("Owner")
     return list(allowed)

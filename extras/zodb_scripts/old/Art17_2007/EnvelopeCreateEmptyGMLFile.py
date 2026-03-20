@@ -11,7 +11,8 @@
 # Notice: Maintain the instancefile in SVN, then cut-and-paste it to here
 # when changed
 
-filecontent = """<?xml version="1.0" encoding="UTF-8"?>
+filecontent = (
+    """<?xml version="1.0" encoding="UTF-8"?>
 <gml:FeatureCollection
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd"
@@ -75,6 +76,8 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 </gml:Envelope>
 </gml:boundedBy>
 </gml:FeatureCollection>
-""" % filename
+"""
+    % filename
+)
 
-callcontext.manage_addDocument(filename, title, filecontent, 'text/xml', '')
+callcontext.manage_addDocument(filename, title, filecontent, "text/xml", "")

@@ -11,17 +11,11 @@ def get_bool_env(value):
 
 
 # To be set via environment variables
-CACHE_SETTINGS_ENABLED = get_bool_env(
-    os.environ.get("CACHE_SETTINGS_ENABLED", "false")
-)
-CACHE_PURGING_ENABLED = get_bool_env(
-    os.environ.get("CACHE_PURGING_ENABLED", "false")
-)
+CACHE_SETTINGS_ENABLED = get_bool_env(os.environ.get("CACHE_SETTINGS_ENABLED", "false"))
+CACHE_PURGING_ENABLED = get_bool_env(os.environ.get("CACHE_PURGING_ENABLED", "false"))
 CACHE_PURGING_PROXY = os.environ.get("CACHE_PURGING_PROXY", "")
 CACHE_PURGING_PROXY_PORT = os.environ.get("CACHE_PURGING_PROXY_PORT", "")
-CACHE_PURGING_VHOST = get_bool_env(
-    os.environ.get("CACHE_PURGING_VHOST", "false")
-)
+CACHE_PURGING_VHOST = get_bool_env(os.environ.get("CACHE_PURGING_VHOST", "false"))
 CACHE_PURGING_DOMAIN = os.environ.get("CACHE_PURGING_DOMAIN", "")
 
 CACHE_PROXY = (
@@ -59,31 +53,27 @@ def registry_setup(registry):
     cp_vh_record = Record(cp_vh)
 
     # plone.cachepurging.interfaces.ICachePurgingSettings.domains
-    cp_domains = field.Tuple(
-        title="domains", value_type=field.TextLine(title="Value")
-    )
+    cp_domains = field.Tuple(title="domains", value_type=field.TextLine(title="Value"))
     cp_domains_record = Record(cp_domains)
     # In case we use plone.caching.operations.chain
     # op_chain = field.List(title=u"Operations", value_type=field.DottedName())
     # opc_record = Record(opc_record)
 
-    registry.records[
-        "plone.cachepurging.interfaces.ICachePurgingSettings.enabled"
-    ] = cpe_record  # noqa: E501
+    registry.records["plone.cachepurging.interfaces.ICachePurgingSettings.enabled"] = (
+        cpe_record  # noqa: E501
+    )
     registry.records[
         "plone.cachepurging.interfaces.ICachePurgingSettings.cachingProxies"
     ] = cp_record  # noqa: E501
     registry.records[
         "plone.cachepurging.interfaces.ICachePurgingSettings.virtualHosting"
     ] = cp_vh_record  # noqa: E501
-    registry.records[
-        "plone.cachepurging.interfaces.ICachePurgingSettings.domains"
-    ] = cp_domains_record  # noqa: E501
+    registry.records["plone.cachepurging.interfaces.ICachePurgingSettings.domains"] = (
+        cp_domains_record  # noqa: E501
+    )
 
     # Turn on Caching engine
-    registry["plone.caching.interfaces.ICacheSettings.enabled"] = (
-        CACHE_SETTINGS_ENABLED  # noqa: E501
-    )
+    registry["plone.caching.interfaces.ICacheSettings.enabled"] = CACHE_SETTINGS_ENABLED  # noqa: E501
 
     # Set caching operation
     settings = registry.forInterface(ICacheSettings)
@@ -99,14 +89,14 @@ def registry_setup(registry):
     )
 
     # Configure the caching proxy server e.g.:varnish
-    registry[
-        "plone.cachepurging.interfaces.ICachePurgingSettings.cachingProxies"
-    ] = CACHE_PROXY  # noqa: E501
+    registry["plone.cachepurging.interfaces.ICachePurgingSettings.cachingProxies"] = (
+        CACHE_PROXY  # noqa: E501
+    )
 
     # Configure cache purging virtualhost
-    registry[
-        "plone.cachepurging.interfaces.ICachePurgingSettings.virtualHosting"
-    ] = CACHE_PURGING_VHOST  # noqa: E501
+    registry["plone.cachepurging.interfaces.ICachePurgingSettings.virtualHosting"] = (
+        CACHE_PURGING_VHOST  # noqa: E501
+    )
 
     # Configure the domain for caching purging
     registry["plone.cachepurging.interfaces.ICachePurgingSettings.domains"] = (

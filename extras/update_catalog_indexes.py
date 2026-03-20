@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 log.addHandler(handler)
 log.setLevel(logging.INFO)
 
-catalog_log = logging.getLogger('Products.Reportek.catalog')
+catalog_log = logging.getLogger("Products.Reportek.catalog")
 catalog_log.addHandler(handler)
 catalog_log.setLevel(logging.INFO)
 
@@ -45,20 +45,20 @@ def update_indexes(app):
     catalog.manage_delIndex(available_indexes)
 
     catalog.manage_catalogClear()
-    log.info('Clear Catalog')
+    log.info("Clear Catalog")
 
     available_metadata = catalog.schema()
     catalog.manage_delColumn(available_metadata)
 
-    log.info('Old indexes and metadata are removed from Catalog')
+    log.info("Old indexes and metadata are removed from Catalog")
 
     create_reportek_indexes(catalog)
-    log.info('New indexes and metadata are added in Catalog')
+    log.info("New indexes and metadata are added in Catalog")
 
     catalog_rebuild(app)
-    log.info('Catalog records are reindexed')
+    log.info("Catalog records are reindexed")
 
     _catalog = catalog._catalog
-    if hasattr(_catalog, '_length') and '__len__' in _catalog.__dict__:
-        del _catalog.__dict__['__len__']
+    if hasattr(_catalog, "_length") and "__len__" in _catalog.__dict__:
+        del _catalog.__dict__["__len__"]
         _catalog._p_changed = True

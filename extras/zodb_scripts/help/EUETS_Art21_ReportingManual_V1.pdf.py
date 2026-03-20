@@ -10,4 +10,4 @@
 ##
 request = container.REQUEST  # noqa: F999
 
-request.response.redirect('http://cdr.eionet.europa.eu/help/EUETS')
+request.response.redirect("http://cdr.eionet.europa.eu/help/EUETS")

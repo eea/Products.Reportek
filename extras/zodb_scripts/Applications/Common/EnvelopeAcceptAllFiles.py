@@ -12,6 +12,6 @@
 # It is to be called just before 'End' activity.
 # It requires the user to have 'Change Feedback' permission, which the
 # 'Client' role has.
-for x in context.getMySelf().objectValues('Report Document'):  # noqa: F821
+for x in context.getMySelf().objectValues("Report Document"):  # noqa: F821
     if x.get_accept_time() is None:
         x.set_accept_time()

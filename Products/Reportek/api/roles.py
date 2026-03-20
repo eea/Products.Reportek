@@ -28,9 +28,7 @@ class RolesMGMTAPI(BrowserView):
     def manage_ownership(self):
         """Manage the Owner role for a user on a collection"""
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
-            alsoProvides(
-                self.request, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(self.request, plone.protect.interfaces.IDisableCSRFProtection)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         if self.request.method == "POST":
             data = json.loads(self.request.get("BODY") or "{}")
@@ -50,10 +48,7 @@ class RolesMGMTAPI(BrowserView):
                     user = self.context.acl_users.getUser(uid)
                     wrapped_user = user.__of__(self.context.acl_users)
                 except Exception:
-                    error = {
-                        "title": "Error",
-                        "description": "User not found"
-                    }
+                    error = {"title": "Error", "description": "User not found"}
                     res["errors"].append(error)
                 if wrapped_user:
                     if obj:
@@ -69,9 +64,7 @@ class RolesMGMTAPI(BrowserView):
                     else:
                         error = {
                             "title": "Error",
-                            "description": "Collection not found: {}".format(
-                                c_path
-                            ),
+                            "description": "Collection not found: {}".format(c_path),
                         }
                         res["errors"].append(error)
             else:

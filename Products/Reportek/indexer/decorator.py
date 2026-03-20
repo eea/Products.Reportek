@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module defines a decorator that
-"""
+"""This module defines a decorator that"""
 
 from Products.Reportek.indexer.delegate import DelegatingIndexerFactory
 from Products.ZCatalog.interfaces import IZCatalog
@@ -8,16 +7,14 @@ from zope.component import adapter
 
 
 class indexer(adapter):
-    """ indexer taken from plone.indexer
-    """
+    """indexer taken from plone.indexer"""
 
     def __init__(self, *interfaces):
         if len(interfaces) == 1:
-            interfaces += (IZCatalog, )
+            interfaces += (IZCatalog,)
         elif len(interfaces) > 2:
             raise ValueError(
-                'The @indexer decorator takes at most two interfaces as '
-                'arguments.',
+                "The @indexer decorator takes at most two interfaces as arguments.",
             )
         adapter.__init__(self, *interfaces)
 

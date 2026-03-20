@@ -44,9 +44,7 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
 
     def create_file(self, path, id, title):
         file = FileUploadMock(path, "content here")
-        add_doc = self.envelope.manage_addProduct[
-            "Reportek"
-        ].manage_addDocument
+        add_doc = self.envelope.manage_addProduct["Reportek"].manage_addDocument
         return add_doc(id, title, file)
 
     def test_upload_nothing_without_id(self):
@@ -74,30 +72,22 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(hasattr(self.envelope, "file.xls"), True)
 
     def test_upload_raw_content_without_id(self):
-        add_doc = self.envelope.manage_addProduct[
-            "Reportek"
-        ].manage_addDocument
+        add_doc = self.envelope.manage_addProduct["Reportek"].manage_addDocument
         r = add_doc("", "Title", "Some content")
         self.assertEqual(r, "")
 
     def test_upload_raw_content_with_id(self):
-        add_doc = self.envelope.manage_addProduct[
-            "Reportek"
-        ].manage_addDocument
+        add_doc = self.envelope.manage_addProduct["Reportek"].manage_addDocument
         r = add_doc("file", "Title", "Some content")
         self.assertEqual(r, "file")
 
     def test_upload_empty_content_with_id(self):
-        add_doc = self.envelope.manage_addProduct[
-            "Reportek"
-        ].manage_addDocument
+        add_doc = self.envelope.manage_addProduct["Reportek"].manage_addDocument
         r = add_doc("file", "Title", "")
         self.assertEqual(r, "")
 
     def test_upload_empty_content_without_id(self):
-        add_doc = self.envelope.manage_addProduct[
-            "Reportek"
-        ].manage_addDocument
+        add_doc = self.envelope.manage_addProduct["Reportek"].manage_addDocument
         r = add_doc("", "Title", "")
         self.assertEqual(r, "")
 
@@ -229,13 +219,9 @@ class HttpRequestTest(BaseUnitTest):
 
         resp = publish_view(self.doc, {"REQUEST_METHOD": "HEAD"})
 
-        self.assertEqual(
-            resp.getHeader("Content-Length"), str(len(self.file_data))
-        )
+        self.assertEqual(resp.getHeader("Content-Length"), str(len(self.file_data)))
         # In Zope 4, charset is added to Content-Type for text types
-        self.assertTrue(
-            resp.getHeader("Content-Type").startswith("text/plain")
-        )
+        self.assertTrue(resp.getHeader("Content-Type").startswith("text/plain"))
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
 
     def test_get_headers(self):
@@ -245,13 +231,9 @@ class HttpRequestTest(BaseUnitTest):
 
         resp = publish_view(self.doc)
 
-        self.assertEqual(
-            resp.getHeader("Content-Length"), str(len(self.file_data))
-        )
+        self.assertEqual(resp.getHeader("Content-Length"), str(len(self.file_data)))
         # In Zope 4, charset is added to Content-Type for text types
-        self.assertTrue(
-            resp.getHeader("Content-Type").startswith("text/plain")
-        )
+        self.assertTrue(resp.getHeader("Content-Type").startswith("text/plain"))
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
 
     def test_get_file_not_modified_returns_304(self):

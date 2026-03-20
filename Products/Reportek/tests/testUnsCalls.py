@@ -75,9 +75,7 @@ class UNSCallsTest(BaseUnitTest):
     def test_subscribe_to_country(self):
         event = "Envelope release"
         country = "es"
-        self.engine.subscribeToUNS(
-            filter_country=country, filter_event_types=[event]
-        )
+        self.engine.subscribeToUNS(filter_country=country, filter_event_types=[event])
 
         makeSubscription = self.xmlrpc_server.UNSService.makeSubscription
         makeSubscription.assert_called_once_with(
@@ -91,9 +89,7 @@ class UNSCallsTest(BaseUnitTest):
             ],
         )
 
-    @patch(
-        "Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup"
-    )  # noqa
+    @patch("Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup")  # noqa
     def test_subscribe_to_dataflow(self, mock_dataflow_lookup):
         event = "Envelope release"
         mock_dataflow_lookup.return_value = mock_dataflow
@@ -115,9 +111,7 @@ class UNSCallsTest(BaseUnitTest):
             ],
         )
 
-    @patch(
-        "Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup"
-    )
+    @patch("Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup")
     def test_subscribe_to_country_and_dataflow(self, mock_dataflow_lookup):
         event = "Envelope release"
         mock_dataflow_lookup.return_value = mock_dataflow

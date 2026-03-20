@@ -88,6 +88,4 @@ class CustomNegotiator(Negotiator):
         return languages
 
     def getSelectedLanguage(self, request):
-        return self.getLanguage(
-            list(self.getAvailableLanguages().keys()), request
-        )
+        return self.getLanguage(list(self.getAvailableLanguages().keys()), request)

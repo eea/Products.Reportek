@@ -72,9 +72,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
         )
         self.root._setObject(workitem_object.id, workitem_object)
 
-        self.root[workitem_object.id].edit(
-            status="TestStatus", actor="TestActor"
-        )
+        self.root[workitem_object.id].edit(status="TestStatus", actor="TestActor")
 
         definitions = [
             (
@@ -207,9 +205,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
     def test_document_indexes(self):
         from Products.Reportek.Document import Document
 
-        document = Document(
-            id="test_document", content_type="application/octet-stream"
-        )
+        document = Document(id="test_document", content_type="application/octet-stream")
         self.root._setObject(document.id, document)
         self.root[document.id].manage_editDocument(
             xml_schema_location="http://example.com/schema"
@@ -287,9 +283,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
         process.begin = "Begin"
 
         mock_DateTime.return_value = DateTime("2012/05/25")
-        first_envelope = Envelope(
-            process, "FirstEnvelope", "", "", "", "", "", "", ""
-        )
+        first_envelope = Envelope(process, "FirstEnvelope", "", "", "", "", "", "", "")
         first_envelope._content_registry_ping = Mock()
         first_envelope.id = "first_envelope"
         self.root._setObject(first_envelope.id, first_envelope)

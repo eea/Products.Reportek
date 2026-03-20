@@ -44,26 +44,26 @@ from Products.Reportek.locales.poParser import po_load
 from bs4 import BeautifulSoup as bs
 import re
 
-__all__ = ['update']
+__all__ = ["update"]
 
-g_translatable_vars = ['feedback-not-acceptable']
+g_translatable_vars = ["feedback-not-acceptable"]
 
 
 def do_update(o, app, bySrc, safeMatchOnly=True):
     feedbacktext = o.feedbacktext
     try:
-        feedbacktext = feedbacktext.decode('utf-8')
+        feedbacktext = feedbacktext.decode("utf-8")
     except (UnicodeDecodeError, UnicodeEncodeError):
         pass
     # some messages are not prettyfied
-    feedbacktext = bs(feedbacktext.encode('utf-8')).prettify()
+    feedbacktext = bs(feedbacktext.encode("utf-8")).prettify()
     try:
-        feedbacktext = feedbacktext.decode('utf-8')
+        feedbacktext = feedbacktext.decode("utf-8")
     except (UnicodeDecodeError, UnicodeEncodeError):
         pass
 
-    lines = feedbacktext.split('\n')
-    feedbacktext = ''.join([ln.strip() for ln in lines])
+    lines = feedbacktext.split("\n")
+    feedbacktext = "".join([ln.strip() for ln in lines])
     for src, block in bySrc.items():
         # for the complicated, unsafe match, the regex looks like this,
         # but the initial text is being escaped, so a plain . is \.
@@ -83,35 +83,36 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
         lookForThis = block.msgidOrSrc_parts[0]
         if not block.i18n_vars:
             # don't use block.lookForThis - the longest part, but the first
-            toFindSafe = '>' + lookForThis + '<'
+            toFindSafe = ">" + lookForThis + "<"
         elif not safeMatchOnly:
-            varPat = r'<(?P<initial_open_tag>[^<>]+)>'
-            replStr = (r'<\g<initial_open_tag> i18n:translate="%s">'
-                       % block.msgidOrSrc)
+            varPat = r"<(?P<initial_open_tag>[^<>]+)>"
+            replStr = r'<\g<initial_open_tag> i18n:translate="%s">' % block.msgidOrSrc
             for i, var in enumerate(block.i18n_vars):
-                inner_open_tags_regrefs.append('inner_open_tag_' + str(i + 1))
-                inner_close_tags_regrefs.append(
-                    'inner_close_tag_' + str(i + 1))
-                var_defaults_regrefs.append('var_default_' + str(i + 1))
-                varPat += (re.escape(block.msgidOrSrc_parts[i].strip())
-                           + r'<(?P<%s>[^<>]+)>' % inner_open_tags_regrefs[-1]
-                           + r'(?P<%s>[^<>]*)' % var_defaults_regrefs[-1]
-                           + (r'</(?P<%s>[^<>]+)>'
-                              % inner_close_tags_regrefs[-1]))
-                tr = ''
+                inner_open_tags_regrefs.append("inner_open_tag_" + str(i + 1))
+                inner_close_tags_regrefs.append("inner_close_tag_" + str(i + 1))
+                var_defaults_regrefs.append("var_default_" + str(i + 1))
+                varPat += (
+                    re.escape(block.msgidOrSrc_parts[i].strip())
+                    + r"<(?P<%s>[^<>]+)>" % inner_open_tags_regrefs[-1]
+                    + r"(?P<%s>[^<>]*)" % var_defaults_regrefs[-1]
+                    + (r"</(?P<%s>[^<>]+)>" % inner_close_tags_regrefs[-1])
+                )
+                tr = ""
                 if var in g_translatable_vars:
                     tr = ' i18n:translate="%s"' % var
-                replStr += (block.msgidOrSrc_parts[i]
-                            + r'<\g<%s> i18n:name="%s"%s>' % (
-                                inner_open_tags_regrefs[-1], var, tr)
-                            + r'\g<%s>' % var_defaults_regrefs[-1]
-                            + r'</\g<%s>>' % inner_close_tags_regrefs[-1])
+                replStr += (
+                    block.msgidOrSrc_parts[i]
+                    + r'<\g<%s> i18n:name="%s"%s>'
+                    % (inner_open_tags_regrefs[-1], var, tr)
+                    + r"\g<%s>" % var_defaults_regrefs[-1]
+                    + r"</\g<%s>>" % inner_close_tags_regrefs[-1]
+                )
             # add last msg part
             varPat += re.escape(block.msgidOrSrc_parts[-1].strip())
             replStr += block.msgidOrSrc_parts[-1]
             # add initial closing tag
-            varPat += r'</(?P<initial_close_tag>[^<>]+)>'
-            replStr += r'</\g<initial_close_tag>>'
+            varPat += r"</(?P<initial_close_tag>[^<>]+)>"
+            replStr += r"</\g<initial_close_tag>>"
             try:
                 varPat = re.compile(varPat)
             except Exception as e:
@@ -119,25 +120,27 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
                 print(str(e))
 
         # avoid wrong msgids like: "L", "K+L+M"
-        if (toFindSafe and toFindSafe in feedbacktext
-                and len(lookForThis) > 5):
+        if toFindSafe and toFindSafe in feedbacktext and len(lookForThis) > 5:
             # looking for:
             # ...<tag ...>pot text<...
             #    ^loab    ^part1
             pot_text_idx = feedbacktext.find(lookForThis)
             part1 = feedbacktext[:pot_text_idx]
-            last_open_angular_bracket_idx = part1.rfind('<')
+            last_open_angular_bracket_idx = part1.rfind("<")
             if last_open_angular_bracket_idx < 0:
                 # weird
                 continue
-            part_including_tag = feedbacktext[last_open_angular_bracket_idx:
-                                              pot_text_idx]
-            if 'i18n' in part_including_tag:
+            part_including_tag = feedbacktext[
+                last_open_angular_bracket_idx:pot_text_idx
+            ]
+            if "i18n" in part_including_tag:
                 continue
-            part_including_tag = part_including_tag.replace(
-                '>', ' i18n:translate="">')
-            feedbacktext = (feedbacktext[:last_open_angular_bracket_idx]
-                            + part_including_tag + feedbacktext[pot_text_idx:])
+            part_including_tag = part_including_tag.replace(">", ' i18n:translate="">')
+            feedbacktext = (
+                feedbacktext[:last_open_angular_bracket_idx]
+                + part_including_tag
+                + feedbacktext[pot_text_idx:]
+            )
         elif varPat:
             # ...<tag ...>some pot text...var...some pot text...var2...some pot
             # t</tag>
@@ -146,27 +149,26 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
             # ('i18n' in varPat.search.group(0))
             m = varPat.search(feedbacktext)
             if m:
-                if 'i18n' in m.group('initial_open_tag'):
+                if "i18n" in m.group("initial_open_tag"):
                     continue
                 feedbacktext = varPat.sub(replStr, feedbacktext)
 
     # add line endings back
-    return bs(feedbacktext.encode('utf-8')).prettify()
+    return bs(feedbacktext.encode("utf-8")).prettify()
 
 
 def update(app):
-    po_filename = 'default.pot'
+    po_filename = "default.pot"
     po_header = []
     bySrc = {}
-    po_load(po_filename, poHeader=po_header,
-            bySrc=bySrc, noPerifericQuotes=True)
+    po_load(po_filename, poHeader=po_header, bySrc=bySrc, noPerifericQuotes=True)
 
-    for brain in app.Catalog(meta_type='Report Feedback'):
+    for brain in app.Catalog(meta_type="Report Feedback"):
         o = brain.getObject()
         # if o.id not in ['feedback1389098996','feedback1372226406']:
         #    continue
-        if 'html' in o.content_type:
-            print('Updating feed:', o.id)
+        if "html" in o.content_type:
+            print("Updating feed:", o.id)
             trans = transaction.begin()
             try:
                 o.feedbacktext = do_update(o, app, bySrc, safeMatchOnly=False)

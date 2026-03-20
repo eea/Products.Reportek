@@ -15,33 +15,30 @@ import transaction
 
 logger = logging.getLogger(__name__)
 VERSION = 8
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 def migrate_collection_attributes(app):
-    catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
-    brains = catalog({'meta_type': 'Report Collection'})
+    catalog = app.unrestrictedTraverse("/" + DEFAULT_CATALOG)
+    brains = catalog({"meta_type": "Report Collection"})
     count = 0
     for brain in brains:
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error('Unable to retrieve object: {} due to {}'.format(
-                brain.getURL(), str(e)))
+            logger.error(
+                "Unable to retrieve object: {} due to {}".format(brain.getURL(), str(e))
+            )
 
-        if obj and hasattr(obj, 'setstate'):
+        if obj and hasattr(obj, "setstate"):
             del obj.setstate
             obj._p_changed = 1
             if count % 10000 == 0:
                 transaction.savepoint()
-                logger.info('savepoint at %d records', count)
+                logger.info("savepoint at %d records", count)
 
             count += 1
-    logger.info('Changed a total of {} objects'.format(count))
+    logger.info("Changed a total of {} objects".format(count))
     return True
 
 
@@ -50,5 +47,5 @@ def update(app, skipMigrationCheck=False):
     if not migrate_collection_attributes(app):
         return
 
-    logger.info('Collections attributes have been migrated')
+    logger.info("Collections attributes have been migrated")
     return True

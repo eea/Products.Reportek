@@ -10,13 +10,17 @@
 ##
 from DateTime import DateTime
 
-dfs = ''
+dfs = ""
 for x in context.dataflow_uris:
-    dfs += context.dataflow_lookup(x)['TITLE'] + ' (' + \
-        context.dataflow_lookup(x)['details_url'] + ')<br />'
+    dfs += (
+        context.dataflow_lookup(x)["TITLE"]
+        + " ("
+        + context.dataflow_lookup(x)["details_url"]
+        + ")<br />"
+    )
 
-for x in context.objectValues('Workitem'):
-    if x.activity_id == 'Draft':
+for x in context.objectValues("Workitem"):
+    if x.activity_id == "Draft":
         u = x.actor
 l_ret = """
 <p>
@@ -54,13 +58,22 @@ DK 1050 Copenhagen K
 List of files:
 </p>
 
-<ol>""" % (dfs, context.getCountryName(), context.reportingdate.strftime('%d %B %Y'), context.title_or_id(), context.absolute_url())
+<ol>""" % (
+    dfs,
+    context.getCountryName(),
+    context.reportingdate.strftime("%d %B %Y"),
+    context.title_or_id(),
+    context.absolute_url(),
+)
 
-documents_list = context.objectValues(['Report Document', 'Report Hyperlink'])
+documents_list = context.objectValues(["Report Document", "Report Hyperlink"])
 documents_list.sort(key=lambda ob: ob.getId().lower())
 for f in documents_list:
-    l_ret += '<li>%s (<a href="%s">%s</a>)</li>' % (f.title_or_id(),
-                                                    f.absolute_url(), f.absolute_url())
+    l_ret += '<li>%s (<a href="%s">%s</a>)</li>' % (
+        f.title_or_id(),
+        f.absolute_url(),
+        f.absolute_url(),
+    )
 
 l_ret += """
 </ol>
@@ -73,10 +86,17 @@ The above-mentioned files were submitted by user: <em>%s</em>
 
 """ % (context.getLDAPUserCanonicalName(context.getLDAPUser(u)))
 
-conf_feedback = [x for x in context.objectValues(
-    'Report Feedback') if x.title == 'Confirmation of receipt']
+conf_feedback = [
+    x
+    for x in context.objectValues("Report Feedback")
+    if x.title == "Confirmation of receipt"
+]
 if conf_feedback:
     context.manage_delObjects(conf_feedback[0].id)
 
-context.manage_addFeedback(title="Confirmation of receipt",
-                           feedbacktext=l_ret, automatic=1, content_type='text/html')
+context.manage_addFeedback(
+    title="Confirmation of receipt",
+    feedbacktext=l_ret,
+    automatic=1,
+    content_type="text/html",
+)

@@ -13,8 +13,14 @@ logger = logging.getLogger(__name__)
 class AVService(SimpleItem):
     """AV Service"""
 
-    def __init__(self, clamav_rest_host=None, clamd_host=None,
-                 clamd_port=3310, clamd_timeout=None, clam_max_file_size=None):
+    def __init__(
+        self,
+        clamav_rest_host=None,
+        clamd_host=None,
+        clamd_port=3310,
+        clamd_timeout=None,
+        clam_max_file_size=None,
+    ):
         self.clamav_rest_host = clamav_rest_host
         self.clamd_host = clamd_host
         self.clamd_port = clamd_port
@@ -23,12 +29,12 @@ class AVService(SimpleItem):
         self.clamd = None
         self.scanning = None
         if clamav_rest_host:
-            self.scanning = 'rest'
+            self.scanning = "rest"
         elif clamd_host:
-            self.scanning = 'clamd'
-            self.clamd = clamd.ClamdNetworkSocket(host=self.clamd_host,
-                                                  port=self.clamd_port,
-                                                  timeout=self.clamd_timeout)
+            self.scanning = "clamd"
+            self.clamd = clamd.ClamdNetworkSocket(
+                host=self.clamd_host, port=self.clamd_port, timeout=self.clamd_timeout
+            )
 
     def get_size(self, file):
         try:
@@ -42,14 +48,14 @@ class AVService(SimpleItem):
         return size
 
     def get_filename(self, file):
-        f_name = getattr(file, 'filename', None)
+        f_name = getattr(file, "filename", None)
         if not f_name:
-            f_name = getattr(file, 'currentFilename', 'n/a')
+            f_name = getattr(file, "currentFilename", "n/a")
 
         return f_name
 
     def is_file_like(self, obj):
-        return hasattr(obj, 'read') and hasattr(obj, 'seek')
+        return hasattr(obj, "read") and hasattr(obj, "seek")
 
     def scan(self, file, filesize=None, filename=None):
         if self.is_file_like(file):
@@ -64,29 +70,27 @@ class AVService(SimpleItem):
                 filename = self.get_filename(file)
 
             if self.clam_max_file_size and filesize <= self.clam_max_file_size:
-                if self.scanning == 'rest':
+                if self.scanning == "rest":
                     try:
                         result = self._check_file_rest(file)
                     except requests.exceptions.RequestException as e:
                         logger.error(
-                            '''Unable to establish connection with the '''
-                            '''clamav rest service: {}'''.format(str(e)))
-                    if result and 'Everything ok : true' not in result.text:
-                        log_message = 'Virus found in the file "{}"'.format(
-                            filename)
+                            """Unable to establish connection with the """
+                            """clamav rest service: {}""".format(str(e))
+                        )
+                    if result and "Everything ok : true" not in result.text:
+                        log_message = 'Virus found in the file "{}"'.format(filename)
                         v_found = True
-                elif self.scanning == 'clamd':
+                elif self.scanning == "clamd":
                     try:
                         result = self._check_file_clamd(file)
                     except Exception as e:
-                        logger.error(
-                            'Connection to ClamD was lost: {}'.format(str(e)))
-                    if result and result.get('stream')[0] == 'FOUND':
-                        sig = result.get('stream')[1]
-                        log_message = (
-                            'Virus found: "{}" in the file "{}"'.format(
-                                sig,
-                                filename))
+                        logger.error("Connection to ClamD was lost: {}".format(str(e)))
+                    if result and result.get("stream")[0] == "FOUND":
+                        sig = result.get("stream")[1]
+                        log_message = 'Virus found: "{}" in the file "{}"'.format(
+                            sig, filename
+                        )
                         v_found = True
                 file.seek(0)
                 if v_found:
@@ -107,11 +111,12 @@ class AVService(SimpleItem):
 
     def _check_file_rest(self, file, checks=0):
         """POST the file to the clamav-rest service"""
-        files = {'file': file.read()}
-        data = {'name': getattr(file, 'filename', 'file')}
+        files = {"file": file.read()}
+        data = {"name": getattr(file, "filename", "file")}
         try:
-            return requests.post('http://%s:8080/scan' % self.clamav_rest_host,
-                                 files=files, data=data)
+            return requests.post(
+                "http://%s:8080/scan" % self.clamav_rest_host, files=files, data=data
+            )
         except requests.exceptions.RequestException:
             checks += 1
             if checks == 3:

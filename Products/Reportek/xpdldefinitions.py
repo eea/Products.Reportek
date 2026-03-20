@@ -19,7 +19,7 @@
 # Miruna Badescu, Finsiel Romania
 
 
-""" XMLInfoParser object
+"""XMLInfoParser object
 
 Parses XML files and extract DTD identifier or XML Schema URL.
 
@@ -44,32 +44,32 @@ class package:
 class packageheader:
     def __init__(self):
         self.xpdlversion = 0.0
-        self.vendor = ''
-        self.created = ''  # datetime
-        self.version = ''
-        self.author = ''
-        self.codepage = ''
-        self.countrykey = ''
-        self.publicationstatus = ''
-        self.conformanceclass = ''
-        self.priorityunit = ''
-        self.responsible = ''
-        self.externalpackage = ''
-        self.documentation = ''
-        self.icon = ''
-        self.costunit = ''
+        self.vendor = ""
+        self.created = ""  # datetime
+        self.version = ""
+        self.author = ""
+        self.codepage = ""
+        self.countrykey = ""
+        self.publicationstatus = ""
+        self.conformanceclass = ""
+        self.priorityunit = ""
+        self.responsible = ""
+        self.externalpackage = ""
+        self.documentation = ""
+        self.icon = ""
+        self.costunit = ""
 
 
 class participant(common):
     def __init__(self, id, name, description):
-        common.__dict__['__init__'](self, id, name, description)
+        common.__dict__["__init__"](self, id, name, description)
         self.extendedattributes = {}
-        self.participant_type = ''
+        self.participant_type = ""
 
 
 class application(common):
     def __init__(self, id, name, description):
-        common.__dict__['__init__'](self, id, name, description)
+        common.__dict__["__init__"](self, id, name, description)
         self.extendedattributes = {}
         self.formal_parameters = []
 
@@ -103,7 +103,7 @@ class redefinableheader:
 
 class workflowprocess(common):
     def __init__(self, id, name, description):
-        common.__dict__['__init__'](self, id, name, description)
+        common.__dict__["__init__"](self, id, name, description)
         self.extendedattributes = {}
         self.process_header = None
         self.redefinable_header = None
@@ -123,7 +123,7 @@ class transition:
         self.from_ = from_
         self.to = to
         self.extended_attributes = []
-        self.condition = ''
+        self.condition = ""
 
 
 class extendedattribute:
@@ -151,32 +151,32 @@ class loop:
 
 class activity(common):
     def __init__(self, id, name, description):
-        common.__dict__['__init__'](self, id, name, description)
+        common.__dict__["__init__"](self, id, name, description)
         self.extendedattributes = {}
         self.extended_attributes = []
         self.transition_restrictions = []
-        self.automationmode = ''
-        self.split = ''
-        self.join = ''
-        self.priority = ''
-        self.limit = ''
-        self.startmode = ''
-        self.finishmode = ''
-        self.deadline = ''
-        self.condition = ''
-        self.from_ = ''
-        self.to = ''
-        self.performer = ''
+        self.automationmode = ""
+        self.split = ""
+        self.join = ""
+        self.priority = ""
+        self.limit = ""
+        self.startmode = ""
+        self.finishmode = ""
+        self.deadline = ""
+        self.condition = ""
+        self.from_ = ""
+        self.to = ""
+        self.performer = ""
         self.tool = None
-        self.subflow = ''
-        self.activityset = ''
-        self.actualparameter = ''
-        self.documentation = ''
-        self.icon = ''
-        self.cost = ''
-        self.duration = ''
-        self.waitingtime = ''
-        self.workingtime = ''
+        self.subflow = ""
+        self.activityset = ""
+        self.actualparameter = ""
+        self.documentation = ""
+        self.icon = ""
+        self.cost = ""
+        self.duration = ""
+        self.waitingtime = ""
+        self.workingtime = ""
 
 
 class transitionrestriction:

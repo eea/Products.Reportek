@@ -79,32 +79,22 @@ class QAScriptTest(BaseUnitTest):
             max_size="10",
             qa_extraparams=None,
         ).__of__(self.qa_repository)
-        schema_qascript.bobobase_modification_time = Mock(
-            return_value=datetime.now()
-        )
+        schema_qascript.bobobase_modification_time = Mock(return_value=datetime.now())
         mdb_workflow_qascript.bobobase_modification_time = Mock(
             return_value=datetime.now()
         )
         doc_workflow_qascript.bobobase_modification_time = Mock(
             return_value=datetime.now()
         )
-        stalling_qascript.bobobase_modification_time = Mock(
-            return_value=datetime.now()
-        )
+        stalling_qascript.bobobase_modification_time = Mock(return_value=datetime.now())
 
         self.qa_repository._setObject("schema_qascript", schema_qascript)
-        self.qa_repository._setObject(
-            "mdb_workflow_qascript", mdb_workflow_qascript
-        )
-        self.qa_repository._setObject(
-            "doc_workflow_qascript", doc_workflow_qascript
-        )
+        self.qa_repository._setObject("mdb_workflow_qascript", mdb_workflow_qascript)
+        self.qa_repository._setObject("doc_workflow_qascript", doc_workflow_qascript)
         self.qa_repository._setObject("stalling_qascript", stalling_qascript)
 
     def test_invoke_local_script(self):
-        self.qa_repository.myscript = Mock(
-            qa_extraparams=[], script_url="ls -l %s"
-        )
+        self.qa_repository.myscript = Mock(qa_extraparams=[], script_url="ls -l %s")
         self.qa_repository.myscript.content_type_out = "text/plain"
         from io import BytesIO
 
@@ -116,26 +106,18 @@ class QAScriptTest(BaseUnitTest):
             "Products.Reportek.QARepository.RepUtils",
             Mock(temporary_named_copy=Mock(return_value=mock_file)),
         ):
-            with patch.object(
-                self.qa_repository, "REQUEST", create=True
-            ) as request:
+            with patch.object(self.qa_repository, "REQUEST", create=True) as request:
                 request.SERVER_URL = "http://example.com"
                 file_url = "http://example.com/envelope/foo.txt"
-                with patch(
-                    "Products.Reportek.QARepository.subprocess"
-                ) as mock_sp:
+                with patch("Products.Reportek.QARepository.subprocess") as mock_sp:
                     mock_proc = Mock(stdout=BytesIO(b"test output"))
                     mock_sp.Popen.return_value = mock_proc
-                    ret = self.qa_repository._runQAScript(
-                        file_url, "loc_myscript"
-                    )
+                    ret = self.qa_repository._runQAScript(file_url, "loc_myscript")
                 (file_id, [content_type, result]) = ret
                 self.assertEqual(len(mock_sp.Popen.mock_calls), 1)
 
         self.assertEqual(b"test output", result.data)
-        self.assertEqual(
-            ["ls", "-l", "test_file"], mock_sp.Popen.mock_calls[0][1][0]
-        )
+        self.assertEqual(["ls", "-l", "test_file"], mock_sp.Popen.mock_calls[0][1][0])
 
         self.assertEqual(False, mock_sp.Popen.mock_calls[0][2]["shell"])
 
@@ -191,9 +173,7 @@ class QAScriptTest(BaseUnitTest):
         qa_repository = self.qa_repository
 
         # assert scripts are found by schema
-        local_scripts = qa_repository._get_local_qa_scripts(
-            p_schema="xml.schema"
-        )
+        local_scripts = qa_repository._get_local_qa_scripts(p_schema="xml.schema")
         self.assertEqual([qa_repository.schema_qascript], local_scripts)
 
     def test_scripts_are_found_by_workflow(self):

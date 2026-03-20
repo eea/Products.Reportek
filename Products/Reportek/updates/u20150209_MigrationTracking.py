@@ -17,16 +17,12 @@ import transaction
 from ZODB.PersistentMapping import PersistentMapping
 
 VERSION = 1
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=True):
-    """    Create the mapping holding the migration history on ReportekEngine
+    """Create the mapping holding the migration history on ReportekEngine
     object in Data.fs
     this should be run with skipMigrationCheck=True since we can fairly assume
     that there is no migration tracking object yet.

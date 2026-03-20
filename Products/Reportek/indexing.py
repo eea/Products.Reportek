@@ -173,9 +173,7 @@ class IndexQueue(local):
             func = getattr(obj, "getPhysicalPath", None)
             if callable(func):
                 hash_id = hash_id, func()
-            op, dummy, attr, metadata = res.get(
-                hash_id, (0, obj, iattr, imetadata)
-            )
+            op, dummy, attr, metadata = res.get(hash_id, (0, obj, iattr, imetadata))
             # If we are going to delete an item that was added in this
             # transaction, ignore it
             if op == INDEX and iop == UNINDEX:

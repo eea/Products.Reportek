@@ -30,9 +30,7 @@ def computed_attribute_decorator(level=0):
 
 
 @implementer(IWorkitem, IWkMetadata)
-class workitem(
-    CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware
-):
+class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware):
     """describes a single workitem of the history graph"""
 
     meta_type = "Workitem"
@@ -113,44 +111,30 @@ class workitem(
     )
 
     security.declareProtected("Manage OpenFlow", "workitemProperties")
-    workitemProperties = PageTemplateFile(
-        "zpt/Workflow/workitem_edit", globals()
-    )
+    workitemProperties = PageTemplateFile("zpt/Workflow/workitem_edit", globals())
 
     security.declareProtected("View", "workitemDetails")
-    workitemDetails = PageTemplateFile(
-        "zpt/Workflow/workitem_details", globals()
-    )
+    workitemDetails = PageTemplateFile("zpt/Workflow/workitem_details", globals())
 
     security.declareProtected("Manage OpenFlow", "workitem_metadata")
-    workitem_metadata = PageTemplateFile(
-        "zpt/Workflow/workitem_metadata", globals()
-    )
+    workitem_metadata = PageTemplateFile("zpt/Workflow/workitem_metadata", globals())
 
     security.declareProtected("View", "index_html")
     index_html = PageTemplateFile("zpt/Workflow/workitem_index", globals())
 
     def title(self):
-        return (
-            self.activity_id + " by " + self.actor + ", status: " + self.status
-        )
+        return self.activity_id + " by " + self.actor + ", status: " + self.status
 
     def activity_application(self, activity_id):
         activity = getattr(self.getProcess(), activity_id, None)
         wf_engine = getattr(self, constants.WORKFLOW_ENGINE_ID)
-        apps_folder = getattr(
-            self.getPhysicalRoot(), constants.APPLICATIONS_FOLDER_ID
-        )
+        apps_folder = getattr(self.getPhysicalRoot(), constants.APPLICATIONS_FOLDER_ID)
         path = ""
         if activity:
             if activity.application:
-                path = wf_engine._applications.get(
-                    activity.application, {}
-                ).get("url")
+                path = wf_engine._applications.get(activity.application, {}).get("url")
             elif apps_folder.get(self.getProcess().id, {}).get(activity.id):
-                path = apps_folder[self.getProcess().id][
-                    activity.id
-                ].virtual_url_path()
+                path = apps_folder[self.getProcess().id][activity.id].virtual_url_path()
             elif apps_folder.get("Common", {}).get(activity.id):
                 path = apps_folder["Common"][activity.id].virtual_url_path()
             app = self.getPhysicalRoot().restrictedTraverse(path)
@@ -234,9 +218,7 @@ class workitem(
 
     def addEvent(self, event, comment=""):
         """ """
-        self.event_log.append(
-            {"event": event, "time": DateTime(), "comment": comment}
-        )
+        self.event_log.append({"event": event, "time": DateTime(), "comment": comment})
         self._p_changed = 1
         notify(ObjectModifiedEvent(self))
 
@@ -247,9 +229,7 @@ class workitem(
         that already exist
         """
         p_time = DateTime(p_time)
-        self.event_log.append(
-            {"event": event, "time": p_time, "comment": comment}
-        )
+        self.event_log.append({"event": event, "time": p_time, "comment": comment})
         self._p_changed = 1
 
     def isActiveOrInactiveOn(self, process_id, activity_id):

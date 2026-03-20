@@ -12,45 +12,42 @@ from random import choice
 def do_update(app):
     mappings = app.DataflowMappings
     dataflows = {}
-    for ob in mappings.objectValues('Reportek Dataflow Mapping Record'):
+    for ob in mappings.objectValues("Reportek Dataflow Mapping Record"):
         data = {
-            'title': ob.title,
-            'schema': ob.allowedSchemas,
-            'webform': ob.webformSchemas}
+            "title": ob.title,
+            "schema": ob.allowedSchemas,
+            "webform": ob.webformSchemas,
+        }
         if ob.dataflow_uri in dataflows:
             dataflows[ob.dataflow_uri].append(data)
         else:
             dataflows[ob.dataflow_uri] = [data]
 
     for k, v in list(dataflows.items()):
-        oid = (''.join(choice(ascii_uppercase) for i in range(12)))
-        ob = DataflowMappingsRecord(
-            oid,
-            v[0]['title'],
-            k)
+        oid = "".join(choice(ascii_uppercase) for i in range(12))
+        ob = DataflowMappingsRecord(oid, v[0]["title"], k)
         mappings._setObject(oid, ob)
         schemas = []
         for data in v:
-            if isinstance(data['schema'], list):
-                if len(data['schema']) > 0:
-                    schema = data['schema'][0]
+            if isinstance(data["schema"], list):
+                if len(data["schema"]) > 0:
+                    schema = data["schema"][0]
                 else:
-                    schema = ''
+                    schema = ""
             else:
-                schema = data['schema']
+                schema = data["schema"]
             if schema:
-                schemas.append({
-                    'url': schema,
-                    'name': data['title'],
-                    'has_webform': False})
-                mappings[oid].mapping = {'schemas': schemas}
+                schemas.append(
+                    {"url": schema, "name": data["title"], "has_webform": False}
+                )
+                mappings[oid].mapping = {"schemas": schemas}
 
 
 def update(app):
     trans = transaction.begin()
     try:
         do_update(app)
-        trans.note('Update site %s' % app.absolute_url(1))
+        trans.note("Update site %s" % app.absolute_url(1))
         trans.commit()
     except Exception:
         trans.abort()

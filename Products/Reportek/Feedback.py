@@ -32,15 +32,12 @@ Feedback objects are sub-objects of Report Envelopes.
 import json
 import logging
 import tempfile
+from io import StringIO
 
 import plone.protect.interfaces
-from Products.Reportek import RepUtils
-from io import StringIO
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from Products.Reportek.blob import add_OfsBlobFile
 from BTrees.OOBTree import BTree
-from Products.Reportek.Comment import CommentsManager
 from DateTime import DateTime
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
@@ -52,8 +49,10 @@ from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
-from Products.Reportek import constants
+from Products.Reportek import RepUtils, constants
+from Products.Reportek.blob import add_OfsBlobFile
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.Comment import CommentsManager
 from Products.Reportek.interfaces import IFeedback, IFeedbackHistory
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 
@@ -82,9 +81,7 @@ def manage_addFeedback(
 
     if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
         if REQUEST:
-            alsoProvides(
-                REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
     # get the release date of the envelope
     releasedate = self.reportingdate
     # generate id from the release date
@@ -110,7 +107,7 @@ def manage_addFeedback(
         document_id,
     )
     if file:
-        if type(file) != list:  # one file object
+        if not isinstance(file, list):
             file = [file]
 
         for f in file:
@@ -121,12 +118,8 @@ def manage_addFeedback(
     obj = self._getOb(id)
 
     r_enabled = (
-        hasattr(self, "is_globally_restricted")
-        and self.is_globally_restricted()
-    ) or (
-        hasattr(self, "is_workflow_restricted")
-        and self.is_workflow_restricted()
-    )
+        hasattr(self, "is_globally_restricted") and self.is_globally_restricted()
+    ) or (hasattr(self, "is_workflow_restricted") and self.is_workflow_restricted())
     if restricted or r_enabled:
         obj.manage_restrictFeedback()
     else:
@@ -153,9 +146,7 @@ def manage_addFeedback(
 
     if REQUEST is not None:
         if "file_upload" in REQUEST.form:
-            REQUEST.RESPONSE.redirect(
-                "%s/manage_editFeedbackForm" % obj.absolute_url()
-            )
+            REQUEST.RESPONSE.redirect("%s/manage_editFeedbackForm" % obj.absolute_url())
         else:
             return self.messageDialog(
                 message="The Feedback %s was successfully created!" % id,
@@ -329,9 +320,7 @@ class ReportFeedback(
             self.title = title
         if feedbacktext:
             tmp = StringIO(feedbacktext)
-            convs = getattr(
-                self.getPhysicalRoot(), constants.CONVERTERS_ID, None
-            )
+            convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
             # if Local Conversion Service is down
             # the next line of code will raise an exception
             # because we don't want to save unsecure html
@@ -378,9 +367,7 @@ class ReportFeedback(
                 else:
                     self.manage_uploadAttFeedback(filename, tmp)
             fb_attach = self.unrestrictedTraverse(filename)
-            fb_attach.data_file.content_type = metadata.get(
-                "content_type", "text/html"
-            )
+            fb_attach.data_file.content_type = metadata.get("content_type", "text/html")
             if filename == "qa-output":
                 self.feedbacktext = (
                     "Feedback too large for inline display; "
@@ -442,16 +429,12 @@ class ReportFeedback(
                 res["message"] = "Malformed body"
 
             for attr in list(VALID_ATTRS_MAP.keys()):
-                history[VALID_ATTRS_MAP[attr]] = getattr(
-                    self, VALID_ATTRS_MAP[attr]
-                )
+                history[VALID_ATTRS_MAP[attr]] = getattr(self, VALID_ATTRS_MAP[attr])
                 if attr in data:
                     try:
                         if attr == "feedback-data":
                             for s_data in data[attr]:
-                                html, kwargs = self.deserialize_html_feedback(
-                                    s_data
-                                )
+                                html, kwargs = self.deserialize_html_feedback(s_data)
                                 self.set_html_feedback(html, kwargs)
                         else:
                             setattr(self, attr, data[attr])
@@ -509,9 +492,7 @@ class ReportFeedback(
         """
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(
-                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-                )
+                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         if filename is None:
             filename = RepUtils.getFilename(file.filename)
         engine = self.getEngine()
@@ -574,9 +555,7 @@ class ReportFeedback(
 
     def getActivityDetails(self, p_attribute):
         """returns the activity's description"""
-        l_process = self.unrestrictedTraverse(
-            self.getParentNode().process_path
-        )
+        l_process = self.unrestrictedTraverse(self.getParentNode().process_path)
         return getattr(getattr(l_process, self.activity_id), p_attribute)
 
     security.declareProtected("View", "get_owner")
@@ -632,19 +611,11 @@ class ReportFeedback(
     security.declareProtected("Change Feedback", "manage_editFeedbackForm")
     manage_editFeedbackForm = PageTemplateFile("zpt/feedback/edit", globals())
 
-    security.declareProtected(
-        "Change Feedback", "manage_uploadAttFeedbackForm"
-    )
-    manage_uploadAttFeedbackForm = PageTemplateFile(
-        "zpt/feedback/uploadatt", globals()
-    )
+    security.declareProtected("Change Feedback", "manage_uploadAttFeedbackForm")
+    manage_uploadAttFeedbackForm = PageTemplateFile("zpt/feedback/uploadatt", globals())
 
-    security.declareProtected(
-        "Change Feedback", "manage_deleteAttFeedbackForm"
-    )
-    manage_deleteAttFeedbackForm = PageTemplateFile(
-        "zpt/feedback/deleteatt", globals()
-    )
+    security.declareProtected("Change Feedback", "manage_deleteAttFeedbackForm")
+    manage_deleteAttFeedbackForm = PageTemplateFile("zpt/feedback/deleteatt", globals())
 
     security.declareProtected("View", "rdf")
 
@@ -654,9 +625,7 @@ class ReportFeedback(
         Note that the metadata is already provided by then envelope rdf.
         If feedback is restricted the 'View' permission flag is removed.
         """
-        REQUEST.RESPONSE.setHeader(
-            "content-type", "application/rdf+xml; charset=utf-8"
-        )
+        REQUEST.RESPONSE.setHeader("content-type", "application/rdf+xml; charset=utf-8")
         engine = self.getEngine()
         http_res = getattr(engine, "exp_httpres", False)
         # if not self.canViewContent():
@@ -665,14 +634,10 @@ class ReportFeedback(
         res = []
 
         res.append('<?xml version="1.0" encoding="utf-8"?>')
-        res.append(
-            '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"'
-        )
+        res.append('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
         res.append(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
         res.append(' xmlns:dct="http://purl.org/dc/terms/"')
-        res.append(
-            ' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"'
-        )
+        res.append(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
         res.append(

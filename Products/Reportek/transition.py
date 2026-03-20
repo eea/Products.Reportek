@@ -61,9 +61,7 @@ class transition(CatalogAware, SimpleItem):
     )
 
     #   security.declareProtected('Use OpenFlow', 'index_html')
-    index_html = PageTemplateFile(
-        "zpt/Workflow/transition_index.zpt", globals()
-    )
+    index_html = PageTemplateFile("zpt/Workflow/transition_index.zpt", globals())
 
     meta_type = "Transition"
     icon = "++resource++images/Transition.gif"

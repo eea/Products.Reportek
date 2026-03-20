@@ -30,9 +30,7 @@ class AddForm(BrowserView):
     def add(self):
         form = self.request.form
         oid = form.get("id")
-        ob = DataflowMappingsRecord(
-            oid, form.get("title"), form.get("dataflow_uris")
-        )
+        ob = DataflowMappingsRecord(oid, form.get("title"), form.get("dataflow_uris"))
         self.parent._setObject(oid, ob)
         return self.request.response.redirect(
             self.parent.absolute_url() + "/manage_main"
@@ -110,9 +108,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         resp = requests.get(
             os.environ["DATADICTIONARY_SCHEMAS_URL"],
             params={
-                "obligationId": self.dataflow_uri.replace(
-                    ".eu.int", ".europa.eu"
-                ),
+                "obligationId": self.dataflow_uri.replace(".eu.int", ".europa.eu"),
             },
         )
         if resp.status_code == 200:
@@ -125,21 +121,15 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 mapping = {
                     "url": row["url"],
                     "name": row["name"],
-                    "has_webform": (
-                        True if webq_resp.get(row["url"]) else False
-                    ),
+                    "has_webform": (True if webq_resp.get(row["url"]) else False),
                 }
                 new_mappings.append(mapping)
             self._mappings = new_mappings
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 
         elif resp.status_code == 404:
-            log.info(
-                "404 response from DD for %r (%s)", resp.url, self.dataflow_uri
-            )
-            messages.add(
-                REQUEST, "No mappings found in Data Dictionary.", "error"
-            )
+            log.info("404 response from DD for %r (%s)", resp.url, self.dataflow_uri)
+            messages.add(REQUEST, "No mappings found in Data Dictionary.", "error")
 
         else:
             log.warn(
@@ -148,9 +138,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 resp,
                 resp.text,
             )
-            messages.add(
-                REQUEST, "Error fetching from Data Dictionary", "error"
-            )
+            messages.add(REQUEST, "Error fetching from Data Dictionary", "error")
 
         REQUEST.RESPONSE.redirect(self.absolute_url() + "/edit")
 
@@ -201,9 +189,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         )
 
     _edit = PageTemplateFile(
-        os.path.join(
-            package_home(globals()), "zpt/dataflow-mappings/edit_record.zpt"
-        )
+        os.path.join(package_home(globals()), "zpt/dataflow-mappings/edit_record.zpt")
     )
 
     security.declareProtected(view_management_screens, "edit")

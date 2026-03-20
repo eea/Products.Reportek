@@ -15,34 +15,35 @@ from Products.Reportek.RepUtils import getToolByName
 
 logger = logging.getLogger(__name__)
 VERSION = 22
-APPLIES_TO = [
-    DEPLOYMENT_BDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR]
 
-OLD_ODS_OBL_ID = 'http://rod.eionet.europa.eu/obligations/213'
-NEW_ODS_OBL_ID = 'http://rod.eionet.europa.eu/obligations/869'
+OLD_ODS_OBL_ID = "http://rod.eionet.europa.eu/obligations/213"
+NEW_ODS_OBL_ID = "http://rod.eionet.europa.eu/obligations/869"
 
-def log_msg(msg, level='INFO'):
+
+def log_msg(msg, level="INFO"):
     lvl = {
-        'CRITICAL': 50,
-        'ERROR': 40,
-        'WARNING': 30,
-        'INFO': 20,
-        'DEBUG': 10,
-        'NOTSET': 0
+        "CRITICAL": 50,
+        "ERROR": 40,
+        "WARNING": 30,
+        "INFO": 20,
+        "DEBUG": 10,
+        "NOTSET": 0,
     }
     logger.log(lvl.get(level), msg)
     print(msg)
+
 
 def get_ods_collections(app):
     catalog = getToolByName(app, DEFAULT_CATALOG, None)
     query = {
         "path": "/ods",
         "dataflow_uris": OLD_ODS_OBL_ID,
-        "meta_type": "Report Collection"
+        "meta_type": "Report Collection",
     }
 
     return catalog(**query)
+
 
 def add_new_ods_obligation(app):
     brains = get_ods_collections(app)
@@ -57,29 +58,31 @@ def add_new_ods_obligation(app):
                     obj.dataflow_uris.append(NEW_ODS_OBL_ID)
                     obj._p_changed = 1
                     logger.info(
-                        'Added ODS Obligation to %s. Obligations: %s',
-                            obj.absolute_url(), obj.dataflow_uris)
+                        "Added ODS Obligation to %s. Obligations: %s",
+                        obj.absolute_url(),
+                        obj.dataflow_uris,
+                    )
                     obj.reindexObject()
                     if count % 10000 == 0:
                         transaction.savepoint()
-                        logger.info('savepoint at %d records', count)
+                        logger.info("savepoint at %d records", count)
                     count += 1
                 else:
                     logger.info(
-                        'ODS Obligation already added to %s. '
-                        'Obligations: %s',
-                        obj.absolute_url(), obj.dataflow_uris)
+                        "ODS Obligation already added to %s. Obligations: %s",
+                        obj.absolute_url(),
+                        obj.dataflow_uris,
+                    )
             except Exception as e:
                 errors += 1
-                logger.error(
-                    'Error processing %s: %s', brain.getURL(), str(e))
+                logger.error("Error processing %s: %s", brain.getURL(), str(e))
                 continue
 
         transaction.commit()
-        logger.info('Changed %d objects with %d errors', count, errors)
+        logger.info("Changed %d objects with %d errors", count, errors)
         return True
     except Exception as e:
-        logger.critical('Critical error during migration: %s', str(e))
+        logger.critical("Critical error during migration: %s", str(e))
         transaction.abort()
         return False
 
@@ -89,5 +92,5 @@ def update(app, skipMigrationCheck=False):
     if not add_new_ods_obligation(app):
         return
 
-    log_msg('ODS Obligation added to existing ODS Collections.')
+    log_msg("ODS Obligation added to existing ODS Collections.")
     return True

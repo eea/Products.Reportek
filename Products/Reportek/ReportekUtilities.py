@@ -8,7 +8,6 @@ from .interfaces import IReportekUtilities
 
 @implementer(IReportekUtilities)
 class ReportekUtilities(Folder):
-
     security = ClassSecurityInfo()
 
     def __init__(self, id, title):
@@ -16,11 +15,11 @@ class ReportekUtilities(Folder):
         self.title = title
 
     def all_meta_types(self):
-        types = ['Script (Python)', 'Folder', 'Page Template']
+        types = ["Script (Python)", "Folder", "Page Template"]
         y = []
 
         for x in Products.meta_types:
-            if x['name'] in types:
+            if x["name"] in types:
                 y.append(x)
 
         return y

@@ -59,9 +59,7 @@ class FindProcessTestCase(BaseTest, ConfigureReportek):
         self.app.REQUEST.AUTHENTICATED_USER = Mock()
         self.app.REQUEST.AUTHENTICATED_USER.getUserName.return_value = "gigel"
 
-    def assertCreateEnvelopeRaises(
-        self, exception, dataflow=None, country=None
-    ):
+    def assertCreateEnvelopeRaises(self, exception, dataflow=None, country=None):
         if not dataflow:
             dataflow = "http://rod.eionet.eu.int/obligations/8"
         if not country:
@@ -74,21 +72,15 @@ class FindProcessTestCase(BaseTest, ConfigureReportek):
 
     def test_only_one_available(self):
         process_path = WorkflowTestCase.create_process(self, "p1")
-        self.assertEqual(
-            BaseTest.create_envelope(self.col).process_path, process_path
-        )
+        self.assertEqual(BaseTest.create_envelope(self.col).process_path, process_path)
 
     def test_explicitly_vs_wild_dataflow(self):
         p_path2 = WorkflowTestCase.create_process(self, "p2")
-        self.assertEqual(
-            BaseTest.create_envelope(self.col).process_path, p_path2
-        )
+        self.assertEqual(BaseTest.create_envelope(self.col).process_path, p_path2)
 
     def test_explicitly_vs_wild_country(self):
         p_path2 = WorkflowTestCase.create_process(self, "p2")
-        self.assertEqual(
-            BaseTest.create_envelope(self.col).process_path, p_path2
-        )
+        self.assertEqual(BaseTest.create_envelope(self.col).process_path, p_path2)
 
     def test_wild_dataflow_vs_wild_country(self):
         WorkflowTestCase.create_process(self, "p1", dataflows=["*"])
@@ -96,12 +88,8 @@ class FindProcessTestCase(BaseTest, ConfigureReportek):
         self.assertCreateEnvelopeRaises(CannotPickProcess)
 
     def test_both_wild(self):
-        WorkflowTestCase.create_process(
-            self, "p1", dataflows=["*"], countries=["*"]
-        )
-        WorkflowTestCase.create_process(
-            self, "p2", dataflows=["*"], countries=["*"]
-        )
+        WorkflowTestCase.create_process(self, "p1", dataflows=["*"], countries=["*"])
+        WorkflowTestCase.create_process(self, "p2", dataflows=["*"], countries=["*"])
         self.assertCreateEnvelopeRaises(CannotPickProcess)
 
     def test_both_explicitly_specified(self):
@@ -123,22 +111,16 @@ class EnvelopePeriodValidationTestCase(BaseTest, ConfigureReportek):
         self.app.standard_html_footer = ""
         self.assertRaises(
             SyntaxError,
-            lambda: BaseTest.create_envelope(
-                self.col, year="206", endyear="2008"
-            ),
+            lambda: BaseTest.create_envelope(self.col, year="206", endyear="2008"),
         )
 
     def test_year_not_integer(self):
-        envelope = BaseTest.create_envelope(
-            self.col, year="abc", endyear="2008"
-        )
+        envelope = BaseTest.create_envelope(self.col, year="abc", endyear="2008")
         self.assertEqual(envelope.year, 2008)
         self.assertEqual(envelope.endyear, 2008)
 
     def test_endyear_not_integer(self):
-        envelope = BaseTest.create_envelope(
-            self.col, year="abc", endyear="abc"
-        )
+        envelope = BaseTest.create_envelope(self.col, year="abc", endyear="abc")
         self.assertEqual(envelope.year, "")
         self.assertEqual(envelope.endyear, "")
 
@@ -153,9 +135,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         self.app.manage_addFolder("Applications")
         folder = getattr(self.app, "Applications")
 
-        folder.manage_addProduct["PythonScripts"].manage_addPythonScript(
-            id=url
-        )
+        folder.manage_addProduct["PythonScripts"].manage_addPythonScript(id=url)
         script1 = getattr(folder, url)
         script1.write(content)
 
@@ -178,9 +158,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         expected_msg = "Imported successfully"
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)
 
     def test_importFromJson_appDiff_pathDiff(self):
         self._add_application_content()
@@ -204,9 +182,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         )
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)
 
     def test_importFromJson_appDiff_typeDiff(self):
         self._add_application_content()
@@ -225,9 +201,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         expected_msg = "Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n"
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)
 
     def test_importFromJson_appDiff_contentDiff(self):
         self._add_application_content()
@@ -246,9 +220,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         expected_msg = "Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n"
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)
 
     def test_importFromJson_appDiff_contentDiff_pathDiff(self):
         self._add_application_content()
@@ -272,9 +244,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         )
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)
 
     def test_importFromJson_appDiff_srcMissing(self):
         self._add_application_content()
@@ -293,9 +263,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         expected_msg = "Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n"
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)
 
     def test_importFromJson_appDiff_dstMissing(self):
         applications = [
@@ -313,6 +281,4 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         expected_msg = "Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>missing</b>\n"
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
-        self.assertEqual(
-            result.call_args[1]["manage_tabs_message"], expected_msg
-        )
+        self.assertEqual(result.call_args[1]["manage_tabs_message"], expected_msg)

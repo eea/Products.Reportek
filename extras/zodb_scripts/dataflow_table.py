@@ -13,11 +13,13 @@ class ServiceTemporarilyUnavailableException(Exception):
 
 
 def inline_replace(x):
-    x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+    x["uri"] = x["uri"].replace("eionet.eu.int", "eionet.europa.eu")
     return x
 
 
 try:
     return list(map(inline_replace, container.dataflow_rod()))
 except Exception:
-    raise ServiceTemporarilyUnavailableException("Reporting Obligations Database is temporarily unavailable, please try again later")
+    raise ServiceTemporarilyUnavailableException(
+        "Reporting Obligations Database is temporarily unavailable, please try again later"
+    )

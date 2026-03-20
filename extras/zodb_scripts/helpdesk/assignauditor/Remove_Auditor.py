@@ -12,14 +12,14 @@ if REQUEST:  # noqa: F821
     kwargs.update(REQUEST.form)  # noqa: F821
 
 query = {
-    'dataflow_uris': kwargs.get('cobligation', ''),  # noqa: F821
-    'meta_type': 'Report Collection',
+    "dataflow_uris": kwargs.get("cobligation", ""),  # noqa: F821
+    "meta_type": "Report Collection",
 }
 
 catalog = context.Catalog  # noqa: F821
 brains = catalog(**query)
 
-countries = kwargs.get('ccountries', [])  # noqa: F821
+countries = kwargs.get("ccountries", [])  # noqa: F821
 res = []
 for brain in brains:
     doc = brain.getObject()
@@ -29,12 +29,17 @@ for brain in brains:
         continue
     if country.lower() not in countries:
         continue
-    for user in kwargs.get('dns', []):  # noqa: F821
-        local_roles = [role for role in doc.get_local_roles_for_userid(
-            user) if role != 'Auditor']
+    for user in kwargs.get("dns", []):  # noqa: F821
+        local_roles = [
+            role for role in doc.get_local_roles_for_userid(user) if role != "Auditor"
+        ]
         if local_roles:
             doc.manage_setLocalRoles(user, local_roles)
         else:
-            doc.manage_delLocalRoles(userids=[user, ])
+            doc.manage_delLocalRoles(
+                userids=[
+                    user,
+                ]
+            )
     res.append(doc)
 return res  # noqa: F999

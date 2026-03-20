@@ -18,48 +18,56 @@ APPLIES_TO = [
 ]
 
 
-def log_msg(msg, level='INFO'):
+def log_msg(msg, level="INFO"):
     lvl = {
-        'CRITICAL': 50,
-        'ERROR': 40,
-        'WARNING': 30,
-        'INFO': 20,
-        'DEBUG': 10,
-        'NOTSET': 0
+        "CRITICAL": 50,
+        "ERROR": 40,
+        "WARNING": 30,
+        "INFO": 20,
+        "DEBUG": 10,
+        "NOTSET": 0,
     }
     logger.log(lvl.get(level), msg)
     print(msg)
 
 
 def decompress_zip_blobs(app):
-    engine = app.unrestrictedTraverse('/' + ENGINE_ID)
-    catalog = app.unrestrictedTraverse('Catalog')
+    engine = app.unrestrictedTraverse("/" + ENGINE_ID)
+    catalog = app.unrestrictedTraverse("Catalog")
     query = {
-        'meta_type': 'Report Document',
+        "meta_type": "Report Document",
     }
 
     brains = catalog(**query)
-    docs = [doc.getObject() for doc in brains
-            if doc.id.endswith('.zip') and doc.getObject().is_compressed()]
+    docs = [
+        doc.getObject()
+        for doc in brains
+        if doc.id.endswith(".zip") and doc.getObject().is_compressed()
+    ]
 
     results = []
     for doc in docs:
         data_file = doc.data_file
-        setattr(data_file, '_toCompress', 'no')
-        setattr(data_file, 'compressed_size', None)
+        setattr(data_file, "_toCompress", "no")
+        setattr(data_file, "compressed_size", None)
         path = data_file.get_fs_path()
         try:
-            file_handle = data_file.open('rb')
+            file_handle = data_file.open("rb")
             content = file_handle.read()
             file_handle.close()
-            with data_file.open('wb', orig_size=data_file.size, preserve_mtime=True) as file_handle:
+            with data_file.open(
+                "wb", orig_size=data_file.size, preserve_mtime=True
+            ) as file_handle:
                 file_handle.write(content)
-            log_msg('Decompressing blob: {}. Size: {}. Compressed: {}. Path: {}'.format(
-                path, data_file.size, data_file.compressed_size, doc.absolute_url()))
+            log_msg(
+                "Decompressing blob: {}. Size: {}. Compressed: {}. Path: {}".format(
+                    path, data_file.size, data_file.compressed_size, doc.absolute_url()
+                )
+            )
             results.append(doc)
             transaction.commit()
         except Exception as e:
-            log_msg('Unable to decompress: {} due to: {}'.format(path, str(e)))
+            log_msg("Unable to decompress: {} due to: {}".format(path, str(e)))
 
     return True
 
@@ -69,5 +77,5 @@ def update(app, skipMigrationCheck=False):
     if not decompress_zip_blobs(app):
         return
 
-    log_msg('Zip blobs decompression completed!')
+    log_msg("Zip blobs decompression completed!")
     return True

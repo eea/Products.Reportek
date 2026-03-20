@@ -8,6 +8,10 @@
 # parameters=workitem_id, REQUEST
 # title=Deletes all automatic feedback
 ##
-l_feedback2delete = [x.id for x in context.getMySelf(  # noqa: F821
-).objectValues('Report Feedback') if x.automatic]
+l_feedback2delete = [
+    x.id
+    for x in context.getMySelf(  # noqa: F821
+    ).objectValues("Report Feedback")
+    if x.automatic
+]
 context.getMySelf().manage_delObjects(l_feedback2delete)  # noqa: F821

@@ -78,8 +78,7 @@ class BaseRegistryAPI(SimpleItem):
         if response.status_code != requests.codes.ok:
             logger.warning(
                 """Retrieved a %s status code when contacting """
-                """SatelliteRegistry's url: %s """
-                % (response.status_code, url)
+                """SatelliteRegistry's url: %s """ % (response.status_code, url)
             )
             if raw:
                 return response
@@ -103,9 +102,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             page = "list"
         url_prefix = "/".join([self.baseUrl, "undertaking", domain])
         url = "/".join([url_prefix, page])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
 
         if response:
             return response.json()
@@ -114,9 +111,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         page = "list"
         url_prefix = "/".join([self.baseUrl, "auditors"])
         url = "/".join([url_prefix, page])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
 
         if response:
             return response.json()
@@ -134,9 +129,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 "check",
             ]
         )
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
@@ -185,9 +178,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             raw=True,
         )
         if response is None:
-            raise Exception(
-                "API request failed: No response received from the server."
-            )
+            raise Exception("API request failed: No response received from the server.")
 
         try:
             response.raise_for_status()  # Raise HTTPError for bad responses
@@ -232,9 +223,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             raw=True,
         )
         if response is None:
-            raise Exception(
-                "API request failed: No response received from the server."
-            )
+            raise Exception("API request failed: No response received from the server.")
 
         try:
             response.raise_for_status()  # Raise HTTPError for bad responses
@@ -261,36 +250,26 @@ class FGASRegistryAPI(BaseRegistryAPI):
     def get_stocks(self):
         page = "stocks"
         url = "/".join([self.baseUrl, page])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
     def get_stocks_dummy(self):
         page = "stocks/import"
         url = "/".join([self.baseUrl, page])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
     def get_company_details(self, company_id, domain="FGAS"):
-        url = "/".join(
-            [self.baseUrl, "undertaking", domain, company_id, "details"]
-        )
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        url = "/".join([self.baseUrl, "undertaking", domain, company_id, "details"])
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
     def get_auditor_details(self, auditor_id):
         url = "/".join([self.baseUrl, "auditors", auditor_id, "details"])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
@@ -298,9 +277,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = "/".join(
             [self.baseUrl, "undertaking", domain, company_id, "details-short"]
         )
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
@@ -329,17 +306,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
         )
         return response
 
-    def get_aggregated_multi_year_licences(
-        self, company_id, year, data, domain="FGAS"
-    ):
+    def get_aggregated_multi_year_licences(self, company_id, year, data, domain="FGAS"):
         return self._get_aggregated_licences(
             company_id, year, data, "multi_year_licences", domain
         )
 
     def get_company_licences(self, company_id, year, data, domain="FGAS"):
-        return self._get_aggregated_licences(
-            company_id, year, data, "licences", domain
-        )
+        return self._get_aggregated_licences(company_id, year, data, "licences", domain)
 
     def get_company_stocks(self, company_id):
         url = "/".join([self.baseUrl, "stocks", company_id])
@@ -349,9 +322,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         return response
 
     def get_company_paus(self, company_id, domain="ODS"):
-        url = "/".join(
-            [self.baseUrl, "undertaking", domain, company_id, "pau"]
-        )
+        url = "/".join([self.baseUrl, "undertaking", domain, company_id, "pau"])
         response = self.do_api_request(
             url, method="post", headers={"Authorization": self.token}, raw=True
         )
@@ -387,9 +358,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 # If we have a NONEU_TYPE or AMBIGUOUS_TYPE company with a
                 # legal representative, use the country_code from the
                 # legal representative
-                c_type = (
-                    details.get("address", {}).get("country", {}).get("type")
-                )
+                c_type = details.get("address", {}).get("country", {}).get("type")
                 rep = details.get("representative")
                 previous_paths = []
                 for representative in details.get("represent_history", []):
@@ -430,13 +399,11 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 )
                 if path:
                     details["path"] = "/{}".format(path)
-                    details["licences_path"] = (
-                        "/{}/aggregated_licences_listing".format(path)
+                    details["licences_path"] = "/{}/aggregated_licences_listing".format(
+                        path
                     )
                     details["stocks_path"] = "/{}/stock_listing".format(path)
-                    details["paus_path"] = (
-                        "/{}/process_agent_uses_listing".format(path)
-                    )
+                    details["paus_path"] = "/{}/process_agent_uses_listing".format(path)
 
             return details
 
@@ -449,9 +416,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = "{}/user/companies/v2/".format(self.baseUrl)
         headers = {"Authorization": self.token}
         if userdata:
-            response = self.do_api_request(
-                url, params=userdata, headers=headers
-            )
+            response = self.do_api_request(url, params=userdata, headers=headers)
         else:
             url = self.baseUrl + "/user/" + username + "/companies"
             response = self.do_api_request(url, headers=headers)
@@ -470,9 +435,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     c["collection_id"],
                 )
                 if not path:
-                    raise ValueError(
-                        "Cannot form path with company data: %s" % str(c)
-                    )
+                    raise ValueError("Cannot form path with company data: %s" % str(c))
             except Exception as e:
                 logger.warning(
                     """Error in company data received from """
@@ -526,13 +489,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def verifyCandidate(
-        self, companyId, userId, candidateId=None, domain="FGAS"
-    ):
+    def verifyCandidate(self, companyId, userId, candidateId=None, domain="FGAS"):
         # use the right pattern for Api url
-        verify_endpoint = "/".join(
-            ["candidate", domain, "verify-none", companyId]
-        )
+        verify_endpoint = "/".join(["candidate", domain, "verify-none", companyId])
         if candidateId:
             verify_endpoint = "/".join(
                 ["candidate", domain, "verify", companyId, candidateId]
@@ -555,9 +514,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCandidates(self, domain="FGAS"):
         url = "/".join([self.baseUrl, "candidate", domain, "list"])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
 
         if response:
             return response.json()
@@ -566,26 +523,20 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getUsers(self, domain="FGAS"):
         url = "/".join([self.baseUrl, "user", domain, "list"])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
     def getMatchingLog(self, domain="FGAS"):
         url = "/".join([self.baseUrl, "log", "matching", domain])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
     def getDataSyncLog(self, domain="FGAS"):
         url = self.baseUrl + "/log/sync"
         url = "/".join([self.baseUrl, "log", "sync", domain])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
@@ -593,9 +544,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = "/".join(
             [
                 self.baseUrl,
-                "candidate/verify-matching-ids/{0}/{1}".format(
-                    companyId, oldCompanyId
-                ),
+                "candidate/verify-matching-ids/{0}/{1}".format(companyId, oldCompanyId),
             ]
         )
         response = self.do_api_request(
@@ -649,9 +598,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 if not response:
                     email_sending_failed = True
                 if email_sending_failed:
-                    logger.warning(
-                        "Lockdown notification emails of %s not sent" % path
-                    )
+                    logger.warning("Lockdown notification emails of %s not sent" % path)
 
                 return unverifyResponse
 
@@ -671,9 +618,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCompaniesExcelExport(self, domain="FGAS"):
         url = "/".join([self.baseUrl, "export", "undertaking", domain])
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
 
         return response
 
@@ -687,17 +632,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getSettings(self):
         url = self.baseUrl + "/settings"
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
     def getAllEmails(self):
         url = self.baseUrl + "/mail/list"
-        response = self.do_api_request(
-            url, headers={"Authorization": self.token}
-        )
+        response = self.do_api_request(url, headers={"Authorization": self.token})
         if response:
             return response.json()
 
@@ -749,13 +690,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if not response:
             email_sending_failed = True
         if email_sending_failed:
-            logger.warning(
-                "Lockdown notification emails of %s not sent" % path
-            )
+            logger.warning("Lockdown notification emails of %s not sent" % path)
 
-    def _unlockCompany(
-        self, company_id, old_collection_id, country_code, domain, user
-    ):
+    def _unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
         path = self.buildCollectionPath(
             domain, country_code, str(company_id), old_collection_id
         )
@@ -763,17 +700,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
         bdrAuth.unlockCollection(path, user)
         return path
 
-    def unlockCompany(
-        self, company_id, old_collection_id, country_code, domain, user
-    ):
+    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
         path = self._unlockCompany(
             company_id, old_collection_id, country_code, domain, user
         )
 
         email_sending_failed = False
-        url = "/".join(
-            [self.baseUrl, "alert_lockdown", "wrong_lockdown", domain]
-        )
+        url = "/".join([self.baseUrl, "alert_lockdown", "wrong_lockdown", domain])
         data = {"company_id": company_id, "user": user}
         response = self.do_api_request(
             url,
@@ -785,13 +718,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
             email_sending_failed = True
 
         if email_sending_failed:
-            logger.warning(
-                "Lockdown notification emails of %s not sent" % path
-            )
+            logger.warning("Lockdown notification emails of %s not sent" % path)
 
-    def lockedCompany(
-        self, company_id, old_collection_id, country_code, domain
-    ):
+    def lockedCompany(self, company_id, old_collection_id, country_code, domain):
         path = self.buildCollectionPath(
             domain, country_code, str(company_id), old_collection_id
         )
@@ -811,9 +740,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if not obligation_folder or not country_code:
             return None
         country_folder = cls.getCountryFolder(country_code)
-        collection_folder = (
-            old_collection_id if old_collection_id else company_id
-        )
+        collection_folder = old_collection_id if old_collection_id else company_id
 
         return "/".join(
             [

@@ -13,11 +13,11 @@ from z3c.caching.interfaces import ILastModified
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 
-LASTMODIFIED_ANNOTATION_KEY = 'plone.app.caching.operations.lastmodified'
+LASTMODIFIED_ANNOTATION_KEY = "plone.app.caching.operations.lastmodified"
 PAGE_CACHE_KEY = "plone.app.caching.operations.ramcache"
 _marker = object()
 
-logger = logging.getLogger('Products.Reportek.caching')
+logger = logging.getLogger("Products.Reportek.caching")
 
 #
 # Operation helpers, used in the implementations of interceptResponse() and
@@ -87,11 +87,11 @@ def doNotCache(published, request, response):
     expire immediately and disable validation.
     """
 
-    if response.getHeader('Last-Modified'):
-        del response.headers['last-modified']
+    if response.getHeader("Last-Modified"):
+        del response.headers["last-modified"]
 
-    response.setHeader('Expires', formatDateTime(getExpiration(0)))
-    response.setHeader('Cache-Control', 'max-age=0, must-revalidate, private')
+    response.setHeader("Expires", formatDateTime(getExpiration(0)))
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate, private")
 
 
 def cacheInBrowser(published, request, response, lastModified=None):
@@ -106,12 +106,12 @@ def cacheInBrowser(published, request, response, lastModified=None):
     """
 
     if lastModified is not None:
-        response.setHeader('Last-Modified', formatDateTime(lastModified))
-    elif response.getHeader('Last-Modified'):
-        del response.headers['last-modified']
+        response.setHeader("Last-Modified", formatDateTime(lastModified))
+    elif response.getHeader("Last-Modified"):
+        del response.headers["last-modified"]
 
-    response.setHeader('Expires', formatDateTime(getExpiration(0)))
-    response.setHeader('Cache-Control', 'max-age=0, must-revalidate, private')
+    response.setHeader("Expires", formatDateTime(getExpiration(0)))
+    response.setHeader("Cache-Control", "max-age=0, must-revalidate, private")
 
 
 def cacheInProxy(
@@ -131,19 +131,19 @@ def cacheInProxy(
 
     if lastModified is not None:
         response.setHeader(
-            'Last-Modified',
+            "Last-Modified",
             formatDateTime(lastModified),
         )
-    elif response.getHeader('Last-Modified'):
-        del response.headers['last-modified']
+    elif response.getHeader("Last-Modified"):
+        del response.headers["last-modified"]
 
     if vary is not None:
-        response.setHeader('Vary', vary)
+        response.setHeader("Vary", vary)
 
-    response.setHeader('Expires', formatDateTime(getExpiration(0)))
+    response.setHeader("Expires", formatDateTime(getExpiration(0)))
     response.setHeader(
-        'Cache-Control',
-        'max-age=0, s-maxage={0}, must-revalidate'.format(smaxage),
+        "Cache-Control",
+        "max-age=0, s-maxage={0}, must-revalidate".format(smaxage),
     )
 
 
@@ -166,24 +166,24 @@ def cacheInBrowserAndProxy(
     """
 
     if lastModified is not None:
-        response.setHeader('Last-Modified', formatDateTime(lastModified))
-    elif response.getHeader('Last-Modified'):
-        del response.headers['last-modified']
+        response.setHeader("Last-Modified", formatDateTime(lastModified))
+    elif response.getHeader("Last-Modified"):
+        del response.headers["last-modified"]
 
     if vary is not None:
-        response.setHeader('Vary', vary)
+        response.setHeader("Vary", vary)
 
-    response.setHeader('Expires', formatDateTime(getExpiration(maxage)))
+    response.setHeader("Expires", formatDateTime(getExpiration(maxage)))
 
     if smaxage is not None:
-        maxage = '{0}, s-maxage={1}'.format(maxage, smaxage)
+        maxage = "{0}, s-maxage={1}".format(maxage, smaxage)
 
     # Substituting proxy-validate in place of must=revalidate here because of
     # Safari bug
     # https://bugs.webkit.org/show_bug.cgi?id=13128
     response.setHeader(
-        'Cache-Control',
-        'max-age={0}, proxy-revalidate, public'.format(maxage),
+        "Cache-Control",
+        "max-age={0}, proxy-revalidate, public".format(maxage),
     )
 
 
@@ -210,7 +210,7 @@ def cachedResponse(
     for k, v in list(headers.items()):
         response.setHeader(k, v)
 
-    response.setHeader('X-RAMCache', PAGE_CACHE_KEY, literal=1)
+    response.setHeader("X-RAMCache", PAGE_CACHE_KEY, literal=1)
 
     if not gzip:
         response.enableHTTPCompression(request, disable=True)
@@ -239,34 +239,34 @@ def notModified(published, request, response, lastModified=None):
     #
     # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
     #
-    if response.getHeader('Last-Modified'):
-        del response.headers['last-modified']
-    if response.getHeader('Expires'):
-        del response.headers['expires']
-    if response.getHeader('Cache-Control'):
-        del response.headers['cache-control']
+    if response.getHeader("Last-Modified"):
+        del response.headers["last-modified"]
+    if response.getHeader("Expires"):
+        del response.headers["expires"]
+    if response.getHeader("Cache-Control"):
+        del response.headers["cache-control"]
 
     response.setStatus(304)
-    return ''
+    return ""
 
 
 #
 # Cache checks
 #
 
+
 def cacheStop(request, rulename):
-    """Check for any cache stop variables in the request.
-    """
+    """Check for any cache stop variables in the request."""
 
     # Only cache GET requests
-    if request.get('REQUEST_METHOD') != 'GET':
+    if request.get("REQUEST_METHOD") != "GET":
         return True
 
     registry = getUtility(IRegistry)
     if registry is None:
         return False
 
-    variables = ['statusmessages', 'SearchableText']
+    variables = ["statusmessages", "SearchableText"]
     return set(variables) & set(request.keys())
 
 
@@ -282,18 +282,17 @@ def isModified(request, lastModified=None):
     if not lastModified:
         return True
 
-    ifModifiedSince = request.getHeader('If-Modified-Since', None)
-    ifNoneMatch = request.getHeader('If-None-Match', None)
+    ifModifiedSince = request.getHeader("If-Modified-Since", None)
+    ifNoneMatch = request.getHeader("If-None-Match", None)
 
     if ifModifiedSince is None and ifNoneMatch is None:
         return True
 
     # Check the modification date
     if ifModifiedSince and lastModified is not None:
-
         # Attempt to get a date
 
-        ifModifiedSince = ifModifiedSince.split(';')[0]
+        ifModifiedSince = ifModifiedSince.split(";")[0]
         ifModifiedSince = parseDateTime(ifModifiedSince)
 
         if ifModifiedSince is None:
@@ -306,13 +305,13 @@ def isModified(request, lastModified=None):
             if (lastModified - ifModifiedSince) > delta_sec:
                 return True
         except TypeError:
-            logger.exception('Could not compare dates')
+            logger.exception("Could not compare dates")
 
     # XXX Do we really want the default here to be false?
     return False
 
 
-def visibleToRole(published, role, permission='View'):
+def visibleToRole(published, role, permission="View"):
     """Determine if the published object would be visible to the given
     role.
 
@@ -321,12 +320,19 @@ def visibleToRole(published, role, permission='View'):
     """
     return role in rolesForPermissionOn(permission, published)
 
+
 #
 # Basic helper functions
 #
 
 
-def getContext(published, marker=(IFolder, IApplication,)):
+def getContext(
+    published,
+    marker=(
+        IFolder,
+        IApplication,
+    ),
+):
     """Given a published object, attempt to look up a context
 
     ``published`` is the object that was published.
@@ -345,9 +351,9 @@ def getContext(published, marker=(IFolder, IApplication,)):
         return False
 
     while (
-        published is not None and
-        not checkType(published) and
-        getattr(published, '__parent__')
+        published is not None
+        and not checkType(published)
+        and getattr(published, "__parent__")
     ):
         published = published.__parent__
 
@@ -387,9 +393,16 @@ def parseDateTime(str):
         return None
 
     if dt.tzinfo is None:
-        dt = datetime.datetime(dt.year, dt.month, dt.day,
-                               dt.hour, dt.minute, dt.second, dt.microsecond,
-                               dateutil.tz.tzlocal())
+        dt = datetime.datetime(
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.microsecond,
+            dateutil.tz.tzlocal(),
+        )
 
     return dt
 
@@ -435,9 +448,16 @@ def getLastModified(published, lastModified=True):
         return None
 
     if dt.tzinfo is None:
-        dt = datetime.datetime(dt.year, dt.month, dt.day,
-                               dt.hour, dt.minute, dt.second, dt.microsecond,
-                               dateutil.tz.tzlocal())
+        dt = datetime.datetime(
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.microsecond,
+            dateutil.tz.tzlocal(),
+        )
 
     return dt
 

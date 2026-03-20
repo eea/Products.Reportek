@@ -177,9 +177,7 @@ def create_reportek_objects(app):
     try:
         reportek_api = getattr(app, constants.REPORTEK_API)
     except AttributeError:
-        reportek_api = ReportekAPI.ReportekAPI(
-            constants.REPORTEK_API, "Reportek API"
-        )
+        reportek_api = ReportekAPI.ReportekAPI(constants.REPORTEK_API, "Reportek API")
         app._setObject(constants.REPORTEK_API, reportek_api)
 
     # Add Registry Management
@@ -309,12 +307,8 @@ def create_reportek_indexes(catalog):
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         add_index("get_fgas_activities", catalog, "FieldIndex", meta=True)
         add_index("get_fgas_reported_gases", catalog, "FieldIndex", meta=True)
-        add_index(
-            "get_fgas_i_authorisations", catalog, "FieldIndex", meta=True
-        )
-        add_index(
-            "get_fgas_a_authorisations", catalog, "FieldIndex", meta=True
-        )
+        add_index("get_fgas_i_authorisations", catalog, "FieldIndex", meta=True)
+        add_index("get_fgas_a_authorisations", catalog, "FieldIndex", meta=True)
         add_index("company_id", catalog, "FieldIndex", meta=True)
 
 
@@ -485,11 +479,9 @@ misc_ = {
     "hyperlink_gif": ImageFile("www/images/hyperlink.gif", globals()),
     "document_gif": ImageFile("www/images/document.gif", globals()),
     "envelope.gif": ImageFile("www/images/envelope.gif", globals()),
-    "openflowEngine_gif": ImageFile("www/images/openflowEngine.gif",
-                                    globals()),
+    "openflowEngine_gif": ImageFile("www/images/openflowEngine.gif", globals()),
     "edit_comment_gif": ImageFile("www/images/edit_comment.gif", globals()),
-    "delete_comment_gif": ImageFile("www/images/delete_comment.gif",
-                                    globals()),
+    "delete_comment_gif": ImageFile("www/images/delete_comment.gif", globals()),
     "manage_doc_gif": ImageFile("www/images/manage_doc.gif", globals()),
     "view_doc_gif": ImageFile("www/images/view_doc.gif", globals()),
     "link_gif": ImageFile("www/images/link.gif", globals()),
