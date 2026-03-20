@@ -32,15 +32,12 @@ Feedback objects are sub-objects of Report Envelopes.
 import json
 import logging
 import tempfile
+from io import StringIO
 
 import plone.protect.interfaces
-from Products.Reportek import RepUtils
-from io import StringIO
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from Products.Reportek.blob import add_OfsBlobFile
 from BTrees.OOBTree import BTree
-from Products.Reportek.Comment import CommentsManager
 from DateTime import DateTime
 from OFS.ObjectManager import ObjectManager
 from OFS.PropertyManager import PropertyManager
@@ -52,8 +49,10 @@ from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
-from Products.Reportek import constants
+from Products.Reportek import RepUtils, constants
+from Products.Reportek.blob import add_OfsBlobFile
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.Comment import CommentsManager
 from Products.Reportek.interfaces import IFeedback, IFeedbackHistory
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 
@@ -108,7 +107,7 @@ def manage_addFeedback(
         document_id,
     )
     if file:
-        if type(file) != list:  # one file object
+        if not isinstance(file, list):
             file = [file]
 
         for f in file:

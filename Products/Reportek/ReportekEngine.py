@@ -171,8 +171,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     clamd_port = 3310
     clamd_timeout = None
     clam_max_file_size = None
-    dfm_type = "dfm_xmlrpc"
-    cm_type = "cm_xmlrpc"
 
     def all_meta_types(self, interfaces=None):
         """
