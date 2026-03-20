@@ -1,1 +1,1 @@
-extend-exclude = ["Products/Reportek/extras"]
+extend-exclude = ["extras"]
