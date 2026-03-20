@@ -46,7 +46,7 @@ def do_cleanup(site, inactive_for=30, limit=None):
     for b in b_envs:
         try:
             env = b.getObject()
-        except Exception as e:
+        except Exception:
             print("Unable to retrieve envelope object")
         processed.append(env.absolute_url())
         col = env.getParentNode()

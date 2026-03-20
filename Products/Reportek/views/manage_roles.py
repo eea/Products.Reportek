@@ -73,7 +73,7 @@ class ManageRoles(BaseAdmin):
 
             if groups and (matched in match_groups):
                 cur_entity = matched
-            elif groups and not (matched in match_groups):
+            elif groups and matched not in match_groups:
                 continue
 
             roles = set(obj.get_local_roles_for_userid(cur_entity))

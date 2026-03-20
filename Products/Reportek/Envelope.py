@@ -278,7 +278,7 @@ def valid_year(year_str):
         year = int(year_str)  # Checks conversion
         DateTime("%s/01/01" % year)  # Raises SyntaxError below year 1000
         return True
-    except ValueError as ex:
+    except ValueError:
         return False
     except SyntaxError as ex:
         raise ex
