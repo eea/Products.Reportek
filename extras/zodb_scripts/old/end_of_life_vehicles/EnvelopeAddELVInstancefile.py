@@ -11,8 +11,10 @@
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
 
-context.getMySelf().manage_addDocument('questionnaire.xml', "ELV questionnaire",
-                                       """<?xml version="1.0" encoding="UTF-8"?>
+context.getMySelf().manage_addDocument(
+    "questionnaire.xml",
+    "ELV questionnaire",
+    """<?xml version="1.0" encoding="UTF-8"?>
 <questionnaire xml:lang="en"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:noNamespaceSchemaLocation="http://waste.eionet.europa.eu/schemas/dir200053ec/schema.xsd">
@@ -144,6 +146,9 @@ context.getMySelf().manage_addDocument('questionnaire.xml', "ELV questionnaire",
 	<q2-9/>
 	<q2-10/>
 </questionnaire>
-""", 'text/xml', '')
+""",
+    "text/xml",
+    "",
+)
 
 context.getMySelf().completeWorkitem(workitem_id)

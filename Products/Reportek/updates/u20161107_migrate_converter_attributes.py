@@ -15,27 +15,23 @@ import transaction
 
 logger = logging.getLogger(__name__)
 VERSION = 9
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 def migrate_converter_attributes(app):
     count = 0
-    converters = app.unrestrictedTraverse('/' + CONVERTERS_ID)
+    converters = app.unrestrictedTraverse("/" + CONVERTERS_ID)
 
-    for ob in converters.objectValues('Converter'):
-        if ob and hasattr(ob, 'setstate'):
+    for ob in converters.objectValues("Converter"):
+        if ob and hasattr(ob, "setstate"):
             del ob.setstate
             ob._p_changed = 1
             if count % 10000 == 0:
                 transaction.savepoint()
-                logger.info('savepoint at %d records', count)
+                logger.info("savepoint at %d records", count)
 
             count += 1
-    logger.info('Changed a total of {} objects'.format(count))
+    logger.info("Changed a total of {} objects".format(count))
     return True
 
 
@@ -44,5 +40,5 @@ def update(app, skipMigrationCheck=False):
     if not migrate_converter_attributes(app):
         return
 
-    logger.info('Converter attributes have been migrated')
+    logger.info("Converter attributes have been migrated")
     return True

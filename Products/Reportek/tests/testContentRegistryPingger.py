@@ -41,9 +41,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         self.assertTrue(ContentRegistryPingger.requests.get.called)
         call_args_list = ContentRegistryPingger.requests.get.call_args_list
         self.assertIn(
-            call(
-                self.engine.cr_api_url, params={"uri": uri, "create": "true"}
-            ),
+            call(self.engine.cr_api_url, params={"uri": uri, "create": "true"}),
             call_args_list,
         )
 
@@ -61,9 +59,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
 
         self.assertTrue(ContentRegistryPingger.requests.get.called)
         call_args_list = ContentRegistryPingger.requests.get.call_args_list
-        self.assertIn(
-            call(self.engine.cr_api_url, params={"uri": uri}), call_args_list
-        )
+        self.assertIn(call(self.engine.cr_api_url, params={"uri": uri}), call_args_list)
 
     def test_ping_delete(self):
         ok_message = """<?xml version="1.0"?>
@@ -80,9 +76,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         self.assertTrue(ContentRegistryPingger.requests.get.called)
         call_args_list = ContentRegistryPingger.requests.get.call_args_list
         self.assertIn(
-            call(
-                self.engine.cr_api_url, params={"uri": uri, "delete": "true"}
-            ),
+            call(self.engine.cr_api_url, params={"uri": uri, "delete": "true"}),
             call_args_list,
         )
 
@@ -94,12 +88,8 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         </response>"""
         uri1 = "http://some_uri1"
         uri2 = "http://some_uri2"
-        self.pingger._content_registry_ping = Mock(
-            return_value=(200, ok_message)
-        )
-        self.pingger.content_registry_ping(
-            [uri1, uri2], ping_argument="create"
-        )
+        self.pingger._content_registry_ping = Mock(return_value=(200, ok_message))
+        self.pingger.content_registry_ping([uri1, uri2], ping_argument="create")
 
         self.assertTrue(self.pingger._content_registry_ping.called)
         call_args_list = self.pingger._content_registry_ping.call_args_list
@@ -150,9 +140,7 @@ class InitCRTest(BaseTest, ConfigureReportek):
         self.assertTrue(bool(self.pingger))
         # add subobjects of type document, feedback, hyperlink
         content = "test content for our document"
-        self.doc = add_document(
-            self.envelope, create_upload_file(content, "foo.txt")
-        )
+        self.doc = add_document(self.envelope, create_upload_file(content, "foo.txt"))
         feedbacktext = "feedback text"
         setattr(
             self.root.getPhysicalRoot(),

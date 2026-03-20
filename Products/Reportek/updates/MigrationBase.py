@@ -50,6 +50,7 @@ def checkMigration(module_name):
     the last part
     is kept. But we need the whole value for import reasons.
     """
+
     def checkMigrationDec(migrationFunc):
         def wrapper(app, *args, **kwargs):
             """
@@ -71,7 +72,7 @@ def checkMigration(module_name):
             Please use these argumets named only, or extend the code below to
             support them from args too!
             """
-            thisUpdateName = module_name.split('.')[-1]
+            thisUpdateName = module_name.split(".")[-1]
             try:
                 version = importlib.import_module(module_name).VERSION
                 version = int(version)
@@ -86,7 +87,8 @@ def checkMigration(module_name):
             defaultArgs = {}
             # skip the initial, non-default ones
             for i, arg in enumerate(
-                    aSpec.args[len(aSpec.args)-len(aSpec.defaults):]):
+                aSpec.args[len(aSpec.args) - len(aSpec.defaults) :]
+            ):
                 defaultArgs[arg] = aSpec[3][i]
             # if we have a default in the inner function for skip
             # and it is not overridden by the actual arguments in the call
@@ -96,18 +98,20 @@ def checkMigration(module_name):
             # apply its 'natural' mechanism for determining argument values
             # (besides, inner function should not use skip argument anyway,
             # it is for wrapper only)
-            if ('skipMigrationCheck' not in kwargs
-                    and 'skipMigrationCheck' in defaultArgs):
-                skipMigrationCheck = defaultArgs['skipMigrationCheck']
+            if (
+                "skipMigrationCheck" not in kwargs
+                and "skipMigrationCheck" in defaultArgs
+            ):
+                skipMigrationCheck = defaultArgs["skipMigrationCheck"]
             else:
-                skipMigrationCheck = kwargs.pop('skipMigrationCheck', False)
+                skipMigrationCheck = kwargs.pop("skipMigrationCheck", False)
             # check for version override from update function default arguments
-            if 'version' not in kwargs and 'version' in defaultArgs:
-                version = defaultArgs['version']
+            if "version" not in kwargs and "version" in defaultArgs:
+                version = defaultArgs["version"]
             else:
                 # or from update function given named arguments
                 # else keep what calling module's VERSION var says
-                version = kwargs.pop('version', version)
+                version = kwargs.pop("version", version)
 
             def _trackMigration():
                 thisUpdate = migs.get(thisUpdateName)
@@ -137,11 +141,13 @@ def checkMigration(module_name):
                     transaction.commit()
 
             return ret
+
         wrapper.__module__ = migrationFunc.__module__
         wrapper.__name__ = migrationFunc.__name__
         if migrationFunc.__doc__:
             wrapper.__doc__ = migrationFunc.__doc__ + wrapper.__doc__
         return wrapper
+
     return checkMigrationDec
 
 
@@ -163,6 +169,9 @@ class MigrationEntry(object):
 
     def __repr__(self):
         return "<%s, name: %s, version: %d, created: %s, updated: %s>" % (
-            self.__class__.__name__, self.name, self.version,
-            self.toDate(self.first_ts), self.toDate(self.current_ts),
+            self.__class__.__name__,
+            self.name,
+            self.version,
+            self.toDate(self.first_ts),
+            self.toDate(self.current_ts),
         )

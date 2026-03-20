@@ -9,7 +9,7 @@
 # title=
 ##
 def inline_replace(x):
-    x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+    x["uri"] = x["uri"].replace("eionet.eu.int", "eionet.europa.eu")
     return x
 
 

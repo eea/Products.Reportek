@@ -39,9 +39,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         col = Collection(col_id, country=country, dataflow_uris=dataflow_uris)
         self.app._setOb(col_id, col)
 
-        self.app.Templates.StartActivity = Mock(
-            return_value="Test Application"
-        )
+        self.app.Templates.StartActivity = Mock(return_value="Test Application")
         self.app.Templates.StartActivity.title_or_id = Mock(
             return_value="Start Activity Template"
         )
@@ -93,9 +91,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_request_for_new_job_success(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         RemoteRESTApplication(
             "restapp",
@@ -137,9 +133,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_app_writes_success_in_event_log(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         exp = re.compile(
@@ -167,9 +161,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             r"\w+ job request for http:\/\/[\w+\/]+ response is not json.$"
         )
         self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
-        exp = re.compile(
-            r"\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
-        )
+        exp = re.compile(r"\w+ job request for http:\/\/[\w+\/]+ response is invalid.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[4]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
@@ -178,18 +170,14 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             status_code=200, json=Mock(return_value={})
         )
         self.create_cepaa_set(1)
-        exp = re.compile(
-            r"\w+ job request for http:\/\/[\w+\/]+ response is invalid.$"
-        )
+        exp = re.compile(r"\w+ job request for http:\/\/[\w+\/]+ response is invalid.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_workitem_initialization(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 999, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 999, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         prop = self.app.col1.env1["0"].restapp
@@ -201,16 +189,12 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_job_invalid_status_code(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(status_code=201)
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile(
@@ -225,34 +209,24 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
 
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(status_code=200, json=bad_json)
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         # Forward state
         self.app.col1.env1.forwardState()
-        exp = re.compile(
-            r"\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$"
-        )
+        exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[-4]["event"], exp)
-        exp = re.compile(
-            r"\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$"
-        )
+        exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_succeeded(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -265,28 +239,21 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(
-                Path(__file__).parent.absolute() / "result.zip").read_bytes(),
+            content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         # Forward state
         self.app.col1.env1.forwardState()
-        exp = re.compile(
-            r"\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$"
-        )
+        exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[-3]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_success_finishes_application(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -299,23 +266,18 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "results": {"ResultZip": {"value": "results/ResultZip"}},
                 }
             ),
-            content=(
-                Path(__file__).parent.absolute() / "result.zip").read_bytes(),
+            content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
         )
         self.col1.env1.manage_addFeedback = Mock()
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual("complete", self.col1.env1["0"].status)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_success_posts_feedback(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -325,19 +287,14 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                     "jobId": 1,
                     "jobStatus": "esriJobSucceeded",
                     "messages": "result messages",
-                    "results": {
-                        "ResultZip": {"value": "http://results/ResultZip"}
-                    },
+                    "results": {"ResultZip": {"value": "http://results/ResultZip"}},
                 }
             ),
-            content=(
-                Path(__file__).parent.absolute() / "result.zip").read_bytes(),
+            content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         assert self.col1.env1.manage_addFeedback.call_count == 1
         call_args = self.col1.env1.manage_addFeedback.call_args[1]
         self.assertEqual("act1", call_args["activity_id"])
@@ -355,9 +312,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     ):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.side_effect = [
@@ -368,9 +323,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                         "jobId": 1,
                         "jobStatus": "esriJobSucceeded",
                         "messages": "result messages",
-                        "results": {
-                            "ResultZip": {"paramUrl": "results/ResultZip"}
-                        },
+                        "results": {"ResultZip": {"paramUrl": "results/ResultZip"}},
                     }
                 ),
             ),
@@ -386,28 +339,20 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             ),
             Mock(
                 status_code=200,
-                content=(
-                    Path(__file__).parent.absolute() / "result.zip"
-                ).read_bytes(),
+                content=(Path(__file__).parent.absolute() / "result.zip").read_bytes(),
             ),
         ]
         restapp = self.app.Applications.proc1.act1
 
         self.app.Converters = Mock()
         self.app.Converters.__getitem__ = Mock(
-            return_value=Mock(
-                convert=Mock(return_value=Mock(text="safe html"))
-            )
+            return_value=Mock(convert=Mock(return_value=Mock(text="safe html")))
         )
         self.col1.getEngine = Mock(return_value=Mock())
         self.col1.env1._invalidate_zip_cache = Mock()
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual(
-            call(
-                "http://check.url/1/results/ResultZip", params={"f": "pjson"}
-            ),
+            call("http://check.url/1/results/ResultZip", params={"f": "pjson"}),
             mock_requests.get.mock_calls[-2],
         )
         self.assertEqual(
@@ -435,9 +380,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_job_failure_posts_feedback(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -446,17 +389,13 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                 return_value={
                     "jobId": 1,
                     "jobStatus": "esriJobFailed",
-                    "messages": [
-                        {"type": "fail", "description": "log message"}
-                    ],
+                    "messages": [{"type": "fail", "description": "log message"}],
                 }
             ),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         assert self.col1.env1.manage_addFeedback.call_count == 1
         call_args = self.col1.env1.manage_addFeedback.call_args[1]
         self.assertEqual("act1", call_args["activity_id"])
@@ -471,9 +410,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_job_failure_attaches_log_to_feedback(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -482,24 +419,18 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                 return_value={
                     "jobId": 1,
                     "jobStatus": "esriJobFailed",
-                    "messages": [
-                        {"type": "fail", "description": "log message"}
-                    ],
+                    "messages": [{"type": "fail", "description": "log message"}],
                 }
             ),
         )
         self.app.Converters = Mock()
         self.app.Converters.__getitem__ = Mock(
-            return_value=Mock(
-                convert=Mock(return_value=Mock(text="safe html"))
-            )
+            return_value=Mock(convert=Mock(return_value=Mock(text="safe html")))
         )
         self.col1.getEngine = Mock(return_value=Mock())
         self.col1.env1._invalidate_zip_cache = Mock()
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         [feedback] = [
             item
             for item in self.col1.env1.objectValues()
@@ -520,9 +451,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_job_failed(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -531,17 +460,13 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                 return_value={
                     "jobId": 1,
                     "jobStatus": "esriJobFailed",
-                    "messages": [
-                        {"type": "success", "description": "result messages"}
-                    ],
+                    "messages": [{"type": "success", "description": "result messages"}],
                 }
             ),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ failed.$")
@@ -551,9 +476,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_job_fail_finishes_application(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
@@ -562,109 +485,79 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                 return_value={
                     "jobId": 1,
                     "jobStatus": "esriJobFailed",
-                    "messages": [
-                        {"type": "success", "description": "result messages"}
-                    ],
+                    "messages": [{"type": "success", "description": "result messages"}],
                 }
             ),
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual("complete", self.col1.env1["0"].status)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_not_done(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}),
         )
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
-        exp = re.compile(
-            r"\w+ job id 1 for http:\/\/[\w+\/]+ is still running.$"
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
+        exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ is still running.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[-1]["event"], exp)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_not_done_decreases_retries_left(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         workitem = self.app.col1.env1["0"]
         self.assertEqual(5, workitem.restapp["retries_left"])
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}),
         )
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual(4, workitem.restapp["retries_left"])
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_finished_when_no_retries_left(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         workitem = self.app.col1.env1["0"]
         self.assertEqual(5, workitem.restapp["retries_left"])
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}),
         )
         restapp = self.app.Applications.proc1.act1
         for idx in range(0, 4):
-            restapp.__of__(self.app.col1.env1).callApplication(
-                "0", self.app.REQUEST
-            )
+            restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual(1, workitem.restapp["retries_left"])
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual("complete", self.col1.env1["0"].status)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_decrease_finishes_job_when_reaches_0(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         workitem = self.app.col1.env1["0"]
         workitem.restapp["retries_left"] = 1
         restapp = self.app.Applications.proc1.act1.__of__(self.app.col1.env1)
-        restapp._RemoteRESTApplication__decrease_retries(
-            workitem, self.app.REQUEST
-        )
+        restapp._RemoteRESTApplication__decrease_retries(workitem, self.app.REQUEST)
         self.assertEqual(0, workitem.restapp["retries_left"])
         self.assertEqual("complete", self.col1.env1["0"].status)
 
@@ -672,9 +565,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
     def test_activity_is_found_by_cron_job(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         self.ReportekEngine = ReportekEngine().__of__(self.app)
@@ -682,40 +573,28 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         self.assertEqual(5, workitem.restapp["retries_left"])
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobExecuting"}),
         )
         brain = Mock(getObject=Mock(return_value=workitem))
         self.app.Catalog = MagicMock(return_value=[brain])
         self.assertEqual(5, workitem.restapp["retries_left"])
-        self.ReportekEngine.runAutomaticApplications(
-            p_applications="AutomaticQA||act1"
-        )
+        self.ReportekEngine.runAutomaticApplications(p_applications="AutomaticQA||act1")
         self.assertEqual(4, workitem.restapp["retries_left"])
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_unknown_status(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "unknown status"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "unknown status"}),
         )
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
-        exp = re.compile(
-            r"\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$"
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
+        exp = re.compile(r"\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$")
         self.assertRegex(self.app.col1.env1["0"].event_log[-1]["event"], exp)
         workitem = self.app.col1.env1["0"]
         self.assertEqual(4, workitem.restapp["retries_left"])
@@ -727,30 +606,22 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
 
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(status_code=200, json=bad_json)
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual("complete", self.col1.env1["0"].status)
 
     @patch("Products.Reportek.RemoteRESTApplication.requests")
     def test_job_invalid_status_code_finishes_activity(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(
-                return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}
-            ),
+            json=Mock(return_value={"jobId": 1, "jobStatus": "esriJobSubmitted"}),
         )
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(status_code=201)
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication(
-            "0", self.app.REQUEST
-        )
+        restapp.__of__(self.app.col1.env1).callApplication("0", self.app.REQUEST)
         self.assertEqual("complete", self.col1.env1["0"].status)

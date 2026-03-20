@@ -18,31 +18,31 @@ filecontent = []
 err_msg = []
 
 bioregions = {
-    'ALP': 'Alpine',
-    'ATL': 'Atlantic',
-    'BOR': 'Boreal',
-    'CON': 'Continental',
-    'MED': 'Mediterranean',
-    'MAC': 'Macaronesian',
-    'PAN': 'Pannonian',
-    'MATL': 'Atlantic ocean',
-    'MBAL': 'Baltic sea',
-    'MMED': 'Mediterranean sea',
-    'MMAC': 'Macaronesian/Atlantic ocean'
+    "ALP": "Alpine",
+    "ATL": "Atlantic",
+    "BOR": "Boreal",
+    "CON": "Continental",
+    "MED": "Mediterranean",
+    "MAC": "Macaronesian",
+    "PAN": "Pannonian",
+    "MATL": "Atlantic ocean",
+    "MBAL": "Baltic sea",
+    "MMED": "Mediterranean sea",
+    "MMAC": "Macaronesian/Atlantic ocean",
 }
 
 if len(region) < 1:
-    err_msg.append('You have to select at least one region!')
+    err_msg.append("You have to select at least one region!")
 
 if habitattype == None:
-    err_msg.append('You have to select a habitat type!')
+    err_msg.append("You have to select a habitat type!")
 
 if len(err_msg) > 0:
-    SESSION.set('err_msg', err_msg)
-    SESSION.set('habitattype', habitattype)
-    SESSION.set('language', language)
-    SESSION.set('region', region)
-    return response.redirect('EnvelopeCreateHabitatFileForm')
+    SESSION.set("err_msg", err_msg)
+    SESSION.set("habitattype", habitattype)
+    SESSION.set("language", language)
+    SESSION.set("region", region)
+    return response.redirect("EnvelopeCreateHabitatFileForm")
 
 filename = "habitattype-%s.xml" % habitattype
 title = "Habitat type questionnaire for habitat %s" % habitattype
@@ -51,23 +51,27 @@ for t in container.Art17habitattypes():
     if t[1] == habitattype:
         title = t[2]
 
-l_countryname = 'Unspecified'
-l_countrycode = ''
+l_countryname = "Unspecified"
+l_countrycode = ""
 for country_obj in container.localities_table():
-    if country_obj['uri'] == context.country:
-        l_countryname = country_obj['name']
-        l_countrycode = country_obj['iso']
+    if country_obj["uri"] == context.country:
+        l_countryname = country_obj["name"]
+        l_countrycode = country_obj["iso"]
         break
 
-filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
+filecontent.append(
+    """<?xml version="1.0" encoding="UTF-8"?>
 <habitat xml:lang="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/habitats.xsd" xmlns="">
   <member-state label="Member state" countrycode="%s">%s</member-state>
   <habitatcode label="Habitat code">%s</habitatcode>
   <habitatname label="Habitat name">%s</habitatname>
   <regions label="Biogeographic regions and/or marine regions concerned within the member state">%s</regions>
-""" % (language, l_countrycode, l_countryname, habitattype, title, ' '.join(region)))
+"""
+    % (language, l_countrycode, l_countryname, habitattype, title, " ".join(region))
+)
 for r in region:
-    filecontent.append("""  <regional label="2. Biogeographical or marine level">
+    filecontent.append(
+        """  <regional label="2. Biogeographical or marine level">
     <region label="2.1 Biogeographic region or marine region" desc="%s">%s</region>
     <published label="2.2 Published sources and/or websites"/>
     <range label="2.3 Range of the habitat type in the biogeographic region or marine region">
@@ -119,8 +123,9 @@ for r in region:
       <conclusion-assessment label="Overall assessment"/>
     </conclusion-n2000>
   </regional>
-""" % (bioregions[r], r))
+"""
+        % (bioregions[r], r)
+    )
 filecontent.append("</habitat>")
-context.manage_addDocument(
-    filename, title, ''.join(filecontent), 'text/xml', '')
+context.manage_addDocument(filename, title, "".join(filecontent), "text/xml", "")
 return context.index_html()

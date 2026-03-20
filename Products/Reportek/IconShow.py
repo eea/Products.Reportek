@@ -90,7 +90,7 @@ class IconShow:
     def _getMIMECatAndSub(self, mime_string):
         """Split MIME String into Category and Subcategory"""
         cat = mime_string[: mime_string.find("/")]  # MIME-category
-        sub = mime_string[mime_string.find("/") + 1:]  # sub-category
+        sub = mime_string[mime_string.find("/") + 1 :]  # sub-category
         return cat, sub
 
 

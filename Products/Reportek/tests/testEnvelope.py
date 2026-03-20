@@ -216,9 +216,7 @@ class EnvelopeTestCase(BaseTest):
         # test unicode
         script1.write("return 'blâ'")
         expected_type1 = script1.meta_type
-        expected_checksum1 = hashlib.md5(
-            script1.read().encode("utf-8")
-        ).hexdigest()
+        expected_checksum1 = hashlib.md5(script1.read().encode("utf-8")).hexdigest()
 
         folder.manage_addProduct["PythonScripts"].manage_addPythonScript(
             id="another_application"
@@ -227,17 +225,13 @@ class EnvelopeTestCase(BaseTest):
         # test string with non ascii chars
         script2.ZPythonScript_edit(params="", body="return 'blâ'")
         expected_type2 = script2.meta_type
-        expected_checksum2 = hashlib.md5(
-            script2.read().encode("utf-8")
-        ).hexdigest()
+        expected_checksum2 = hashlib.md5(script2.read().encode("utf-8")).hexdigest()
 
         wfe.addApplication("script1", script1.absolute_url(1))
         wfe.addApplication("script2", script2.absolute_url(1))
         # this application will not be exported as it is not referenced by any
         # process activity
-        wfe.addApplication(
-            "script3", "/this/is/not/referenced/by/any/activity"
-        )
+        wfe.addApplication("script3", "/this/is/not/referenced/by/any/activity")
 
         expected_role = "Manager"
         wfe.editActivitiesPullableOnRole(
@@ -482,12 +476,8 @@ class EnvelopeTestCase(BaseTest):
         self.assertEqual(a2.start_mode, int(act2["start_mode"]))
         self.assertEqual(a1.finish_mode, int(act1["finish_mode"]))
         self.assertEqual(a2.finish_mode, int(act2["finish_mode"]))
-        self.assertEqual(
-            a1.complete_automatically, int(act1["complete_automatically"])
-        )
-        self.assertEqual(
-            a2.complete_automatically, int(act2["complete_automatically"])
-        )
+        self.assertEqual(a1.complete_automatically, int(act1["complete_automatically"]))
+        self.assertEqual(a2.complete_automatically, int(act2["complete_automatically"]))
         self.assertEqual(a1.subflow, str(act1["subflow"]))
         self.assertEqual(a2.subflow, str(act2["subflow"]))
         self.assertEqual(a1.push_application, str(act1["push_application"]))
@@ -561,9 +551,7 @@ class EnvelopeTestCase(BaseTest):
         self.assertIn("targetPath", app1)
         self.assertEqual(app1["rid"], act1["application"])
         self.assertNotEqual(app1["targetPath"], app1["url"])
-        existing_type, existing_checksum = wfe._applicationDetails(
-            app1["targetPath"]
-        )
+        existing_type, existing_checksum = wfe._applicationDetails(app1["targetPath"])
         # the content checking is still performed though
         self.assertEqual(app1["checksum"], existing_checksum)
 
@@ -575,9 +563,7 @@ class EnvelopeTestCase(BaseTest):
         self.assertIn("targetPath", app2)
         self.assertEqual(app2["rid"], act2["application"])
         self.assertNotEqual(app2["targetPath"], app2["url"])
-        existing_type, existing_checksum = wfe._applicationDetails(
-            app2["targetPath"]
-        )
+        existing_type, existing_checksum = wfe._applicationDetails(app2["targetPath"])
         # the content checking is still performed though
         self.assertNotEqual(app2["checksum"], existing_checksum)
 
@@ -610,9 +596,7 @@ class EnvelopeTestCase(BaseTest):
 
         pr_id = "begin_end_new2"
         trans_id = "b€gin_end"
-        make_json = partial(
-            self._make_openflow_json, pr_id, transition_id=trans_id
-        )
+        make_json = partial(self._make_openflow_json, pr_id, transition_id=trans_id)
         jsonStream = make_json()
         expected_exception_args = ("Invalid rid", trans_id)
         exception_args = None
@@ -964,14 +948,11 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         app = SimpleItem("Renamed_Draft").__of__(self.app.Applications.proc1)
         app.id = "act1"
         self.app.Applications.proc1._setOb("act1", app)
-        event = ObjectMovedEvent(
-            app, None, "", self.app.Applications.proc1, "act1"
-        )
+        event = ObjectMovedEvent(app, None, "", self.app.Applications.proc1, "act1")
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
-            "Application act1 mapped by path "
-            "to activity /WorkflowEngine/proc1/act1.",
+            "Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.",
             self.app.REQUEST["manage_tabs_message"],
         )
 
@@ -1056,8 +1037,7 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
-            "Application act1 mapped by path to activity "
-            "/WorkflowEngine/proc1/act1.",
+            "Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.",
             self.app.REQUEST["manage_tabs_message"],
         )
 
@@ -1114,8 +1094,7 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
-            "Application act2 moved! "
-            "Id act2 was not mapped by path to any activity.",
+            "Application act2 moved! Id act2 was not mapped by path to any activity.",
             self.app.REQUEST["manage_tabs_message"],
         )
 
@@ -1153,9 +1132,7 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         self.engine.content_registry_ping = Mock()
         # add subobjects of type document, feedback, hyperlink
         content = "test content for our document"
-        self.doc = add_document(
-            self.envelope, create_upload_file(content, "foo.txt")
-        )
+        self.doc = add_document(self.envelope, create_upload_file(content, "foo.txt"))
         self.doc2 = add_document(
             self.envelope,
             create_upload_file(content, "foo.txt"),
@@ -1165,12 +1142,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         # self.doc = add_document(self.envelope,
         # create_upload_file(content,
         #                   'foo space foo.xml'))
-        self.doc.upload_time = Mock(
-            return_value=DateTime("2014/05/02 09:58:41 UTC")
-        )
-        self.doc2.upload_time = Mock(
-            return_value=DateTime("2014/05/02 09:58:42 UTC")
-        )
+        self.doc.upload_time = Mock(return_value=DateTime("2014/05/02 09:58:41 UTC"))
+        self.doc2.upload_time = Mock(return_value=DateTime("2014/05/02 09:58:42 UTC"))
 
         feedbacktext = "feedback text"
         setattr(
@@ -1256,17 +1229,15 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.engine.cr_api_url = "http://none"
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()  # noqa
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = (
-            Mock(  # noqa
-                return_value=(True, "Pinged")
-            )
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = (
+            Mock()
+        )  # noqa
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock(  # noqa
+            return_value=(True, "Pinged")
         )
         # add subobjects of type document, feedback, hyperlink
         content = "test content for our document"
-        self.doc = add_document(
-            self.envelope, create_upload_file(content, "foo.txt")
-        )
+        self.doc = add_document(self.envelope, create_upload_file(content, "foo.txt"))
 
         feedbacktext = "feedback text"
         setattr(

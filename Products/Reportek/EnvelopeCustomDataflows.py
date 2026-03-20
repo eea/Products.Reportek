@@ -85,9 +85,7 @@ class EnvelopeCustomDataflows(Toolz):
     specific to one or more dataflows.
     """
 
-    fileTypeByName_pattern = re.compile(
-        r"\.(xml|xlf|xslt?|xsd|gml)$", flags=re.I
-    )
+    fileTypeByName_pattern = re.compile(r"\.(xml|xlf|xslt?|xsd|gml)$", flags=re.I)
     security = ClassSecurityInfo()
 
     ##################################################
@@ -97,9 +95,7 @@ class EnvelopeCustomDataflows(Toolz):
     # generic method that converts Excel files (XLS or ODS) to XML
     # if the Excel template comes from Data Dictionary
     security.declareProtected("Change Envelopes", "upload_excel_file")
-    upload_excel_file = PageTemplateFile(
-        "zpt/envelope/upload_excel_file", globals()
-    )
+    upload_excel_file = PageTemplateFile("zpt/envelope/upload_excel_file", globals())
 
     # generic method that converts Excel files (XLS or ODS) to XML
     security.declareProtected("Change Envelopes", "upload_generic_excel_file")
@@ -113,27 +109,19 @@ class EnvelopeCustomDataflows(Toolz):
 
     # generic method that uploads a single file or a zip
     security.declareProtected("Change Envelopes", "upload_doc_or_zip")
-    upload_doc_or_zip = PageTemplateFile(
-        "zpt/envelope/upload_doc_or_zip", globals()
-    )
+    upload_doc_or_zip = PageTemplateFile("zpt/envelope/upload_doc_or_zip", globals())
 
     # generic method that uploads a MMR file or accompanying data
     security.declareProtected("Change Envelopes", "upload_mmr_file")
-    upload_mmr_file = PageTemplateFile(
-        "zpt/envelope/upload_mmr_file", globals()
-    )
+    upload_mmr_file = PageTemplateFile("zpt/envelope/upload_mmr_file", globals())
 
     # generic method that uploads a fme convertible file and completes the
     # current workitem
     security.declareProtected("Change Envelopes", "manage_addfmeconvfile")
-    manage_addfmeconvfile = PageTemplateFile(
-        "zpt/envelope/add_fmeconvfile", globals()
-    )
+    manage_addfmeconvfile = PageTemplateFile("zpt/envelope/add_fmeconvfile", globals())
 
     security.declareProtected("View", "envelope_audits")
-    envelope_audits = PageTemplateFile(
-        "zpt/envelope/envelope_audits", globals()
-    )
+    envelope_audits = PageTemplateFile("zpt/envelope/envelope_audits", globals())
 
     def _get_xml_files_by_schema(self, schema):
         """Returns the list of XML files with the given schema from that
@@ -179,9 +167,7 @@ class EnvelopeCustomDataflows(Toolz):
                         fc_log["code"] = ""
                         fc_log["message"] = msg
                         if len(msg.split("Code: ")) > 1:
-                            fc_log["code"] = msg.split("Code: ")[-1].rstrip(
-                                ")"
-                            )
+                            fc_log["code"] = msg.split("Code: ")[-1].rstrip(")")
                         wk_fc_log[filename] = fc_log
                 conv_results[wk.getId()] = wk_fc_log
         return conv_results
@@ -192,9 +178,7 @@ class EnvelopeCustomDataflows(Toolz):
         """
         failed = []
         conv_results = self.get_conv_results()
-        has_conversions = (
-            conv for conv in conv_results if conv_results.get(conv)
-        )
+        has_conversions = (conv for conv in conv_results if conv_results.get(conv))
 
         for wk_log in has_conversions:
             files = conv_results.get(wk_log)
@@ -231,11 +215,7 @@ class EnvelopeCustomDataflows(Toolz):
         -   -1 if no upload has been done
 
         """
-        if (
-            not file
-            or isinstance(file, (str, bytes))
-            or not hasattr(file, "filename")
-        ):
+        if not file or isinstance(file, (str, bytes)) or not hasattr(file, "filename"):
             if REQUEST is not None:
                 return error_message(
                     self,
@@ -300,16 +280,12 @@ class EnvelopeCustomDataflows(Toolz):
                 ("nosplit", True): "convertDD_XMLremoveEmptyElems",
             }.get(xls_conversion, "convertDD_XML_split")
         try:
-            l_ret_list = invoke_conversion_service(
-                l_server_name, method_name, l_url
-            )
+            l_ret_list = invoke_conversion_service(l_server_name, method_name, l_url)
         except Exception as e:
             if REQUEST is not None:
                 conversion_log.error(
                     """Error while calling remote {} for xmlrpc """
-                    """method {}. ({})""".format(
-                        l_server_name, method_name, str(e)
-                    )
+                    """method {}. ({})""".format(l_server_name, method_name, str(e))
                 )
                 l_err = "[ERROR]: Conversion failed due to a system error."
                 self.log_file_conversion(l_id, l_err)
@@ -319,9 +295,7 @@ class EnvelopeCustomDataflows(Toolz):
                     "XML delivery because of a system error: %s"
                 ) % str(e)
                 err = {
-                    "title": l_err.split(":")[0]
-                    .replace("]", "")
-                    .replace("[", ""),
+                    "title": l_err.split(":")[0].replace("]", "").replace("[", ""),
                     "description": msg,
                 }
                 return success_message(
@@ -355,8 +329,7 @@ class EnvelopeCustomDataflows(Toolz):
             dt_ids = [
                 x.id
                 for x in t_docs
-                if x.content_type == "text/xml"
-                and x.id.startswith(l_id[:-4] + "_")
+                if x.content_type == "text/xml" and x.id.startswith(l_id[:-4] + "_")
             ]
             # delete the XML files that may be previously generated by
             # conversion of the same file
@@ -386,8 +359,7 @@ class EnvelopeCustomDataflows(Toolz):
                     objs.append(getattr(self, l_xml_id))
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(
-                    title="%s - converted into an XML delivery"
-                    % l_original_type,
+                    title="%s - converted into an XML delivery" % l_original_type,
                     content_type=l_doc.content_type,
                 )
                 # add feedback with the conversion log
@@ -421,9 +393,7 @@ class EnvelopeCustomDataflows(Toolz):
                         )
                         c_log = (
                             """[WARNING]: Conversion contains """
-                            """validation warnings (Code: {})""".format(
-                                l_result
-                            )
+                            """validation warnings (Code: {})""".format(l_result)
                         )
                     else:
                         l_msg = (
@@ -434,9 +404,7 @@ class EnvelopeCustomDataflows(Toolz):
                         c_log = "[INFO]: Conversion successful"
                     self.log_file_conversion(l_id, c_log)
                     err = {
-                        "title": c_log.split(":")[0]
-                        .replace("]", "")
-                        .replace("[", ""),
+                        "title": c_log.split(":")[0].replace("]", "").replace("[", ""),
                         "description": l_msg,
                     }
                     return success_message(
@@ -452,8 +420,7 @@ class EnvelopeCustomDataflows(Toolz):
             elif l_result == "2":
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(
-                    title="%s - not converted into an XML delivery"
-                    % l_original_type,
+                    title="%s - not converted into an XML delivery" % l_original_type,
                     content_type=l_doc.content_type,
                 )
                 # add feedback with the conversion log
@@ -470,8 +437,7 @@ class EnvelopeCustomDataflows(Toolz):
                     conversion_log.error(
                         l_ret_list.get(
                             "resultDescription",
-                            "Error in converting file at %s"
-                            % l_doc.absolute_url(),
+                            "Error in converting file at %s" % l_doc.absolute_url(),
                         )
                     )
                     l_err = (
@@ -486,9 +452,7 @@ class EnvelopeCustomDataflows(Toolz):
                         """file for details."""
                     )
                     err = {
-                        "title": l_err.split(":")[0]
-                        .replace("]", "")
-                        .replace("[", ""),
+                        "title": l_err.split(":")[0].replace("]", "").replace("[", ""),
                         "description": msg,
                     }
                     return success_message(
@@ -506,8 +470,7 @@ class EnvelopeCustomDataflows(Toolz):
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(
                     title="""%s - not converted into an XML delivery - not """
-                    """based on the most recent reporting template"""
-                    % l_original_type,
+                    """based on the most recent reporting template""" % l_original_type,
                     content_type=l_doc.content_type,
                 )
                 # add feedback with the conversion log
@@ -522,9 +485,7 @@ class EnvelopeCustomDataflows(Toolz):
                 if REQUEST is not None:
                     l_err = (
                         """[ERROR]: Conversion failed due missing or """
-                        """expired reporting schema. (Code: {})""".format(
-                            l_result
-                        )
+                        """expired reporting schema. (Code: {})""".format(l_result)
                     )
                     self.log_file_conversion(l_id, l_err)
                     msg = (
@@ -536,9 +497,7 @@ class EnvelopeCustomDataflows(Toolz):
                         % l_ret_list["resultDescription"]
                     )
                     err = {
-                        "title": l_err.split(":")[0]
-                        .replace("]", "")
-                        .replace("[", ""),
+                        "title": l_err.split(":")[0].replace("]", "").replace("[", ""),
                         "description": msg,
                     }
                     return success_message(
@@ -565,9 +524,7 @@ class EnvelopeCustomDataflows(Toolz):
                         """delivery."""
                     )
                     err = {
-                        "title": l_err.split(":")[0]
-                        .replace("]", "")
-                        .replace("[", ""),
+                        "title": l_err.split(":")[0].replace("]", "").replace("[", ""),
                         "description": msg,
                     }
                     return success_message(
@@ -592,8 +549,7 @@ class EnvelopeCustomDataflows(Toolz):
                 conversion_log.error(
                     l_ret_list.get(
                         "resultDescription",
-                        "Error in converting file at %s"
-                        % l_doc.absolute_url(),
+                        "Error in converting file at %s" % l_doc.absolute_url(),
                     )
                 )
                 l_err = "[ERROR]: Conversion failed due to a system error."
@@ -604,9 +560,7 @@ class EnvelopeCustomDataflows(Toolz):
                     """because of a system error: %s""" % str(err)
                 )
                 err = {
-                    "title": l_err.split(":")[0]
-                    .replace("]", "")
-                    .replace("[", ""),
+                    "title": l_err.split(":")[0].replace("]", "").replace("[", ""),
                     "description": msg,
                 }
                 return success_message(
@@ -911,9 +865,7 @@ class EnvelopeCustomDataflows(Toolz):
             file_ids_not_uploaded = []
             file_ids_to_delete = []
             files_only = [
-                f_id
-                for f_id in zip_file_ids
-                if f_id[-1] != "/" and f_id[-1] != "\\"
+                f_id for f_id in zip_file_ids if f_id[-1] != "/" and f_id[-1] != "\\"
             ]
             if not files_only:
                 msg = """The zip file you specified is hierarchical.
@@ -981,9 +933,7 @@ class EnvelopeCustomDataflows(Toolz):
             # if 'replace_xml', delete all XML files with the same schemas as
             # files just uploaded
             file_ids_to_delete = list(set(file_ids_to_delete))
-            ids_to_delete = [
-                x for x in file_ids_to_delete if x not in zip_file_ids
-            ]
+            ids_to_delete = [x for x in file_ids_to_delete if x not in zip_file_ids]
             if ids_to_delete:
                 self.manage_delObjects(ids_to_delete)
             if file_ids_not_uploaded:
@@ -1011,10 +961,7 @@ class EnvelopeCustomDataflows(Toolz):
                     ).format(pzfile_ids)
             else:
                 zfile_ids = "\n".join(
-                    [
-                        "<li>{}</li>".format(zf_id.strip("./"))
-                        for zf_id in zip_file_ids
-                    ]
+                    ["<li>{}</li>".format(zf_id.strip("./")) for zf_id in zip_file_ids]
                 )
                 msg = (
                     """Files successfully uploaded to the envelope:  """
@@ -1127,9 +1074,7 @@ class EnvelopeCustomDataflows(Toolz):
                     actors.append(w.actor)
             filters = []
             country_name = str(
-                engine.localities_dict().get(
-                    self.country, {"name": "Unknown"}
-                )["name"]
+                engine.localities_dict().get(self.country, {"name": "Unknown"})["name"]
             )
             for df in self.dataflow_uris:
                 if event_type:
@@ -1314,22 +1259,14 @@ class EnvelopeCustomDataflows(Toolz):
 
     def getShapeFiles(self):
         """Returns all the shape file names from the envelope"""
-        self.REQUEST.RESPONSE.setHeader(
-            "content-type", "text/xml; charset=utf-8"
-        )
+        self.REQUEST.RESPONSE.setHeader("content-type", "text/xml; charset=utf-8")
         xml = []
         xml_a = xml.append
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
         xml_a("<files>")
         for doc in self.objectValues("Report Document"):
             if doc.id.endswith(".shp"):
-                xml_a(
-                    '<file id="'
-                    + doc.id
-                    + '" url="'
-                    + doc.absolute_url()
-                    + '" />'
-                )
+                xml_a('<file id="' + doc.id + '" url="' + doc.absolute_url() + '" />')
         xml_a("</files>")
         return "".join(xml)
 
@@ -1353,15 +1290,13 @@ class EnvelopeCustomDataflows(Toolz):
         region_template = (
             "<reporting-regions>\n\t<region>%s</region>\n</reporting-regions>"  # noqa
         )
-        aqq_empty_instances = self.restrictedTraverse("/", None)[
-            "emptyinstances"
-        ]["aqq"]
+        aqq_empty_instances = self.restrictedTraverse("/", None)["emptyinstances"][
+            "aqq"
+        ]
         for xml_number in range(x, y):
             for region in regions:
                 xml_filename = "form%s_%s.xml" % (xml_number, region)
-                xml_filecontent = aqq_empty_instances["form%s" % xml_number](
-                    language
-                )
+                xml_filecontent = aqq_empty_instances["form%s" % xml_number](language)
                 xml_filecontent = xml_filecontent.replace(
                     "$$$REGION_DATA$$$", region_template % region
                 )
@@ -1385,9 +1320,7 @@ class EnvelopeCustomDataflows(Toolz):
         the result
         @see https://svn.eionet.europa.eu/projects/Reportnet/ticket/1759
         """
-        self.REQUEST.RESPONSE.setHeader(
-            "content-type", "text/xml; charset=utf-8"
-        )
+        self.REQUEST.RESPONSE.setHeader("content-type", "text/xml; charset=utf-8")
         ret = []
         ret.append('<?xml version="1.0" encoding="utf-8"?>')
         ret.append("<response>")
@@ -1420,17 +1353,11 @@ class EnvelopeCustomDataflows(Toolz):
                             % self.getXMLNodeData(zone, "full-zone-name")
                         )
                         ret.append(
-                            "<code>%s</code>"
-                            % self.getXMLNodeData(zone, "zone-code")
+                            "<code>%s</code>" % self.getXMLNodeData(zone, "zone-code")
                         )
                         ret.append("</zone>")
         except Exception:
-            print(
-                (
-                    "Error parsing files from envelope: form2.xml or %s"
-                    % form_name
-                )
-            )
+            print(("Error parsing files from envelope: form2.xml or %s" % form_name))
         ret.append("</response>")
         return "".join(ret)
 
@@ -1482,11 +1409,7 @@ class EnvelopeCustomDataflows(Toolz):
                 % (req_xsl, xml_schema)
             )
 
-        file_url = (
-            "/{}".format(file_url)
-            if not file_url.startswith("/")
-            else file_url
-        )
+        file_url = "/{}".format(file_url) if not file_url.startswith("/") else file_url
         return converters.run_remote_conversion(
             file_url=file_url,
             converter_id=xsls_ids[0],
@@ -1512,9 +1435,7 @@ class EnvelopeCustomDataflows(Toolz):
             if schema in list(schema_convs.keys()):
                 url = xml_file.absolute_url(1)
                 try:
-                    converted = self.convert(
-                        schema, schema_convs.get(schema), url
-                    )
+                    converted = self.convert(schema, schema_convs.get(schema), url)
                     xml_id = xml_file.getId()
                     xml_title = getattr(xml_file, "title", "")
                     xml_restricted = getattr(xml_file, "restricted", "")
@@ -1606,9 +1527,7 @@ class EnvelopeCustomDataflows(Toolz):
                 available_local_converters = []
                 converter = None
                 try:
-                    available_local_converters = (
-                        converters._get_local_converters()
-                    )
+                    available_local_converters = converters._get_local_converters()
                 except Exception as e:
                     return error_message(
                         self,
@@ -1676,13 +1595,10 @@ class EnvelopeCustomDataflows(Toolz):
                 docs = (
                     self.unrestrictedTraverse(doc_id)
                     for doc_id in doc_ids
-                    if self.unrestrictedTraverse(doc_id).content_type
-                    == "text/xml"
+                    if self.unrestrictedTraverse(doc_id).content_type == "text/xml"
                 )
             for doc in docs:
-                conv = converter.convert(
-                    doc, converter.id, extra_params=extra_params
-                )
+                conv = converter.convert(doc, converter.id, extra_params=extra_params)
                 try:
                     r_metadata = json.loads(conv.content)
                 except Exception:
@@ -1699,9 +1615,7 @@ class EnvelopeCustomDataflows(Toolz):
                         if m:
                             if len(m) == 1:
                                 m = m[0]
-                                metadata[list(m.keys())[0]] = m[
-                                    list(m.keys())[0]
-                                ]
+                                metadata[list(m.keys())[0]] = m[list(m.keys())[0]]
                             else:
                                 m_key = list(m[0].keys())[0]
                                 metadata[m_key] = [k[m_key] for k in m]
@@ -1716,8 +1630,7 @@ class EnvelopeCustomDataflows(Toolz):
         xmls = [
             doc
             for doc in self.objectValues("Report Document")
-            if doc.content_type == "text/xml"
-            and hasattr(aq_base(doc), "metadata")
+            if doc.content_type == "text/xml" and hasattr(aq_base(doc), "metadata")
         ]
 
         if len(xmls) == 1:
@@ -1814,18 +1727,12 @@ class EnvelopeCustomDataflows(Toolz):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             # Get the transaction year from the XML metadata
             year = self.get_transaction_year()
-            if (
-                year
-                and year != "N/A"
-                and (not self.year or int(year) != self.year)
-            ):
+            if year and year != "N/A" and (not self.year or int(year) != self.year):
                 try:
                     self.year = int(year)
                     self.reindexObject()
                 except Exception:
-                    conversion_log.error(
-                        "Unable to extract year from xml metadata."
-                    )
+                    conversion_log.error("Unable to extract year from xml metadata.")
 
     security.declareProtected("View", "metadata_json")
 
@@ -1977,17 +1884,13 @@ class EnvelopeCustomDataflows(Toolz):
         from zope.interface import alsoProvides
 
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
-            alsoProvides(
-                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
         res = {"success": False, "message": ""}
 
         if not self.is_fgas_verification():
             self.REQUEST.RESPONSE.setStatus(403)
-            res["message"] = (
-                "Forbidden: Envelope is not a verification envelope."
-            )
+            res["message"] = "Forbidden: Envelope is not a verification envelope."
             return json.dumps(res)
 
         try:
@@ -2026,18 +1929,13 @@ class EnvelopeCustomDataflows(Toolz):
             elif files_param is None:
                 files_to_delete = []
             else:
-                err = (
-                    "'files' parameter must be a string or a list of strings."
-                )
+                err = "'files' parameter must be a string or a list of strings."
                 raise ValueError(err)
 
             validated_ids = []
             for f_id in files_to_delete:
                 if not isinstance(f_id, str):
-                    err = (
-                        "Invalid item in 'files' list: all items must "
-                        "be strings."
-                    )
+                    err = "Invalid item in 'files' list: all items must be strings."
                     raise ValueError(err)
 
                 if "/" in f_id or "\\" in f_id:
@@ -2077,9 +1975,7 @@ class EnvelopeCustomDataflows(Toolz):
                 return json.dumps(res)
             self.manage_delObjects(ids=delete_ids[:])
             res["success"] = True
-            res["message"] = "Successfully deleted {} file(s).".format(
-                len(delete_ids)
-            )
+            res["message"] = "Successfully deleted {} file(s).".format(len(delete_ids))
 
         except KeyError as e:
             self.REQUEST.RESPONSE.setStatus(404)
@@ -2111,9 +2007,7 @@ class EnvelopeCustomDataflows(Toolz):
         from zope.interface import alsoProvides
 
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
-            alsoProvides(
-                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
 
         if not self.is_fgas_verification():
@@ -2128,9 +2022,7 @@ class EnvelopeCustomDataflows(Toolz):
             if res.get("success"):
                 self.is_audit_assigned = False
                 audit_info = self.audit_info
-                audit_info["audit_end_date"] = DateTime().strftime(
-                    "%d %b %Y %H:%M"
-                )
+                audit_info["audit_end_date"] = DateTime().strftime("%d %b %Y %H:%M")
                 self.audit_info = audit_info
                 notify(AuditUnassignedEvent(self))
             self.REQUEST.RESPONSE.setStatus(200)
@@ -2155,9 +2047,7 @@ class EnvelopeCustomDataflows(Toolz):
         from zope.interface import alsoProvides
 
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
-            alsoProvides(
-                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
 
         if not self.is_fgas_verification():
@@ -2175,9 +2065,7 @@ class EnvelopeCustomDataflows(Toolz):
             if res.get("success"):
                 self.is_audit_assigned = True
                 audit_info = self._extract_audit_info(settings)
-                audit_info["audit_start_date"] = DateTime().strftime(
-                    "%d %b %Y %H:%M"
-                )
+                audit_info["audit_start_date"] = DateTime().strftime("%d %b %Y %H:%M")
                 audit_info["audit_end_date"] = None
                 self.audit_info = audit_info
                 notify(AuditAssignedEvent(self))
@@ -2252,9 +2140,7 @@ class EnvelopeCustomDataflows(Toolz):
 
         address_fields = ["street", "number", "city", "zipcode"]
         address_parts = [
-            address.get(field)
-            for field in address_fields
-            if address.get(field)
+            address.get(field) for field in address_fields if address.get(field)
         ]
         if address.get("country", {}).get("name"):
             address_parts.append(address["country"]["name"])
@@ -2352,9 +2238,7 @@ class EnvelopeCustomDataflows(Toolz):
         from zope.interface import alsoProvides
 
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
-            alsoProvides(
-                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
         res = {"success": False, "message": None}
         data = json.loads(self.REQUEST.get("BODY") or "{}")
@@ -2432,49 +2316,33 @@ class EnvelopeCustomDataflows(Toolz):
                     self.getId(),
                 )
                 error_data = {"error": "Could not retrieve audit metadata"}
-                return (
-                    error_data if output == "dict" else json.dumps(error_data)
-                )
+                return error_data if output == "dict" else json.dumps(error_data)
 
             # Get parent nodes
             try:
                 v_col = self.getParentNode()
                 if not v_col:
                     error_data = {"error": "Verification collection not found"}
-                    return (
-                        error_data
-                        if output == "dict"
-                        else json.dumps(error_data)
-                    )
+                    return error_data if output == "dict" else json.dumps(error_data)
 
                 r_col = v_col.getParentNode()
                 if not r_col:
                     error_data = {"error": "Report collection not found"}
-                    return (
-                        error_data
-                        if output == "dict"
-                        else json.dumps(error_data)
-                    )
+                    return error_data if output == "dict" else json.dumps(error_data)
             except Exception:
                 logging.error(
                     "Error accessing parent nodes for envelope %s",
                     self.getId(),
                 )
                 error_data = {"error": "Could not access parent collections"}
-                return (
-                    error_data if output == "dict" else json.dumps(error_data)
-                )
+                return error_data if output == "dict" else json.dumps(error_data)
 
             # Get report and its details
             try:
                 report = getattr(r_col, audit_metadata["dataReportId"])
                 if not report:
                     error_data = {"error": "Report not found"}
-                    return (
-                        error_data
-                        if output == "dict"
-                        else json.dumps(error_data)
-                    )
+                    return error_data if output == "dict" else json.dumps(error_data)
 
                 # Enhance audit metadata with report details
                 audit_metadata.update(
@@ -2493,15 +2361,9 @@ class EnvelopeCustomDataflows(Toolz):
                     self.getId(),
                 )
                 error_data = {"error": "Could not retrieve report details"}
-                return (
-                    error_data if output == "dict" else json.dumps(error_data)
-                )
+                return error_data if output == "dict" else json.dumps(error_data)
 
-            return (
-                audit_metadata
-                if output == "dict"
-                else json.dumps(audit_metadata)
-            )
+            return audit_metadata if output == "dict" else json.dumps(audit_metadata)
 
         except Exception:
             logging.error(

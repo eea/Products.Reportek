@@ -1,5 +1,6 @@
 import logging
-getters_log = logging.getLogger(__name__ + '.extraparams')
+
+getters_log = logging.getLogger(__name__ + ".extraparams")
 
 
 def get_country_code(file_obj):
@@ -8,7 +9,7 @@ def get_country_code(file_obj):
 
 def request_params(keys, obj=None):
     registry_getters = {
-        'country_code': get_country_code,
+        "country_code": get_country_code,
         # 'xpath': get_xml_xpath,
     }
     params = []
@@ -19,6 +20,6 @@ def request_params(keys, obj=None):
             else:
                 params.append(registry_getters[key]())
         except KeyError:
-            getters_log.warning('Getter for {0} not implemented.'.format(key))
+            getters_log.warning("Getter for {0} not implemented.".format(key))
             raise NotImplementedError
     return params

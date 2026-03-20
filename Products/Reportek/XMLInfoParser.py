@@ -89,15 +89,11 @@ def detect_schema(src):
         # pick every 2nd item in list (the location)
         location_list = location_list[1::2]
         if location_list:
-            location_list_valid = list(
-                filter(absolute_location, location_list)
-            )
+            location_list_valid = list(filter(absolute_location, location_list))
             if len(location_list) != len(location_list_valid):
                 raise SchemaError(
                     "Schema location is not a valid URL",
-                    locations_str(
-                        set(location_list) - set(location_list_valid)
-                    ),
+                    locations_str(set(location_list) - set(location_list_valid)),
                 )
         return " ".join(location_list)
 

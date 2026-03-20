@@ -83,9 +83,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         self.envelope.canViewContent = Mock(return_value=True)
         self.envelope.envelope_zip(self.app.REQUEST, MOCKRESPONSE)
         self.assertTrue(
-            MOCKRESPONSE.headers["Content-Type"].startswith(
-                "application/x-zip"
-            )
+            MOCKRESPONSE.headers["Content-Type"].startswith("application/x-zip")
         )
 
     def testNationalChars(self):
@@ -106,9 +104,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         self.envelope.canViewContent = Mock(return_value=True)
         self.envelope.envelope_zip(self.app.REQUEST, MOCKRESPONSE)
         self.assertTrue(
-            MOCKRESPONSE.headers["Content-Type"].startswith(
-                "application/x-zip"
-            )
+            MOCKRESPONSE.headers["Content-Type"].startswith("application/x-zip")
         )
 
     def test_uploadFeedback(self):
@@ -135,9 +131,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             1,
         )
         feedback = self.envelope.feedbackid
-        self.assertTrue(
-            hasattr(feedback, "testfile.txt"), "File did not get created"
-        )
+        self.assertTrue(hasattr(feedback, "testfile.txt"), "File did not get created")
         with feedback["testfile.txt"].data_file.open() as f:
             self.assertEqual(f.read(), b"content here")
 
@@ -186,9 +180,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
 
         # Delete the attachment
         self.app.REQUEST.set("go", "Delete")
-        self.feedback.manage_deleteAttFeedback(
-            "testfile.txt", self.app.REQUEST
-        )
+        self.feedback.manage_deleteAttFeedback("testfile.txt", self.app.REQUEST)
         self.assertFalse(hasattr(self.feedback, "testfile.txt"))
 
     def test_restrictFeedback(self):
@@ -335,9 +327,7 @@ class BlockerFeedbackTest(BaseUnitTest):
         mock_server = mock_xmlrpc_client.ServerProxy.return_value
         getResult = mock_server.the_service.getResult
         getResult.return_value = result
-        self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
-            "0", "the_jobid"
-        )
+        self.remoteapp._RemoteApplication__getResult4XQueryServiceJob("0", "the_jobid")
 
     def test_workitem_blocker_attr_is_set_to_True(self):
         text = "blocker feedback"
@@ -444,8 +434,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
                         "content_type": feedback.content_type,
                         "referred_file": "%s/%s"
                         % (self.envelope.absolute_url(), feedback.document_id),
-                        "qa_output_url": "%s/qa-output"
-                        % feedback.absolute_url(),
+                        "qa_output_url": "%s/qa-output" % feedback.absolute_url(),
                     },
                 ]
             },

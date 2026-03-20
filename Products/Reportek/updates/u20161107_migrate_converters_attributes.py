@@ -14,19 +14,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 VERSION = 10
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 def migrate_converters_attributes(app):
-    converters = app.unrestrictedTraverse('/' + CONVERTERS_ID)
-    if hasattr(converters, 'setstate'):
+    converters = app.unrestrictedTraverse("/" + CONVERTERS_ID)
+    if hasattr(converters, "setstate"):
         del converters.setstate
         converters._p_changed = 1
-        logger.info('Changed attributes for Converters')
+        logger.info("Changed attributes for Converters")
     return True
 
 
@@ -35,5 +31,5 @@ def update(app, skipMigrationCheck=False):
     if not migrate_converters_attributes(app):
         return
 
-    logger.info('Converters attributes have been migrated')
+    logger.info("Converters attributes have been migrated")
     return True

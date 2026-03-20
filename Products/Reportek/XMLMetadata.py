@@ -173,9 +173,7 @@ class XMLMetadata:
         xml = []
         xml_a = xml.append  # optimisation
         xml_a("<title>%s</title>" % self._xml_encode(envelope.title))
-        xml_a(
-            "<description>%s</description>" % self._xml_encode(envelope.descr)
-        )
+        xml_a("<description>%s</description>" % self._xml_encode(envelope.descr))
         xml_a("<date>%s</date>" % self._xml_datetime(envelope.reportingdate))
         xml_a("<coverage>%s</coverage>" % self._xml_encode(envelope.country))
         xml_a(
@@ -185,16 +183,10 @@ class XMLMetadata:
         if envelope.dataflow_uris:
             for df in envelope.dataflow_uris:
                 xml_a("<obligation>%s</obligation>" % df)
-        xml_a(
-            "<link>%s</link>"
-            % parse_uri(envelope.absolute_url(), self.http_res)
-        )
+        xml_a("<link>%s</link>" % parse_uri(envelope.absolute_url(), self.http_res))
         xml_a("<year>%s</year>" % envelope.year)
         xml_a("<endyear>%s</endyear>" % envelope.endyear)
-        xml_a(
-            "<partofyear>%s</partofyear>"
-            % self._xml_encode(envelope.partofyear)
-        )
+        xml_a("<partofyear>%s</partofyear>" % self._xml_encode(envelope.partofyear))
         return "".join(xml)
 
     security.declareProtected(view, "envelopeMetadata")
@@ -204,9 +196,7 @@ class XMLMetadata:
         tf = {0: "false", 1: "true"}
         xml = []
         xml_a = xml.append  # optimisation
-        doc_objs = [
-            doc for doc in self.envelope.objectValues("Report Document")
-        ]
+        doc_objs = [doc for doc in self.envelope.objectValues("Report Document")]
 
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
         p_coll = self.envelope.getParentNode()

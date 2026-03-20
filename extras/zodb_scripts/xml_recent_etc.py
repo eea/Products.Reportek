@@ -20,70 +20,80 @@ def print_as_attrs(mydict, str1, str2):
     return str1 + " ".join(attrs) + str2
 
 
-search_args = {'meta_type': 'Report Envelope',
-               'sort_on': 'reportingdate', 'sort_order': 'reverse'}
+search_args = {
+    "meta_type": "Report Envelope",
+    "sort_on": "reportingdate",
+    "sort_order": "reverse",
+}
 
 if country_code is not None:
     if len(country_code) == 2:
-        search_args['country'] = context.localities_iso_dict(
-            string.upper(country_code))['uri']
+        search_args["country"] = context.localities_iso_dict(
+            string.upper(country_code)
+        )["uri"]
 
 
-if RA_ID is not None and RA_ID != '':
+if RA_ID is not None and RA_ID != "":
     dataflow_uris = []
 
-    ra_ids = string.split(RA_ID, '|')
+    ra_ids = string.split(RA_ID, "|")
 
     for number in ra_ids:
-        dataflow_uris.append(
-            'http://rod.eionet.europa.eu/obligations/' + number)
+        dataflow_uris.append("http://rod.eionet.europa.eu/obligations/" + number)
 
-    search_args['dataflow_uris'] = dataflow_uris
+    search_args["dataflow_uris"] = dataflow_uris
 
 
 if released is not None:
-    if released == '0' or released == '1':
-        search_args['released'] = int(released)
+    if released == "0" or released == "1":
+        search_args["released"] = int(released)
 
-if releasedafter is None or releasedafter == '':
+if releasedafter is None or releasedafter == "":
     reportingdate = context.ZopeTime() - 90
-    search_args['reportingdate'] = {'query': reportingdate, 'range': 'min'}
+    search_args["reportingdate"] = {"query": reportingdate, "range": "min"}
 elif len(releasedafter) == 10:
-    search_args['reportingdate'] = {
-        'query': DateTime(releasedafter), 'range': 'min'}
+    search_args["reportingdate"] = {"query": DateTime(releasedafter), "range": "min"}
 
 
 for item in container.Catalog(search_args):
     obj = item.getObject()
 
     res = {
-        'url': obj.absolute_url(0),
-        'id': obj.id,
-        'title': obj.title,
-        'dataflow_uris': obj.dataflow_uris,
+        "url": obj.absolute_url(0),
+        "id": obj.id,
+        "title": obj.title,
+        "dataflow_uris": obj.dataflow_uris,
         # 'description': obj.descr,
         # 'country': obj.country,
-        'country_name': obj.getCountryName(),
-        'country_code': obj.getCountryCode(),
-        'locality': obj.locality,
-        'reportingdate': obj.reportingdate.HTML4(),
-        'released': obj.released,
-        'startyear': obj.year,
-        'endyear': obj.endyear,
-        'partofyear': obj.partofyear,
-        'lastworkitem': obj.objectValues('Workitem')[-1].activity_id
+        "country_name": obj.getCountryName(),
+        "country_code": obj.getCountryCode(),
+        "locality": obj.locality,
+        "reportingdate": obj.reportingdate.HTML4(),
+        "released": obj.released,
+        "startyear": obj.year,
+        "endyear": obj.endyear,
+        "partofyear": obj.partofyear,
+        "lastworkitem": obj.objectValues("Workitem")[-1].activity_id,
     }
 
     filelist = []
-    for file in obj.objectValues('Report Document'):
+    for file in obj.objectValues("Report Document"):
         filelist.append((file.id, file.xml_schema_location))
-    res['files'] = filelist
+    res["files"] = filelist
 
     feedbacklist = []
-    for file in obj.objectValues('Report Feedback'):
-        feedbacklist.append((file.id, file.automatic, file.content_type,
-                             file.document_id, file.releasedate.ISO(), file.title))
-    res['feedbacks'] = feedbacklist
+    for file in obj.objectValues("Report Feedback"):
+        feedbacklist.append(
+            (
+                file.id,
+                file.automatic,
+                file.content_type,
+                file.document_id,
+                file.releasedate.ISO(),
+                file.title,
+            )
+        )
+    res["feedbacks"] = feedbacklist
 
     """
 
@@ -122,12 +132,12 @@ for item in container.Catalog(search_args):
 
 req = context.REQUEST
 
-req.RESPONSE.setHeader('content-type', 'text/xml; charset=UTF-8')
+req.RESPONSE.setHeader("content-type", "text/xml; charset=UTF-8")
 
-print(print_as_attrs(search_args, '<results ', '>'))
+print(print_as_attrs(search_args, "<results ", ">"))
 
 for d in reslist:
-    print(print_as_attrs(d, '  <result ', '/>'))
+    print(print_as_attrs(d, "  <result ", "/>"))
 
 print("</results>")
 

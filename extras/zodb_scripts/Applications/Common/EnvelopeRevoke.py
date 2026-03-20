@@ -14,10 +14,14 @@ request = container.REQUEST  # noqa: F821
 if container.ReportekEngine.UNS_server:  # noqa: F821
     container.ReportekEngine.sendNotificationToUNS(  # noqa: F821
         context.getMySelf(),  # noqa: F821
-        'Envelope revoke', 'Envelope %s (%s) was revoked from public view' % (
+        "Envelope revoke",
+        "Envelope %s (%s) was revoked from public view"
+        % (
             context.getMySelf().title_or_id(),  # noqa: F821
-            context.getMySelf().absolute_url()),  # noqa: F821
-        request.AUTHENTICATED_USER.getUserName())
+            context.getMySelf().absolute_url(),
+        ),  # noqa: F821
+        request.AUTHENTICATED_USER.getUserName(),
+    )
 
 # ping CR for deletion
 if container.ReportekEngine.canPingCR():  # noqa: F821
@@ -27,5 +31,11 @@ if container.ReportekEngine.canPingCR():  # noqa: F821
 context.getMySelf().unrelease_envelope()  # noqa: F821
 
 # Delete the automatic feedback for the confirmation of release, if exists
-context.getMySelf().manage_delObjects([x.id for x in context.getMySelf(  # noqa: F821
-).objectValues('Report Feedback') if x.title.lower().find('receipt') != -1])
+context.getMySelf().manage_delObjects(
+    [
+        x.id
+        for x in context.getMySelf(  # noqa: F821
+        ).objectValues("Report Feedback")
+        if x.title.lower().find("receipt") != -1
+    ]
+)

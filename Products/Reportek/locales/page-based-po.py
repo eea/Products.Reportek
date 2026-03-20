@@ -45,8 +45,9 @@ import os
 import codecs
 import sys
 import importlib
+
 importlib.reload(sys)
-sys.setdefaultencoding('utf-8')
+sys.setdefaultencoding("utf-8")
 
 
 g_result_dir = None
@@ -57,7 +58,7 @@ def usage():
 
 
 def play(po_header, bySrc):
-    print('\n'.join(po_header))
+    print("\n".join(po_header))
     for block in bySrc.values():
         print(block.getBlockText())
         # print block.msgidOrSrc
@@ -68,32 +69,32 @@ def play(po_header, bySrc):
 
 
 def process_html(html, po_header, bySrc):
-    text = codecs.open(html, 'r', 'utf-8').read()
+    text = codecs.open(html, "r", "utf-8").read()
     base_name = os.path.splitext(os.path.basename(html))[0]
-    po = codecs.open(g_result_dir + '/' + base_name + '.po', 'w', 'utf-8')
-    po.write('\n'.join(po_header))
-    po.write('\n')
+    po = codecs.open(g_result_dir + "/" + base_name + ".po", "w", "utf-8")
+    po.write("\n".join(po_header))
+    po.write("\n")
 
     for key, block in bySrc.items():
         if block.foundInHtml(base_name):
             continue
         if key in text:
             po.write(block.getBlockText())
-            po.write('\n')
+            po.write("\n")
             # add all neighbours from the same source
             for neighbour in block.neighbours:
                 neighbourBlock = bySrc[neighbour]
                 if neighbourBlock.foundInHtml(base_name):
                     continue
                 po.write(neighbourBlock.getBlockText())
-                po.write('\n')
+                po.write("\n")
     po.close()
 
 
 def mk_result_dir(html_dir):
     dir_name = os.path.dirname(html_dir)
     name = os.path.basename(html_dir)
-    result_dir = os.path.join(dir_name, name+'.po')
+    result_dir = os.path.join(dir_name, name + ".po")
     try:
         os.mkdir(result_dir)
     except Exception:
@@ -103,13 +104,13 @@ def mk_result_dir(html_dir):
     return result_dir
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(usage())
         sys.exit(1)
     main_po = sys.argv[1]
     html_dir = sys.argv[2]
-    if html_dir.endswith('/'):
+    if html_dir.endswith("/"):
         html_dir = html_dir[:-1]
     g_result_dir = mk_result_dir(html_dir)
 

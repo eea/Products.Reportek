@@ -69,9 +69,7 @@ class CountriesManager:
             return getattr(xmlrpc_localities, "timeout", None)
 
     def get_countries_rest(self):
-        res = requests.get(
-            self.cm_rest_url, timeout=self.cm_timeout, verify=False
-        )
+        res = requests.get(self.cm_rest_url, timeout=self.cm_timeout, verify=False)
         if res.status_code == 200:
             prefix = "http://{}/spatial".format(
                 self.cm_rest_url.split("://")[-1].split("/")[0]

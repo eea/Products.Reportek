@@ -13,28 +13,26 @@ from Products.Reportek.updates import MigrationBase
 
 logger = logging.getLogger(__name__)
 VERSION = 20
-APPLIES_TO = [
-    DEPLOYMENT_BDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR]
 
 
-def log_msg(msg, level='INFO'):
+def log_msg(msg, level="INFO"):
     lvl = {
-        'CRITICAL': 50,
-        'ERROR': 40,
-        'WARNING': 30,
-        'INFO': 20,
-        'DEBUG': 10,
-        'NOTSET': 0
+        "CRITICAL": 50,
+        "ERROR": 40,
+        "WARNING": 30,
+        "INFO": 20,
+        "DEBUG": 10,
+        "NOTSET": 0,
     }
     logger.log(lvl.get(level), msg)
     print(msg)
 
 
 def unrestrict_docs(app):
-    catalog = app.unrestrictedTraverse('Catalog')
+    catalog = app.unrestrictedTraverse("Catalog")
     query = {
-        'meta_type': 'Report Document',
+        "meta_type": "Report Document",
     }
 
     brains = catalog(**query)
@@ -49,11 +47,11 @@ def unrestrict_docs(app):
                 transaction.commit()
                 results.append(doc.absolute_url())
         except Exception as e:
-            log_msg('Unable to unrestrict: {} due to: {}'.format(
-                doc.absolute_url(), str(e)))
+            log_msg(
+                "Unable to unrestrict: {} due to: {}".format(doc.absolute_url(), str(e))
+            )
 
-    log_msg("Successfully unrestricted: {} files.\n{}".format(
-        len(results), results))
+    log_msg("Successfully unrestricted: {} files.\n{}".format(len(results), results))
     return True
 
 
@@ -62,5 +60,5 @@ def update(app, skipMigrationCheck=False):
     if not unrestrict_docs(app):
         return
 
-    log_msg('Files unrestricted')
+    log_msg("Files unrestricted")
     return True

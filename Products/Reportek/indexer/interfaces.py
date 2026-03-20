@@ -25,8 +25,7 @@ class IIndexer(Interface):
     """
 
     def __call__(self):
-        """Return the value to index.
-        """
+        """Return the value to index."""
 
 
 class IDelegatingIndexableObjectWrapper(IIndexableObjectWrapper):

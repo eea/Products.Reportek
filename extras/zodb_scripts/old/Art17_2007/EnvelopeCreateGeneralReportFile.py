@@ -9,7 +9,7 @@
 # title=Art17: Creates a new instance file
 ##
 #
-transmap = string.maketrans(' ', '-')
+transmap = string.maketrans(" ", "-")
 
 request = context.REQUEST
 response = request.RESPONSE
@@ -21,45 +21,49 @@ filecontent = []
 err_msg = []
 
 bioregions = {
-    'ALP': 'Alpine',
-    'ATL': 'Atlantic',
-    'BOR': 'Boreal',
-    'CON': 'Continental',
-    'MED': 'Mediterranean',
-    'MAC': 'Macaronesian',
-    'PAN': 'Pannonian',
-    'MATL': 'Atlantic ocean',
-    'MBAL': 'Baltic sea',
-    'MMED': 'Mediterranean sea',
-    'MMAC': 'Macaronesian/Atlantic ocean'
+    "ALP": "Alpine",
+    "ATL": "Atlantic",
+    "BOR": "Boreal",
+    "CON": "Continental",
+    "MED": "Mediterranean",
+    "MAC": "Macaronesian",
+    "PAN": "Pannonian",
+    "MATL": "Atlantic ocean",
+    "MBAL": "Baltic sea",
+    "MMED": "Mediterranean sea",
+    "MMAC": "Macaronesian/Atlantic ocean",
 }
 
 if len(region) < 1:
-    err_msg.append('You have to select at least one region!')
+    err_msg.append("You have to select at least one region!")
 
 if len(err_msg) > 0:
-    SESSION.set('err_msg', err_msg)
-    SESSION.set('language', language)
-    SESSION.set('region', region)
-    return response.redirect('EnvelopeCreateGeneralReportFileForm')
+    SESSION.set("err_msg", err_msg)
+    SESSION.set("language", language)
+    SESSION.set("region", region)
+    return response.redirect("EnvelopeCreateGeneralReportFileForm")
 
-l_countryname = 'Unspecified'
-l_countrycode = ''
+l_countryname = "Unspecified"
+l_countrycode = ""
 for country_obj in container.localities_table():
-    if country_obj['uri'] == context.country:
-        l_countryname = country_obj['name']
-        l_countrycode = country_obj['iso']
+    if country_obj["uri"] == context.country:
+        l_countryname = country_obj["name"]
+        l_countrycode = country_obj["iso"]
         break
 
-filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
+filecontent.append(
+    """<?xml version="1.0" encoding="UTF-8"?>
 <report xml:lang="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
 	<member-state label="Member state" countrycode="%s">%s</member-state>
 	<legal-framework label="1. Legal Framework">
 		<legal-texts label="List of legal texts that transpose the Directive at national and/or regional level (Can be replaced by Internet address where the text is published and a short title)"/>
 	</legal-framework>
-""" % (language, l_countrycode, l_countryname))
+"""
+    % (language, l_countrycode, l_countryname)
+)
 for r in region:
-    filecontent.append("""
+    filecontent.append(
+        """
 	<regional label="2. State of designation of Natura 2000">
 		<region label="Biogeographic region or marine region" desc="%s">%s</region>
 		<community-importance label="Sites of community importance">
@@ -83,7 +87,9 @@ for r in region:
 			</marine>
 		</areas-of-conservation>
   </regional>
-""" % (bioregions[r], r))
+"""
+        % (bioregions[r], r)
+    )
 filecontent.append("""
 	<management-tools label="3. Management tools - Art. 6(1)">
 		<management-plans label="3.1 Management plans and Management bodies">
@@ -215,6 +221,5 @@ filecontent.append("""
 	</supporting-measures>
 </report>
 """)
-context.manage_addDocument(
-    filename, title, ''.join(filecontent), 'text/xml', '')
+context.manage_addDocument(filename, title, "".join(filecontent), "text/xml", "")
 return context.index_html()

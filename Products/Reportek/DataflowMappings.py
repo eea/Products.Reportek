@@ -43,9 +43,7 @@ class DataflowMappings(Folder):
     def getEngine(self):
         return getattr(self, ENGINE_ID)
 
-    def get_dataflow_mapping_records(
-        self, dataflow_uris, web_form_only, catalog=True
-    ):
+    def get_dataflow_mapping_records(self, dataflow_uris, web_form_only, catalog=True):
         """Return the mapping records for the dataflow_uris."""
         if catalog:
             query = {
@@ -62,15 +60,9 @@ class DataflowMappings(Folder):
             catalog = getToolByName(self, DEFAULT_CATALOG, None)
             return catalog.searchResults(**query)
 
-        return (
-            rec
-            for rec in self.objectValues()
-            if rec.dataflow_uri in dataflow_uris
-        )
+        return (rec for rec in self.objectValues() if rec.dataflow_uri in dataflow_uris)
 
-    def getSchemaObjectsForDataflows(
-        self, dataflow_uris, web_form_only, catalog=True
-    ):
+    def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only, catalog=True):
         """
         Returns schemas for one or many dataflows
         dataflow_uris - one uri (str) looked after, a list for any uri in it
@@ -144,9 +136,7 @@ class DataflowMappings(Folder):
 
     def get_xls_conversion_type(self, dataflow_uris=None, web_form_only=False):
         """Return the xls conversion type."""
-        brains = self.get_dataflow_mapping_records(
-            dataflow_uris, web_form_only
-        )
+        brains = self.get_dataflow_mapping_records(dataflow_uris, web_form_only)
         res = set()
         for brain in brains:
             record = brain.getObject()
@@ -164,9 +154,7 @@ class DataflowMappings(Folder):
 
     security.declareProtected("View management screens", "index_html")
     index_html = PageTemplateFile(
-        os.path.join(
-            package_home(globals()), "zpt/dataflow-mappings/index.zpt"
-        )
+        os.path.join(package_home(globals()), "zpt/dataflow-mappings/index.zpt")
     )
 
 

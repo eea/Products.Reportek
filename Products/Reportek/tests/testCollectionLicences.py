@@ -81,9 +81,7 @@ class CollectionLicencesTest(BaseTest):
 
         # Use the engine already created by BaseTest and mock get_registry
         self.engine.get_registry = Mock(return_value=mock_registry)
-        self.engine.er_ods_obligations = [
-            "http://rod.eionet.europa.eu/obligations/869"
-        ]
+        self.engine.er_ods_obligations = ["http://rod.eionet.europa.eu/obligations/869"]
 
         # Create a collection and add it to root
         test_col = Collection(id="test_col")
@@ -168,9 +166,7 @@ class CollectionLicencesTest(BaseTest):
 
         # Verify the registry method was called correctly
         self.mock_registry.get_aggregated_multi_year_licences.assert_called_once()  # noqa
-        call_args = (
-            self.mock_registry.get_aggregated_multi_year_licences.call_args
-        )
+        call_args = self.mock_registry.get_aggregated_multi_year_licences.call_args
         self.assertEqual(call_args[0][0], "984")  # company_id
         self.assertEqual(call_args[1]["domain"], "FGAS")
         self.assertEqual(call_args[1]["year"], "2025")
@@ -198,9 +194,7 @@ class CollectionLicencesTest(BaseTest):
         self.root.test_col.aggregated_multi_year_licences()
 
         # Verify ODS domain was used
-        call_args = (
-            self.mock_registry.get_aggregated_multi_year_licences.call_args
-        )
+        call_args = self.mock_registry.get_aggregated_multi_year_licences.call_args
         self.assertEqual(call_args[1]["domain"], "ODS")
 
     @patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR)
@@ -221,17 +215,13 @@ class CollectionLicencesTest(BaseTest):
         self.root.test_col.aggregated_multi_year_licences(all_years=True)
 
         # Verify empty year was used
-        call_args = (
-            self.mock_registry.get_aggregated_multi_year_licences.call_args
-        )
+        call_args = self.mock_registry.get_aggregated_multi_year_licences.call_args
         self.assertEqual(call_args[1]["year"], "")
 
     @patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR)
     @patch("requests.codes")
     @patch("Products.Reportek.Collection.DateTime")
-    def test_aggregated_multi_year_licences_default_year(
-        self, dt_mock, req_codes_mock
-    ):
+    def test_aggregated_multi_year_licences_default_year(self, dt_mock, req_codes_mock):
         """Test aggregated_multi_year_licences defaults to previous year"""
         req_codes_mock.ok = 200
 
@@ -252,9 +242,7 @@ class CollectionLicencesTest(BaseTest):
         self.root.test_col.aggregated_multi_year_licences()
 
         # Verify previous year (2025) was used
-        call_args = (
-            self.mock_registry.get_aggregated_multi_year_licences.call_args
-        )
+        call_args = self.mock_registry.get_aggregated_multi_year_licences.call_args
         self.assertEqual(call_args[1]["year"], "2025")
 
     @patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR)
@@ -275,9 +263,7 @@ class CollectionLicencesTest(BaseTest):
         self.root.test_col.aggregated_multi_year_licences()
 
         # Verify year from body was used and removed from data
-        call_args = (
-            self.mock_registry.get_aggregated_multi_year_licences.call_args
-        )
+        call_args = self.mock_registry.get_aggregated_multi_year_licences.call_args
         self.assertEqual(call_args[1]["year"], "2024")
         # Verify year was removed from data parameter
         data_param = json.loads(call_args[1]["data"])
@@ -285,9 +271,7 @@ class CollectionLicencesTest(BaseTest):
 
     @patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR)
     @patch("requests.codes")
-    def test_aggregated_multi_year_licences_failed_response(
-        self, req_codes_mock
-    ):
+    def test_aggregated_multi_year_licences_failed_response(self, req_codes_mock):
         """Test aggregated_multi_year_licences with failed response"""
         req_codes_mock.ok = 200
 
@@ -379,15 +363,11 @@ class CollectionLicencesTest(BaseTest):
 
     @patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR)
     @patch("requests.codes")
-    def test_aggregated_multi_year_licences_none_response(
-        self, req_codes_mock
-    ):
+    def test_aggregated_multi_year_licences_none_response(self, req_codes_mock):
         """Test aggregated_multi_year_licences with None response from ecr."""
         req_codes_mock.ok = 200
 
-        self.mock_registry.get_aggregated_multi_year_licences = Mock(
-            return_value=None
-        )
+        self.mock_registry.get_aggregated_multi_year_licences = Mock(return_value=None)
 
         self._setup_request_mock(json.dumps({}), year="2025")
 
@@ -435,9 +415,7 @@ class CollectionLicencesTest(BaseTest):
             ]
         }
 
-        self.mock_registry.get_company_licences = Mock(
-            return_value=mock_response
-        )
+        self.mock_registry.get_company_licences = Mock(return_value=mock_response)
 
         # Set up request with body
         self._setup_request_mock(json.dumps({"filter": "test"}), year="2025")
@@ -472,9 +450,7 @@ class CollectionLicencesTest(BaseTest):
         mock_response.status_code = 200
         # get_company_licences returns dict with "licences" key
         mock_response.json.return_value = {"licences": []}
-        self.mock_registry.get_company_licences = Mock(
-            return_value=mock_response
-        )
+        self.mock_registry.get_company_licences = Mock(return_value=mock_response)
 
         self._setup_request_mock(json.dumps({}), year="2025")
 
@@ -495,9 +471,7 @@ class CollectionLicencesTest(BaseTest):
         mock_response.status_code = 200
         # get_company_licences returns dict with "licences" key
         mock_response.json.return_value = {"licences": []}
-        self.mock_registry.get_company_licences = Mock(
-            return_value=mock_response
-        )
+        self.mock_registry.get_company_licences = Mock(return_value=mock_response)
 
         self._setup_request_mock(json.dumps({}), year=None)
 
@@ -523,9 +497,7 @@ class CollectionLicencesTest(BaseTest):
         mock_response.status_code = 200
         # get_company_licences returns dict with "licences" key
         mock_response.json.return_value = {"licences": []}
-        self.mock_registry.get_company_licences = Mock(
-            return_value=mock_response
-        )
+        self.mock_registry.get_company_licences = Mock(return_value=mock_response)
 
         self._setup_request_mock(json.dumps({}), year=None)
 
@@ -545,9 +517,7 @@ class CollectionLicencesTest(BaseTest):
         mock_response.status_code = 200
         # get_company_licences returns dict with "licences" key
         mock_response.json.return_value = {"licences": []}
-        self.mock_registry.get_company_licences = Mock(
-            return_value=mock_response
-        )
+        self.mock_registry.get_company_licences = Mock(return_value=mock_response)
 
         self._setup_request_mock(json.dumps({"year": 2024}), year=None)
 
@@ -569,9 +539,7 @@ class CollectionLicencesTest(BaseTest):
         mock_response = Mock()
         mock_response.status_code = 500
         mock_response.reason = "Internal Server Error"
-        self.mock_registry.get_company_licences = Mock(
-            return_value=mock_response
-        )
+        self.mock_registry.get_company_licences = Mock(return_value=mock_response)
 
         self._setup_request_mock(json.dumps({}), year="2025")
 

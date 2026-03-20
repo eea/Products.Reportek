@@ -80,9 +80,7 @@ def catalog_rebuild(root, catalog="Catalog"):
             catalog.catalog_object(ob, "/".join(ob.getPhysicalPath()))
             # catalog.indexObject(ob)
         except Exception as e:
-            log.warning(
-                "Unable to catalog object: {} due to: {}".format(ob, str(e))
-            )
+            log.warning("Unable to catalog object: {} due to: {}".format(ob, str(e)))
 
     catalog.manage_catalogClear()
     for i, ob in enumerate(walk_folder(root)):
@@ -200,9 +198,7 @@ class ReportekCatalog(ZCatalog):
         processQueue()
         user = getSecurityManager().getUser()
         if kw.get("admin_check"):
-            kw["allowedAdminRolesAndUsers"] = listAllowedAdminRolesAndUsers(
-                user
-            )
+            kw["allowedAdminRolesAndUsers"] = listAllowedAdminRolesAndUsers(user)
             kw.pop("admin_check", None)
             # BDR specific query, return results
             return ZCatalog.searchResults(self, **kw)
@@ -255,9 +251,7 @@ class ReportekCatalog(ZCatalog):
                 # BBB
                 w = IndexableObjectWrapper(obj, self)
         try:
-            ZCatalog.catalog_object(
-                self, w, uid, idxs, update_metadata, pghandler
-            )
+            ZCatalog.catalog_object(self, w, uid, idxs, update_metadata, pghandler)
         except TypeError as e:
             if "not supported between" in str(e):
                 import traceback
@@ -269,9 +263,7 @@ class ReportekCatalog(ZCatalog):
                         val = getattr(w, idx_name, None)
                         if callable(val):
                             val = val()
-                        log.error(
-                            "  %s: %r (%s)", idx_name, val, type(val).__name__
-                        )
+                        log.error("  %s: %r (%s)", idx_name, val, type(val).__name__)
                     except Exception as ex:
                         log.error("  %s: ERROR %s", idx_name, ex)
             raise
@@ -303,9 +295,7 @@ class ReportekCatalog(ZCatalog):
         # packages like `CMFEditions` check that date to see if the object was
         # modified during the request, which fails when it's only set on commit
         if not CATALOG_OPTIMIZATION_DISABLED:
-            if idxs in (None, []) and hasattr(
-                aq_base(object), "notifyModified"
-            ):
+            if idxs in (None, []) and hasattr(aq_base(object), "notifyModified"):
                 object.notifyModified()
             obj = filterTemporaryItems(object)
             if obj is not None:

@@ -15,31 +15,27 @@ from Products.Reportek.updates import MigrationBase
 
 logger = logging.getLogger(__name__)
 VERSION = 19
-APPLIES_TO = [
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR,
-    DEPLOYMENT_BDR
-]
+APPLIES_TO = [DEPLOYMENT_CDR, DEPLOYMENT_MDR, DEPLOYMENT_BDR]
 
 
-def log_msg(msg, level='INFO'):
+def log_msg(msg, level="INFO"):
     lvl = {
-        'CRITICAL': 50,
-        'ERROR': 40,
-        'WARNING': 30,
-        'INFO': 20,
-        'DEBUG': 10,
-        'NOTSET': 0
+        "CRITICAL": 50,
+        "ERROR": 40,
+        "WARNING": 30,
+        "INFO": 20,
+        "DEBUG": 10,
+        "NOTSET": 0,
     }
     logger.log(lvl.get(level), msg)
     print(msg)
 
 
 def hash_it(app):
-    engine = app.unrestrictedTraverse('/' + ENGINE_ID)
-    catalog = app.unrestrictedTraverse('Catalog')
+    engine = app.unrestrictedTraverse("/" + ENGINE_ID)
+    catalog = app.unrestrictedTraverse("Catalog")
     query = {
-        'meta_type': 'Report Document',
+        "meta_type": "Report Document",
     }
 
     brains = catalog(**query)
@@ -50,16 +46,19 @@ def hash_it(app):
         if not doc.hash:
             try:
                 doc.generate_hash()
-                log_msg("{} generated hash: {}".format(
-                    doc.absolute_url(), doc.hash))
+                log_msg("{} generated hash: {}".format(doc.absolute_url(), doc.hash))
                 transaction.commit()
                 results.append(doc.absolute_url())
             except Exception as e:
-                log_msg('Unable to set hash for: {} due to: {}'.format(
-                    doc.absolute_url(), str(e)))
+                log_msg(
+                    "Unable to set hash for: {} due to: {}".format(
+                        doc.absolute_url(), str(e)
+                    )
+                )
 
-    log_msg("Successfully generated hashes for: {} files.\n{}".format(
-        len(results), results))
+    log_msg(
+        "Successfully generated hashes for: {} files.\n{}".format(len(results), results)
+    )
     return True
 
 
@@ -68,5 +67,5 @@ def update(app, skipMigrationCheck=False):
     if not hash_it(app):
         return
 
-    log_msg('Files hashed')
+    log_msg("Files hashed")
     return True

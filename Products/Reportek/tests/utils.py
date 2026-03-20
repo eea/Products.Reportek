@@ -265,9 +265,7 @@ def chase_response(target, environ={}, user=None):
     response = publish_view(target, environ=environ, user=user)
     while response.status == 302:
         redirect_url = response.headers["location"]
-        target_url = redirect_url.replace(target.absolute_url(), "").split(
-            "?"
-        )[0]
+        target_url = redirect_url.replace(target.absolute_url(), "").split("?")[0]
         target = target.unrestrictedTraverse(target_url, None)
         response = publish_view(target, environ=environ, user=user)
     return response
@@ -358,9 +356,7 @@ def add_document(envelope, upload_file, restricted=False, id=""):
     return envelope[doc_id]
 
 
-def add_feedback(
-    envelope, feedbacktext, feedbackId=None, restricted=False, idx=0
-):
+def add_feedback(envelope, feedbacktext, feedbackId=None, restricted=False, idx=0):
     from Products.Reportek.Feedback import manage_addFeedback
 
     restricted_str = "on" if restricted else ""

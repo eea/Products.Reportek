@@ -29,14 +29,12 @@ class ContentRegistryPingger(object):
         if success:
             logger.info(
                 """Content Registry (%s) pingged OK for the %s of %s. """
-                """Response was: %s"""
-                % (self.api_url, action, url, messageBody)
+                """Response was: %s""" % (self.api_url, action, url, messageBody)
             )
         else:
             logger.warning(
                 """Content Registry (%s) ping unsuccessful for the %s """
-                """of %s. Response was: %s"""
-                % (self.api_url, action, url, messageBody)
+                """of %s. Response was: %s""" % (self.api_url, action, url, messageBody)
             )
 
     def content_registry_ping(
@@ -52,8 +50,7 @@ class ContentRegistryPingger(object):
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
                 new_uri = uri.replace("https://", "http://")
                 logger.info(
-                    "Original uri: %s has been replaced with uri: %s"
-                    % (uri, new_uri)
+                    "Original uri: %s has been replaced with uri: %s" % (uri, new_uri)
                 )
                 uri = new_uri
             return uri
@@ -74,13 +71,9 @@ class ContentRegistryPingger(object):
             if wk:
                 msgs = {
                     True: """CR Ping successful for the {} of """
-                    """{} (HTTP status: {})""".format(
-                        ping_argument, uri, http_code
-                    ),
+                    """{} (HTTP status: {})""".format(ping_argument, uri, http_code),
                     False: """CR Ping failed for the {} of """
-                    """{} (HTTP status: {})""".format(
-                        ping_argument, uri, http_code
-                    ),
+                    """{} (HTTP status: {})""".format(ping_argument, uri, http_code),
                 }
                 wk.addEvent(msgs.get(success))
             allOk = allOk and success
@@ -134,13 +127,9 @@ class ContentRegistryPingger(object):
         messageBody = ""
         try:
             if "<html" in message:
-                messageBody = (
-                    bs(message, features="html.parser").find("body").text
-                )
+                messageBody = bs(message, features="html.parser").find("body").text
             elif "<?xml" in message:
-                messageBody = (
-                    bs(message, features="lxml-xml").find("response").text
-                )
+                messageBody = bs(message, features="lxml-xml").find("response").text
         except Exception:
             messageBody = message
 

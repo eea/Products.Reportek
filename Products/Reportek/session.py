@@ -24,22 +24,17 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
 
     if not use_beaker:
         logger.info(
-            "Beaker session backend is DISABLED. "
-            "Passing WSGI app through unmodified."
+            "Beaker session backend is DISABLED. Passing WSGI app through unmodified."
         )
         return app
 
     redis_url = os.environ.get("REDIS_URL", "redis://redis:6379/0")
     secret = os.environ.get("SESSION_SECRET", "secret_key")
 
-    logger.info(
-        "Injecting Beaker session backend via Redis: {0}".format(redis_url)
-    )
+    logger.info("Injecting Beaker session backend via Redis: {0}".format(redis_url))
 
     timeout = int(os.environ.get("SESSION_MANAGER_TIMEOUT", "30")) * 60
-    cookie_expires_env = os.environ.get(
-        "SESSION_COOKIE_EXPIRES", "true"
-    ).lower()
+    cookie_expires_env = os.environ.get("SESSION_COOKIE_EXPIRES", "true").lower()
     if cookie_expires_env in ("true", "1", "yes"):
         cookie_expires = True  # expire on browser close
     elif cookie_expires_env in ("false", "0", "no"):
@@ -130,6 +125,4 @@ def extract_beaker_session(event):
     request = event.request
     if "beaker.session" in request.environ:
         logger.debug("SETTING request.SESSION: {}")
-        request.SESSION = ZopeBeakerSessionWrapper(
-            request.environ["beaker.session"]
-        )
+        request.SESSION = ZopeBeakerSessionWrapper(request.environ["beaker.session"])

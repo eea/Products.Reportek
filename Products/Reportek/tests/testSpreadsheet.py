@@ -37,9 +37,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(-1, res)
 
     @patch("transaction.commit")
-    @patch(
-        "Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service"
-    )  # noqa
+    @patch("Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service")  # noqa
     def test_convert_text(self, mock_invoke, mock_commit):
         """Create a text document in the envelope and try to convert to XML
         This doesn't work, but the original file is uploaded
@@ -78,9 +76,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         self.assertEqual("text/xml", document.content_type)
 
     @patch("transaction.commit")
-    @patch(
-        "Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service"
-    )
+    @patch("Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service")
     def test_upload_empty_excel(self, mock_invoke, mock_commit):
         mock_invoke.return_value = {
             "conversionLog": "-- conversion log --",
@@ -88,9 +84,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             "resultCode": "0",
             "resultDescription": "Conversion successful.",
         }
-        myfile = FileUploadMock(
-            "Rivers_empty.xls", "-- some reporting data --"
-        )
+        myfile = FileUploadMock("Rivers_empty.xls", "-- some reporting data --")
         res = self.envelope.convert_excel_file(myfile)
         self.assertEqual(1, res)
         document = self.envelope["Rivers_empty.xls"]
@@ -105,9 +99,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         )
 
     @patch("transaction.commit")
-    @patch(
-        "Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service"
-    )
+    @patch("Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service")
     def test_convert_excel(self, mock_invoke, mock_commit):
         """Check convert_excel_file when an correct template is uploaded
         The conversion works and produces XML files in the envelope

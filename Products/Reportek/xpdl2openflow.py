@@ -149,9 +149,9 @@ class xpdl_handler(ContentHandler):
         elif name == "ParticipantType":
             self.stack[-1].obj.participant_type = attrs.get("Type", "")
         elif name == "ExtendedAttribute":  # merg la toate
-            self.stack[-1].obj.extendedattributes[
-                attrs.get("Name", "")
-            ] = attrs.get("Value", "")
+            self.stack[-1].obj.extendedattributes[attrs.get("Name", "")] = attrs.get(
+                "Value", ""
+            )
         # get application
         elif name == "Application":
             obj = application(

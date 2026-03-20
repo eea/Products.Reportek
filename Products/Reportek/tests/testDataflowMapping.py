@@ -23,15 +23,11 @@ class DFMTestCase(BaseUnitTest):
         mapping = []
         for schema in args[2]:
             if schema:
-                mapping.append(
-                    {"url": schema, "name": "x", "has_webform": False}
-                )
+                mapping.append({"url": schema, "name": "x", "has_webform": False})
 
         for schema in args[3]:
             if schema:
-                mapping.append(
-                    {"url": schema, "name": "x", "has_webform": True}
-                )
+                mapping.append({"url": schema, "name": "x", "has_webform": True})
         self.mappings[oid].mapping = {"schemas": mapping}
 
     def test_add_multiple_dataflow_mappings(self):
@@ -39,9 +35,7 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "test", "test title", obligation, [schema1, schema2], []
-        )
+        self.add_mapping("test", "test title", obligation, [schema1, schema2], [])
         self.mappings.getSchemasForDataflows(obligation, catalog=False)
         self.assertEqual(
             [schema1, schema2],
@@ -61,9 +55,7 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "test1", "test title", obligation, [], [schema1, schema2]
-        )
+        self.add_mapping("test1", "test title", obligation, [], [schema1, schema2])
         self.assertEqual(
             [schema1, schema2],
             self.mappings.getSchemasForDataflows(obligation, catalog=False),
@@ -82,9 +74,7 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "with_form", "test title", obligation, [schema1], [schema2]
-        )
+        self.add_mapping("with_form", "test title", obligation, [schema1], [schema2])
 
         # Must return all - two
         self.assertEqual(
@@ -105,16 +95,12 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "test", "test title", obligation, [schema1, schema2], []
-        )
+        self.add_mapping("test", "test title", obligation, [schema1, schema2], [])
         self.assertTrue(hasattr(self.mappings, "test"))
 
         self.assertEqual(
             [schema1, schema2],
-            self.mappings.test.getSchemasForDataflows(
-                obligation, catalog=False
-            ),
+            self.mappings.test.getSchemasForDataflows(obligation, catalog=False),
         )
 
     def test_add_schema(self):
@@ -128,9 +114,7 @@ class DFMTestCase(BaseUnitTest):
         self.mappings.test.add_schema(request)
         self.assertEqual(
             [schema1, schema2],
-            self.mappings.test.getSchemasForDataflows(
-                obligation, catalog=False
-            ),
+            self.mappings.test.getSchemasForDataflows(obligation, catalog=False),
         )
 
     def test_delete_schemas(self):
@@ -140,23 +124,17 @@ class DFMTestCase(BaseUnitTest):
         # never added; delete_schemas should hold robust though
         schema3 = "http://schema.xx/schema3.xsd"
 
-        self.add_mapping(
-            "test", "test title", obligation, [schema1, schema2], []
-        )
+        self.add_mapping("test", "test title", obligation, [schema1, schema2], [])
         self.assertTrue(hasattr(self.mappings, "test"))
         self.assertEqual(
             [schema1, schema2],
-            self.mappings.test.getSchemasForDataflows(
-                obligation, catalog=False
-            ),
+            self.mappings.test.getSchemasForDataflows(obligation, catalog=False),
         )
         request = Mock(form=dict(ids=[schema1, schema3]))
         self.mappings.test.delete_schemas(request)
         self.assertEqual(
             [schema2],
-            self.mappings.test.getSchemasForDataflows(
-                obligation, catalog=False
-            ),
+            self.mappings.test.getSchemasForDataflows(obligation, catalog=False),
         )
 
     def test_edit_add(self):
@@ -192,9 +170,7 @@ class DFMTestCase(BaseUnitTest):
         # self.mappings.test.delete_schemas = Mock()
         request = Mock(
             method="POST",
-            form=dict(
-                update=True, dataflow_uris=newObligation, title=newTitle
-            ),
+            form=dict(update=True, dataflow_uris=newObligation, title=newTitle),
         )
         self.mappings.test.edit(request)
         self.assertEqual(self.mappings.test.title, newTitle)
@@ -207,9 +183,7 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "test1", "test title", obligation, [schema1, schema2], []
-        )
+        self.add_mapping("test1", "test title", obligation, [schema1, schema2], [])
         self.add_mapping("test2", "test title", new_obligation, [], [schema2])
 
         self.assertEqual(
@@ -229,9 +203,7 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "test", "test title", obligation, [], [schema1, schema2]
-        )
+        self.add_mapping("test", "test title", obligation, [], [schema1, schema2])
         self.assertEqual(
             [schema1, schema2],
             self.mappings.getSchemasForDataflows(obligation, catalog=False),
@@ -250,9 +222,7 @@ class DFMTestCase(BaseUnitTest):
         schema = "http://schema.xx/schema.xsd"
         schema_with_form = "http://schema.xx/SCHEMAWITHFORM.xsd"
 
-        self.add_mapping(
-            "test", "test title", obligation, [schema], [schema_with_form]
-        )
+        self.add_mapping("test", "test title", obligation, [schema], [schema_with_form])
 
         # Must return all - two
         self.assertEqual(
@@ -273,9 +243,7 @@ class DFMTestCase(BaseUnitTest):
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
 
-        self.add_mapping(
-            "test1", "test title", obligation, [schema1, schema2, ""], []
-        )
+        self.add_mapping("test1", "test title", obligation, [schema1, schema2, ""], [])
         self.assertEqual(
             [schema1, schema2],
             self.mappings.getSchemasForDataflows(obligation, catalog=False),
@@ -293,17 +261,13 @@ class DFMTestCase(BaseUnitTest):
         obligation = "http://rod.eionet.eu.int/obligations/22"
         schema1 = "http://schema.xx/schema1.xsd"
         schema2 = "http://schema.xx/schema2.xsd"
-        self.add_mapping(
-            "test1", "test title", obligation, [schema1], [schema2]
-        )
+        self.add_mapping("test1", "test title", obligation, [schema1], [schema2])
         expected = [
             {"has_webform": False, "name": "x", "url": schema1},
             {"has_webform": True, "name": "x", "url": schema2},
         ]
 
         results = list(
-            self.mappings.getSchemaObjectsForDataflows(
-                obligation, False, catalog=False
-            )
+            self.mappings.getSchemaObjectsForDataflows(obligation, False, catalog=False)
         )
         self.assertEqual(expected, results)

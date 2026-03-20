@@ -9,4 +9,5 @@
 # title=Redirect to Serbia
 ##
 context.REQUEST.RESPONSE.redirect(
-    container.REQUEST.BASE0 + '/rs/' + '/'.join(traverse_subpath))
+    container.REQUEST.BASE0 + "/rs/" + "/".join(traverse_subpath)
+)

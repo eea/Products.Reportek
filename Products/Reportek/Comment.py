@@ -146,9 +146,7 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
             author = self.REQUEST.AUTHENTICATED_USER.getUserName()
             date = DateTime()
             tmp = StringIO(body)
-            convs = getattr(
-                self.getPhysicalRoot(), constants.CONVERTERS_ID, None
-            )
+            convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
             # if Local Conversion Service is down
             # the next line of code will raise an exception
             # because we don't want to save unsecure html
@@ -184,9 +182,7 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
         )
 
     comment_upload = PageTemplateFile("zpt/comment_upload", globals())
-    comment_delete_file = PageTemplateFile(
-        "zpt/comment_delete_file", globals()
-    )
+    comment_delete_file = PageTemplateFile("zpt/comment_delete_file", globals())
 
 
 InitializeClass(CommentItem)

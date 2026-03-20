@@ -14,11 +14,10 @@ KEY = "plone.cachepurging.urls"
 
 @adapter(IPurgeEvent)
 def queuePurge(event):
-    """Find URLs to purge and queue them for later
-    """
+    """Find URLs to purge and queue them for later"""
     # plone.cachepurging queuePurge uses getRequest which returns None,
     # fallback to the REQUEST on the object
-    request = getRequest() or getattr(event.object, 'REQUEST', None)
+    request = getRequest() or getattr(event.object, "REQUEST", None)
     if request is None:
         return
 
@@ -45,9 +44,14 @@ class ObjectViewPurgePaths(object):
         self.context = context
 
     def getRelativePaths(self):
-        paths = ['index_html', 'overview', 'history_section',
-                 'data_quality', 'manage_document']
-        return ['/'.join([self.context.absolute_url_path(), p]) for p in paths]
+        paths = [
+            "index_html",
+            "overview",
+            "history_section",
+            "data_quality",
+            "manage_document",
+        ]
+        return ["/".join([self.context.absolute_url_path(), p]) for p in paths]
 
     def getAbsolutePaths(self):
         return []
@@ -56,7 +60,7 @@ class ObjectViewPurgePaths(object):
 @adapter(IReportekContent, IPurgeEvent)
 def purgeParent(object, IPurgeEvent):
     try:
-        parent = getattr(object, '__parent__', object.getParentNode())
+        parent = getattr(object, "__parent__", object.getParentNode())
     except Exception:
         parent = None
     if parent is not None:

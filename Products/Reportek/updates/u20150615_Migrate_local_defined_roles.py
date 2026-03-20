@@ -13,24 +13,19 @@ from Products.Reportek.config import DEPLOYMENT_BDR
 import transaction
 
 VERSION = 2
-APPLIES_TO = [
-    DEPLOYMENT_BDR,
-    DEPLOYMENT_CDR,
-    DEPLOYMENT_MDR
-]
+APPLIES_TO = [DEPLOYMENT_BDR, DEPLOYMENT_CDR, DEPLOYMENT_MDR]
 
 
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=False):
-    """
-    """
-    catalog = getattr(app, 'Catalog')
+    """ """
+    catalog = getattr(app, "Catalog")
     trans = transaction.begin()
     try:
-        catalog.delIndex('local_defined_roles')
-        if 'local_defined_roles' not in catalog.schema():
-            catalog.addColumn('local_defined_roles')
-        catalog_rebuild(catalog.unrestrictedTraverse('/'))
+        catalog.delIndex("local_defined_roles")
+        if "local_defined_roles" not in catalog.schema():
+            catalog.addColumn("local_defined_roles")
+        catalog_rebuild(catalog.unrestrictedTraverse("/"))
         trans.commit()
         print("Migration complete!")
         return True

@@ -1,12 +1,12 @@
 from Testing import ZopeTestCase
 from .common import BaseTest
-ZopeTestCase.installProduct('Reportek')
+
+ZopeTestCase.installProduct("Reportek")
 
 # from Products.Reportek.Collection import Collection
 
 
 class CollectionTestCase(BaseTest):
-
     #    def testCreation(self):
     #        """ Check for the correct creation of a collection """
     #        self.i = Collection('collection', 'TestTitle',
@@ -21,10 +21,20 @@ class CollectionTestCase(BaseTest):
         # dataflow_uris,allow_collections=0, allow_envelopes=0, id='',
         # REQUEST=None
         from Products.Reportek.Collection import manage_addCollection
+
         manage_addCollection(
-            self.app, 'TestTitle', 'Desc',
-            '2003', '2004', '', 'http://rod.eionet.eu.int/localities/1',
-            '', [], allow_collections=1, allow_envelopes=1, id='colle')
-        self.assertTrue(hasattr(self.app, 'colle'),
-                        'Collection did not get created')
+            self.app,
+            "TestTitle",
+            "Desc",
+            "2003",
+            "2004",
+            "",
+            "http://rod.eionet.eu.int/localities/1",
+            "",
+            [],
+            allow_collections=1,
+            allow_envelopes=1,
+            id="colle",
+        )
+        self.assertTrue(hasattr(self.app, "colle"), "Collection did not get created")
         self.assertNotEqual(self.app.colle, None)

@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
-from Products.Reportek.indexer.interfaces import (IIndexableObject,
-                                                  IIndexableObjectWrapper,
-                                                  IIndexer)
+from Products.Reportek.indexer.interfaces import (
+    IIndexableObject,
+    IIndexableObjectWrapper,
+    IIndexer,
+)
 from Products.ZCatalog.interfaces import IZCatalog
 from zope.component import adapter, queryMultiAdapter
 from zope.interface import Interface, implementer, providedBy
-from zope.interface.declarations import (ObjectSpecification,
-                                         ObjectSpecificationDescriptor,
-                                         getObjectSpecification)
+from zope.interface.declarations import (
+    ObjectSpecification,
+    ObjectSpecificationDescriptor,
+    getObjectSpecification,
+)
 
 
 class WrapperSpecification(ObjectSpecificationDescriptor):
@@ -31,6 +35,7 @@ class IndexableObjectWrapper(object):
     """A simple wrapper for indexable objects that will delegate to IIndexer
     adapters as appropriate.
     """
+
     __providedBy__ = WrapperSpecification()
 
     def __init__(self, object, catalog):
@@ -51,7 +56,8 @@ class IndexableObjectWrapper(object):
         # First, try to look up an indexer adapter
         indexer = queryMultiAdapter(
             (self.__object, self.__catalog),
-            IIndexer, name=name,
+            IIndexer,
+            name=name,
         )
         if indexer is not None:
             return indexer()
@@ -74,9 +80,10 @@ class IndexableObjectWrapper(object):
             if (
                 getattr(
                     value_or_callable,
-                    'meta_type',
+                    "meta_type",
                     None,
-                ) == 'Script (Python)'
+                )
+                == "Script (Python)"
             ):
                 return value_or_callable
             raise

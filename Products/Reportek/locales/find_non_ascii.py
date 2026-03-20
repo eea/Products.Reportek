@@ -5,11 +5,11 @@ import sys
 
 f = open(sys.argv[1])
 
-colPat = re.compile(r'\bposition (\d+):')
+colPat = re.compile(r"\bposition (\d+):")
 
 for i, line in enumerate(f, 1):
     try:
-        codecs.decode(line, 'ascii')
+        codecs.decode(line, "ascii")
     except UnicodeDecodeError as e:
         m = colPat.search(str(e))
         if m:

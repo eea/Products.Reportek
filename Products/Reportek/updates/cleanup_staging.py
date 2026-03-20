@@ -12,16 +12,16 @@ from Testing.makerequest import makerequest
 
 def update(app):
     app = makerequest(app)
-    catalog = getattr(app, 'Catalog')
+    catalog = getattr(app, "Catalog")
     count = 0
     query = {
-        'meta_type': 'Report Envelope',
+        "meta_type": "Report Envelope",
     }
-    start_date = DateTime.DateTime('1980-01-01')
+    start_date = DateTime.DateTime("1980-01-01")
     end_date = DateTime.DateTime(2015, 1, 1)
-    query['bobobase_modification_time'] = {
-        'range': 'min:max',
-        'query': (start_date, end_date)
+    query["bobobase_modification_time"] = {
+        "range": "min:max",
+        "query": (start_date, end_date),
     }
     brains = catalog(query)
     total = len(brains)
@@ -31,7 +31,7 @@ def update(app):
         parent = aq_parent(envelope)
 
         # Unindex all children
-        children = catalog(path='/'.join(envelope.getPhysicalPath()))
+        children = catalog(path="/".join(envelope.getPhysicalPath()))
         for child in children:
             obj = child.getObject()
             obj.unindex_object()
@@ -48,5 +48,4 @@ def update(app):
 
     transaction.commit()
 
-    print("All done! Cleaned up %s envelopes from a total of %s" % (count,
-                                                                    total))
+    print("All done! Cleaned up %s envelopes from a total of %s" % (count, total))

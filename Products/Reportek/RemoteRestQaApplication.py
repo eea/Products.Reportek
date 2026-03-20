@@ -261,12 +261,10 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         l_files_success = {}
         l_files_failed = {}
         for l_jobID, l_job_details in list(l_wk_prop["getResult"].items()):
-            if l_job_details["code"] == 0 and l_job_details[
-                "next_run"
-            ].lessThanEqualTo(DateTime()):
-                l_ret_step2 = self.__getResult4XQueryServiceJob(
-                    workitem_id, l_jobID
-                )
+            if l_job_details["code"] == 0 and l_job_details["next_run"].lessThanEqualTo(
+                DateTime()
+            ):
+                l_ret_step2 = self.__getResult4XQueryServiceJob(workitem_id, l_jobID)
                 l_fn = l_job_details["fileURL"].split("/")[-1]
                 if l_ret_step2[l_jobID]["code"] == 1:
                     if l_fn in l_files_success:
@@ -295,13 +293,9 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             if filename in l_files_failed and fail:
                 fail = ", " + fail
             if success:
-                l_files_success[filename] = (
-                    l_files_success.get(filename, "") + success
-                )
+                l_files_success[filename] = l_files_success.get(filename, "") + success
             if fail:
-                l_files_failed[filename] = (
-                    l_files_failed.get(filename, "") + fail
-                )
+                l_files_failed[filename] = l_files_failed.get(filename, "") + fail
 
         # write to log the list of file that succeded
         if l_files_success:
@@ -312,8 +306,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     x,
                 )
             l_workitem.addEvent(
-                "%s job(s) completed: <ul>%s</ul>"
-                % (self.app_name, l_filenames_jobs)
+                "%s job(s) completed: <ul>%s</ul>" % (self.app_name, l_filenames_jobs)
             )
         # Check if the application has done its job
         l_complete = 1
@@ -429,9 +422,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             if xml.id not in localQA:
                 localQA[xml.id] = {}
             resultsForXml = localQA[xml.id]
-            for script in qa_repo._get_local_qa_scripts(
-                xml.xml_schema_location
-            ):
+            for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
                 if (
                     script.id not in resultsForXml
                     or resultsForXml[script.id] == "failed"
@@ -527,8 +518,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             for x in list(l_files.keys()):
                 l_filenames_jobs += "<li>%s for file %s</li>" % (l_files[x], x)
             l_workitem.addEvent(
-                "%s job(s) in progress: <ul>%s</ul>"
-                % (self.app_name, l_filenames_jobs)
+                "%s job(s) in progress: <ul>%s</ul>" % (self.app_name, l_filenames_jobs)
             )
 
         # An XML-RPC fault package - retry later
@@ -553,8 +543,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 )
             else:
                 next_run = DateTime(
-                    int(l_wk_prop["analyze"]["next_run"])
-                    + int(self.retryFrequency)
+                    int(l_wk_prop["analyze"]["next_run"]) + int(self.retryFrequency)
                 )
                 err = "Code: {}\nDescription: {}".format(
                     str(code_err), str(code_message)
@@ -619,9 +608,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             p_workitem_id,
                             e_data,
                             p_jobID,
-                            restricted=self.get_restricted_status(
-                                envelope, l_file_id
-                            ),
+                            restricted=self.get_restricted_status(envelope, l_file_id),
                         )
                         l_getResultDict = {
                             p_jobID: {
@@ -652,9 +639,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     else:
                         l_filename = " result for file %s: " % l_file_id
                     feedback_id = "{0}_{1}".format(self.app_name, p_jobID)
-                    fb_title = "".join(
-                        [self.app_name, l_filename, data["scriptTitle"]]
-                    )
+                    fb_title = "".join([self.app_name, l_filename, data["scriptTitle"]])
 
                     try:
                         envelope.manage_addFeedback(
@@ -663,9 +648,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             activity_id=l_workitem.activity_id,
                             automatic=1,
                             document_id=l_file_id,
-                            restricted=self.get_restricted_status(
-                                envelope, l_file_id
-                            ),
+                            restricted=self.get_restricted_status(envelope, l_file_id),
                         )
 
                         feedback_ob = envelope[feedback_id]
@@ -683,9 +666,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                     tmp, filename="qa-output"
                                 )
                             feedback_attach = feedback_ob.objectValues()[0]
-                            feedback_attach.data_file.content_type = (
-                                content_type
-                            )
+                            feedback_attach.data_file.content_type = content_type
                             feedback_ob.feedbacktext = (
                                 "Feedback too large for inline display; "
                                 '<a href="qa-output/view">see attachment</a>.'
@@ -751,17 +732,14 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
             # not ready
             elif code == "1":
-                l_nRetries = int(
-                    l_wk_prop["getResult"][p_jobID]["retries_left"]
-                )
+                l_nRetries = int(l_wk_prop["getResult"][p_jobID]["retries_left"])
                 retry = (
                     self.retryJobFrequency
                     if getattr(self, "retryJobFrequency", None)
                     else self.retryFrequency
                 )
                 next_run = DateTime(
-                    int(l_wk_prop["getResult"][p_jobID]["next_run"])
-                    + int(retry)
+                    int(l_wk_prop["getResult"][p_jobID]["next_run"]) + int(retry)
                 )
                 if l_nRetries > 0:
                     l_getResultDict = {
@@ -772,12 +750,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             "next_run": next_run,
                             "debug": {
                                 "c_executionstatus": code,
-                                "c_feedbackstatus": data.get(
-                                    "feedbackStatus", "N/A"
-                                ),
-                                "c_feedbackmessage": data.get(
-                                    "feedbackMessage", "N/A"
-                                ),
+                                "c_feedbackstatus": data.get("feedbackStatus", "N/A"),
+                                "c_feedbackmessage": data.get("feedbackMessage", "N/A"),
                                 "c_feedbackcontent_len": len(
                                     data.get("feedbackContent", "")
                                 ),
@@ -804,12 +778,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             "last_error": data["feedbackMessage"],
                             "debug": {
                                 "c_executionstatus": code,
-                                "c_feedbackstatus": data.get(
-                                    "feedbackStatus", "N/A"
-                                ),
-                                "c_feedbackmessage": data.get(
-                                    "feedbackMessage", "N/A"
-                                ),
+                                "c_feedbackstatus": data.get("feedbackStatus", "N/A"),
+                                "c_feedbackmessage": data.get("feedbackMessage", "N/A"),
                                 "c_feedbackcontent_len": len(
                                     data.get("feedbackContent", "")
                                 ),
@@ -837,12 +807,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         "last_error": data["feedbackMessage"],
                         "debug": {
                             "c_executionstatus": code,
-                            "c_feedbackstatus": data.get(
-                                "feedbackStatus", "N/A"
-                            ),
-                            "c_feedbackmessage": data.get(
-                                "feedbackMessage", "N/A"
-                            ),
+                            "c_feedbackstatus": data.get("feedbackStatus", "N/A"),
+                            "c_feedbackmessage": data.get("feedbackMessage", "N/A"),
                             "c_feedbackcontent_len": len(
                                 data.get("feedbackContent", "")
                             ),
@@ -858,25 +824,19 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # # in this error type
         except requests.exceptions.HTTPError as err:
             if response.status_code == 404:
-                feedback_log.exception(
-                    "Unable to get result for job #%s", p_jobID
-                )
+                feedback_log.exception("Unable to get result for job #%s", p_jobID)
                 l_workitem.addEvent(
                     "Error in the %s, job #%s for file %s: %s"
                     % (self.app_name, p_jobID, l_file_id, str(err))
                 )
                 l_workitem.failure = True
-                l_getResultDict = {
-                    p_jobID: {"code": -2, "last_error": str(err)}
-                }
+                l_getResultDict = {p_jobID: {"code": -2, "last_error": str(err)}}
                 self.__manageAutomaticProperty(
                     p_workitem_id=p_workitem_id, p_getResult=l_getResultDict
                 )
             else:
                 l_err = data.get("errorMessage", "")
-                l_nRetries = int(
-                    l_wk_prop["getResult"][p_jobID]["retries_left"]
-                )
+                l_nRetries = int(l_wk_prop["getResult"][p_jobID]["retries_left"])
                 retry = (
                     self.retryJobFrequency
                     if getattr(self, "retryJobFrequency", None)
@@ -888,17 +848,14 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         % (self.app_name, p_jobID, l_file_id, str(l_err))
                     )
                     l_workitem.failure = True
-                    l_getResultDict = {
-                        p_jobID: {"code": -2, "last_error": str(l_err)}
-                    }
+                    l_getResultDict = {p_jobID: {"code": -2, "last_error": str(l_err)}}
                     self.__manageAutomaticProperty(
                         p_workitem_id=p_workitem_id,
                         p_getResult=l_getResultDict,
                     )
                 else:
                     next_run = DateTime(
-                        int(l_wk_prop["getResult"][p_jobID]["next_run"])
-                        + int(retry)
+                        int(l_wk_prop["getResult"][p_jobID]["next_run"]) + int(retry)
                     )
                     err = "Error retrieving job #{} result: {}".format(
                         p_jobID, str(l_err)
@@ -917,9 +874,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     )
         # Fatal error - do not retry
         except Exception as err:
-            feedback_log.exception(
-                "Error saving remote feedback, job #%s", p_jobID
-            )
+            feedback_log.exception("Error saving remote feedback, job #%s", p_jobID)
             l_workitem.addEvent(
                 "Error in the %s, job #%s for file %s: %s"
                 % (self.app_name, p_jobID, l_file_id, str(err))
@@ -950,9 +905,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
         l_wk_prop["getResult"] = {}
 
-    def __manageAutomaticProperty(
-        self, p_workitem_id, p_analyze={}, p_getResult={}
-    ):
+    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={}, p_getResult={}):
         """
         The instance data for the RemoteApplication is stored in the workitem
         as an additional property - app_name - contaning a dictionary like:
@@ -989,9 +942,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """Completes the workitem and forwards it"""
         self.activateWorkitem(p_workitem_id, actor="openflow_engine")
-        self.completeWorkitem(
-            p_workitem_id, actor="openflow_engine", REQUEST=REQUEST
-        )
+        self.completeWorkitem(p_workitem_id, actor="openflow_engine", REQUEST=REQUEST)
 
     security.declareProtected(view_management_screens, "manage_settings_html")
     manage_settings_html = PageTemplateFile(
@@ -1039,9 +990,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                 script.get("id").encode("utf-8"),
                                 script.get("name").encode("utf-8"),
                                 "",
-                                script.get("runOnDemandMaxFileSizeMB").encode(
-                                    "utf-8"
-                                ),
+                                script.get("runOnDemandMaxFileSizeMB").encode("utf-8"),
                                 script.get("outputType").encode("utf-8"),
                             ]
                             for script in scripts
@@ -1065,9 +1014,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                 for name, val in script.items()
                                 if compat.get(name)
                             }  # noqa
-                            remapped["content_type_out"] = script.get(
-                                "outputType"
-                            )
+                            remapped["content_type_out"] = script.get("outputType")
                             result.append(remapped)
             except Exception:
                 pass
@@ -1094,14 +1041,13 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 return c_type, odqa
             else:
                 raise Exception(
-                    "Received {} status code from QA service.".format(
-                        res.status_code
-                    )
+                    "Received {} status code from QA service.".format(res.status_code)
                 )
         except requests.exceptions.Timeout:
             raise Exception(
-                "No response received from QA Service in"
-                " the alloted time: {}s".format(self.requestTimeout)
+                "No response received from QA Service in the alloted time: {}s".format(
+                    self.requestTimeout
+                )
             )
 
 

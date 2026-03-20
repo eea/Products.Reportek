@@ -87,9 +87,7 @@ class QARepository(Folder):
         """ """
         if p_schema and not dataflow_uris:
             return [
-                x
-                for x in self.objectValues("QAScript")
-                if x.xml_schema == p_schema
+                x for x in self.objectValues("QAScript") if x.xml_schema == p_schema
             ]
         elif p_schema and dataflow_uris and not content_type_in:
             return [
@@ -107,8 +105,7 @@ class QARepository(Folder):
                 if (
                     (
                         getattr(x, "workflow", None) in dataflow_uris
-                        and content_type_in
-                        == getattr(x, "content_type_in", None)
+                        and content_type_in == getattr(x, "content_type_in", None)
                     )
                     and x.xml_schema == p_schema
                 )
@@ -163,11 +160,7 @@ class QARepository(Folder):
         l_ret = []
         # local scripts
         l_ret.extend(
-            [
-                x.id
-                for x in self._get_local_qa_scripts()
-                if x.xml_schema == p_schema
-            ]
+            [x.id for x in self._get_local_qa_scripts() if x.xml_schema == p_schema]
         )
         # remote scripts
         l_qa_app = self.getQAApplication()
@@ -210,14 +203,10 @@ class QARepository(Folder):
                     or not l_valid_schemas
                     or qa_type == "REST"
                 )
-            ) or self._get_local_qa_scripts(
-                dataflow_uris=l_file.dataflow_uris
-            ):
+            ) or self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris):
                 # remote scripts
                 if l_qa_app:
-                    scripts = l_qa_app.listQAScripts(
-                        l_file.xml_schema_location
-                    )
+                    scripts = l_qa_app.listQAScripts(l_file.xml_schema_location)
                     # Exclude ZIP output type - refs: 136918
                     l_ret[l_file.id] = [
                         script for script in scripts if script[4] != "ZIP"
@@ -261,9 +250,7 @@ class QARepository(Folder):
         if engine:
             http_res = getattr(engine, "qa_httpres", False)
             if http_res:
-                server_url = self.REQUEST.SERVER_URL.replace(
-                    "https://", "http://"
-                )
+                server_url = self.REQUEST.SERVER_URL.replace("https://", "http://")
 
         # make sure p_file_url is a real Zope file
         l_file_relative_url = p_file_url.replace("%s/" % server_url, "")
@@ -273,9 +260,7 @@ class QARepository(Folder):
             l_file_id = p_file_url.split("/")[-1]
             # local script
             if p_script_id.startswith("loc_"):
-                l_script_obj = getattr(
-                    self, p_script_id.replace("loc_", ""), None
-                )
+                l_script_obj = getattr(self, p_script_id.replace("loc_", ""), None)
 
                 if l_script_obj is None:
                     l_res_data.data = "QA error"
@@ -297,14 +282,10 @@ class QARepository(Folder):
                                     "REQUEST": self.REQUEST,
                                 }
                                 for k in l_script_obj.qa_extraparams:
-                                    eval_res = RestrictionCapableEval(k).eval(
-                                        eval_map
-                                    )
+                                    eval_res = RestrictionCapableEval(k).eval(eval_map)
                                     params.append(eval_res)
 
-                                command = l_script_obj.script_url % tuple(
-                                    params
-                                )
+                                command = l_script_obj.script_url % tuple(params)
                                 proc = subprocess.Popen(
                                     shlex.split(command),
                                     stdout=subprocess.PIPE,

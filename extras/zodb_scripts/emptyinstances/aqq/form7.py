@@ -8,7 +8,8 @@
 # parameters=languages
 # title=
 ##
-return '''<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
+return (
+    """<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
 <form7 xsi:noNamespaceSchemaLocation="http://air-climate.eionet.europa.eu/schemas/AirQualityQuestionnaire/AirQualityQuestionnaire-form7.xsd"  # noqa: E501
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xml:lang="%s">
@@ -167,4 +168,6 @@ return '''<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
         <description>Zeeman AAS - Zeeman atomic absorption spectrometry</description>
     </form7-row>
     <form-comments/>
-</form7>''' % languages
+</form7>"""
+    % languages
+)

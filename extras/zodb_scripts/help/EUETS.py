@@ -11,4 +11,5 @@
 request = container.REQUEST  # noqa: F821
 
 request.response.redirect(
-    'http://cdr.eionet.europa.eu/help/EUETS_Art21_ReportingManual_V2.pdf')
+    "http://cdr.eionet.europa.eu/help/EUETS_Art21_ReportingManual_V2.pdf"
+)

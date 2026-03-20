@@ -140,9 +140,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         self.root.REQUEST["REQUEST_METHOD"] = "POST"
         self.engine.ZopeTime = Mock(return_value=DateTime())
         self.engine.title = "Before Title"
-        self.engine.manage_editEngine(
-            title="After Title", REQUEST=self.root.REQUEST
-        )
+        self.engine.manage_editEngine(title="After Title", REQUEST=self.root.REQUEST)
         self.assertEqual("After Title", self.engine.title)
 
 
@@ -263,9 +261,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         self.assertEqual(envs, [self.root.second_envelope])
 
     def test_filter_by_country(self):
-        results = self.engine.getSearchResults(
-            country="http://example.com/country/1"
-        )
+        results = self.engine.getSearchResults(country="http://example.com/country/1")
         res = [el.getObject() for el in results]
         self.assertEqual(res, [self.root.first_envelope])
 

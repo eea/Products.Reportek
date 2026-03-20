@@ -31,9 +31,7 @@ RENAMES = {
     "Products.SiteAccess.SiteRoot": _REMOVED,
     # Remove other obsolete Zope 2 classes
     "Products.SiteErrorLog.SiteErrorLog.SiteErrorLog": _REMOVED,
-    "Products.TemporaryFolder.TemporaryFolder.MountedTemporaryFolder": (
-        _REMOVED
-    ),
+    "Products.TemporaryFolder.TemporaryFolder.MountedTemporaryFolder": (_REMOVED),
     # Remove obsolete App.Product classes
     "App.Product ProductFolder": _REMOVED,
     "App.Product Product": _REMOVED,
@@ -56,15 +54,11 @@ RENAMES = {
     "Products.ZCatalog CatalogPathAwareBase": _REMOVED,
     # Remove obsolete PluginIndexes.TextIndex classes
     "Products.PluginIndexes.TextIndex.Vocabulary Vocabulary": _REMOVED,
-    "Products.PluginIndexes.TextIndex.GlobbingLexicon GlobbingLexicon": (
-        _REMOVED
-    ),
+    "Products.PluginIndexes.TextIndex.GlobbingLexicon GlobbingLexicon": (_REMOVED),
     "Products.PluginIndexes.TextIndex.TextIndex TextIndex": _REMOVED,
     "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter.ZopeSplitter "
     "ZopeSplitter": _REMOVED,
-    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter Splitter": (
-        _REMOVED
-    ),
+    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter Splitter": (_REMOVED),
     "Products.PluginIndexes.TextIndex.Lexicon Lexicon": _REMOVED,
     # Remove obsolete ZClasses classes
     "ZClasses.ZClass ZClass": _REMOVED,

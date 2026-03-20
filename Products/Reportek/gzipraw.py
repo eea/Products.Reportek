@@ -23,9 +23,7 @@ class GzipFileRaw(gzip.GzipFile):
                 """Supply CRC and original size from the already compressed"""
                 """ archive the content stems from"""
             )
-        super(GzipFileRaw, self).__init__(
-            filename, mode, compresslevel, fileobj, mtime
-        )
+        super(GzipFileRaw, self).__init__(filename, mode, compresslevel, fileobj, mtime)
         self.crc = crc
         self.size = orig_size
 

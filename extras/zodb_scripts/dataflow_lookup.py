@@ -13,10 +13,10 @@ try:
     return top.dataflow_dict()[uri]
 except KeyError:
     return {
-        'uri': uri,
-        'details_url': '',
-        'TITLE': 'Unknown/Deleted obligation',
-        'terminated': '1',
-        'SOURCE_TITLE': 'Unknown obligations',
-        'PK_RA_ID': '0'
+        "uri": uri,
+        "details_url": "",
+        "TITLE": "Unknown/Deleted obligation",
+        "terminated": "1",
+        "SOURCE_TITLE": "Unknown obligations",
+        "PK_RA_ID": "0",
     }

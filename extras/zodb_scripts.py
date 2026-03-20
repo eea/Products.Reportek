@@ -23,9 +23,7 @@ repo = Path(__file__).absolute().parent / "zodb_scripts"
 
 def get_zodb_scripts(app):
     zodb_scripts = {}
-    for ob_id, ob in app.ZopeFind(
-        app, obj_metatypes=meta_types, search_sub=True
-    ):
+    for ob_id, ob in app.ZopeFind(app, obj_metatypes=meta_types, search_sub=True):
         zodb_path = "/".join(ob.getPhysicalPath()[1:])
         src = ob.document_src()
         try:

@@ -70,9 +70,7 @@ class BaseAdmin(BrowserView):
 
     def get_country_code(self, countryname):
         c_codes = [
-            c.get("iso")
-            for c in self.localities_rod
-            if c["name"] == countryname
+            c.get("iso") for c in self.localities_rod if c["name"] == countryname
         ]
         if c_codes:
             return c_codes[-1]
@@ -92,8 +90,7 @@ class BaseAdmin(BrowserView):
         if deployment_type == config.DEPLOYMENT_BDR:
             # For BDR, Reporters actually have local 'Owner' Roles
             l_roles = [
-                "Reporter (Owner)" if role == "Reporter" else role
-                for role in l_roles
+                "Reporter (Owner)" if role == "Reporter" else role for role in l_roles
             ]
         return l_roles
 
@@ -146,9 +143,7 @@ class BaseAdmin(BrowserView):
         if deployment_type == config.DEPLOYMENT_BDR:
             return True
 
-    def search_catalog(
-        self, obligations, countries, role, users=None, path=None
-    ):
+    def search_catalog(self, obligations, countries, role, users=None, path=None):
         if len(countries) == len(self.localities_rod):
             country_codes = None
         else:
@@ -234,9 +229,7 @@ class BaseAdmin(BrowserView):
                 }
 
                 if match_groups:
-                    c_code = self.get_country_code(
-                        brain.getCountryName
-                    ).lower()
+                    c_code = self.get_country_code(brain.getCountryName).lower()
                     c_codes = [c_code]
                     c_exc = {"gb": ["uk", "uk_gb"], "gr": ["el"]}.get(c_code)
                     if c_exc:
@@ -285,9 +278,7 @@ class BaseAdmin(BrowserView):
         groups = acl_users.searchGroups(cn=term)
 
         if groups:
-            group_list = list(
-                {group.get("cn"): group for group in groups}.values()
-            )
+            group_list = list({group.get("cn"): group for group in groups}.values())
             group_list.sort(key=itemgetter("cn"))
             return group_list
 

@@ -10,4 +10,8 @@
 ##
 for path in paths:  # noqa: F821
     folder = context.restrictedTraverse(path)  # noqa: F821
-    folder.manage_delLocalRoles(userids=[username, ])  # noqa: F821
+    folder.manage_delLocalRoles(
+        userids=[
+            username,
+        ]
+    )  # noqa: F821

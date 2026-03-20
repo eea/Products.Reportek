@@ -85,9 +85,7 @@ class ActivityApplicationMapping(WorkflowTestCase):
         activity = self.wf.proc1.act1
         result = activity.mapped_application_details()
         self.assertEqual("Applications/proc1/act1", result["path"])
-        self.assertEqual(
-            "http://nohost/Applications/proc1", result["parent_url"]
-        )
+        self.assertEqual("http://nohost/Applications/proc1", result["parent_url"])
         self.assertEqual(True, result["mapped_by_path"])
         self.assertEqual(False, result["missing"])
 
@@ -102,9 +100,7 @@ class ActivityApplicationMapping(WorkflowTestCase):
         self.apps_folder.Common._setOb("act1", ob)
         result = activity.mapped_application_details()
         self.assertEqual("Applications/Common/act1", result["path"])
-        self.assertEqual(
-            "http://nohost/Applications/Common", result["parent_url"]
-        )
+        self.assertEqual("http://nohost/Applications/Common", result["parent_url"])
         self.assertEqual(True, result["mapped_by_path"])
         self.assertEqual(False, result["missing"])
 

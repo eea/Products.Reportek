@@ -68,9 +68,7 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
-        doc_id = Document.manage_addDocument(
-            root, file=create_upload_file(data)
-        )
+        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
         self.assertEqual(doc_id, "testfile.txt")
         doc = root[doc_id]
 
@@ -91,9 +89,7 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
-        doc_id = Document.manage_addDocument(
-            root, file=create_upload_file(data)
-        )
+        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
         self.assertEqual(doc_id, "testfile.txt")
         doc = root[doc_id]
         compressed_size = doc.compressed_size()[0]
@@ -102,9 +98,7 @@ class FileStorageTest(BaseTest):
         request.getHeader = Mock(return_value="gzip,bla")
         request.RESPONSE.setHeader = Mock()
         doc.index_html(request, request.RESPONSE)
-        self.assertEqual(
-            len(request.RESPONSE._data.getvalue()), compressed_size
-        )
+        self.assertEqual(len(request.RESPONSE._data.getvalue()), compressed_size)
         self.assertTrue(request.RESPONSE.setHeader.called)
         self.assertIn(
             call("content-encoding", "gzip"),
@@ -285,9 +279,7 @@ def download_envelope_zip(envelope):
     with envelope_patch as envelope_get_security:
         with zip_patch as zip_get_security:
             checkPermission = Mock(return_value=True)
-            envelope_get_security.return_value = Mock(
-                return_value=checkPermission
-            )
+            envelope_get_security.return_value = Mock(return_value=checkPermission)
             zip_get_security.return_value = Mock(return_value=checkPermission)
             REQUEST = envelope.REQUEST
             REQUEST.method = "POST"
@@ -302,9 +294,9 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.envelope = self.createStandardEnvelope()
         safe_html = Mock(convert=Mock(text="feedbacktext"))
-        getattr(
-            self.app.Converters, constants.CONVERTERS_ID
-        ).__getitem__ = Mock(return_value=safe_html)
+        getattr(self.app.Converters, constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html
+        )
 
     def mock_request(self):
         request = BaseTest.create_mock_request()
@@ -422,9 +414,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.envelope.release_envelope()
 
         zip_download = self.download_zip(self.envelope)
-        self.assertEqual(
-            zip_download.read("opinion.txt"), data.encode("utf-8")
-        )
+        self.assertEqual(zip_download.read("opinion.txt"), data.encode("utf-8"))
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_missing_document_datafile(self, mock_commit):

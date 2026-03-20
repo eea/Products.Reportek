@@ -38,9 +38,7 @@ from Products.Reportek.interfaces import IQAApplication
 
 logger = logging.getLogger(__name__ + ".gisqa")
 
-manage_addRemoteRESTApplicationForm = PageTemplateFile(
-    "zpt/remote/rest_add", globals()
-)
+manage_addRemoteRESTApplicationForm = PageTemplateFile("zpt/remote/rest_add", globals())
 
 
 def manage_addRemoteRESTApplication(
@@ -54,9 +52,7 @@ def manage_addRemoteRESTApplication(
 ):
     """Generic application that calls a remote REST service"""
 
-    ob = RemoteRESTApplication(
-        id, title, ServiceSubmitURL, ServiceCheckURL, app_name
-    )
+    ob = RemoteRESTApplication(id, title, ServiceSubmitURL, ServiceCheckURL, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -108,9 +104,7 @@ class RemoteRESTApplication(SimpleItem):
         self.app_name = app_name
         self.nRetries = nRetries
         if REQUEST is not None:
-            return self.manage_settings_html(
-                manage_tabs_message="Saved changes."
-            )
+            return self.manage_settings_html(manage_tabs_message="Saved changes.")
 
     def __call__(self, workitem_id, REQUEST=None):
         workitem = getattr(self, workitem_id)
@@ -187,16 +181,15 @@ class RemoteRESTApplication(SimpleItem):
                     try:
                         result_url = data["results"]["ResultZip"]["paramUrl"]
                         resp = requests.get(
-                            self.ServiceCheckURL
-                            + "%s/%s" % (str(jobid), result_url),
+                            self.ServiceCheckURL + "%s/%s" % (str(jobid), result_url),
                             params=params,
                         )
                         if resp.status_code == 200:
                             zip_url = re.sub(r"\\", "/", resp.json()["value"])
                             zip_url = re.sub(r"/+", "/", zip_url)
-                            zip_url = zip_url.replace(
-                                "http:/", "http://"
-                            ).replace("https:/", "https://")
+                            zip_url = zip_url.replace("http:/", "http://").replace(
+                                "https:/", "https://"
+                            )
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
                                 attach = BytesIO(resp.content)
@@ -309,9 +302,7 @@ class RemoteRESTApplication(SimpleItem):
     def __finish(self, workitem_id, REQUEST=None):
         """Completes the workitem and forwards it"""
         self.activateWorkitem(workitem_id, actor="openflow_engine")
-        self.completeWorkitem(
-            workitem_id, actor="openflow_engine", REQUEST=REQUEST
-        )
+        self.completeWorkitem(workitem_id, actor="openflow_engine", REQUEST=REQUEST)
 
 
 InitializeClass(RemoteRESTApplication)

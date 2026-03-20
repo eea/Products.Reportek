@@ -18,34 +18,38 @@ APPLIES_TO = [
 ]
 
 
-def log_msg(msg, level='INFO'):
+def log_msg(msg, level="INFO"):
     lvl = {
-        'CRITICAL': 50,
-        'ERROR': 40,
-        'WARNING': 30,
-        'INFO': 20,
-        'DEBUG': 10,
-        'NOTSET': 0
+        "CRITICAL": 50,
+        "ERROR": 40,
+        "WARNING": 30,
+        "INFO": 20,
+        "DEBUG": 10,
+        "NOTSET": 0,
     }
     logger.log(lvl.get(level), msg)
     print(msg)
 
 
 def migrate_aqa_envs(app):
-    engine = app.unrestrictedTraverse('/' + ENGINE_ID)
-    brains = engine.get_apps_wks(['AutomaticQA'])
+    engine = app.unrestrictedTraverse("/" + ENGINE_ID)
+    brains = engine.get_apps_wks(["AutomaticQA"])
 
     for brain in brains:
         env = None
         try:
             env = brain.getObject().getParentNode()
         except Exception as e:
-            log_msg('Unable to retrieve object: {} due to {}'.format(
-                brain.getURL(), str(e)), level='ERROR')
-        if env and getattr(env, 'status') != 'complete':
-            env.wf_status = 'forward'
+            log_msg(
+                "Unable to retrieve object: {} due to {}".format(
+                    brain.getURL(), str(e)
+                ),
+                level="ERROR",
+            )
+        if env and getattr(env, "status") != "complete":
+            env.wf_status = "forward"
             env.reindexObject()
-            log_msg('Migrated {}'.format(env.absolute_url()))
+            log_msg("Migrated {}".format(env.absolute_url()))
             transaction.commit()
     return True
 
@@ -55,5 +59,5 @@ def update(app, skipMigrationCheck=False):
     if not migrate_aqa_envs(app):
         return
 
-    log_msg('AutomaticQA envs migration complete')
+    log_msg("AutomaticQA envs migration complete")
     return True

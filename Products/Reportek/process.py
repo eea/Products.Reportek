@@ -23,9 +23,7 @@ from .transition import transition
 
 CycleError = "CycleError"  # For _topsort()
 
-manage_addProcessForm = PageTemplateFile(
-    "zpt/Workflow/process_add.zpt", globals()
-)
+manage_addProcessForm = PageTemplateFile("zpt/Workflow/process_add.zpt", globals())
 
 
 def manage_addProcess(
@@ -180,9 +178,7 @@ class process(CatalogAware, Folder):
         """Modify roles for activities in this process"""
         for role in self.valid_roles():
             activities = REQUEST.form.get("activities-" + role, [])
-            self.aq_parent.editActivitiesPullableOnRole(
-                role, self.getId(), activities
-            )
+            self.aq_parent.editActivitiesPullableOnRole(role, self.getId(), activities)
         return self.manage_role_table(manage_tabs_message="Roles updated")
 
     def get_process_restrictions(self):
@@ -198,9 +194,7 @@ class process(CatalogAware, Folder):
         p_restrictions = self.get_process_restrictions()
         return p_restrictions.get("Acquire", False)
 
-    security.declareProtected(
-        "Manage OpenFlow", "manage_restrictions_table_submit"
-    )
+    security.declareProtected("Manage OpenFlow", "manage_restrictions_table_submit")
 
     def manage_restrictions_table_submit(self):
         """Modify View permission role assignment for collections with
@@ -227,14 +221,11 @@ class process(CatalogAware, Folder):
         if fails:
             return MessageDialog(
                 title="Warning!",
-                message="Unable to set restrictions for: "
-                + str(",".join(fails)),
+                message="Unable to set restrictions for: " + str(",".join(fails)),
                 action="manage_process_restrictions",
             )
         else:
-            self.setRestrictionsOnRole(
-                self.getId(), permission, roles, acquire=acquire
-            )
+            self.setRestrictionsOnRole(self.getId(), permission, roles, acquire=acquire)
 
         return self.manage_process_restrictions(
             manage_tabs_message="Restrictions updated"
@@ -362,9 +353,7 @@ class process(CatalogAware, Folder):
 
     security.declareProtected("Manage OpenFlow", "addTransition")
 
-    def addTransition(
-        self, id, From, To, condition=None, description="", REQUEST=None
-    ):
+    def addTransition(self, id, From, To, condition=None, description="", REQUEST=None):
         """adds a transition"""
         t = transition(id, From, To, condition, description)
         self._setObject(t.id, t)
@@ -376,9 +365,7 @@ class process(CatalogAware, Folder):
     def manage_delObjects(self, ids=[], REQUEST=None):
         """override default method to handle better the redirection"""
         catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
-        for activity_id in [
-            id for id in ids if id in self.objectIds("Activity")
-        ]:
+        for activity_id in [id for id in ids if id in self.objectIds("Activity")]:
             # fallout all the workitems that have this activity id
             for wi in catalog.searchResults(
                 **dict(
@@ -478,14 +465,12 @@ def process_to_dot(process):
         cond_desc = condition
         tooltip = "{0} -> {1}".format(t.From, t.To)
         if condition.startswith(cond_prefix):
-            condition = condition[len(cond_prefix):]
+            condition = condition[len(cond_prefix) :]
         if condition:
             condition = namify(condition, "cond")
         line = "{short_tr_from} -> {short_tr_to}".format(**locals())
         if condition:
-            line += ' [ label = "{condition}" fontsize="40.0"] '.format(
-                **locals()
-            )
+            line += ' [ label = "{condition}" fontsize="40.0"] '.format(**locals())
             line += ' [ labeltooltip = "{cond_desc}"] '.format(**locals())
             line += ' [ URL = "{0}/manage_workspace" target="_top"] '.format(
                 t.absolute_url(1)
@@ -537,11 +522,7 @@ def process_to_dot(process):
                     if act.mapped_application_details()["mapped_by_path"]
                     else "Manually"
                 ),
-                (
-                    "missing"
-                    if act.mapped_application_details()["missing"]
-                    else ""
-                ),
+                ("missing" if act.mapped_application_details()["missing"] else ""),
                 act.mapped_application_details()["path"],
             )
 
@@ -551,9 +532,7 @@ def process_to_dot(process):
         )
         if act.mapped_application_details()["path"]:
             application_url = (
-                "/"
-                + act.mapped_application_details()["path"]
-                + "/manage_workspace"
+                "/" + act.mapped_application_details()["path"] + "/manage_workspace"
             )
 
         act_color = "white"
@@ -585,9 +564,7 @@ def process_to_dot(process):
         )
 
         dot.write(
-            ' {0} [ tooltip = {1}, labelfontsize="12"] '.format(
-                namify(act.id), act.id
-            )
+            ' {0} [ tooltip = {1}, labelfontsize="12"] '.format(namify(act.id), act.id)
         )
         dot.write(
             ' {0} [ URL = "{1}/manage_editForm" target="_top" ] '.format(

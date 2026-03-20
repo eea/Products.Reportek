@@ -84,9 +84,7 @@ class activity(CatalogAware, SimpleItem):
         self.complete_automatically = complete_automatically
 
     security.declareProtected("Manage OpenFlow", "manage_editForm")
-    manage_editForm = PageTemplateFile(
-        "zpt/Workflow/activity_edit.zpt", globals()
-    )
+    manage_editForm = PageTemplateFile("zpt/Workflow/activity_edit.zpt", globals())
 
     index_html = PageTemplateFile("zpt/Workflow/activity_index.zpt", globals())
 
@@ -261,11 +259,7 @@ class activity(CatalogAware, SimpleItem):
         specified activity
         """
         return len(
-            [
-                tr
-                for tr in self.aq_parent.objectValues("Transition")
-                if tr.To == self.id
-            ]
+            [tr for tr in self.aq_parent.objectValues("Transition") if tr.To == self.id]
         )
 
     security.declareProtected("Manage OpenFlow", "isAutoStart")

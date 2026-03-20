@@ -18,8 +18,7 @@ APPLIES_TO = [
     DEPLOYMENT_BDR,
 ]
 
-ALL_XML_LIST = [
-]
+ALL_XML_LIST = []
 
 
 def log_msg(msg):
@@ -28,32 +27,31 @@ def log_msg(msg):
 
 
 def back_it_up(app, xml):
-    if not app.unrestrictedTraverse('/backed_up_double_gases_xml', None):
-        app.manage_addFolder('backed_up_double_gases_xml')
-    bck_folder = app.unrestrictedTraverse('/backed_up_double_gases_xml')
-    xml_filename = xml.split('/')[-1]
+    if not app.unrestrictedTraverse("/backed_up_double_gases_xml", None):
+        app.manage_addFolder("backed_up_double_gases_xml")
+    bck_folder = app.unrestrictedTraverse("/backed_up_double_gases_xml")
+    xml_filename = xml.split("/")[-1]
     env_path = xml.split(xml_filename)[0]
     env = app.unrestrictedTraverse(env_path)
-    folder_name = '_'.join([env.company_id, env_path.split('/')[-2]])
+    folder_name = "_".join([env.company_id, env_path.split("/")[-2]])
     try:
         bck_folder.manage_addFolder(folder_name)
     except Exception:
         pass
     c_folder = bck_folder.unrestrictedTraverse(folder_name)
     xml_doc = app.unrestrictedTraverse(xml)
-    f = getattr(xml_doc, 'data_file')
+    f = getattr(xml_doc, "data_file")
     fc = f.open()
     c_folder.manage_addFile(xml_filename, file=fc.read())
     fc.close()
 
 
 def has_backup(app, xml):
-    xml_filename = xml.split('/')[-1]
+    xml_filename = xml.split("/")[-1]
     env_path = xml.split(xml_filename)[0]
     env = app.unrestrictedTraverse(env_path)
-    folder_name = '_'.join([env.company_id, env_path.split('/')[-2]])
-    bck_xml_file = '/'.join(['/backed_up_double_gases_xml',
-                             folder_name, xml_filename])
+    folder_name = "_".join([env.company_id, env_path.split("/")[-2]])
+    bck_xml_file = "/".join(["/backed_up_double_gases_xml", folder_name, xml_filename])
 
     if app.unrestrictedTraverse(bck_xml_file, None):
         return True
@@ -84,9 +82,9 @@ def remove_cloned_gases(root):
 
 def has_unreported_gases(root):
     """Return True if F8_S12 has a GasCode that is not in ReportedGases"""
-    if root.xpath("//Activities//Eq-I-RACHP-HFC//text()") == 'true':
+    if root.xpath("//Activities//Eq-I-RACHP-HFC//text()") == "true":
         gases = root.xpath("//F8_S12//Gas")
-        gas_list = root.xpath('//ReportedGases')
+        gas_list = root.xpath("//ReportedGases")
         if len(gases) != len(gas_list):
             return True
 
@@ -104,22 +102,22 @@ def remove_unreported_gases(root):
 
 def save_xml(old_xml, new_xml):
     new_xml = lxml.etree.tostring(new_xml)
-    old_xml.manage_file_upload(file=new_xml,
-                               content_type='text/xml',
-                               preserve_mtime=True)
+    old_xml.manage_file_upload(
+        file=new_xml, content_type="text/xml", preserve_mtime=True
+    )
 
 
 def migrate_fgases_xml(app):
     for xml in ALL_XML_LIST:
-        xml_filename = xml.split('/')[-1]
+        xml_filename = xml.split("/")[-1]
         try:
             xml_file = app.unrestrictedTraverse(xml)
         except Exception:
-            log_msg('Unable to get xml file: {}'.format(xml))
+            log_msg("Unable to get xml file: {}".format(xml))
             continue
         fixed_xml = None
         # back_it_up(app, xml)
-        f = getattr(xml_file, 'data_file').open()
+        f = getattr(xml_file, "data_file").open()
         root = lxml.etree.fromstring(f.read())
         f.close()
         if has_gas_clone(root):
@@ -135,8 +133,7 @@ def migrate_fgases_xml(app):
                 back_it_up(app, xml)
             fixed_xml = remove_unreported_gases(root)
             if fixed_xml is not None:
-                log_msg("Removed unreported gases for F8_S12 in: {}".format(
-                    xml))
+                log_msg("Removed unreported gases for F8_S12 in: {}".format(xml))
                 root = fixed_xml
         if fixed_xml is not None:
             save_xml(xml_file, fixed_xml)
@@ -149,5 +146,5 @@ def update(app, skipMigrationCheck=True):
     if not migrate_fgases_xml(app):
         return
 
-    log_msg('FGases XMLS migration complete')
+    log_msg("FGases XMLS migration complete")
     return True

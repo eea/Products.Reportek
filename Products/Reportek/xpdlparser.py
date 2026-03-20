@@ -19,12 +19,11 @@
 # Miruna Badescu, Finsiel Romania
 
 
-""" XMLInfoParser object
+"""XMLInfoParser object
 
 Parses XML files and extract DTD identifier or XML Schema URL.
 
 """
-
 
 # Python imports
 from xml.sax.handler import ContentHandler
@@ -46,23 +45,23 @@ class WorkflowHandler(ContentHandler):
         for attr in list(attrs.keys()):
             attrs_dict[attr] = attrs[attr]
         # parse tags
-        if name == 'process':
+        if name == "process":
             self.__process = {}
             self.__activities = []
             self.__transitions = []
             self.__process.update(attrs_dict)
-        elif name == 'application':
+        elif name == "application":
             self.__application = {}
             self.applications.append(attrs_dict)
-        elif name == 'activity':
+        elif name == "activity":
             self.__activities.append(attrs_dict)
-        elif name == 'transition':
+        elif name == "transition":
             self.__transitions.append(attrs_dict)
 
     def endElement(self, name):
-        if name == 'process':
-            self.__process['activities'] = self.__activities
-            self.__process['transitions'] = self.__transitions
+        if name == "process":
+            self.__process["activities"] = self.__activities
+            self.__process["transitions"] = self.__transitions
             self.processes.append(self.__process)
 
 

@@ -12,17 +12,21 @@ request = container.REQUEST  # noqa: F821
 
 # If the flag to upload files restricted by default has been set in the Draft
 # activity, remove it now
-if 'default_restricted' in request.SESSION:
-    request.SESSION.delete('default_restricted')
+if "default_restricted" in request.SESSION:
+    request.SESSION.delete("default_restricted")
 
 # Notify UNS
 if container.ReportekEngine.UNS_server:  # noqa: F821
     container.ReportekEngine.sendNotificationToUNS(  # noqa: F821
         context.getMySelf(),  # noqa: F821
-        'Envelope release', 'Envelope %s (%s) released to public' % (
+        "Envelope release",
+        "Envelope %s (%s) released to public"
+        % (
             context.getMySelf().title_or_id(),  # noqa: F821
-            context.getMySelf().absolute_url()),  # noqa: F821
-        request.AUTHENTICATED_USER.getUserName())
+            context.getMySelf().absolute_url(),
+        ),  # noqa: F821
+        request.AUTHENTICATED_USER.getUserName(),
+    )
 
 # ping CR
 if container.ReportekEngine.canPingCR():  # noqa: F821

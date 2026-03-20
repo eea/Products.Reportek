@@ -28,9 +28,7 @@ def migrate_partofyear(app, ctype):
     # Convert the LazyMap to list otherwise we can't loop over all items for
     # some reason
     brains = list(catalog(meta_type=ctype))
-    logger.info(
-        "Total number of {} type objects is: {}".format(ctype, len(brains))
-    )
+    logger.info("Total number of {} type objects is: {}".format(ctype, len(brains)))
     count = 0
     changed_count = 0
     for brain in brains:
@@ -38,9 +36,7 @@ def migrate_partofyear(app, ctype):
         existing = aq_base(obj).partofyear
         if existing:
             try:
-                obj.partofyear = list(rpd.keys())[
-                    list(rpd.values()).index(existing)
-                ]
+                obj.partofyear = list(rpd.keys())[list(rpd.values()).index(existing)]
                 obj.reindexObject()
                 changed_count += 1
             except Exception as e:
@@ -55,9 +51,7 @@ def migrate_partofyear(app, ctype):
                 transaction.savepoint()
             count += 1
     logger.info(
-        "Total number of changed {} type objects: {}".format(
-            ctype, changed_count
-        )
+        "Total number of changed {} type objects: {}".format(ctype, changed_count)
     )
     transaction.commit()
 

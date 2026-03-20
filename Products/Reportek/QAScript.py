@@ -136,9 +136,7 @@ class QAScript(SimpleItem):
         self._p_changed = 1
         if REQUEST:
             message = "Content changed."
-            return self.manage_settings_html(
-                self, REQUEST, manage_tabs_message=message
-            )
+            return self.manage_settings_html(self, REQUEST, manage_tabs_message=message)
 
     security.declareProtected("Use OpenFlow", "__call__")
 

@@ -8,7 +8,8 @@
 # parameters=languages
 # title=
 ##
-return '''<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
+return (
+    """<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
 <form21 xsi:noNamespaceSchemaLocation="http://air-climate.eionet.europa.eu/schemas/AirQualityQuestionnaire/AirQualityQuestionnaire-form21.xsd"  # noqa: E501
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="%s">
     <form21a>
@@ -52,4 +53,6 @@ return '''<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
         </form21d-row>
     </form21d>
     <form-comments/>
-</form21>''' % languages
+</form21>"""
+    % languages
+)

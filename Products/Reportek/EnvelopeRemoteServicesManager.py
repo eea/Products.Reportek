@@ -183,9 +183,7 @@ class EnvelopeRemoteServicesManager:
                 return "System error."
             REQUEST.SESSION.set("note_content_type", "text/html")
             REQUEST.SESSION.set("note_title", "Error")
-            REQUEST.SESSION.set(
-                "note_text", "The operation could not be completed."
-            )
+            REQUEST.SESSION.set("note_text", "The operation could not be completed.")
             REQUEST.RESPONSE.redirect("note")
         try:
             l_file_id, l_tmp = getattr(self, QAREPOSITORY_ID)._runQAScript(
@@ -197,9 +195,7 @@ class EnvelopeRemoteServicesManager:
                 REQUEST.SESSION.set(
                     "note_text",
                     """QA Service returned an empty result running """
-                    """script_id: {}, for file: {}.""".format(
-                        p_script_id, p_file_url
-                    ),
+                    """script_id: {}, for file: {}.""".format(p_script_id, p_file_url),
                 )
                 REQUEST.RESPONSE.redirect("note")
             else:
@@ -270,9 +266,7 @@ class EnvelopeRemoteServicesManager:
             l_res = []
             for l_file, l_scripts in list(l_files_dict.items()):
                 l_file_id = l_file.split("/")[-1]
-                l_res.append(
-                    "<h2>QA results for file %s</h2><hr />" % l_file_id
-                )
+                l_res.append("<h2>QA results for file %s</h2><hr />" % l_file_id)
                 for l_script in l_scripts:
                     l_f, l_d = getattr(self, QAREPOSITORY_ID)._runQAScript(
                         l_file, l_script
@@ -319,8 +313,7 @@ class EnvelopeRemoteServicesManager:
             if replace:
                 new_uri = uri.replace("https://", "http://")
                 logger.info(
-                    "Original uri: %s has been replaced with uri: %s"
-                    % (uri, new_uri)
+                    "Original uri: %s has been replaced with uri: %s" % (uri, new_uri)
                 )
                 uri = new_uri
             return uri
@@ -328,10 +321,8 @@ class EnvelopeRemoteServicesManager:
         l_res = {}
         engine = self.getEngine()
         http_res = getattr(engine, "qa_httpres", False)
-        l_valid_schemas = (
-            self.getDataflowMappingsContainer().getSchemasForDataflows(
-                self.dataflow_uris
-            )
+        l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(
+            self.dataflow_uris
         )
         for docu in self.objectValues("Report Document"):
             if docu.xml_schema_location:
@@ -349,14 +340,10 @@ class EnvelopeRemoteServicesManager:
                                 parse_uri(docu.absolute_url(), http_res)
                             )
                         else:
-                            l_res[l_key] = [
-                                parse_uri(docu.absolute_url(), http_res)
-                            ]
+                            l_res[l_key] = [parse_uri(docu.absolute_url(), http_res)]
         # add the envelope 'xml' method for each obligation
         for l_dataflow in self.dataflow_uris:
-            l_res[l_dataflow] = [
-                parse_uri(self.absolute_url(), http_res) + "/xml"
-            ]
+            l_res[l_dataflow] = [parse_uri(self.absolute_url(), http_res) + "/xml"]
         return l_res
 
     security.declareProtected("Use OpenFlow", "triggerApplication")
@@ -373,15 +360,11 @@ class EnvelopeRemoteServicesManager:
 
     security.declareProtected("Use OpenFlow", "triggerApplicationPayload")
 
-    def triggerApplicationPayload(
-        self, p_workitem_id, payload=None, REQUEST=None
-    ):
+    def triggerApplicationPayload(self, p_workitem_id, payload=None, REQUEST=None):
         """Triggers remote applications"""
         app_path = self.getApplicationUrl(p_workitem_id)
         app_ob = self.restrictedTraverse(app_path)
-        l_res = app_ob.__of__(self).callApplication(
-            p_workitem_id, payload, REQUEST
-        )
+        l_res = app_ob.__of__(self).callApplication(p_workitem_id, payload, REQUEST)
 
         # returns the result just to be able to see the result in a browser
         # if something goes wrong
@@ -425,9 +408,7 @@ class EnvelopeRemoteServicesManager:
         """
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(
-                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-                )
+                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         if self.released:
             raise EnvelopeReleasedException(
                 "Envelope is released.\
@@ -439,9 +420,7 @@ class EnvelopeRemoteServicesManager:
                 l_file = self._getOb(file_id)
                 savepoint = transaction.savepoint()
                 try:
-                    l_file.manage_file_upload(
-                        file=file, content_type="text/xml"
-                    )
+                    l_file.manage_file_upload(file=file, content_type="text/xml")
                 except Exception as e:
                     savepoint.rollback()
                     raise e

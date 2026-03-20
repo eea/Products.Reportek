@@ -19,14 +19,12 @@
 # Contributor(s):
 # Vitalie Maldur, Eau de Web
 
-""" Module that handles the call of a XMLRPC Method
-"""
+"""Module that handles the call of a XMLRPC Method"""
 
 import xmlrpc.client
 
 
 class XMLRPCMethod(object):
-
     def __init__(self, title, url, method_name, timeout):
         self.title = title
         self.url = url

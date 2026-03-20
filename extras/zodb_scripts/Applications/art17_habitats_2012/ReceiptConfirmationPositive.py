@@ -17,5 +17,8 @@ l_ret = """
 
 context.getMySelf().manage_addFeedback(  # noqa: F821
     title="Automatic validation: Data delivery is acceptable",
-    feedbacktext=l_ret, automatic=1, content_type='text/html')
+    feedbacktext=l_ret,
+    automatic=1,
+    content_type="text/html",
+)
 context.completeWorkitem(workitem_id)  # noqa: F821

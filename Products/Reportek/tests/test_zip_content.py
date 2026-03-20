@@ -175,9 +175,7 @@ class TestZZipFileRaw(BaseUnitTest):
             # setcurrentfile will open it
             zf.setcurrentfile(fileInZip)
             rawContent = zf.read()
-            self.assertEqual(
-                len(rawContent), self.fileInfo[fileInZip]["rawlen"]
-            )
+            self.assertEqual(len(rawContent), self.fileInfo[fileInZip]["rawlen"])
             h = hashlib.md5(rawContent)
             self.assertEqual(h.hexdigest(), self.fileInfo[fileInZip]["md5"])
 

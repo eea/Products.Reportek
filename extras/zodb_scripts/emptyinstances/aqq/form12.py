@@ -8,7 +8,8 @@
 # parameters=languages
 # title=
 ##
-return '''<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
+return (
+    """<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
 <form12 xsi:noNamespaceSchemaLocation="http://air-climate.eionet.europa.eu/schemas/AirQualityQuestionnaire/AirQualityQuestionnaire-form12.xsd"  # noqa: E501
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="%s">
     <form12-row>
@@ -64,4 +65,6 @@ return '''<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
         <description>Benzene storage</description>
     </form12-row>
     <form-comments/>
-</form12>''' % languages
+</form12>"""
+    % languages
+)

@@ -234,9 +234,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         else:
             job_id = payload.get("jobId")
             l_file_id = urllib.parse.unquote(
-                payload.get("documentURL", payload.get("envelopeUrl")).split(
-                    "/"
-                )[-1]
+                payload.get("documentURL", payload.get("envelopeUrl")).split("/")[-1]
             )
 
             if not act_metadata["getResult"].get(job_id):
@@ -285,9 +283,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
     def handle_result(self, wk, payload):
         """Handle payload with job results."""
         job_id = payload.get("jobId")
-        l_file_id = urllib.parse.unquote(
-            payload.get("documentURL").split("/")[-1]
-        )
+        l_file_id = urllib.parse.unquote(payload.get("documentURL").split("/")[-1])
         job_result = payload.get("jobResult")
 
         if job_result:
@@ -314,9 +310,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         wk.getId(),
                         e_data,
                         job_id,
-                        restricted=self.get_restricted_status(
-                            envelope, l_file_id
-                        ),
+                        restricted=self.get_restricted_status(envelope, l_file_id),
                     )
             else:
                 if l_file_id == "xml":
@@ -348,9 +342,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     with tempfile.TemporaryFile() as tmp:
                         tmp.write(content.encode("utf-8"))
                         tmp.seek(0)
-                        feedback_ob.manage_uploadFeedback(
-                            tmp, filename="qa-output"
-                        )
+                        feedback_ob.manage_uploadFeedback(tmp, filename="qa-output")
                     fb_attach = feedback_ob.objectValues()[0]
                     fb_attach.data_file.content_type = content_type
                     feedback_ob.feedbacktext = (
@@ -384,9 +376,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             try:
                 payload = json.loads(self.REQUEST.get("BODY"))
             except Exception as e:
-                feedback_log.error(
-                    "Unable to parse payload: {}".format(str(e))
-                )
+                feedback_log.error("Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get("uuid")):
             if payload.get("errorMessage"):
@@ -460,9 +450,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         env = wk.getMySelf()
         env.wf_status = "forward"
         env.reindexObject()
-        self.completeWorkitem(
-            p_workitem_id, actor="openflow_engine", REQUEST=REQUEST
-        )
+        self.completeWorkitem(p_workitem_id, actor="openflow_engine", REQUEST=REQUEST)
         self.forwardWorkitem(p_workitem_id, REQUEST=REQUEST)
 
     security.declareProtected(view_management_screens, "manage_settings_html")
@@ -511,9 +499,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                                 script.get("id").encode("utf-8"),
                                 script.get("name").encode("utf-8"),
                                 "",
-                                script.get("runOnDemandMaxFileSizeMB").encode(
-                                    "utf-8"
-                                ),
+                                script.get("runOnDemandMaxFileSizeMB").encode("utf-8"),
                                 script.get("outputType").encode("utf-8"),
                             ]
                             for script in scripts
@@ -537,9 +523,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                                 for name, val in script.items()
                                 if compat.get(name)
                             }  # noqa
-                            remapped["content_type_out"] = script.get(
-                                "outputType"
-                            )
+                            remapped["content_type_out"] = script.get("outputType")
                             result.append(remapped)
             except Exception:
                 pass
@@ -566,14 +550,13 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 return c_type, odqa
             else:
                 raise Exception(
-                    "Received {} status code from QA service.".format(
-                        res.status_code
-                    )
+                    "Received {} status code from QA service.".format(res.status_code)
                 )
         except requests.exceptions.Timeout:
             raise Exception(
-                "No response received from QA Service in"
-                " the alloted time: {}s".format(self.requestTimeout)
+                "No response received from QA Service in the alloted time: {}s".format(
+                    self.requestTimeout
+                )
             )
 
 

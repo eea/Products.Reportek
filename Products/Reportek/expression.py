@@ -42,9 +42,7 @@ class Expression(Persistent):
 InitializeClass(Expression)
 
 
-def exprNamespace(
-    instance, workitem=None, activity=None, process=None, openflow=None
-):
+def exprNamespace(instance, workitem=None, activity=None, process=None, openflow=None):
     c = {
         "instance": instance,
         "workitem": workitem,

@@ -10,79 +10,79 @@
 ##
 # Map accented characters to ascii
 asciimap = {
-    0x0020: 0x2d,
-    0x008a: 0x53,
-    0x008e: 0x5a,
-    0x009a: 0x73,
-    0x009e: 0x5a,
-    0x009f: 0x59,
-    0x00aa: 0x61,
-    0x00b2: 0x32,
-    0x00b3: 0x33,
-    0x00b5: 0x75,
-    0x00bf: 0x3f,
-    0x00c0: 0x41,
-    0x00c1: 0x41,
-    0x00c2: 0x41,
-    0x00c3: 0x41,
-    0x00c4: 0x41,
-    0x00c5: 0x41,
-    0x00c6: 0x41,
-    0x00c7: 0x43,
-    0x00c8: 0x45,
-    0x00c9: 0x45,
-    0x00ca: 0x45,
-    0x00cb: 0x45,
-    0x00cc: 0x49,
-    0x00cd: 0x49,
-    0x00ce: 0x49,
-    0x00cf: 0x49,
-    0x00d0: 0x44,
-    0x00d1: 0x4e,
-    0x00d2: 0x4f,
-    0x00d3: 0x4f,
-    0x00d4: 0x4f,
-    0x00d5: 0x4f,
-    0x00d6: 0x4f,
-    0x00d7: 0x78,
-    0x00d8: 0x4f,
-    0x00d9: 0x55,
-    0x00da: 0x55,
-    0x00db: 0x55,
-    0x00dc: 0x55,
-    0x00dd: 0x59,
-    0x00df: 0x42,
-    0x00e0: 0x61,
-    0x00e1: 0x61,
-    0x00e2: 0x61,
-    0x00e3: 0x61,
-    0x00e4: 0x61,
-    0x00e5: 0x61,
-    0x00e6: 0x61,
-    0x00e7: 0x43,
-    0x00e8: 0x65,
-    0x00e9: 0x65,
-    0x00ea: 0x65,
-    0x00eb: 0x65,
-    0x00ec: 0x69,
-    0x00ed: 0x69,
-    0x00ee: 0x69,
-    0x00ef: 0x69,
-    0x00f1: 0x6e,
-    0x00f2: 0x6f,
-    0x00f3: 0x6f,
-    0x00f4: 0x6f,
-    0x00f5: 0x6f,
-    0x00f6: 0x6f,
-    0x00f7: 0x2d,
-    0x00f8: 0x6f,
-    0x00f9: 0x75,
-    0x00fa: 0x75,
-    0x00fb: 0x75,
-    0x00fc: 0x75,
-    0x00fd: 0x79,
-    0x00fe: 0x62,
-    0x00ff: 0x79,
+    0x0020: 0x2D,
+    0x008A: 0x53,
+    0x008E: 0x5A,
+    0x009A: 0x73,
+    0x009E: 0x5A,
+    0x009F: 0x59,
+    0x00AA: 0x61,
+    0x00B2: 0x32,
+    0x00B3: 0x33,
+    0x00B5: 0x75,
+    0x00BF: 0x3F,
+    0x00C0: 0x41,
+    0x00C1: 0x41,
+    0x00C2: 0x41,
+    0x00C3: 0x41,
+    0x00C4: 0x41,
+    0x00C5: 0x41,
+    0x00C6: 0x41,
+    0x00C7: 0x43,
+    0x00C8: 0x45,
+    0x00C9: 0x45,
+    0x00CA: 0x45,
+    0x00CB: 0x45,
+    0x00CC: 0x49,
+    0x00CD: 0x49,
+    0x00CE: 0x49,
+    0x00CF: 0x49,
+    0x00D0: 0x44,
+    0x00D1: 0x4E,
+    0x00D2: 0x4F,
+    0x00D3: 0x4F,
+    0x00D4: 0x4F,
+    0x00D5: 0x4F,
+    0x00D6: 0x4F,
+    0x00D7: 0x78,
+    0x00D8: 0x4F,
+    0x00D9: 0x55,
+    0x00DA: 0x55,
+    0x00DB: 0x55,
+    0x00DC: 0x55,
+    0x00DD: 0x59,
+    0x00DF: 0x42,
+    0x00E0: 0x61,
+    0x00E1: 0x61,
+    0x00E2: 0x61,
+    0x00E3: 0x61,
+    0x00E4: 0x61,
+    0x00E5: 0x61,
+    0x00E6: 0x61,
+    0x00E7: 0x43,
+    0x00E8: 0x65,
+    0x00E9: 0x65,
+    0x00EA: 0x65,
+    0x00EB: 0x65,
+    0x00EC: 0x69,
+    0x00ED: 0x69,
+    0x00EE: 0x69,
+    0x00EF: 0x69,
+    0x00F1: 0x6E,
+    0x00F2: 0x6F,
+    0x00F3: 0x6F,
+    0x00F4: 0x6F,
+    0x00F5: 0x6F,
+    0x00F6: 0x6F,
+    0x00F7: 0x2D,
+    0x00F8: 0x6F,
+    0x00F9: 0x75,
+    0x00FA: 0x75,
+    0x00FB: 0x75,
+    0x00FC: 0x75,
+    0x00FD: 0x79,
+    0x00FE: 0x62,
+    0x00FF: 0x79,
     0x0100: 0x41,
     0x0101: 0x61,
     0x0102: 0x41,
@@ -93,12 +93,12 @@ asciimap = {
     0x0107: 0x63,
     0x0108: 0x43,
     0x0109: 0x63,
-    0x010a: 0x43,
-    0x010b: 0x63,
-    0x010c: 0x43,
-    0x010d: 0x63,
-    0x010e: 0x44,
-    0x010f: 0x64,
+    0x010A: 0x43,
+    0x010B: 0x63,
+    0x010C: 0x43,
+    0x010D: 0x63,
+    0x010E: 0x44,
+    0x010F: 0x64,
     0x0110: 0x44,
     0x0111: 0x64,
     0x0112: 0x45,
@@ -109,12 +109,12 @@ asciimap = {
     0x0117: 0x65,
     0x0118: 0x45,
     0x0119: 0x65,
-    0x011a: 0x45,
-    0x011b: 0x65,
-    0x011c: 0x47,
-    0x011d: 0x67,
-    0x011e: 0x47,
-    0x011f: 0x67,
+    0x011A: 0x45,
+    0x011B: 0x65,
+    0x011C: 0x47,
+    0x011D: 0x67,
+    0x011E: 0x47,
+    0x011F: 0x67,
     0x0120: 0x47,
     0x0121: 0x67,
     0x0122: 0x47,
@@ -125,45 +125,45 @@ asciimap = {
     0x0127: 0x68,
     0x0128: 0x49,
     0x0129: 0x69,
-    0x012a: 0x49,
-    0x012b: 0x69,
-    0x012c: 0x49,
-    0x012d: 0x69,
-    0x012e: 0x49,
-    0x012f: 0x69,
+    0x012A: 0x49,
+    0x012B: 0x69,
+    0x012C: 0x49,
+    0x012D: 0x69,
+    0x012E: 0x49,
+    0x012F: 0x69,
     0x0130: 0x49,
     0x0132: 0x49,
     0x0133: 0x69,
-    0x0134: 0x6a,
-    0x0135: 0x4a,
-    0x0136: 0x4b,
-    0x0137: 0x6b,
-    0x0138: 0x4b,
-    0x0139: 0x4c,
-    0x013a: 0x6c,
-    0x013b: 0x4c,
-    0x013c: 0x6c,
-    0x013d: 0x4c,
-    0x013e: 0x6c,
-    0x013f: 0x4c,
-    0x0140: 0x6c,
-    0x0141: 0x4c,
-    0x0142: 0x6c,
-    0x0143: 0x4e,
-    0x0144: 0x6e,
-    0x0145: 0x4e,
-    0x0146: 0x6e,
-    0x0147: 0x4e,
-    0x0148: 0x6e,
-    0x0149: 0x6e,
-    0x014a: 0x4e,
-    0x014b: 0x6e,
-    0x014c: 0x4f,
-    0x014d: 0x6f,
-    0x014e: 0x4f,
-    0x014f: 0x6f,
-    0x0150: 0x4f,
-    0x0151: 0x6f,
+    0x0134: 0x6A,
+    0x0135: 0x4A,
+    0x0136: 0x4B,
+    0x0137: 0x6B,
+    0x0138: 0x4B,
+    0x0139: 0x4C,
+    0x013A: 0x6C,
+    0x013B: 0x4C,
+    0x013C: 0x6C,
+    0x013D: 0x4C,
+    0x013E: 0x6C,
+    0x013F: 0x4C,
+    0x0140: 0x6C,
+    0x0141: 0x4C,
+    0x0142: 0x6C,
+    0x0143: 0x4E,
+    0x0144: 0x6E,
+    0x0145: 0x4E,
+    0x0146: 0x6E,
+    0x0147: 0x4E,
+    0x0148: 0x6E,
+    0x0149: 0x6E,
+    0x014A: 0x4E,
+    0x014B: 0x6E,
+    0x014C: 0x4F,
+    0x014D: 0x6F,
+    0x014E: 0x4F,
+    0x014F: 0x6F,
+    0x0150: 0x4F,
+    0x0151: 0x6F,
     0x0152: 0x43,
     0x0153: 0x63,
     0x0154: 0x52,
@@ -172,12 +172,12 @@ asciimap = {
     0x0157: 0x72,
     0x0158: 0x52,
     0x0159: 0x72,
-    0x015a: 0x53,
-    0x015b: 0x73,
-    0x015c: 0x53,
-    0x015d: 0x73,
-    0x015e: 0x53,
-    0x015f: 0x73,
+    0x015A: 0x53,
+    0x015B: 0x73,
+    0x015C: 0x53,
+    0x015D: 0x73,
+    0x015E: 0x53,
+    0x015F: 0x73,
     0x0160: 0x53,
     0x0161: 0x73,
     0x0162: 0x54,
@@ -188,12 +188,12 @@ asciimap = {
     0x0167: 0x74,
     0x0168: 0x55,
     0x0169: 0x75,
-    0x016a: 0x55,
-    0x016b: 0x75,
-    0x016c: 0x55,
-    0x016d: 0x75,
-    0x016e: 0x55,
-    0x016f: 0x75,
+    0x016A: 0x55,
+    0x016B: 0x75,
+    0x016C: 0x55,
+    0x016D: 0x75,
+    0x016E: 0x55,
+    0x016F: 0x75,
     0x0170: 0x55,
     0x0171: 0x75,
     0x0172: 0x55,
@@ -203,13 +203,13 @@ asciimap = {
     0x0176: 0x59,
     0x0177: 0x79,
     0x0178: 0x59,
-    0x0179: 0x5a,
-    0x017a: 0x7a,
-    0x017b: 0x5a,
-    0x017c: 0x7a,
-    0x017d: 0x5a,
-    0x017e: 0x7a,
-    0x017f: 0x66,
+    0x0179: 0x5A,
+    0x017A: 0x7A,
+    0x017B: 0x5A,
+    0x017C: 0x7A,
+    0x017D: 0x5A,
+    0x017E: 0x7A,
+    0x017F: 0x66,
     0x0192: 0x66,
 }
 
@@ -218,33 +218,32 @@ response = request.RESPONSE
 SESSION = request.SESSION
 l_found = False
 
-if confirm == 'True':
-
-    if 'submit_yes' in request:
+if confirm == "True":
+    if "submit_yes" in request:
         l_found = True
-        region = SESSION.get('region')
-        language = SESSION.get('language')
-        author = SESSION.get('author')
-        specie = SESSION.get('specie')
-        specie_from = SESSION.get('specie_from')
-        species = SESSION.get('species')
+        region = SESSION.get("region")
+        language = SESSION.get("language")
+        author = SESSION.get("author")
+        specie = SESSION.get("specie")
+        specie_from = SESSION.get("specie_from")
+        species = SESSION.get("species")
 
-        del(SESSION['region'])
-        del(SESSION['language'])
-        del(SESSION['author'])
-        del(SESSION['specie'])
-        del(SESSION['specie_from'])
-        del(SESSION['species'])
+        del SESSION["region"]
+        del SESSION["language"]
+        del SESSION["author"]
+        del SESSION["specie"]
+        del SESSION["specie_from"]
+        del SESSION["species"]
 
         l_species = specie
     else:
         return context.index_html()
 
 else:
-    if specie_from == 'prechoise':
+    if specie_from == "prechoise":
         l_found = True
         l_species = species
-        author = ''
+        author = ""
     else:
         l_species = specie.strip()
         for i in context.Art17species_queries(3):
@@ -254,84 +253,89 @@ else:
                 break
 
 err_msg = []
-if specie_from == 'free_input':
+if specie_from == "free_input":
     # check species name
-    l_list = specie.split(' ')
+    l_list = specie.split(" ")
     if len(l_list) >= 2:
         for k in l_list:
             if not len(k) > 0:
                 err_msg.append(
-                    "The field 'Species scientific name' does not contain a valid name!")
+                    "The field 'Species scientific name' does not contain a valid name!"
+                )
                 break
     else:
         err_msg.append(
-            "The field 'Species scientific name' does not contain a valid name!")
+            "The field 'Species scientific name' does not contain a valid name!"
+        )
 
 if len(region) < 1:
-    err_msg.append('You have to select at least one region!')
+    err_msg.append("You have to select at least one region!")
 
-if species == None and specie_from == 'prechoise':
-    err_msg.append('You have to select a species!')
+if species == None and specie_from == "prechoise":
+    err_msg.append("You have to select a species!")
 
 if len(err_msg) > 0:
-    SESSION.set('err_msg', err_msg)
-    SESSION.set('region', region)
-    SESSION.set('language', language)
-    SESSION.set('author', author)
-    SESSION.set('specie', specie)
-    SESSION.set('specie_from', specie_from)
-    SESSION.set('species', species)
-    return response.redirect('EnvelopeCreateSpeciesFileForm')
+    SESSION.set("err_msg", err_msg)
+    SESSION.set("region", region)
+    SESSION.set("language", language)
+    SESSION.set("author", author)
+    SESSION.set("specie", specie)
+    SESSION.set("specie_from", specie_from)
+    SESSION.set("species", species)
+    return response.redirect("EnvelopeCreateSpeciesFileForm")
 
 if l_found == False:
-
-    SESSION.set('region', region)
-    SESSION.set('language', language)
-    SESSION.set('author', author)
-    SESSION.set('specie', specie)
-    SESSION.set('specie_from', specie_from)
-    SESSION.set('species', species)
-    return response.redirect('EnvelopeCreateSpeciesFileConfirm')
+    SESSION.set("region", region)
+    SESSION.set("language", language)
+    SESSION.set("author", author)
+    SESSION.set("specie", specie)
+    SESSION.set("specie_from", specie_from)
+    SESSION.set("species", species)
+    return response.redirect("EnvelopeCreateSpeciesFileConfirm")
 
 if l_found:
     #    transmap = string.maketrans(' ','-')
-    spec_filename = str(l_species, 'utf-8').translate(asciimap).lower()
-    filename = "species-%s.xml" % spec_filename.encode('utf-8')
+    spec_filename = str(l_species, "utf-8").translate(asciimap).lower()
+    filename = "species-%s.xml" % spec_filename.encode("utf-8")
     title = "Species questionnaire for %s" % l_species
     filecontent = []
 
     bioregions = {
-        'ALP': 'Alpine',
-        'ATL': 'Atlantic',
-        'BOR': 'Boreal',
-        'CON': 'Continental',
-        'MED': 'Mediterranean',
-        'MAC': 'Macaronesian',
-        'PAN': 'Pannonian',
-        'MATL': 'Atlantic ocean',
-        'MBAL': 'Baltic sea',
-        'MMED': 'Mediterranean sea',
-        'MMAC': 'Macaronesian/Atlantic ocean'
+        "ALP": "Alpine",
+        "ATL": "Atlantic",
+        "BOR": "Boreal",
+        "CON": "Continental",
+        "MED": "Mediterranean",
+        "MAC": "Macaronesian",
+        "PAN": "Pannonian",
+        "MATL": "Atlantic ocean",
+        "MBAL": "Baltic sea",
+        "MMED": "Mediterranean sea",
+        "MMAC": "Macaronesian/Atlantic ocean",
     }
 
-    l_countryname = 'Unspecified'
-    l_countrycode = ''
+    l_countryname = "Unspecified"
+    l_countrycode = ""
     for country_obj in container.localities_table():
-        if country_obj['uri'] == context.country:
-            l_countryname = country_obj['name']
-            l_countrycode = country_obj['iso']
+        if country_obj["uri"] == context.country:
+            l_countryname = country_obj["name"]
+            l_countrycode = country_obj["iso"]
             break
 
-    filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
+    filecontent.append(
+        """<?xml version="1.0" encoding="UTF-8"?>
     <species xml:lang="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/species.xsd" xmlns="">
       <member-state label="Member state" countrycode="%s">%s</member-state>
       <speciesname label="Species Name">%s</speciesname>
       <speciesauthor label="Species author (year)">%s</speciesauthor>
       <regions label="Biogeographic regions and/or marine regions concerned in the MS">%s</regions>
-    """ % (language, l_countrycode, l_countryname, l_species, author, ' '.join(region)))
+    """
+        % (language, l_countrycode, l_countryname, l_species, author, " ".join(region))
+    )
 
     for r in region:
-        filecontent.append("""
+        filecontent.append(
+            """
       <regional label="2. Biogeographical or marine level">
         <region label="2.1 Biogeographical region or marine region" desc="%s">%s</region>
         <published label="2.2 Published sources and/or websites"/>
@@ -395,8 +399,9 @@ if l_found:
           <conclusion-assessment label="Overall assessment"/>
         </conclusion-n2000>
       </regional>
-    """ % (bioregions[r], r))
+    """
+            % (bioregions[r], r)
+        )
     filecontent.append("</species>")
-    context.manage_addDocument(
-        filename, title, ''.join(filecontent), 'text/xml', '')
+    context.manage_addDocument(filename, title, "".join(filecontent), "text/xml", "")
     return context.index_html()

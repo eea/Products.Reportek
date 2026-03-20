@@ -105,9 +105,7 @@ def error_message(ctx, message, action=None, REQUEST=None):
     return ""
 
 
-def success_message(
-    ctx, objs, message=None, errors=None, action=None, REQUEST=None
-):
+def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=None):
     if not action:
         action = ctx.absolute_url()
     if not errors:
@@ -156,12 +154,8 @@ def manage_addDocument(
     # disable csrf due to verification reporting uploading files
     if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
         if REQUEST:
-            alsoProvides(
-                REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
-    is_object = hasattr(file, "read") and (
-        getattr(file, "filename", None) or filename
-    )
+            alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+    is_object = hasattr(file, "read") and (getattr(file, "filename", None) or filename)
     if is_object and not filename:
         filename = getattr(file, "filename")
     is_str = file and isinstance(file, (str, bytes))
@@ -183,7 +177,7 @@ def manage_addDocument(
                 id.rfind("\\"),
                 id.rfind(":"),
             )
-            + 1:
+            + 1 :
         ]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
@@ -214,9 +208,7 @@ def manage_addDocument(
             obj.manage_file_upload(file, content_type)
         except SchemaError as e:
             self.manage_delObjects(id)
-            logger.exception(
-                "The file is an invalid XML (reason: %s)" % str(e.args)
-            )
+            logger.exception("The file is an invalid XML (reason: %s)" % str(e.args))
             return error_message(
                 self,
                 "The file is an invalid XML (reason: %s)" % str(e.args),
@@ -228,12 +220,8 @@ def manage_addDocument(
             self.manage_renameObject(id, save_id)
             id = save_id
         r_enabled = (
-            hasattr(self, "is_globally_restricted")
-            and self.is_globally_restricted()
-        ) or (
-            hasattr(self, "is_workflow_restricted")
-            and self.is_workflow_restricted()
-        )
+            hasattr(self, "is_globally_restricted") and self.is_globally_restricted()
+        ) or (hasattr(self, "is_workflow_restricted") and self.is_workflow_restricted())
         if restricted or r_enabled:
             obj.manage_restrictDocument()
         obj.reindexObject()
@@ -398,9 +386,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         Then use LDAP to find the user's full name.
         TODO: Move LDAP dependency to ReportekEngine.
         """
-        return self.getLDAPUserCanonicalName(
-            self.getLDAPUser(self.getMyOwner())
-        )
+        return self.getLDAPUserCanonicalName(self.getLDAPUser(self.getMyOwner()))
 
     def logUpload(self):
         """Log file upload and any reuploads into the envelope history.
@@ -429,9 +415,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         # TODO also take weights into consideration (gzip;q=0,deflate;q=1)
         if ae and ae.lower().startswith("gzip"):
             skip_decomp = True
-        with self.data_file.open(
-            skip_decompress=skip_decomp
-        ) as data_file_handle:
+        with self.data_file.open(skip_decompress=skip_decomp) as data_file_handle:
             size = self.data_file.size
             if skip_decomp and self.is_compressed():
                 # This is hackish. If the client asked for gzip compression
@@ -599,9 +583,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def get_possible_conversions(self):
         """Return possible conversions for the file"""
-        exclude_internal = (
-            True if self.REQUEST.get("exclude_internal") else False
-        )
+        exclude_internal = True if self.REQUEST.get("exclude_internal") else False
         local_converters = []
         remote_converters = []
         warning_message = ""
@@ -784,10 +766,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             self.xml_schema_location = xml_schema_location
         if self.title != title:
             self.title = title
-        if (
-            hasattr(self, "is_globally_restricted")
-            and self.is_globally_restricted()
-        ):
+        if hasattr(self, "is_globally_restricted") and self.is_globally_restricted():
             self.manage_restrictDocument()
         else:
             if applyRestriction:
@@ -916,10 +895,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             if (
                 is_ZipRaw
                 and file_or_content.allowRaw
-                and (
-                    readCount < 0
-                    or readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD
-                )
+                and (readCount < 0 or readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)
             ):
                 file_or_content.rewindRaw()
             else:
@@ -1077,9 +1053,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 for tag in tags:
                     tag = tag.strip()
                     if "/" in tag:
-                        parts = [
-                            p.strip() for p in tag.split("/") if p.strip()
-                        ]
+                        parts = [p.strip() for p in tag.split("/") if p.strip()]
                         if parts:
                             path_tags.append(parts)
                     elif tag:
@@ -1120,8 +1094,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                 new_path == path for path in path_tags
                             )
                             is_parent = any(
-                                check_path(new_path, path)
-                                for path in path_tags
+                                check_path(new_path, path) for path in path_tags
                             )
                             should_traverse = bool(simple_tags or is_parent)
 
@@ -1167,9 +1140,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
             if REQUEST is not None:
                 REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
-                return json.dumps(
-                    xml_dict, indent=2, ensure_ascii=False
-                ).encode("utf-8")
+                return json.dumps(xml_dict, indent=2, ensure_ascii=False).encode(
+                    "utf-8"
+                )
             return xml_dict
 
         except Exception as e:

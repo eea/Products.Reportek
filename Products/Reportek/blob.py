@@ -65,9 +65,7 @@ class FileContainer(Persistent):
     )
 
     # FIXME - shouldn't default content_type be None?
-    def __init__(
-        self, content_type="application/octet-stream", compress="auto"
-    ):
+    def __init__(self, content_type="application/octet-stream", compress="auto"):
         """Initialize an file-like object. see open for usage.
         @param compress decide whether to compress content on write.
         'auto' will decide based on COMP_TYPES
@@ -121,8 +119,7 @@ class FileContainer(Persistent):
         ok_modes = ["rb", "wb"]
         if mode not in ok_modes:
             raise ValueError(
-                "Can't open file with mode %r, only %r allowed"
-                % (mode, ok_modes)
+                "Can't open file with mode %r, only %r allowed" % (mode, ok_modes)
             )
         try:
             file_handle = self._blob.open(mode[0])
@@ -130,9 +127,7 @@ class FileContainer(Persistent):
                 if self.compressed_safe and not skip_decompress:
                     file_handle = GzipFile(fileobj=file_handle)
                 elif self.compressed_safe:
-                    logger.debug(
-                        "Serving %s compressed as client asked for AE gzip"
-                    )
+                    logger.debug("Serving %s compressed as client asked for AE gzip")
             elif mode[0] == "w":
                 # GzipFile will not call fileobj.close() on its own
                 # because the user that called open should also handle close...
@@ -162,9 +157,7 @@ class FileContainer(Persistent):
                     if zip_close:
                         zip_close()
                     orig_close()
-                    self._update_metadata(
-                        file_handle.name, orig_size, preserve_mtime
-                    )
+                    self._update_metadata(file_handle.name, orig_size, preserve_mtime)
 
                 file_handle.close = close_and_update_metadata
             return file_handle
@@ -221,7 +214,7 @@ class FileContainer(Persistent):
         blob_dir = self.get_blob_dir()
         try:
             with self._blob.open("r") as this_data_file:
-                fs_path = this_data_file.name[len(blob_dir) + 1:]
+                fs_path = this_data_file.name[len(blob_dir) + 1 :]
                 return os.path.join(blob_dir, fs_path)
         except Exception:
             return ""
@@ -229,9 +222,7 @@ class FileContainer(Persistent):
     @classmethod
     def get_blob_dir(cls):
         config = getConfiguration()
-        factory = config.dbtab.getDatabaseFactory(
-            name=config.dbtab.getName("/")
-        )
+        factory = config.dbtab.getDatabaseFactory(name=config.dbtab.getName("/"))
         return factory.config.storage.config.blob_dir
 
     UNITS = ["B", "KB", "MB", "GB", "TB"]
@@ -310,9 +301,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
                 RESPONSE.write(footer.encode("utf-8"))
 
         else:
-            link = '<a href="{url}">Download</a>'.format(
-                url=self.absolute_url()
-            )
+            link = '<a href="{url}">Download</a>'.format(url=self.absolute_url())
             return self._view_tmpl(content=link)
 
     manage_main = PageTemplateFile("zpt/blob_main.zpt", globals())
@@ -384,9 +373,7 @@ def get_content_type(file_or_content):
 
 
 def compute_uncompressed_size(file_or_content):
-    if isinstance(file_or_content, FileUpload) or isinstance(
-        file_or_content, IOBase
-    ):
+    if isinstance(file_or_content, FileUpload) or isinstance(file_or_content, IOBase):
         pos = file_or_content.tell()
         file_or_content.seek(0, 2)
         size = file_or_content.tell()
