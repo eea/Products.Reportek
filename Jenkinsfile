@@ -10,7 +10,11 @@ pipeline {
 
  stages {
 
-       stage('RuffFix Code') {
+      stage('RuffFix Code') {
+        when {
+          not { buildingTag() }
+        }
+      steps {
             node(label: 'docker') {
               script {
                 if (!(env.BRANCH_NAME != "z5" && env.BRANCH_NAME != "master" && (env.CHANGE_ID == null || env.CHANGE_ID == '')) ) {
@@ -38,7 +42,7 @@ pipeline {
               }
             }
           }
-
+       }
    
 
     stage('Cosmetics') {
