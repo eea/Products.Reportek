@@ -451,9 +451,6 @@ def initialize(context):
             icon="www/qa_application.gif",
         )
 
-        context.registerHelp()
-        context.registerHelpTitle("Zope Help")
-
         monitoring.initialize()
 
     except Exception:
