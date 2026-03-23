@@ -43,7 +43,7 @@ pipeline {
             }
           }
        }
-   
+
 
     stage('Cosmetics') {
       when {
@@ -133,9 +133,23 @@ pipeline {
             node(label: 'docker') {
               script {
                 try {
-                    sh '''docker pull eeacms/reportek-base-dr:z5; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-tests" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5 tests'''
+                    def git_cmd = env.CHANGE_ID ?
+                        "git clone ${env.GIT_SRC} /opt/zope/src/Products.Reportek && cd /opt/zope/src/Products.Reportek && git fetch origin pull/${env.CHANGE_ID}/head && git checkout FETCH_HEAD" :
+                        "git clone --branch ${env.BRANCH_NAME} --single-branch ${env.GIT_SRC} /opt/zope/src/Products.Reportek"
+                    
+                    withEnv(["GIT_CMD=${git_cmd}", "CONTAINER_NAME=${env.BUILD_TAG}-base-z5-tests"]) {
+                        sh '''
+                            docker pull eeacms/reportek-base-dr:z5-latest
+                            docker run -i --name="${CONTAINER_NAME}" \
+                                -e GIT_NAME="${GIT_NAME}" \
+                                -e GIT_BRANCH="${BRANCH_NAME}" \
+                                -e GIT_CHANGE_ID="${CHANGE_ID}" \
+                                eeacms/reportek-base-dr:z5-latest \
+                                sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh tests"
+                        '''
+                    }
                 } finally {
-                    sh '''docker rm -v $BUILD_TAG-reportek-base-dr-z5-tests'''
+                    sh """docker rm -v ${env.BUILD_TAG}-base-z5-tests || true"""
                 }
               }
             }
@@ -145,13 +159,28 @@ pipeline {
             node(label: 'docker') {
               script {
                 try {
-                  sh '''docker pull eeacms/reportek-base-dr:z5; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5 coverage'''
-                  sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/testreports/. xunit-reports/'''
-                  stash name: "xunit-reports", includes: "xunit-reports/*.xml"
-                  sh '''docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
-                  stash name: "coverage.xml", includes: "coverage.xml"
+                    def git_cmd = env.CHANGE_ID ?
+                        "git clone ${env.GIT_SRC} /opt/zope/src/Products.Reportek && cd /opt/zope/src/Products.Reportek && git fetch origin pull/${env.CHANGE_ID}/head && git checkout FETCH_HEAD" :
+                        "git clone --branch ${env.BRANCH_NAME} --single-branch ${env.GIT_SRC} /opt/zope/src/Products.Reportek"
+                    
+                    withEnv(["GIT_CMD=${git_cmd}", "CONTAINER_NAME=${env.BUILD_TAG}-base-z5-coverage"]) {
+                        sh '''
+                            docker pull eeacms/reportek-base-dr:z5-latest
+                            docker run -i --name="${CONTAINER_NAME}" \
+                                -e GIT_NAME="${GIT_NAME}" \
+                                -e GIT_BRANCH="${BRANCH_NAME}" \
+                                -e GIT_CHANGE_ID="${CHANGE_ID}" \
+                                eeacms/reportek-base-dr:z5-latest \
+                                sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh coverage"
+                            mkdir -p xunit-reports
+                            docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/testreports/." xunit-reports/ || true
+                            docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/coverage.xml" coverage.xml || true
+                        '''
+                    }
+                    stash name: "xunit-reports", includes: "xunit-reports/*.xml"
+                    stash name: "coverage.xml", includes: "coverage.xml"
                 } finally {
-                  sh '''docker rm -v $BUILD_TAG-reportek-base-dr-z5-coverage'''
+                    sh """docker rm -v ${env.BUILD_TAG}-base-z5-coverage || true"""
                 }
                 junit 'xunit-reports/*.xml'
               }
