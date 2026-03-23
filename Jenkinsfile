@@ -133,7 +133,13 @@ pipeline {
             node(label: 'docker') {
               script {
                 try {
-                    sh '''docker pull eeacms/reportek-base-dr:z5-latest; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-tests" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5-latest sh -c "mkdir -p /opt/zope/src && git clone --branch $GIT_BRANCH --single-branch $GIT_SRC /opt/zope/src/Products.Reportek && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh tests"'''
+                    def git_command = "git clone $GIT_SRC /opt/zope/src/Products.Reportek && cd /opt/zope/src/Products.Reportek"
+                    if (env.CHANGE_ID) {
+                        git_command += " && git fetch origin pull/$CHANGE_ID/head && git checkout FETCH_HEAD"
+                    } else {
+                        git_command = "git clone --branch $GIT_BRANCH --single-branch $GIT_SRC /opt/zope/src/Products.Reportek"
+                    }
+                    sh """docker pull eeacms/reportek-base-dr:z5-latest; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-tests" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5-latest sh -c "mkdir -p /opt/zope/src && $git_command && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh tests" """
                 } finally {
                     sh '''docker rm -v $BUILD_TAG-reportek-base-dr-z5-tests'''
                 }
@@ -145,7 +151,13 @@ pipeline {
             node(label: 'docker') {
               script {
                 try {
-                  sh '''docker pull eeacms/reportek-base-dr:z5-latest; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5-latest sh -c "mkdir -p /opt/zope/src && git clone --branch $GIT_BRANCH --single-branch $GIT_SRC /opt/zope/src/Products.Reportek && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh coverage"'''
+                  def git_command = "git clone $GIT_SRC /opt/zope/src/Products.Reportek && cd /opt/zope/src/Products.Reportek"
+                  if (env.CHANGE_ID) {
+                      git_command += " && git fetch origin pull/$CHANGE_ID/head && git checkout FETCH_HEAD"
+                  } else {
+                      git_command = "git clone --branch $GIT_BRANCH --single-branch $GIT_SRC /opt/zope/src/Products.Reportek"
+                  }
+                  sh """docker pull eeacms/reportek-base-dr:z5-latest; docker run -i --name="$BUILD_TAG-reportek-base-dr-z5-coverage" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/reportek-base-dr:z5-latest sh -c "mkdir -p /opt/zope/src && $git_command && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh coverage" """
                   sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/testreports/. xunit-reports/'''
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
                   sh '''docker cp $BUILD_TAG-reportek-base-dr-z5-coverage:/opt/zope/src/$GIT_NAME/coverage.xml coverage.xml'''
