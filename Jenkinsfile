@@ -174,11 +174,11 @@ pipeline {
                                 sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh coverage"
                             mkdir -p xunit-reports
                             docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/testreports/." xunit-reports/ || true
-                            stash name: "xunit-reports", includes: "xunit-reports/*.xml"
                             docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/coverage.xml" coverage.xml || true
-                            stash name: "coverage.xml", includes: "coverage.xml"
                         '''
                     }
+                    stash name: "xunit-reports", includes: "xunit-reports/*.xml"
+                    stash name: "coverage.xml", includes: "coverage.xml"
                 } finally {
                     sh """docker rm -v ${env.BUILD_TAG}-base-z5-coverage || true"""
                 }
