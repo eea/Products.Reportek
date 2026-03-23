@@ -1,5 +1,18 @@
-4.0.3-dev0 (unreleased)
------------------------
+100.1.0 (2026-03-23)
+--------------------
+* Removed registerHelp from __init__
+* Improved Docker development environment with editable source mounts
+* Updated Jenkins pipeline with robust Pull Request support
+* Improved CI stability for tests and coverage stages
+* Shortened Docker container names in CI to stay within limits
+* Fixed Jenkins stash commands in coverage stage
+
+100.0.0 (2026-03-20)
+--------------------
+* Python 3.12 and Zope 5.x migration
+* Fixed ``apply()`` removal in Python 3
+* Fixed ``PageTemplateFile.macros`` access for Chameleon/Zope 5
+* Fixed ``icon`` attribute access in ZPT templates
 * Added job_id suffix in feedback naming for zipped feedbacks
   [olimpiurob refs #123885]
 * Handle multiple zip feedbacks for envelope level checks
