@@ -1,5 +1,9 @@
 100.2.0 (unreleased)
 ____________________
+* rfc1123_date: Moved imports from App.Common to zope.datetime in Document.py, RepUtils.py, and testDocument.py.
+* PersistentDict: Migrated all usages to persistent.mapping.PersistentMapping in adapters.py and RemoteRabbitMQQAApplication.py.
+* AccessControl.User: Moved SpecialUser, User, and UnrestrictedUser imports to AccessControl.users in testWorkflow.py and authutils.py.
+* IObjectMovedEvent: Updated configure.zcml to use zope.lifecycleevent.interfaces.IObjectMovedEvent consistently and removed the conditional check for the deprecated zope.container location
 * Migrated from ``zipstream`` to ``zipstream-ng`` for ZIP generation
 * Implemented efficient ZIP streaming with ``CacheStreamIterator``
 * Improved first-byte latency for non-cached ZIP downloads

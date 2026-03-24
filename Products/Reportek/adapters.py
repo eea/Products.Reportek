@@ -1,5 +1,5 @@
 from BTrees.OOBTree import OOBTree
-from persistent.dict import PersistentDict
+from persistent.mapping import PersistentMapping
 from zope.annotation.interfaces import IAnnotations
 from zope.component import adapts
 from zope.interface import implementer
@@ -29,4 +29,4 @@ class Audit:
 
     def set_audit_metadata(self, data):
         """Set audit metadata"""
-        self._audit_metadata["verification_settings"] = PersistentDict(data)
+        self._audit_metadata["verification_settings"] = PersistentMapping(data)

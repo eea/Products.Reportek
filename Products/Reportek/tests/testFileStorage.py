@@ -321,9 +321,11 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         rv = download_envelope_zip(envelope)
         response = envelope.REQUEST.RESPONSE
 
-        if rv and not hasattr(rv, "read") and hasattr(rv, "__iter__"):
+        if rv and hasattr(rv, "__iter__"):
             for chunk in rv:
                 response.write(chunk)
+            if hasattr(rv, "close"):
+                rv.close()
             rv = ""
 
         if not rv:

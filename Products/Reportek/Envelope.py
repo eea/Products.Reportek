@@ -1567,10 +1567,9 @@ class Envelope(
         cached_zip_path = zip_cache / cache_key
 
         if cached_zip_path.is_file():
-            with cached_zip_path.open("rb") as data_file:
-                return stream_response(
-                    RESPONSE, data_file, response_zip_name, "application/x-zip"
-                )
+            return stream_response(
+                RESPONSE, cached_zip_path, response_zip_name, "application/x-zip"
+            )
         return None
 
     def _create_zip_file(self, public_docs, zip_type, response_zip_name, RESPONSE):
@@ -2248,9 +2247,9 @@ def copy_file_data(in_file, out_file):
         out_file.write(chunk)
 
 
-def stream_response(response, data_file, attach_name, content_type):
-    stat = os.fstat(data_file.fileno())
+def stream_response(response, data_file_path, attach_name, content_type):
+    stat = os.stat(data_file_path)
     response.setHeader("Content-Type", content_type)
     response.setHeader("Content-Disposition", 'attachment; filename="%s"' % attach_name)
-    response.setHeader("Content-Length", stat[6])
-    return filestream_iterator(data_file.name)
+    response.setHeader("Content-Length", stat.st_size)
+    return filestream_iterator(str(data_file_path))

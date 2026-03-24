@@ -37,7 +37,7 @@ from AccessControl.Permissions import view_management_screens
 from persistent.list import PersistentList
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
-from persistent.dict import PersistentDict
+from persistent.mapping import PersistentMapping
 from zope.interface import implementer
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -226,7 +226,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             else:
                 for job_id in payload.get("jobIds"):
                     if job_id not in jobs_summary:
-                        jobs_summary[job_id] = PersistentDict(
+                        jobs_summary[job_id] = PersistentMapping(
                             {"completed": False, "valid": True}
                         )
                     else:
@@ -246,10 +246,10 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 )
 
             if not jobs_summary.get(job_id):
-                jobs_summary[job_id] = PersistentDict({"completed": False})
+                jobs_summary[job_id] = PersistentMapping({"completed": False})
 
             act_metadata["getResult"][job_id].append(payload)
-            jobs_summary[job_id]["last_status"] = PersistentDict(
+            jobs_summary[job_id]["last_status"] = PersistentMapping(
                 {
                     "status": payload.get("jobStatus"),
                     "date_time": DateTime().HTML4(),
@@ -427,9 +427,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         """Adds QA-specific extra properties to the workitem"""
         wk = getattr(self, p_workitem_id)
         annotations = wk._metadata()
-        annotations[self.app_name] = PersistentDict()
+        annotations[self.app_name] = PersistentMapping()
         l_wk_prop = self.get_act_metadata(wk)
-        l_wk_prop["requests"] = PersistentDict(
+        l_wk_prop["requests"] = PersistentMapping(
             {
                 "code": 0,
                 "last_error": None,
@@ -438,10 +438,10 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             }
         )
 
-        l_wk_prop["getResult"] = PersistentDict()
+        l_wk_prop["getResult"] = PersistentMapping()
         l_wk_prop["jobs_handled"] = 0
         l_wk_prop["number_of_jobs"] = None
-        l_wk_prop["jobs_summary"] = PersistentDict()
+        l_wk_prop["jobs_summary"] = PersistentMapping()
 
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """Completes the workitem and forwards it"""
