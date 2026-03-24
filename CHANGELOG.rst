@@ -1,4 +1,4 @@
-100.2.0 (unreleased)
+100.2.0 (2026-03-24)
 ____________________
 * rfc1123_date: Moved imports from App.Common to zope.datetime in Document.py, RepUtils.py, and testDocument.py.
 * PersistentDict: Migrated all usages to persistent.mapping.PersistentMapping in adapters.py and RemoteRabbitMQQAApplication.py.
