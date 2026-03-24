@@ -495,9 +495,7 @@ def get_feedback_list(ob):
                         {
                             "subject": '<a href="%s.html" title="%s">%s</a>'
                             % (feedback.id, feedback.title, feedback.title),
-                            "posted": feedback.postingdate.strftime(
-                                "%d %b %Y %H:%M"
-                            ),
+                            "posted": feedback.postingdate.strftime("%d %b %Y %H:%M"),
                             "task": task_name,
                             "file": refered_file,
                         },
@@ -548,9 +546,7 @@ class ZZipFile(ZipFile):
     # for the __del__ mechanics (? see python2.7/zipfile.py)
     zef_file = None
 
-    def __init__(
-        self, file, mode="r", compression=ZIP_STORED, allowZip64=False
-    ):
+    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
         # Initialize attributes before parent __init__ in case it raises
         self.currentFilename = None
         self.zef_file = None
@@ -629,9 +625,7 @@ class ZZipFileRaw(ZZipFile):
     ENCRYPTED_FLAG = 0x1
     SKIP_RAW_THRESHOLD = 300
 
-    def __init__(
-        self, file, mode="r", compression=ZIP_STORED, allowZip64=False
-    ):
+    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
         # Initialize attributes before parent __init__ in case it raises
         self.bytesRead = 0
         self.zef_file_raw = None
@@ -726,9 +720,7 @@ class ZZipFileRaw(ZZipFile):
             if fheader[zipfile._FH_SIGNATURE] != zipfile.stringFileHeader:
                 raise BadZipfile("Bad magic number for file header")
 
-            fname = self.zef_file_raw.read(
-                fheader[zipfile._FH_FILENAME_LENGTH]
-            )
+            fname = self.zef_file_raw.read(fheader[zipfile._FH_FILENAME_LENGTH])
             if fheader[zipfile._FH_EXTRA_FIELD_LENGTH]:
                 self.zef_file_raw.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
 
@@ -829,10 +821,7 @@ class CacheStreamIterator:
         try:
             self.tmpfile.flush()
             # Check size and link to cache
-            if (
-                os.stat(self.tmpfile.name).st_size > self.threshold
-                and self.enabled
-            ):
+            if os.stat(self.tmpfile.name).st_size > self.threshold and self.enabled:
                 if self.cached_zip_path.exists():
                     self.cached_zip_path.unlink()
                 os.link(self.tmpfile.name, str(self.cached_zip_path))

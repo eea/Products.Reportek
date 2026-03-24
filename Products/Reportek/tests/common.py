@@ -2,7 +2,7 @@
 import os
 import unittest
 from copy import deepcopy
-from io import BytesIO, StringIO
+from io import BytesIO
 
 from App.Common import package_home
 from unittest.mock import Mock

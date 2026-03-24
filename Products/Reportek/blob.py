@@ -160,9 +160,7 @@ class FileContainer(Persistent):
                     zip_close()
                 orig_close()
                 if mode[0] == "w":
-                    self._update_metadata(
-                        file_handle.name, orig_size, preserve_mtime
-                    )
+                    self._update_metadata(file_handle.name, orig_size, preserve_mtime)
 
             file_handle.close = close_all
             return file_handle
