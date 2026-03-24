@@ -1,9 +1,9 @@
 import time
 import zipfile
 from io import BytesIO, StringIO
+from unittest.mock import Mock, call, patch
 
 import transaction
-from unittest.mock import Mock, call, patch
 from plone.protect.interfaces import IDisableCSRFProtection
 from zope.interface import alsoProvides
 
@@ -68,7 +68,9 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
-        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
+        doc_id = Document.manage_addDocument(
+            root, file=create_upload_file(data)
+        )
         self.assertEqual(doc_id, "testfile.txt")
         doc = root[doc_id]
 
@@ -89,7 +91,9 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
-        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
+        doc_id = Document.manage_addDocument(
+            root, file=create_upload_file(data)
+        )
         self.assertEqual(doc_id, "testfile.txt")
         doc = root[doc_id]
         compressed_size = doc.compressed_size()[0]
@@ -98,7 +102,9 @@ class FileStorageTest(BaseTest):
         request.getHeader = Mock(return_value="gzip,bla")
         request.RESPONSE.setHeader = Mock()
         doc.index_html(request, request.RESPONSE)
-        self.assertEqual(len(request.RESPONSE._data.getvalue()), compressed_size)
+        self.assertEqual(
+            len(request.RESPONSE._data.getvalue()), compressed_size
+        )
         self.assertTrue(request.RESPONSE.setHeader.called)
         self.assertIn(
             call("content-encoding", "gzip"),
@@ -279,7 +285,9 @@ def download_envelope_zip(envelope):
     with envelope_patch as envelope_get_security:
         with zip_patch as zip_get_security:
             checkPermission = Mock(return_value=True)
-            envelope_get_security.return_value = Mock(return_value=checkPermission)
+            envelope_get_security.return_value = Mock(
+                return_value=checkPermission
+            )
             zip_get_security.return_value = Mock(return_value=checkPermission)
             REQUEST = envelope.REQUEST
             REQUEST.method = "POST"
@@ -294,21 +302,23 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.envelope = self.createStandardEnvelope()
         safe_html = Mock(convert=Mock(text="feedbacktext"))
-        getattr(self.app.Converters, constants.CONVERTERS_ID).__getitem__ = Mock(
-            return_value=safe_html
-        )
+        getattr(
+            self.app.Converters, constants.CONVERTERS_ID
+        ).__getitem__ = Mock(return_value=safe_html)
 
     def mock_request(self):
         request = BaseTest.create_mock_request()
-        self.root = makerequest(self._plain_root, StringIO())
+        self.root = makerequest(self._plain_root, BytesIO())
         request = self.root.REQUEST
         request["AUTHENTICATED_USER"] = Mock()
         response = request.RESPONSE
-        response._data = StringIO()
+        response._data = BytesIO()
         response.write = response._data.write
         return request
 
     def download_zip(self, envelope):
+        self._stdout.truncate(0)
+        self._stdout.seek(0)
         envelope.REQUEST = self.app.REQUEST
         from AccessControl import getSecurityManager
 
@@ -317,6 +327,24 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         envelope.REQUEST["AUTHENTICATED_USER"] = user
         alsoProvides(envelope.REQUEST, IDisableCSRFProtection)
         rv = download_envelope_zip(envelope)
+        response = envelope.REQUEST.RESPONSE
+
+        if rv and not hasattr(rv, "read") and hasattr(rv, "__iter__"):
+            for chunk in rv:
+                response.write(chunk)
+            rv = ""
+
+        if not rv:
+            if hasattr(response, "stdout"):
+                data = response.stdout.getvalue()
+            else:
+                data = self._stdout.getvalue()
+
+            # ZIP files start with PK\x03\x04
+            zip_start = data.find(b"PK\x03\x04")
+            if zip_start != -1:
+                return zipfile.ZipFile(BytesIO(data[zip_start:]))
+            return zipfile.ZipFile(BytesIO(data))
         return zipfile.ZipFile(rv)
 
     @patch("Products.Reportek.Envelope.transaction.commit")
@@ -326,29 +354,29 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         Document.manage_addDocument(self.envelope, file=file_1)
         self.envelope.release_envelope()
 
-        zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("testfile.txt"), data)
+        with self.download_zip(self.envelope) as zip_download:
+            self.assertEqual(zip_download.read("testfile.txt"), data)
 
     @patch("Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD", -1)
     @patch("Products.Reportek.Envelope.transaction.commit")
-    @patch("Products.Reportek.Envelope.ZipFile")
-    def test_cache_hit_on_2nd_download(self, mock_ZipFile, mock_commit):
+    @patch("Products.Reportek.Envelope.ZipStream")
+    def test_cache_hit_on_2nd_download(self, mock_ZipStream, mock_commit):
         import zipstream
 
-        mock_ZipFile.side_effect = zipstream.ZipFile
+        mock_ZipStream.side_effect = zipstream.ZipStream
 
         file_1 = create_upload_file(b"data one")
         Document.manage_addDocument(self.envelope, file=file_1)
 
         self.envelope.release_envelope()
 
-        zip_download_1 = self.download_zip(self.envelope)
-        self.assertEqual(zip_download_1.read("testfile.txt"), b"data one")
-        self.assertEqual(mock_ZipFile.call_count, 1)
+        with self.download_zip(self.envelope) as zip_download_1:
+            self.assertEqual(zip_download_1.read("testfile.txt"), b"data one")
+            self.assertEqual(mock_ZipStream.call_count, 1)
 
-        zip_download_2 = self.download_zip(self.envelope)
-        self.assertEqual(zip_download_2.read("testfile.txt"), b"data one")
-        self.assertEqual(mock_ZipFile.call_count, 1)
+        with self.download_zip(self.envelope) as zip_download_2:
+            self.assertEqual(zip_download_2.read("testfile.txt"), b"data one")
+            self.assertEqual(mock_ZipStream.call_count, 1)
 
     @patch("Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD", -1)
     @patch("Products.Reportek.Envelope.transaction.commit")
@@ -361,16 +389,16 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         doc = self.envelope[doc_id]
         self.envelope.release_envelope()
 
-        zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("testfile.txt"), b"data one")
+        with self.download_zip(self.envelope) as zip_download:
+            self.assertEqual(zip_download.read("testfile.txt"), b"data one")
 
         self.envelope.absolute_url = Mock(return_value="url")
         self.envelope.unrelease_envelope()
         doc.manage_file_upload(create_upload_file(b"data two"))
         self.envelope.release_envelope()
 
-        zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("testfile.txt"), b"data two")
+        with self.download_zip(self.envelope) as zip_download:
+            self.assertEqual(zip_download.read("testfile.txt"), b"data two")
 
     @patch("Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD", -1)
     @patch("Products.Reportek.Envelope.transaction.commit")
@@ -381,12 +409,13 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         Document.manage_addDocument(self.envelope, file=file_1)
         self.envelope.release_envelope()
 
-        zip_download = self.download_zip(self.envelope)
+        with self.download_zip(self.envelope) as zip_download:
+            pass
 
         self.envelope.manage_addFeedback(title="good work")
 
-        zip_download = self.download_zip(self.envelope)
-        self.assertTrue(b"good work" in zip_download.read("feedbacks.html"))
+        with self.download_zip(self.envelope) as zip_download:
+            self.assertTrue(b"good work" in zip_download.read("feedbacks.html"))
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_feedback_content(self, mock_commit):
@@ -399,8 +428,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
 
         self.envelope.release_envelope()
 
-        zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("opinion.txt"), data)
+        with self.download_zip(self.envelope) as zip_download:
+            self.assertEqual(zip_download.read("opinion.txt"), data)
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_large_feedback_content(self, mock_commit):
@@ -413,8 +442,10 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
 
         self.envelope.release_envelope()
 
-        zip_download = self.download_zip(self.envelope)
-        self.assertEqual(zip_download.read("opinion.txt"), data.encode("utf-8"))
+        with self.download_zip(self.envelope) as zip_download:
+            self.assertEqual(
+                zip_download.read("opinion.txt"), data.encode("utf-8")
+            )
 
     @patch("Products.Reportek.Envelope.transaction.commit")
     def test_missing_document_datafile(self, mock_commit):

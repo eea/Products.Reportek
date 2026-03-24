@@ -481,7 +481,8 @@ class TmpFile:
         self.fname = tempfile.mktemp()
         if isinstance(data, str):
             data = data.encode("utf-8")
-        open(self.fname, "w+b").write(data)
+        with open(self.fname, "w+b") as f:
+            f.write(data)
 
     def __str__(self):
         return self.fname

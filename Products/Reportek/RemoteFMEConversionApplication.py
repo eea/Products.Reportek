@@ -395,7 +395,8 @@ class RemoteFMEConversionApplication(SimpleItem):
             try:
                 headers = self.get_headers(workitem_id)
                 # We need to explicitly remove the content-type on file upload
-                del headers["Content-Type"]
+                if "Content-Type" in headers:
+                    del headers["Content-Type"]
                 res = requests.post(url, params=params, files=files, headers=headers)
                 if res.status_code == 200:
                     try:
@@ -428,11 +429,15 @@ class RemoteFMEConversionApplication(SimpleItem):
                     self.__update_storage(workitem, "upload", err=err, dec_retry=True)
             except Exception as e:
                 self.__update_storage(
-                    workitem, "upload", status="failed", err=e, dec_retry=True
+                    workitem, "upload", status="failed", err=str(e), dec_retry=True
                 )
-            # Close the files
-            for file in files:
-                file[-1][-1].close()
+            finally:
+                # Close the files
+                for file in files:
+                    try:
+                        file[-1][-1].close()
+                    except Exception:
+                        pass
 
     def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
         """Return a list of uploaded files"""

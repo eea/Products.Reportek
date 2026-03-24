@@ -123,20 +123,22 @@ class FileContainer(Persistent):
             )
         try:
             file_handle = self._blob.open(mode[0])
+            orig_close = file_handle.close
+            zip_close = None
+
             if mode[0] == "r":
                 if self.compressed_safe and not skip_decompress:
-                    file_handle = GzipFile(fileobj=file_handle)
+                    file_handle = GzipFile(fileobj=file_handle, mode="rb")
+                    zip_close = file_handle.close
                 elif self.compressed_safe:
                     logger.debug("Serving %s compressed as client asked for AE gzip")
             elif mode[0] == "w":
                 # GzipFile will not call fileobj.close() on its own
                 # because the user that called open should also handle close...
-                orig_close = file_handle.close
-                zip_close = None
                 # The buffer is already compressed, avoid double compression
                 if skip_decompress:
                     file_handle = GzipFileRaw(
-                        mode="w",
+                        mode="wb",
                         fileobj=file_handle,
                         crc=crc,
                         orig_size=orig_size,
@@ -147,19 +149,22 @@ class FileContainer(Persistent):
                 # from COMP_TYPES. So if it shouldn't be compressed no
                 # more then it shall become uncompressed on this write
                 elif self._shouldCompress():
-                    file_handle = GzipFile(fileobj=file_handle)
+                    file_handle = GzipFile(fileobj=file_handle, mode="wb")
                     zip_close = file_handle.close
                     self.compressed_safe = True
                 else:
                     self.compressed_safe = False
 
-                def close_and_update_metadata():
-                    if zip_close:
-                        zip_close()
-                    orig_close()
-                    self._update_metadata(file_handle.name, orig_size, preserve_mtime)
+            def close_all():
+                if zip_close:
+                    zip_close()
+                orig_close()
+                if mode[0] == "w":
+                    self._update_metadata(
+                        file_handle.name, orig_size, preserve_mtime
+                    )
 
-                file_handle.close = close_and_update_metadata
+            file_handle.close = close_all
             return file_handle
         except (IOError, POSKeyError):
             raise StorageError

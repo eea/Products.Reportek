@@ -259,14 +259,14 @@ class BaseTest(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     def afterSetUp(self):
         name = "mock"
+        self._stdout = BytesIO()
         new_environ = {
             "PATH_INFO": "/" + name,
-            "_stdout": StringIO(),
         }
         # root is an aquisition wrapper over app and REQUEST, as if REQUEST
         # agreggates app
         # some tests use app.REQUEST and some use root
-        self.root = makerequest(self.app, new_environ["_stdout"], new_environ)
+        self.root = makerequest(self.app, self._stdout, new_environ)
         self.app.REQUEST = self.root.REQUEST
         from plone.protect.interfaces import IDisableCSRFProtection
         from zope.interface import alsoProvides

@@ -1,3 +1,13 @@
+100.2.0 (unreleased)
+____________________
+* Migrated from ``zipstream`` to ``zipstream-ng`` for ZIP generation
+* Implemented efficient ZIP streaming with ``CacheStreamIterator``
+* Improved first-byte latency for non-cached ZIP downloads
+* Updated test suite to support binary response streaming in Python 3
+* Fixed ``FutureWarning`` by specifying explicit modes for ``GzipFile``
+* Fixed numerous ``ResourceWarning``s by ensuring proper file handle closure
+* Implemented robust resource cleanup in ``CacheStreamIterator.close()``
+
 100.1.0 (2026-03-23)
 --------------------
 * Removed registerHelp from __init__

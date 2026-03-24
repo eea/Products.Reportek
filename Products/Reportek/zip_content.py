@@ -19,6 +19,7 @@
 # Soren Roug, EEA
 # Cornel Nitu, Finsiel Romania
 
+import os
 import struct
 import urllib.error
 import urllib.parse
@@ -29,6 +30,8 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipfile, ZipFile
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
+from zope.interface import implementer
+from ZPublisher.Iterators import IUnboundStreamIterator
 
 from Products.Reportek import RepUtils, constants
 
@@ -492,7 +495,9 @@ def get_feedback_list(ob):
                         {
                             "subject": '<a href="%s.html" title="%s">%s</a>'
                             % (feedback.id, feedback.title, feedback.title),
-                            "posted": feedback.postingdate.strftime("%d %b %Y %H:%M"),
+                            "posted": feedback.postingdate.strftime(
+                                "%d %b %Y %H:%M"
+                            ),
                             "task": task_name,
                             "file": refered_file,
                         },
@@ -543,7 +548,9 @@ class ZZipFile(ZipFile):
     # for the __del__ mechanics (? see python2.7/zipfile.py)
     zef_file = None
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+    def __init__(
+        self, file, mode="r", compression=ZIP_STORED, allowZip64=False
+    ):
         # Initialize attributes before parent __init__ in case it raises
         self.currentFilename = None
         self.zef_file = None
@@ -622,7 +629,9 @@ class ZZipFileRaw(ZZipFile):
     ENCRYPTED_FLAG = 0x1
     SKIP_RAW_THRESHOLD = 300
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+    def __init__(
+        self, file, mode="r", compression=ZIP_STORED, allowZip64=False
+    ):
         # Initialize attributes before parent __init__ in case it raises
         self.bytesRead = 0
         self.zef_file_raw = None
@@ -717,7 +726,9 @@ class ZZipFileRaw(ZZipFile):
             if fheader[zipfile._FH_SIGNATURE] != zipfile.stringFileHeader:
                 raise BadZipfile("Bad magic number for file header")
 
-            fname = self.zef_file_raw.read(fheader[zipfile._FH_FILENAME_LENGTH])
+            fname = self.zef_file_raw.read(
+                fheader[zipfile._FH_FILENAME_LENGTH]
+            )
             if fheader[zipfile._FH_EXTRA_FIELD_LENGTH]:
                 self.zef_file_raw.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
 
@@ -761,3 +772,77 @@ class ZZipFileRaw(ZZipFile):
             return ""
         self.bytesRead += nbytes
         return self.zef_file_raw.read(nbytes)
+
+
+@implementer(IUnboundStreamIterator)
+class CacheStreamIterator:
+    """Wrapper iterator that yields data while writing it to a temporary file.
+
+    WSGI-compliant: implements __iter__ and __next__.
+    """
+
+    def __init__(self, iterable, tmpfile, cached_zip_path, threshold, enabled):
+        self.iterable = iter(iterable)
+        self.tmpfile = tmpfile
+        self.cached_zip_path = cached_zip_path
+        self.threshold = threshold
+        self.enabled = enabled
+        self._finalized = False
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            chunk = next(self.iterable)
+            self.tmpfile.write(chunk)
+            return chunk
+        except (StopIteration, GeneratorExit):
+            if not self._finalized:
+                self._finalized = True
+                self._finish_caching()
+            raise StopIteration
+
+    def next(self):
+        return self.__next__()
+
+    def close(self):
+        """Called by Zope publisher to cleanup resources."""
+        if hasattr(self.iterable, "close"):
+            try:
+                self.iterable.close()
+            except Exception:
+                pass
+        if not self._finalized:
+            self._finalized = True
+            try:
+                self.tmpfile.close()
+            except Exception:
+                pass
+            if os.path.exists(self.tmpfile.name):
+                try:
+                    os.unlink(self.tmpfile.name)
+                except Exception:
+                    pass
+
+    def _finish_caching(self):
+        try:
+            self.tmpfile.flush()
+            # Check size and link to cache
+            if (
+                os.stat(self.tmpfile.name).st_size > self.threshold
+                and self.enabled
+            ):
+                if self.cached_zip_path.exists():
+                    self.cached_zip_path.unlink()
+                os.link(self.tmpfile.name, str(self.cached_zip_path))
+        finally:
+            try:
+                self.tmpfile.close()
+            except Exception:
+                pass
+            if os.path.exists(self.tmpfile.name):
+                try:
+                    os.unlink(self.tmpfile.name)
+                except Exception:
+                    pass
