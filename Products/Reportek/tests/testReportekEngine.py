@@ -313,17 +313,17 @@ class ReportekEngineZipTest(BaseUnitTest):
             engine.zipEnvelopes(["/envelope"], Mock(), mock_response)
 
         response_body.seek(0)
-        response_zip = zipfile.ZipFile(response_body)
-        self.assertEqual(
-            response_zip.namelist(),
-            [
-                "TestedEnvelope/foo.txt",
-                "TestedEnvelope/metadata.txt",
-                "TestedEnvelope/README.txt",
-                "TestedEnvelope/history.txt",
-            ],
-        )
-        self.assertEqual(
-            response_zip.read("TestedEnvelope/foo.txt"),
-            content.encode("utf-8"),
-        )
+        with zipfile.ZipFile(response_body) as response_zip:
+            self.assertEqual(
+                response_zip.namelist(),
+                [
+                    "TestedEnvelope/foo.txt",
+                    "TestedEnvelope/metadata.txt",
+                    "TestedEnvelope/README.txt",
+                    "TestedEnvelope/history.txt",
+                ],
+            )
+            self.assertEqual(
+                response_zip.read("TestedEnvelope/foo.txt"),
+                content.encode("utf-8"),
+            )

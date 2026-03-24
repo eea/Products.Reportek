@@ -51,6 +51,8 @@ class GzipFileRaw(gzip.GzipFile):
         gzip.write32u(self.fileobj, self.crc)
         # gzip.write32u(self.fileobj, self.size & 0xffffffffL)
         gzip.write32u(self.fileobj, self.size & 0xFFFFFFFF)
+        if not self.myfileobj:
+            self.fileobj.close()
         self.fileobj = None
         if self.myfileobj:
             self.myfileobj.close()

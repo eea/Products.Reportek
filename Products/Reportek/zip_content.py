@@ -19,6 +19,7 @@
 # Soren Roug, EEA
 # Cornel Nitu, Finsiel Romania
 
+import os
 import struct
 import urllib.error
 import urllib.parse
@@ -29,6 +30,8 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipfile, ZipFile
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
+from zope.interface import implementer
+from ZPublisher.Iterators import IUnboundStreamIterator
 
 from Products.Reportek import RepUtils, constants
 
@@ -761,3 +764,74 @@ class ZZipFileRaw(ZZipFile):
             return ""
         self.bytesRead += nbytes
         return self.zef_file_raw.read(nbytes)
+
+
+@implementer(IUnboundStreamIterator)
+class CacheStreamIterator:
+    """Wrapper iterator that yields data while writing it to a temporary file.
+
+    WSGI-compliant: implements __iter__ and __next__.
+    """
+
+    def __init__(self, iterable, tmpfile, cached_zip_path, threshold, enabled):
+        self.iterable = iter(iterable)
+        self.tmpfile = tmpfile
+        self.cached_zip_path = cached_zip_path
+        self.threshold = threshold
+        self.enabled = enabled
+        self._finalized = False
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            chunk = next(self.iterable)
+            self.tmpfile.write(chunk)
+            return chunk
+        except (StopIteration, GeneratorExit):
+            if not self._finalized:
+                self._finalized = True
+                self._finish_caching()
+            raise StopIteration
+
+    def next(self):
+        return self.__next__()
+
+    def close(self):
+        """Called by Zope publisher to cleanup resources."""
+        if hasattr(self.iterable, "close"):
+            try:
+                self.iterable.close()
+            except Exception:
+                pass
+        if not self._finalized:
+            self._finalized = True
+            try:
+                self.tmpfile.close()
+            except Exception:
+                pass
+            if os.path.exists(self.tmpfile.name):
+                try:
+                    os.unlink(self.tmpfile.name)
+                except Exception:
+                    pass
+
+    def _finish_caching(self):
+        try:
+            self.tmpfile.flush()
+            # Check size and link to cache
+            if os.stat(self.tmpfile.name).st_size > self.threshold and self.enabled:
+                if self.cached_zip_path.exists():
+                    self.cached_zip_path.unlink()
+                os.link(self.tmpfile.name, str(self.cached_zip_path))
+        finally:
+            try:
+                self.tmpfile.close()
+            except Exception:
+                pass
+            if os.path.exists(self.tmpfile.name):
+                try:
+                    os.unlink(self.tmpfile.name)
+                except Exception:
+                    pass

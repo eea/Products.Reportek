@@ -15,7 +15,7 @@ class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
 
     def test_overview_without_rights(self):
         from .utils import publish_view
-        from AccessControl.User import SpecialUser
+        from AccessControl.users import SpecialUser
 
         anonymous_user = SpecialUser("Anonymous User", "", ("Anonymous",), [])
         self.assertIn(
@@ -26,7 +26,7 @@ class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
     def test_overview_with_rights(self):
         from .utils import chase_response, load_json
         from unittest.mock import Mock
-        from AccessControl.User import User
+        from AccessControl.users import User
 
         self.envelope.canViewContent = Mock(return_value=1)
         self.wf.canPullActivity = Mock(return_value=True)

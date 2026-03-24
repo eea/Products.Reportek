@@ -36,7 +36,8 @@ import transaction
 import xmltodict
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from App.Common import package_home, rfc1123_date
+from App.Common import package_home
+from zope.datetime import rfc1123_date
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 from zExceptions import Redirect

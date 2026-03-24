@@ -47,12 +47,11 @@ from AccessControl.SecurityManagement import (
 from AccessControl.users import UnrestrictedUser as BaseUnrestrictedUser
 from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
-from App.Common import rfc1123_date
+from zope.datetime import rfc1123_date
 from DateTime import DateTime
 from pathlib import Path
 from zope.component import getUtility
 
-# from zope.datetime import rfc1123_date
 from zope.interface.interfaces import ComponentLookupError
 
 from Products.Five import BrowserView
@@ -481,7 +480,8 @@ class TmpFile:
         self.fname = tempfile.mktemp()
         if isinstance(data, str):
             data = data.encode("utf-8")
-        open(self.fname, "w+b").write(data)
+        with open(self.fname, "w+b") as f:
+            f.write(data)
 
     def __str__(self):
         return self.fname

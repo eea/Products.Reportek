@@ -213,7 +213,7 @@ class HttpRequestTest(BaseUnitTest):
         self._cleanup_temp_reposit()
 
     def test_head_headers(self):
-        from App.Common import rfc1123_date
+        from zope.datetime import rfc1123_date
 
         mtime = self.doc.data_file.mtime
 
@@ -225,7 +225,7 @@ class HttpRequestTest(BaseUnitTest):
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
 
     def test_get_headers(self):
-        from App.Common import rfc1123_date
+        from zope.datetime import rfc1123_date
 
         mtime = self.doc.data_file.mtime
 
@@ -237,7 +237,7 @@ class HttpRequestTest(BaseUnitTest):
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
 
     def test_get_file_not_modified_returns_304(self):
-        from App.Common import rfc1123_date
+        from zope.datetime import rfc1123_date
 
         mtime = self.doc.data_file.mtime
 
@@ -252,7 +252,7 @@ class HttpRequestTest(BaseUnitTest):
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
 
     def test_get_file_modified_returns_200(self):
-        from App.Common import rfc1123_date
+        from zope.datetime import rfc1123_date
 
         mtime = self.doc.data_file.mtime
 

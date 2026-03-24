@@ -48,7 +48,7 @@ from DateTime.interfaces import SyntaxError
 from OFS.role import RoleManager
 from plone.protect.interfaces import IDisableCSRFProtection
 from zExceptions import Forbidden
-from zipstream import ZIP_DEFLATED, ZipFile
+from zipstream import ZIP_DEFLATED, ZipStream
 from zope.component import getMultiAdapter
 from zope.event import notify
 from zope.interface import alsoProvides, implementer
@@ -1567,63 +1567,62 @@ class Envelope(
         cached_zip_path = zip_cache / cache_key
 
         if cached_zip_path.is_file():
-            with cached_zip_path.open("rb") as data_file:
-                return stream_response(
-                    RESPONSE, data_file, response_zip_name, "application/x-zip"
-                )
+            return stream_response(
+                RESPONSE, cached_zip_path, response_zip_name, "application/x-zip"
+            )
         return None
 
     def _create_zip_file(self, public_docs, zip_type, response_zip_name, RESPONSE):
-        """Create the zip file with documents and metadata."""
+        """Create the zip file with documents and metadata, streaming and caching."""
         zip_cache = get_zip_cache()
         envelope_path = "/".join(self.getPhysicalPath())
         cache_key = zip_content.encode_zip_name(envelope_path, zip_type)
         cached_zip_path = zip_cache / cache_key
 
-        with tempfile.NamedTemporaryFile(suffix=".temp", dir=zip_cache) as tmpfile:
-            with ZipFile(mode="w", compression=ZIP_DEFLATED, allowZip64=True) as outzd:
-                try:
-                    # Add document files to zip
-                    self._add_documents_to_zip(outzd, public_docs)
+        # Prepare response headers for immediate streaming
+        RESPONSE.setHeader("Content-Type", "application/x-zip")
+        RESPONSE.setHeader(
+            "Content-Disposition",
+            'attachment; filename="%s"' % response_zip_name,
+        )
 
-                    # Add feedback files to zip
-                    self._add_feedback_to_zip(outzd)
+        outzd = ZipStream(compress_type=ZIP_DEFLATED)
+        try:
+            # Add document files to zip
+            self._add_documents_to_zip(outzd, public_docs)
 
-                    # Add metadata files to zip
-                    self._add_metadata_to_zip(outzd)
+            # Add feedback files to zip
+            self._add_feedback_to_zip(outzd)
 
-                    # Write the zip data to the temporary file
-                    for data in outzd:
-                        tmpfile.write(data)
+            # Add metadata files to zip
+            self._add_metadata_to_zip(outzd)
 
-                except Exception as e:
-                    raise ValueError(
-                        "An error occurred while preparing the zip file. {}".format(
-                            str(e)
-                        )
-                    )
-                else:
-                    # Save to cache if file is large enough
-                    if (
-                        os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD
-                        and ZIP_CACHE_ENABLED
-                    ):
-                        os.link(tmpfile.name, cached_zip_path)
+            # Use a temporary file to build the cache while streaming
+            # delete=False so we can link/rename it later
+            tmpfile = tempfile.NamedTemporaryFile(
+                suffix=".temp", dir=zip_cache, delete=False
+            )
 
-                    # Stream the response
-                    tmpfile.seek(0)
-                    return stream_response(
-                        RESPONSE,
-                        tmpfile,
-                        response_zip_name,
-                        "application/x-zip",
-                    )
+            return zip_content.CacheStreamIterator(
+                outzd,
+                tmpfile,
+                cached_zip_path,
+                ZIP_CACHE_THRESHOLD,
+                ZIP_CACHE_ENABLED,
+            )
+
+        except Exception as e:
+            logger.error("Error preparing ZIP for %s: %s", envelope_path, str(e))
+            raise ValueError(
+                "An error occurred while preparing the zip file. {}".format(str(e))
+            )
 
     def _add_documents_to_zip(self, zip_file, documents):
         """Add document files to the zip archive."""
         for doc in documents:
-            zip_file.write_iter(
-                doc.getId(), RepUtils.iter_file_data(doc.data_file.open())
+            zip_file.add(
+                RepUtils.iter_file_data(doc.data_file.open(), close_when_done=True),
+                doc.getId(),
             )
 
     def _add_feedback_to_zip(self, zip_file):
@@ -1637,22 +1636,25 @@ class Envelope(
                 # Ensure content is bytes for zipfile.writestr in Python 3
                 if isinstance(content, str):
                     content = content.encode("utf-8")
-                zip_file.writestr(
-                    "{}.html".format(feedback.getId()),
+                zip_file.add(
                     content,
+                    "{}.html".format(feedback.getId()),
                 )
 
                 # Add feedback attachments
                 for attachment in feedback.objectValues(["File", "File (Blob)"]):
                     if attachment.meta_type == "File (Blob)":
-                        zip_file.write_iter(
+                        zip_file.add(
+                            RepUtils.iter_file_data(
+                                attachment.data_file.open(),
+                                close_when_done=True,
+                            ),
                             attachment.getId(),
-                            RepUtils.iter_file_data(attachment.data_file.open()),
                         )
                     else:
-                        zip_file.write_iter(
-                            attachment.getId(),
+                        zip_file.add(
                             RepUtils.iter_ofs_file_data(attachment),
+                            attachment.getId(),
                         )
 
     def _add_metadata_to_zip(self, zip_file):
@@ -1669,7 +1671,7 @@ class Envelope(
             # Ensure content is bytes for zipfile.writestr in Python 3
             if isinstance(content, str):
                 content = content.encode("utf-8")
-            zip_file.writestr(filename, content)
+            zip_file.add(content, filename)
 
     def _invalidate_zip_cache(self):
         """delete zip cache files"""
@@ -2245,9 +2247,9 @@ def copy_file_data(in_file, out_file):
         out_file.write(chunk)
 
 
-def stream_response(response, data_file, attach_name, content_type):
-    stat = os.fstat(data_file.fileno())
+def stream_response(response, data_file_path, attach_name, content_type):
+    stat = os.stat(data_file_path)
     response.setHeader("Content-Type", content_type)
     response.setHeader("Content-Disposition", 'attachment; filename="%s"' % attach_name)
-    response.setHeader("Content-Length", stat[6])
-    return filestream_iterator(data_file.name)
+    response.setHeader("Content-Length", stat.st_size)
+    return filestream_iterator(str(data_file_path))

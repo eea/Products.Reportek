@@ -2,12 +2,7 @@ from AccessControl.SecurityManagement import (
     newSecurityManager,
     noSecurityManager,
 )
-from AccessControl.User import SpecialUser, User
-
-try:
-    from AccessControl.User import UnrestrictedUser
-except ImportError:
-    from AccessControl.User import Super as UnrestrictedUser
+from AccessControl.users import SpecialUser, User, UnrestrictedUser
 
 
 def loginAnonymous():

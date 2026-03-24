@@ -87,21 +87,11 @@
     <include package=".indexer" />
 
 
-    <configure zcml:condition="installed zope.container">
-        <subscriber
-            for="Products.Reportek.interfaces.IEnvelope
-                        zope.container.interfaces.IObjectMovedEvent"
-            handler="Products.Reportek.Envelope.movedEnvelope"
-        />
-    </configure>
-
-    <configure zcml:condition="not-installed zope.container">
-        <subscriber
-            for="Products.Reportek.interfaces.IEnvelope
-                        zope.app.container.interfaces.IObjectMovedEvent"
-            handler="Products.Reportek.Envelope.movedEnvelope"
-        />
-    </configure>
+    <subscriber
+        for="Products.Reportek.interfaces.IEnvelope
+                    zope.lifecycleevent.interfaces.IObjectMovedEvent"
+        handler="Products.Reportek.Envelope.movedEnvelope"
+    />
 
     <class class=".Collection.Collection">
         <implements interface="z3c.caching.interfaces.IPurgeable" />
