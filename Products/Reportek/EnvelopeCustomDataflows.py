@@ -2088,7 +2088,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected("Change Envelopes", "assign_auditor")
 
-    def unassign_auditor(self):
+    def unassign_auditor(self, notify_event=True):
         """Unassign envelope for F-gas verification.
 
         Returns:
@@ -2122,7 +2122,8 @@ class EnvelopeCustomDataflows(Toolz):
                     "%d %b %Y %H:%M"
                 )
                 self.audit_info = audit_info
-                notify(AuditUnassignedEvent(self))
+                if notify_event:
+                    notify(AuditUnassignedEvent(self))
             self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(res)
         except (ValueError, AttributeError) as e:
