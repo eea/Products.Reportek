@@ -147,15 +147,14 @@
                   />
                 </td>
                 <td>
-                  <a
+                  <button
                     tal:condition="not:audit_company/end_date"
-                    tal:attributes="href string:${audit_company/verification_envelope_url}/unassign_auditor"
+                    tal:attributes="data-href string:${audit_company/verification_envelope_url}/unassign_auditor"
                     class="btn btn-danger btn-sm unassign-auditor"
                     title="Unassign auditor"
                     i18n:attributes="title"
                     i18n:translate=""
-                    >Unassign</a
-                  >
+                    >Unassign</button>
                 </td>
               </tr>
             </tbody>
@@ -192,7 +191,7 @@
               var message =
                 "Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established and the envelope may be completed.";
               if (confirm(message)) {
-                var link = $(this).attr("href");
+                var link = $(this).attr("data-href");
                 $.ajax({
                   url: link,
                   method: "GET",
