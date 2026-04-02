@@ -115,7 +115,7 @@
                 <th i18n:translate="">Auditing rights ended at</th>
                 <th i18n:translate="">Reporting envelope</th>
                 <th i18n:translate="">Verification envelope</th>
-                <th i18n:translate="">Actions</th>
+                <th i18n:translate="" class="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -134,19 +134,19 @@
                 </td>
                 <td tal:content="python: audit_company['start_date'] or '-'"></td>
                 <td tal:content="python: audit_company['end_date'] or '-'"></td>
-                <td>
+                <td class="col-url">
                   <a
                     tal:attributes="href string:${audit_company/reporting_envelope_url}"
                     tal:content="audit_company/reporting_envelope_url"
                   />
                 </td>
-                <td>
+                <td class="col-url">
                   <a
                     tal:attributes="href string:${audit_company/verification_envelope_url}"
                     tal:content="audit_company/verification_envelope_url"
                   />
                 </td>
-                <td>
+                <td class="col-actions">
                   <button
                     tal:condition="not:audit_company/end_date"
                     tal:attributes="data-href string:${audit_company/verification_envelope_url}/unassign_auditor"
@@ -154,7 +154,9 @@
                     title="Unassign auditor"
                     i18n:attributes="title"
                     i18n:translate=""
-                    >Unassign</button>
+                  >
+                    Unassign
+                  </button>
                 </td>
               </tr>
             </tbody>
