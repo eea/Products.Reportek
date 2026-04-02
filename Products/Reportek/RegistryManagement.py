@@ -188,16 +188,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 "API request failed: No response received from the server."
             )
 
-        try:
-            response.raise_for_status()  # Raise HTTPError for bad responses
-        except HTTPError as e:
-            msg = (
-                "API request failed with status code: {},"
-                "reason: {}, content: {}. ({})".format(
-                    response.status_code, response.reason, response.text, e
-                )
-            )
-            raise Exception(msg)
+        response.raise_for_status()  # Raise HTTPError for bad responses
 
         return response.json()
 

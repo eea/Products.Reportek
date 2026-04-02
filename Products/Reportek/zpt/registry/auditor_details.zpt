@@ -1,10 +1,9 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
-
   <metal:block fill-slot="head">
     <!-- CSS Resources -->
     <tal:css>
-      <link rel="stylesheet" href="++resource++static/select2-3.5.0/select2.css"/>
-      <link rel="stylesheet" href="++resource++static/style.css"/>
+      <link rel="stylesheet" href="++resource++static/select2-3.5.0/select2.css" />
+      <link rel="stylesheet" href="++resource++static/style.css" />
     </tal:css>
 
     <!-- JavaScript Resources -->
@@ -25,15 +24,16 @@
   <metal:block fill-slot="content">
     <!-- Status Messages -->
     <tal:messages>
-      <p class="important-msg" tal:condition="request/done | nothing"
-         i18n:translate="">Operations completed successfully.</p>
+      <p class="important-msg" tal:condition="request/done | nothing" i18n:translate="">
+        Operations completed successfully.
+      </p>
 
       <p class="important-msg" tal:condition="options/error | nothing">
-        <span tal:replace="options/error"/>
+        <span tal:replace="options/error" />
       </p>
 
       <p class="important-msg" tal:condition="options/info_message | nothing">
-        <span tal:replace="options/info_message"/>
+        <span tal:replace="options/info_message" />
       </p>
     </tal:messages>
 
@@ -50,7 +50,7 @@
       <tal:block condition="auditor">
         <!-- Auditor Details -->
         <h1 tal:content="auditor/name" />
-        <hr/>
+        <hr />
 
         <div class="overflow">
           <metal:details use-macro="here/partials/macros/auditor-details" />
@@ -65,15 +65,14 @@
               <p class="h4 no-margins" i18n:translate="">Actions:</p>
               <ul>
                 <li>
-                  <a class="org-action" id="sync-action" href="#"
-                     i18n:translate="">Sync verification company</a>
+                  <a class="org-action" id="sync-action" href="#" i18n:translate="">Sync verification company</a>
                 </li>
               </ul>
             </form>
           </div>
         </div>
 
-        <hr/>
+        <hr />
 
         <!-- Auditor Users Table -->
         <h2 id="auditor-users" i18n:translate="">Auditor</h2>
@@ -105,8 +104,7 @@
         <!-- Audited Companies Table -->
         <h2 id="audited-companies" i18n:translate="">Audited companies</h2>
         <div class="table-responsive">
-          <p tal:condition="not:auditor/audited_companies"
-             i18n:translate="">No audited companies</p>
+          <p tal:condition="not:auditor/audited_companies" i18n:translate="">No audited companies</p>
 
           <table class="table" tal:condition="auditor/audited_companies">
             <thead>
@@ -117,27 +115,46 @@
                 <th i18n:translate="">Auditing rights ended at</th>
                 <th i18n:translate="">Reporting envelope</th>
                 <th i18n:translate="">Verification envelope</th>
+                <th i18n:translate="">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr tal:repeat="audit_company auditor/audited_companies">
                 <td>
-                  <a tal:attributes="href string:${here/absolute_url}/organisation_details?domain=${audit_company/undertaking/domain}&id=${audit_company/undertaking/company_id}"
-                     tal:content="audit_company/undertaking/name" />
+                  <a
+                    tal:attributes="href string:${here/absolute_url}/organisation_details?domain=${audit_company/undertaking/domain}&id=${audit_company/undertaking/company_id}"
+                    tal:content="audit_company/undertaking/name"
+                  />
                 </td>
                 <td>
-                  <a tal:attributes="href string:mailto:${audit_company/user/email}"
-                     tal:content="string:${audit_company/user/first_name} ${audit_company/user/last_name}" />
+                  <a
+                    tal:attributes="href string:mailto:${audit_company/user/email}"
+                    tal:content="string:${audit_company/user/first_name} ${audit_company/user/last_name}"
+                  />
                 </td>
                 <td tal:content="python: audit_company['start_date'] or '-'"></td>
                 <td tal:content="python: audit_company['end_date'] or '-'"></td>
                 <td>
-                  <a tal:attributes="href string:${audit_company/reporting_envelope_url}"
-                     tal:content="audit_company/reporting_envelope_url" />
+                  <a
+                    tal:attributes="href string:${audit_company/reporting_envelope_url}"
+                    tal:content="audit_company/reporting_envelope_url"
+                  />
                 </td>
                 <td>
-                  <a tal:attributes="href string:${audit_company/verification_envelope_url}"
-                     tal:content="audit_company/verification_envelope_url" />
+                  <a
+                    tal:attributes="href string:${audit_company/verification_envelope_url}"
+                    tal:content="audit_company/verification_envelope_url"
+                  />
+                </td>
+                <td>
+                  <button
+                    tal:condition="not:audit_company/end_date"
+                    tal:attributes="data-href string:${audit_company/verification_envelope_url}/unassign_auditor"
+                    class="btn btn-danger btn-sm unassign-auditor"
+                    title="Unassign auditor"
+                    i18n:attributes="title"
+                    i18n:translate=""
+                    >Unassign</button>
                 </td>
               </tr>
             </tbody>
@@ -146,27 +163,52 @@
 
         <!-- JavaScript for Action Handling -->
         <script type="text/javascript">
-          $(document).ready(function() {
-            $(".org-action").on("click", function(evt) {
+          $(document).ready(function () {
+            $(".org-action").on("click", function (evt) {
               evt.preventDefault();
 
               const actionId = $(this).attr("id");
               const action = actionId.split("-action")[0];
               let orgAction, newVal;
 
-              if (action.includes('_status')) {
-                newVal = action.split('_status')[0];
-                orgAction = 'statusupdate';
+              if (action.includes("_status")) {
+                newVal = action.split("_status")[0];
+                orgAction = "statusupdate";
               } else if (action === "sync") {
-                orgAction = 'syncauditor';
+                orgAction = "syncauditor";
               }
 
-              if (orgAction === "syncauditor" &&
-                  confirm("Are you sure you want to trigger manual auditor sync?")) {
+              if (orgAction === "syncauditor" && confirm("Are you sure you want to trigger manual auditor sync?")) {
                 const form = $("#action-form");
-                $("input[name='newval']").val(newVal || '');
+                $("input[name='newval']").val(newVal || "");
                 $("input[name='orgaction']").val(orgAction);
                 form.submit();
+              }
+            });
+
+            $(".unassign-auditor").on("click", function (evt) {
+              evt.preventDefault();
+              var message =
+                "Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established and the envelope may be completed.";
+              if (confirm(message)) {
+                var link = $(this).attr("data-href");
+                $.ajax({
+                  url: link,
+                  method: "GET",
+                  success: function (data) {
+                    if (data.success) {
+                      window.location.reload();
+                    } else {
+                      alert("Failed to unassign auditor: " + (data.message || "Unknown error"));
+                    }
+                  },
+                  error: function (error) {
+                    console.error("Error:", error);
+                    alert(
+                      "An error occurred while trying to unassign the auditor. Please try again or contact support if the problem persists.",
+                    );
+                  },
+                });
               }
             });
           });
@@ -180,5 +222,4 @@
       </div>
     </tal:block>
   </metal:block>
-
 </metal:block>
