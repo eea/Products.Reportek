@@ -215,12 +215,15 @@
                   />
                 </td>
                 <td>
-                  <a tal:condition="not:audit_company/end_date"
+                  <a
+                    tal:condition="not:audit_company/end_date"
                     tal:attributes="href string:${audit_company/verification_envelope_url}/unassign_auditor"
-                     class="btn btn-danger btn-sm unassign-auditor"
-                     title="Unassign auditor"
-                     i18n:attributes="title"
-                     i18n:translate="">Unassign</a>
+                    class="btn btn-danger btn-sm unassign-auditor"
+                    title="Unassign auditor"
+                    i18n:attributes="title"
+                    i18n:translate=""
+                    >Unassign</a
+                  >
                 </td>
               </tr>
             </tbody>
@@ -262,25 +265,28 @@
               }
             });
 
-            $(".unassign-auditor").on("click", function(evt) {
+            $(".unassign-auditor").on("click", function (evt) {
               evt.preventDefault();
-              var message = "Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established.";
+              var message =
+                "Are you sure you want to unassign the auditor? Auditor access to this envelope cannot be re-established and the envelope may be completed.";
               if (confirm(message)) {
                 var link = $(this).attr("href");
                 $.ajax({
                   url: link,
                   method: "GET",
-                  success: function(data) {
+                  success: function (data) {
                     if (data.success) {
                       window.location.reload();
                     } else {
                       alert("Failed to unassign auditor: " + (data.message || "Unknown error"));
                     }
                   },
-                  error: function(error) {
+                  error: function (error) {
                     console.error("Error:", error);
-                    alert("An error occurred while trying to unassign the auditor. Please try again or contact support if the problem persists.");
-                  }
+                    alert(
+                      "An error occurred while trying to unassign the auditor. Please try again or contact support if the problem persists.",
+                    );
+                  },
                 });
               }
             });
