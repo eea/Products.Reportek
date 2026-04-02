@@ -2173,7 +2173,13 @@ class EnvelopeCustomDataflows(Toolz):
                     audit_start_date = DateTime().strftime("%d %b %Y %H:%M")
             except HTTPError as e:
                 # If error is 400, check if it's already assigned
-                if e.response.status_code == 400:
+                aa_marker = (
+                    "Verification envelope already has an auditor assigned"
+                )
+                errors = e.response.json().get("errors", {})
+                if e.response.status_code == 400 and aa_marker in errors.get(
+                    "auditor", {}
+                ):
                     auditor_details = (
                         engine.FGASRegistryAPI.get_auditor_details(
                             audit_data.get("auditor_uid")
