@@ -917,7 +917,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def aggregated_licences_listing(self):
         """Licence list for use in the company detail view"""
         data = []
-        raw_data = self.aggregated_licences(all_years=True)
+        raw_data = self.aggregated_multi_year_licences(all_years=True)
         if raw_data:
             raw_data = json.loads(raw_data)
             data = raw_data["licences"]

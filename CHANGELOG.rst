@@ -1,3 +1,15 @@
+100.2.1 (Unreleased)
+* Buttons instead of anchors for unassign in auditor_details and organisation_details
+  [olimpiurob refs #302173]
+* Normalize unassign warning message [olimpiurob refs #302173]
+* Added Unassign actions in auditor_listing and in org listing and also check for marker error in assign_auditor
+  [olimpiurob  refs #302173]
+* Handle idempotency issues in assign auditor in external API call where the transaction could be rolled back
+  [olimpiurob refs #302173]
+* Layout fixes in organisation_details_licences
+* Switched org details licences to aggregated multi year licences
+* Added conditional event notification in unassign_auditor
+
 100.2.0 (2026-03-24)
 ____________________
 * rfc1123_date: Moved imports from App.Common to zope.datetime in Document.py, RepUtils.py, and testDocument.py.

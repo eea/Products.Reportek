@@ -243,13 +243,17 @@ reportek.utils.fcs = {
           "autoWidth": true,
           "aoColumns": [
             { "mData": "year" },
+            { "mData": "is_multi_year_licence" },
+            { "mData": "licence_type" },
             { "mData": "substance" },
             { "mData": "s_orig_country_name" },
             { "mData": "organization_country_name" },
             { "mData": "use_kind" },
             { "mData": "use_desc" },
             { "mData": "type" },
-            { "mData": "quantity" }
+            { "mData": "quantity" },
+            { "mData": "reserved" },
+            { "mData": "has_certex_data" }
           ]
         });
       }

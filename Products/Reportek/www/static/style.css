@@ -378,6 +378,29 @@ hr {
     background-color: #ddd;
     background-image: linear-gradient(#eee, #ddd);
 }
+.btn-danger {
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d43f3a;
+}
+.btn-danger:hover {
+    background-color: #c9302c;
+    border-color: #ac2925;
+}
+.btn-sm {
+    padding: 2px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Registry Table Classes */
+.col-url {
+    word-break: break-all;
+}
+.col-actions {
+    min-width: 100px;
+    text-align: center;
+}
 
 /* COMPANY */
 .company {
