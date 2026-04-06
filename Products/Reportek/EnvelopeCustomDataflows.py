@@ -43,6 +43,7 @@ from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
 from DateTime import DateTime
+from requests.exceptions import HTTPError
 from zope.contenttype import guess_content_type
 from zope.event import notify
 
@@ -1992,9 +1993,9 @@ class EnvelopeCustomDataflows(Toolz):
 
         return json.dumps(res)
 
-    security.declareProtected("Change Envelopes", "assign_auditor")
+    security.declareProtected("Change Envelopes", "unassign_auditor")
 
-    def unassign_auditor(self):
+    def unassign_auditor(self, notify_event=True):
         """Unassign envelope for F-gas verification.
 
         Returns:
@@ -2024,7 +2025,8 @@ class EnvelopeCustomDataflows(Toolz):
                 audit_info = self.audit_info
                 audit_info["audit_end_date"] = DateTime().strftime("%d %b %Y %H:%M")
                 self.audit_info = audit_info
-                notify(AuditUnassignedEvent(self))
+                if notify_event:
+                    notify(AuditUnassignedEvent(self))
             self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(res)
         except (ValueError, AttributeError) as e:
@@ -2061,14 +2063,59 @@ class EnvelopeCustomDataflows(Toolz):
 
             audit_data = self._prepare_audit_data(settings)
             engine = self.getEngine()
-            res = json.loads(engine.assign_for_audit(audit_data))
-            if res.get("success"):
+
+            res = None
+            audit_start_date = None
+
+            try:
+                res = json.loads(engine.assign_for_audit(audit_data))
+                if res.get("success"):
+                    audit_start_date = DateTime().strftime("%d %b %Y %H:%M")
+            except HTTPError as e:
+                # If error is 400, check if it's already assigned
+                aa_marker = "Verification envelope already has an auditor assigned"
+                errors = e.response.json().get("errors", {})
+                if e.response.status_code == 400 and aa_marker in errors.get(
+                    "auditor", {}
+                ):
+                    auditor_details = engine.FGASRegistryAPI.get_auditor_details(
+                        audit_data.get("auditor_uid")
+                    )
+                    audits = (auditor_details or {}).get("audited_companies", [])
+                    verification_url = audit_data.get("verification_envelope_url")
+                    reporting_url = audit_data.get("reporting_envelope_url")
+                    lead_auditor_email = audit_data.get("lead_auditor")
+
+                    found_audit = None
+                    for audit in audits:
+                        if (
+                            audit.get("verification_envelope_url") == verification_url
+                            and audit.get("reporting_envelope_url") == reporting_url
+                            and audit.get("user", {}).get("email") == lead_auditor_email
+                            and not audit.get("end_date")
+                        ):
+                            found_audit = audit
+                            break
+
+                    if found_audit:
+                        res = {"success": True, "message": "Already assigned"}
+                        remote_start_date = found_audit.get("start_date")
+                        audit_start_date = DateTime(remote_start_date).strftime(
+                            "%d %b %Y %H:%M"
+                        )
+                    else:
+                        raise e
+                else:
+                    raise e
+
+            if res and res.get("success"):
                 self.is_audit_assigned = True
                 audit_info = self._extract_audit_info(settings)
-                audit_info["audit_start_date"] = DateTime().strftime("%d %b %Y %H:%M")
+                audit_info["audit_start_date"] = audit_start_date
                 audit_info["audit_end_date"] = None
                 self.audit_info = audit_info
                 notify(AuditAssignedEvent(self))
+
             return json.dumps(res)
 
         except (ValueError, AttributeError) as e:

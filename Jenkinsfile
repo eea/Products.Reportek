@@ -70,17 +70,8 @@ pipeline {
                 }
               }
             }
-          },
-
-          "PEP8": {
-            node(label: 'docker') {
-              script {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
-                }
-              }
-            }
           }
+
         )
       }
     }
@@ -136,7 +127,7 @@ pipeline {
                     def git_cmd = env.CHANGE_ID ?
                         "git clone ${env.GIT_SRC} /opt/zope/src/Products.Reportek && cd /opt/zope/src/Products.Reportek && git fetch origin pull/${env.CHANGE_ID}/head && git checkout FETCH_HEAD" :
                         "git clone --branch ${env.BRANCH_NAME} --single-branch ${env.GIT_SRC} /opt/zope/src/Products.Reportek"
-                    
+
                     withEnv(["GIT_CMD=${git_cmd}", "CONTAINER_NAME=${env.BUILD_TAG}-base-z5-tests"]) {
                         sh '''
                             docker pull eeacms/reportek-base-dr:z5-latest
@@ -162,7 +153,7 @@ pipeline {
                     def git_cmd = env.CHANGE_ID ?
                         "git clone ${env.GIT_SRC} /opt/zope/src/Products.Reportek && cd /opt/zope/src/Products.Reportek && git fetch origin pull/${env.CHANGE_ID}/head && git checkout FETCH_HEAD" :
                         "git clone --branch ${env.BRANCH_NAME} --single-branch ${env.GIT_SRC} /opt/zope/src/Products.Reportek"
-                    
+
                     withEnv(["GIT_CMD=${git_cmd}", "CONTAINER_NAME=${env.BUILD_TAG}-base-z5-coverage"]) {
                         sh '''
                             docker pull eeacms/reportek-base-dr:z5-latest
