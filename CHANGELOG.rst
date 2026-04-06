@@ -1,4 +1,8 @@
+100.2.2-dev (Unreleased)
+------------------------
+
 100.2.1 (2026-04-06)
+--------------------
 * Buttons instead of anchors for unassign in auditor_details and organisation_details
   [olimpiurob refs #302173]
 * Normalize unassign warning message [olimpiurob refs #302173]
