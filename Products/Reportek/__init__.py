@@ -76,7 +76,7 @@ from Products.Reportek.ReportekUserFactoryPlugin import (
     addReportekUserFactoryPlugin,
     manage_addReportekUserFactoryPluginForm,
 )
-from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.RepUtils import ThreadSafeKeyManagerProxy, getToolByName
 from Products.ZCTextIndex.ZCTextIndex import PLexicon, ZCTextIndex
 
 # workaround for BaseRequest assuming requests not GET, POST, PURGE as webdav
@@ -216,7 +216,8 @@ def create_reportek_objects(app):
         app._p_changed = 1
         if logger is not None:
             logger.info("Adding key manager")
-    gsm.registerUtility(km, IKeyManager)
+    proxy_km = ThreadSafeKeyManagerProxy()
+    gsm.registerUtility(proxy_km, IKeyManager)
 
 
 def _strip_protocol_domain(full_url):
@@ -449,7 +450,7 @@ def initialize(context):
             permission="Add Remote Application",
             constructors=(
                 RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,  # noqa
-                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication  # noqa
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication,  # noqa
             ),  # noqa
             icon="www/qa_application.gif",
         )
