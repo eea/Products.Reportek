@@ -2,7 +2,21 @@ from Products.Five import BrowserView
 
 
 class EnvelopeHistoryView(BrowserView):
-    def get_formatted_workitem_info(self, workitem):
+    def __init__(self, context, request):
+        super(EnvelopeHistoryView, self).__init__(context, request)
+        try:
+            import plone.protect.interfaces
+            from zope.interface import alsoProvides
+
+            if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+                alsoProvides(
+                    self.request,
+                    plone.protect.interfaces.IDisableCSRFProtection,
+                )
+        except ImportError:
+            pass
+
+    def get_formatted_workitem_info(self, workitem, expanded=False):
         """Returns formatted information for a workitem"""
         return {
             "date": workitem.lastActivityDate().strftime("%Y/%m/%d"),
@@ -11,7 +25,7 @@ class EnvelopeHistoryView(BrowserView):
             "actor": workitem.actor if workitem.actor else "",
             "status": workitem.status,
             "id": workitem.id,
-            "details": workitem.workitemDetails,
+            "details": workitem.workitemDetails if expanded else "",
             "is_renamed": not workitem.getActivityAttribute("title"),
         }
 
