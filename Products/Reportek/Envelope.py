@@ -543,8 +543,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
             from zope.interface import alsoProvides
 
-            alsoProvides(REQUEST,
-                plone.protect.interfaces.IDisableCSRFProtection)
+            alsoProvides(
+                REQUEST,
+                plone.protect.interfaces.IDisableCSRFProtection
+            )
 
         session = getattr(REQUEST, 'SESSION', None)
         if session and 'status_extra' in session.keys():

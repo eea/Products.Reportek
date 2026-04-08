@@ -6,7 +6,8 @@ from Products.Five import BrowserView
 
 
 def history_cache_key(method, self):
-    # Only consider 'w<id>' query parameters to prevent cache busting via random query strings
+    # Only consider 'w<id>' query parameters to prevent cache busting via
+    # random query strings
     expanded_items = frozenset(
         (k, v)
         for k, v in self.request.form.items()
