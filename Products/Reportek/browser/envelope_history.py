@@ -1,8 +1,50 @@
+from time import time
+
+from plone.memoize import ram
+
 from Products.Five import BrowserView
 
 
+def history_cache_key(method, self):
+    # Only consider 'w<id>' query parameters to prevent cache busting via
+    # random query strings
+    expanded_items = frozenset(
+        (k, v)
+        for k, v in self.request.form.items()
+        if k.startswith("w") and v in ("0", "1")
+    )
+    return (
+        self.context.absolute_url_path(),
+        getattr(self.context, "_p_mtime", 0),
+        expanded_items,
+        time() // (60 * 60),
+    )
+
+
 class EnvelopeHistoryView(BrowserView):
-    def get_formatted_workitem_info(self, workitem):
+    def __init__(self, context, request):
+        super(EnvelopeHistoryView, self).__init__(context, request)
+
+        # Disable the transform chain to bypass expensive lxml parsing
+        self.request.environ["plone.transformchain.disable"] = True
+
+        try:
+            import plone.protect.interfaces
+            from zope.interface import alsoProvides
+
+            if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+                alsoProvides(
+                    self.request,
+                    plone.protect.interfaces.IDisableCSRFProtection,
+                )
+        except ImportError:
+            pass
+
+    @ram.cache(history_cache_key)
+    def __call__(self):
+        return self.index()
+
+    def get_formatted_workitem_info(self, workitem, expanded=False):
         """Returns formatted information for a workitem"""
         return {
             "date": workitem.lastActivityDate().strftime("%Y/%m/%d"),
@@ -11,7 +53,7 @@ class EnvelopeHistoryView(BrowserView):
             "actor": workitem.actor if workitem.actor else "",
             "status": workitem.status,
             "id": workitem.id,
-            "details": workitem.workitemDetails,
+            "details": workitem.workitemDetails if expanded else "",
             "is_renamed": not workitem.getActivityAttribute("title"),
         }
 
