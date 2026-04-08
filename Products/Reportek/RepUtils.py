@@ -54,6 +54,8 @@ from zope.component import getUtility
 
 # from zope.datetime import rfc1123_date
 from zope.interface.interfaces import ComponentLookupError
+from zope.interface import implementer
+from plone.keyring.interfaces import IKeyManager
 
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
@@ -1030,3 +1032,67 @@ def checkPermission(permission, obj):
     if not isinstance(permission, str):
         permission = permission.decode()
     return getSecurityManager().checkPermission(permission, obj)
+
+
+@implementer(IKeyManager)
+class ThreadSafeKeyManagerProxy(object):
+    """
+    A thread-safe proxy for the ZODB-persistent KeyManager.
+    Instead of registering a single ZODB object globally (which causes
+    ReadConflictErrors across threads), this proxy dynamically fetches
+    the KeyManager from the current thread's database connection.
+    """
+
+    def _get_real_manager(self):
+        from zope.globalrequest import getRequest
+        from plone.protect.utils import getRoot
+
+        request = getRequest()
+        if request is None:
+            raise RuntimeError(
+                "KeyManager proxy requires an active request. "
+                "Cannot be used from background tasks or startup scripts."
+            )
+
+        root = getRoot(request)
+        if root is None:
+            # getRoot walks aq_parent which can fail for certain contexts
+            # (e.g. /manage_main). Fall back to the request's PARENTS chain.
+            parents = request.get('PARENTS', [])
+            if parents:
+                root = parents[-1]
+
+        manager = getattr(root, 'key_manager', None)
+        if manager is None:
+            manager = getattr(root, '_key_manager', None)
+        return manager
+
+    def __setitem__(self, key, value):
+        self._get_real_manager()[key] = value
+
+    def __getitem__(self, key):
+        return self._get_real_manager()[key]
+
+    def __contains__(self, key):
+        return key in self._get_real_manager()
+
+    def __iter__(self):
+        return iter(self._get_real_manager())
+
+    def get(self, key, default=None):
+        return self._get_real_manager().get(key, default)
+
+    def keys(self):
+        return self._get_real_manager().keys()
+
+    def values(self):
+        return self._get_real_manager().values()
+
+    def clear(self, ring=u"_system"):
+        return self._get_real_manager().clear(ring)
+
+    def rotate(self, ring=u"_system"):
+        return self._get_real_manager().rotate(ring)
+
+    def secret(self, ring=u"_system"):
+        return self._get_real_manager().secret(ring)
