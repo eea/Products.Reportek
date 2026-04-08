@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from mock import Mock, patch, PropertyMock
-from zope.interface.verify import verifyObject
+from mock import Mock, patch
 
 from plone.keyring.interfaces import IKeyManager
 from Products.Reportek.RepUtils import ThreadSafeKeyManagerProxy
@@ -11,7 +10,7 @@ from Products.Reportek.RepUtils import ThreadSafeKeyManagerProxy
 class TestThreadSafeKeyManagerProxy(unittest.TestCase):
 
     def _make_proxy_with_mock_manager(self, mock_manager=None):
-        """Create a proxy and patch _get_real_manager to return mock_manager."""
+        """Patch _get_real_manager to return mock_manager."""
         if mock_manager is None:
             mock_manager = Mock()
         proxy = ThreadSafeKeyManagerProxy()
@@ -21,8 +20,9 @@ class TestThreadSafeKeyManagerProxy(unittest.TestCase):
     # --- Interface compliance ---
 
     def test_implements_ikeymanager(self):
-        proxy = ThreadSafeKeyManagerProxy()
-        self.assertTrue(IKeyManager.implementedBy(ThreadSafeKeyManagerProxy))
+        self.assertTrue(
+            IKeyManager.implementedBy(ThreadSafeKeyManagerProxy)
+        )
 
     def test_provides_ikeymanager(self):
         proxy = ThreadSafeKeyManagerProxy()

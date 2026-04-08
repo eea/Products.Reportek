@@ -1062,7 +1062,9 @@ class ThreadSafeKeyManagerProxy(object):
             if parents:
                 root = parents[-1]
 
-        manager = getattr(root, 'key_manager', None) or getattr(root, '_key_manager', None)
+        manager = getattr(root, 'key_manager', None)
+        if manager is None:
+            manager = getattr(root, '_key_manager', None)
         return manager
 
     def __setitem__(self, key, value):
