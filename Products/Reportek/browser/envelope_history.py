@@ -44,7 +44,9 @@ class EnvelopeHistoryView(BrowserView):
     def __call__(self):
         user = self.request.AUTHENTICATED_USER
         if user.getUserName() == "Anonymous User":
-            raise Unauthorized("You must be logged in to view envelope history.")
+            raise Unauthorized(
+                "You must be logged in to view envelope history."
+            )
         return self._cached_call()
 
     @ram.cache(history_cache_key)
