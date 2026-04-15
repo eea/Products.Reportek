@@ -1,5 +1,6 @@
 from time import time
 
+from AccessControl import Unauthorized
 from plone.memoize import ram
 
 from Products.Five import BrowserView
@@ -40,8 +41,14 @@ class EnvelopeHistoryView(BrowserView):
         except ImportError:
             pass
 
-    @ram.cache(history_cache_key)
     def __call__(self):
+        user = self.request.AUTHENTICATED_USER
+        if user.getUserName() == "Anonymous User":
+            raise Unauthorized("You must be logged in to view envelope history.")
+        return self._cached_call()
+
+    @ram.cache(history_cache_key)
+    def _cached_call(self):
         return self.index()
 
     def get_formatted_workitem_info(self, workitem, expanded=False):

@@ -110,12 +110,12 @@ class EnvelopesAPI(BrowserView):
         """
         dummycounty = {'name': 'Unknown', 'iso': 'xx'}
         engine = getattr(self.context, ENGINE_ID)
-        localities_table = engine.localities_table()
         if country_uri:
             try:
-                return str([x['iso'] for
-                            x in localities_table
-                            if str(x['uri']) == country_uri][0])
+                country = engine.localities_dict().get(country_uri)
+                if country:
+                    return str(country['iso'])
+                return dummycounty['iso']
             except Exception:
                 return dummycounty['iso']
 
@@ -328,6 +328,13 @@ class EnvelopesAPI(BrowserView):
 
     def get_env_children(self, path, children_type):
         """Return envelope's children of type children_type as brains."""
+        cache = getattr(self, '_children_cache', None)
+        if cache is None:
+            self._children_cache = cache = {}
+        cache_key = (path, children_type)
+        if cache_key in cache:
+            return cache[cache_key]
+
         query = {
             'path': path,
             'meta_type': children_type,
@@ -340,6 +347,7 @@ class EnvelopesAPI(BrowserView):
 
         if children_type == 'Workitem':
             brains.sort(key=getbID)
+        cache[cache_key] = brains
         return brains
 
     def is_env_blocked(self, wk_brains):
