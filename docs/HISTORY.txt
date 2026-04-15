@@ -1,6 +1,11 @@
 Changelog
 =========
 
+13.0 - (2026-04-15)
+---------------------------
+* Change: Require auth for envelope history
+  [olimpiurob]
+
 12.9 - (2026-04-08)
 ---------------------------
 * Change: Develop
