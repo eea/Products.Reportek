@@ -1,6 +1,11 @@
 Changelog
 =========
 
+13.1 - (2026-04-16)
+---------------------------
+* Change: Templates performance optimizations
+  [olimpiurob]
+
 13.0 - (2026-04-15)
 ---------------------------
 * Change: Require auth for envelope history

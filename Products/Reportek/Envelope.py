@@ -1175,11 +1175,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """ return sorted feedbacks by their 'title' property, the manual
             feedback if always first
         """
-        res = []
-        feedback_list = self.getFeedbacks()
-        manual_feedback = self.getManualFeedback()
+        feedback_list = list(self.getFeedbacks())
+        manual_feedback = None
+        for obj in feedback_list:
+            if obj.releasedate == self.reportingdate and not obj.automatic:
+                manual_feedback = obj
+                break
         if manual_feedback:
-            res.append(manual_feedback)
+            res = [manual_feedback]
             auto_feedbacks = RepUtils.utSortByAttr(feedback_list, 'title')
             auto_feedbacks.remove(manual_feedback)
             res.extend(auto_feedbacks)
