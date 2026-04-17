@@ -27,10 +27,11 @@ import os
 import constants
 import RepUtils
 import Globals
+import re
 from copy import deepcopy
 from Products.Reportek.blob import StorageError
 from ZODB.POSException import POSKeyError
-from zExceptions import Redirect
+from zExceptions import BadRequest, Redirect
 from RestrictedPython.Eval import RestrictionCapableEval
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens, view
@@ -43,6 +44,21 @@ __doc__ = """
       $Id$
 """
 __version__ = '$Rev$'[6:-2]
+
+_SCHEME_RE = re.compile(r'^[a-zA-Z][a-zA-Z0-9+\-.]*://')
+
+
+def validate_file_url(file_url):
+    """Reject file URLs that point to external resources (SSRF prevention).
+
+    Only relative Zope paths are allowed. Absolute URLs with a scheme
+    (e.g. http://, https://, ftp://) are rejected.
+    """
+    if file_url and isinstance(file_url, basestring) and \
+            _SCHEME_RE.match(file_url):
+        raise BadRequest(
+            'External URLs are not allowed in the file parameter.'
+        )
 
 
 manage_addConverterForm = PageTemplateFile(

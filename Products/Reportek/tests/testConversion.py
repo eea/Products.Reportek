@@ -6,7 +6,7 @@ from mock import Mock
 from Testing import ZopeTestCase
 from common import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from zExceptions import Redirect
+from zExceptions import BadRequest, Redirect
 from mock import patch
 
 ZopeTestCase.installProduct('Reportek')
@@ -419,6 +419,65 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             "map-dist.gml"
         )
         self.assertEquals(0, len(local_converters))
+
+    def test_run_conversion_rejects_http_file_url(self):
+        """SSRF prevention: run_conversion must reject external URLs."""
+        converters = getattr(self.app, CONVERTERS_ID)
+        with self.assertRaises(BadRequest):
+            converters.run_conversion(
+                file_url='http://evil.example.com/secret',
+                converter_id='default',
+                REQUEST=self.app.REQUEST,
+            )
+
+    def test_run_conversion_rejects_https_file_url(self):
+        """SSRF prevention: run_conversion must reject https URLs."""
+        converters = getattr(self.app, CONVERTERS_ID)
+        with self.assertRaises(BadRequest):
+            converters.run_conversion(
+                file_url='https://evil.example.com/secret',
+                converter_id='default',
+                REQUEST=self.app.REQUEST,
+            )
+
+    def test_run_conversion_rejects_ftp_file_url(self):
+        """SSRF prevention: run_conversion must reject ftp URLs."""
+        converters = getattr(self.app, CONVERTERS_ID)
+        with self.assertRaises(BadRequest):
+            converters.run_conversion(
+                file_url='ftp://evil.example.com/secret',
+                converter_id='default',
+                REQUEST=self.app.REQUEST,
+            )
+
+    def test_run_conversion_rejects_http_url_from_request(self):
+        """SSRF prevention: external URL in REQUEST 'file' param is rejected."""
+        converters = getattr(self.app, CONVERTERS_ID)
+        self.app.REQUEST.set('file', 'http://evil.example.com/secret')
+        with self.assertRaises(BadRequest):
+            converters.run_conversion(REQUEST=self.app.REQUEST)
+
+    def test_run_remote_conversion_rejects_http_file_url(self):
+        """SSRF prevention: run_remote_conversion must reject external URLs."""
+        converters = getattr(self.app, CONVERTERS_ID)
+        with self.assertRaises(BadRequest):
+            converters.run_remote_conversion(
+                'http://evil.example.com/secret',
+                converter_id='default',
+            )
+
+    def test_run_conversion_allows_relative_path(self):
+        """Relative Zope paths should still be accepted."""
+        converters = getattr(self.app, CONVERTERS_ID)
+        self.create_text_document()
+        # Should not raise BadRequest (may raise Redirect for invalid
+        # converter, which is expected)
+        with self.assertRaises(Redirect):
+            converters.run_conversion(
+                file_url=self.document.absolute_url(1),
+                converter_id='default',
+                REQUEST=self.app.REQUEST,
+            )
 
     def testDefaultIdException(self):
         converters = getattr(self.app, CONVERTERS_ID)
