@@ -21,14 +21,8 @@
                   else value['SOURCE_TITLE']"
           condition="python: value.get('uri') in u"
         >
-          <tal:block
-            condition="python:flip and not repeat['value'].start"
-            content="structure string:</optgroup>"
-          />
-          <tal:block
-            condition="flip"
-            content='structure string:<optgroup label="${source_title}">'
-          />
+          <tal:block condition="python:flip and not repeat['value'].start" content="structure string:</optgroup>" />
+          <tal:block condition="flip" content='structure string:<optgroup label="${source_title}">' />
           <tal:block
             define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];
                                  given_selected obligation_selected | nothing"
@@ -97,11 +91,7 @@
 <metal:block define-macro="formInputFields">
   <input type="hidden" name="sort_on" value="reportingdate" />
   <input type="hidden" name="sort_order" value="reverse" />
-  <input
-    type="submit"
-    value="Submit Query"
-    i18n:attributes="value btn-submi-query"
-  />
+  <input type="submit" value="Submit Query" i18n:attributes="value btn-submi-query" />
   <input type="reset" value="Reset fields" />
 </metal:block>
 
@@ -155,17 +145,12 @@
     </thead>
     <tbody>
       <tal:block repeat="result batch">
-        <tr
-          tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''"
-        >
+        <tr tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''">
           <tal:comment content="nothing" i18n:translate="">
-            if result has getObject, then it is a brain, fetch the object else
-            it probably is an already fetched object - return function that
-            returns the initial object back
+            if result has getObject, then it is a brain, fetch the object else it probably is an already fetched object
+            - return function that returns the initial object back
           </tal:comment>
-          <tal:block
-            define="obj python: getattr(result, 'getObject', lambda: result)()"
-          >
+          <tal:block define="obj python: getattr(result, 'getObject', lambda: result)()">
             <metal:block define-slot="resultsTableRowFormat" />
           </tal:block>
         </tr>
@@ -255,7 +240,8 @@
 </metal:block>
 
 <metal:block define-macro="ecr-collections">
-  <tal:block define="engine here/ReportekEngine;
+  <tal:block
+    define="engine here/ReportekEngine;
                      user_ct engine/get_ecr_content;
                      ct python: user_ct.get('ecr', {});
                      rw_colls python: ct.get('rw', []);
@@ -272,7 +258,8 @@
                      audit_by_path python:engine.group_collections_by_path(audit_colls);
                      client_by_path python:engine.group_collections_by_path(client_colls);
                      fgas_by_path python:engine.group_collections_by_path(fgas_audit_envs);
-                     bdr_reg_info python: engine.BDRRegistryAPI.get_user_details(name)">
+                     bdr_reg_info python: engine.BDRRegistryAPI.get_user_details(name)"
+  >
     <!-- Registry information section -->
     <tal:block tal:condition="bdr_reg_info">
       <h2 i18n:translate="">Click on the link below to access your company registry page</h2>
@@ -288,12 +275,16 @@
     <tal:block tal:condition="python: (len(rw_colls) > 0) or no_content">
       <h2 i18n:translate="">Click on the link below to start the reporting</h2>
 
-      <tal:block tal:define="sorted_rw python: sorted(rw_colls, key=lambda k: k.title_or_id().lower());
-                             rw_by_path python: {}">
+      <tal:block
+        tal:define="sorted_rw python: sorted(rw_colls, key=lambda k: k.title_or_id().lower());
+                             rw_by_path python: {}"
+      >
         <!-- Group collections by path only once -->
         <tal:block tal:repeat="col sorted_rw">
-          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
-                                 dummy python: rw_by_path.setdefault(path_key, []).append(col)" />
+          <tal:block
+            tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: rw_by_path.setdefault(path_key, []).append(col)"
+          />
         </tal:block>
 
         <!-- Display grouped collections -->
@@ -302,7 +293,7 @@
             <h5 tal:content="python: groups[key]" />
             <ul>
               <li tal:repeat="col python: rw_by_path[key]">
-                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+                <a tal:attributes="href col/absolute_url" tal:content="col/title_or_id"></a>
               </li>
             </ul>
           </tal:block>
@@ -316,9 +307,13 @@
 
       <tal:block tal:define="ro_by_path python: {}">
         <!-- Group and sort collections in one pass -->
-        <tal:block tal:repeat="col python: sorted(ro_colls, key=lambda k: k.getCountryCode() + k.title_or_id().lower())">
-          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
-                                 dummy python: ro_by_path.setdefault(path_key, []).append(col)" />
+        <tal:block
+          tal:repeat="col python: sorted(ro_colls, key=lambda k: k.getCountryCode() + k.title_or_id().lower())"
+        >
+          <tal:block
+            tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: ro_by_path.setdefault(path_key, []).append(col)"
+          />
         </tal:block>
 
         <!-- Display grouped collections -->
@@ -327,8 +322,10 @@
             <h5 tal:content="python: groups[key]" />
             <ul>
               <li tal:repeat="col python: ro_by_path[key]">
-                <a tal:attributes="href col/absolute_url"
-                   tal:content="python: '[ARCHIVE][{}] - {}'.format(col.getCountryCode(), col.title_or_id())"></a>
+                <a
+                  tal:attributes="href col/absolute_url"
+                  tal:content="python: '[ARCHIVE][{}] - {}'.format(col.getCountryCode(), col.title_or_id())"
+                ></a>
               </li>
             </ul>
           </tal:block>
@@ -343,8 +340,10 @@
       <tal:block tal:define="audit_by_path python: {}">
         <!-- Group audit collections -->
         <tal:block tal:repeat="col python: sorted(audit_colls, key=lambda k: k.title_or_id().lower())">
-          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
-                                 dummy python: audit_by_path.setdefault(path_key, []).append(col)" />
+          <tal:block
+            tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: audit_by_path.setdefault(path_key, []).append(col)"
+          />
         </tal:block>
 
         <!-- Display grouped audit collections -->
@@ -353,7 +352,7 @@
             <h5 tal:content="python: groups[key]" />
             <ul>
               <li tal:repeat="col python: audit_by_path[key]">
-                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+                <a tal:attributes="href col/absolute_url" tal:content="col/title_or_id"></a>
               </li>
             </ul>
           </tal:block>
@@ -367,17 +366,23 @@
 
       <tal:block tal:define="fgas_by_company python: {}">
         <!-- Group F-Gas audit environments by company name -->
-        <tal:block tal:repeat="env python: sorted(fgas_audit_envs, key=lambda k: k.get_zope_company_meta()[0].lower() if k.get_zope_company_meta()[0] else '')">
-          <tal:block tal:define="company_name python: env.get_zope_company_meta()[0] or 'Unknown Company';
-                                 dummy python: fgas_by_company.setdefault(company_name, []).append(env)" />
+        <tal:block
+          tal:repeat="env python: sorted(fgas_audit_envs, key=lambda k: k.get_zope_company_meta()[0].lower() if k.get_zope_company_meta()[0] else '')"
+        >
+          <tal:block
+            tal:define="company_name python: env.get_zope_company_meta()[0] or 'Unknown Company';
+                                 dummy python: fgas_by_company.setdefault(company_name, []).append(env)"
+          />
         </tal:block>
 
         <!-- Display grouped F-Gas environments by company -->
         <tal:block tal:repeat="company_name python: sorted(fgas_by_company.keys())">
           <h5 tal:content="company_name" />
           <ul>
-            <li tal:repeat="env python: sorted(fgas_by_company[company_name], key=lambda t: t.reportingdate, reverse=True)">
-              <a tal:attributes="href env/absolute_url" tal:content="env/title"></a>
+            <li
+              tal:repeat="env python: sorted(fgas_by_company[company_name], key=lambda t: t.reportingdate, reverse=True)"
+            >
+              <a tal:attributes="href env/absolute_url" tal:content="env/title_or_id"></a>
             </li>
           </ul>
         </tal:block>
@@ -391,8 +396,10 @@
       <tal:block tal:define="client_by_path python: {}">
         <!-- Group client collections -->
         <tal:block tal:repeat="col python: sorted(client_colls, key=lambda k: k.title_or_id().lower())">
-          <tal:block tal:define="path_key python: col.getPhysicalPath()[1];
-                                 dummy python: client_by_path.setdefault(path_key, []).append(col)" />
+          <tal:block
+            tal:define="path_key python: col.getPhysicalPath()[1];
+                                 dummy python: client_by_path.setdefault(path_key, []).append(col)"
+          />
         </tal:block>
 
         <!-- Display grouped client collections -->
@@ -401,7 +408,7 @@
             <h5 tal:content="python: groups[key]" />
             <ul>
               <li tal:repeat="col python: client_by_path[key]">
-                <a tal:attributes="href col/absolute_url" tal:content="col/title"></a>
+                <a tal:attributes="href col/absolute_url" tal:content="col/title_or_id"></a>
               </li>
             </ul>
           </tal:block>
@@ -413,21 +420,16 @@
       <p i18n:translate="">It appears you have no reporting tasks.</p>
       <p i18n:translate="">
         If you are registered as data reporter in the
-        <a href="https://webgate.ec.europa.eu/ods2" i18n:translate=""
-          >European registry</a
-        >
+        <a href="https://webgate.ec.europa.eu/ods2" i18n:translate="">European registry</a>
         and you still see this message, please:
       </p>
       <ul>
         <li i18n:translate="">
-          try to login again in a few minutes, perhaps using another browser,
-          or forcing a page refresh: Ctrl+Shift+R
+          try to login again in a few minutes, perhaps using another browser, or forcing a page refresh: Ctrl+Shift+R
         </li>
         <li i18n:translate="">
           contact the
-          <a href="mailto:BDR.helpdesk@eea.europa.eu" i18n:translate=""
-            >BDR helpdesk</a
-          >
+          <a href="mailto:BDR.helpdesk@eea.europa.eu" i18n:translate="">BDR helpdesk</a>
           to look into the issue
         </li>
       </ul>
