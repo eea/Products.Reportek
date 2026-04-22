@@ -122,16 +122,12 @@ class EnvelopesAPI(BrowserView):
         """Returns country ISO code from the country uri"""
         dummycounty = {"name": "Unknown", "iso": "xx"}
         engine = getattr(self.context, ENGINE_ID)
-        localities_table = engine.localities_table()
         if country_uri:
             try:
-                return str(
-                    [
-                        x["iso"]
-                        for x in localities_table
-                        if str(x["uri"]) == country_uri
-                    ][0]
-                )
+                country = engine.localities_dict().get(country_uri)
+                if country:
+                    return str(country["iso"])
+                return dummycounty["iso"]
             except Exception:
                 return dummycounty["iso"]
 
@@ -223,7 +219,9 @@ class EnvelopesAPI(BrowserView):
                             {
                                 "url": o.absolute_url(),
                                 "title": o.title_or_id(),
-                                "contentType": getattr(o, "content_type", None),
+                                "contentType": getattr(
+                                    o, "content_type", None
+                                ),
                             }
                             for o in fb.objectValues(["File", "File (Blob)"])
                         ],
@@ -335,6 +333,13 @@ class EnvelopesAPI(BrowserView):
 
     def get_env_children(self, path, children_type):
         """Return envelope's children of type children_type as brains."""
+        cache = getattr(self, "_children_cache", None)
+        if cache is None:
+            self._children_cache = cache = {}
+        cache_key = (path, children_type)
+        if cache_key in cache:
+            return cache[cache_key]
+
         query = {
             "path": path,
             "meta_type": children_type,
@@ -348,6 +353,7 @@ class EnvelopesAPI(BrowserView):
 
         if children_type == "Workitem":
             brains.sort(key=getbID)
+        cache[cache_key] = brains
         return brains
 
     def is_env_blocked(self, wk_brains):
@@ -388,7 +394,9 @@ class EnvelopesAPI(BrowserView):
             )
             if sds:
                 sds = datetime.datetime.strptime(sds, "%Y-%m-%d")
-            sde = fed_params.get("statusDateEnd") or fed_params.get("activityDateEnd")
+            sde = fed_params.get("statusDateEnd") or fed_params.get(
+                "activityDateEnd"
+            )
             if sde:
                 sde = datetime.datetime.strptime(sde, "%Y-%m-%d")
             elif sds:
@@ -416,11 +424,15 @@ class EnvelopesAPI(BrowserView):
                     res = [
                         afv
                         for afv in filter_vs
-                        if afv.upper() != str(default_props.get(afilter)).upper()
+                        if afv.upper()
+                        != str(default_props.get(afilter)).upper()
                     ]
                     if len(res) == len(filter_vs):
                         return True
-                elif afilter_v.upper() != str(default_props.get(afilter)).upper():
+                elif (
+                    afilter_v.upper()
+                    != str(default_props.get(afilter)).upper()
+                ):
                     return True
 
     def get_wk_date(self, wk_brain):
@@ -474,7 +486,9 @@ class EnvelopesAPI(BrowserView):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
         fb_brains = self.get_env_children(path, "Report Feedback")
         aqc_brains = [
-            brain for brain in fb_brains if brain.title.startswith("AutomaticQA")
+            brain
+            for brain in fb_brains
+            if brain.title.startswith("AutomaticQA")
         ]
         VALID_FB_STATUSES = [
             "BLOCKERERROR",
@@ -579,7 +593,9 @@ class EnvelopesAPI(BrowserView):
         except Exception as e:
             error = "An error occured while processing your\
                      request: {}".format(str(e))
-            errors.append({"title": "Error processing request.", "description": error})
+            errors.append(
+                {"title": "Error processing request.", "description": error}
+            )
         if query:
             catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
             brains = list(catalog.searchResults(**query))
@@ -589,7 +605,9 @@ class EnvelopesAPI(BrowserView):
                     "There are too many possible results for your query. "
                     "Please use additional filters."
                 )
-                errors.append({"title": "Too many results", "description": error})
+                errors.append(
+                    {"title": "Too many results", "description": error}
+                )
             else:
                 additional_filters = [
                     k
@@ -605,7 +623,9 @@ class EnvelopesAPI(BrowserView):
                         param for param in fields if param not in default_props
                     ]
                     additional_p_filters = [
-                        p for p in list(fed_params.keys()) if p not in default_props
+                        p
+                        for p in list(fed_params.keys())
+                        if p not in default_props
                     ]
 
                     if additional_p_fields or additional_p_filters:
@@ -620,18 +640,30 @@ class EnvelopesAPI(BrowserView):
                     for field in fields:
                         if field == "files":
                             files_data = self.get_files(brain.getPath())
-                            envelope_data["files"] = files_data.get("documents")
+                            envelope_data["files"] = files_data.get(
+                                "documents"
+                            )
                             if files_data.get("errors"):
                                 errors += files_data.get("errors", [])
                         elif field == "feedbacks":
-                            feedbacks_data = self.get_feedbacks(brain.getPath())
-                            envelope_data["feedbacks"] = feedbacks_data.get("feedbacks")
+                            feedbacks_data = self.get_feedbacks(
+                                brain.getPath()
+                            )
+                            envelope_data["feedbacks"] = feedbacks_data.get(
+                                "feedbacks"
+                            )
                         elif field == "history":
-                            envelope_data["history"] = self.get_env_history(brain)
+                            envelope_data["history"] = self.get_env_history(
+                                brain
+                            )
                         elif field in ["companyId", "companyName"]:
-                            metadata = self.get_envelope_company_metadata(brain)
+                            metadata = self.get_envelope_company_metadata(
+                                brain
+                            )
                             if field == "companyId":
-                                envelope_data["companyId"] = metadata.get("company_id")
+                                envelope_data["companyId"] = metadata.get(
+                                    "company_id"
+                                )
                             if field == "companyName":
                                 c_n = metadata.get("company")
                                 envelope_data["companyName"] = (

@@ -188,7 +188,7 @@
                                         False: 'Data delivery is not acceptable',};
                                 ok_acceptable python: context.is_acceptable() and context.successful_qa;
                                 unknown python: context.has_unknown_qa_result and ok_acceptable;"
-                  tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')"
+                  tal:content="python: 'N/A' if unknown else statuses.get(ok_acceptable, 'N/A')"
                 ></td>
               </tr>
               <tal:block tal:condition="python: context.audit_info">
@@ -239,10 +239,10 @@
                   </div>
                 </tal:block>
                 <tal:block
-                  define="activeW python:context.getListOfWorkitems('active');
-                                   inactiveW python:context.getListOfWorkitems('inactive');
-                                   of_interest python: [context.getListOfWorkitems(status=['active', 'complete'])[-1]] if not inactiveW and not context.status == 'complete' else [];
-                                   w_items python:[wi for wi in context.getListOfWorkitems()];
+                  define="w_items python:list(context.getListOfWorkitems());
+                                   activeW python:[wi for wi in w_items if wi.status == 'active'];
+                                   inactiveW python:[wi for wi in w_items if wi.status == 'inactive'];
+                                   of_interest python: [wi for wi in w_items if wi.status in ('active', 'complete')][-1:] if not inactiveW and not context.status == 'complete' else [];
                                    last python: w_items[-1].activity_id if w_items else None;
                                    "
                 >

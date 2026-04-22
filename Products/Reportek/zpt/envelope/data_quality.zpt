@@ -11,17 +11,19 @@
 
     <div id="detailed-qa"
       tal:define="feedbacks python: list(context.get_qa_feedbacks());
+                  fb_groups python: {};
+                  dummy python: [fb_groups.setdefault(getattr(fb, 'document_id', ''), []).append(fb) for fb in feedbacks];
                   fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
                   seen python: {};
                   u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];
-                  env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml'];">
+                  env_fbs python: fb_groups.get('xml', []);">
       <ul tal:condition="python: len(feedbacks) > len(env_fbs)" class="fb-listing">
         <tal:rep tal:repeat="fb_file u_fb_files">
           <li tal:condition="python: fb_file != 'xml'">
             <strong><span tal:content="python: fb_file" />
             </strong>
             <ul>
-              <li tal:repeat="feedback python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == fb_file]">
+              <li tal:repeat="feedback python: fb_groups.get(fb_file, [])">
                 <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
                       tal:attributes="class python: 'fb-{}'.format(fb_status.lower())">
                   <span class="fb-status" tal:content="fb_status"/>:

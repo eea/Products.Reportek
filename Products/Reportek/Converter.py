@@ -19,6 +19,7 @@
 # Cornel Nitu, Eau de Web
 
 import os
+import re
 import string
 from copy import deepcopy
 
@@ -28,7 +29,7 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
 from OFS.SimpleItem import SimpleItem
 from RestrictedPython.Eval import RestrictionCapableEval
-from zExceptions import Redirect
+from zExceptions import BadRequest, Redirect
 from ZODB.POSException import POSKeyError
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -36,7 +37,6 @@ from Products.Reportek.blob import StorageError
 
 from . import RepUtils, blob, constants
 from .conversion_registry import request_params
-from .RepUtils import extension
 
 __doc__ = """
       Converter product module.
@@ -45,6 +45,20 @@ __doc__ = """
       $Id$
 """
 __version__ = "$Rev$"[6:-2]
+
+_SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+\-.]*://")
+
+
+def validate_file_url(file_url):
+    """Reject file URLs that point to external resources (SSRF prevention).
+
+    Only relative Zope paths are allowed. Absolute URLs with a scheme
+    (e.g. http://, https://, ftp://) are rejected.
+    """
+    if file_url and isinstance(file_url, str) and _SCHEME_RE.match(file_url):
+        raise BadRequest(
+            "External URLs are not allowed in the file parameter."
+        )
 
 
 manage_addConverterForm = PageTemplateFile("zpt/converters/item_add")
@@ -147,7 +161,9 @@ class Converter(SimpleItem):
         self._p_changed = 1
         if REQUEST:
             message = "Content changed."
-            return self.manage_settings_html(self, REQUEST, manage_tabs_message=message)
+            return self.manage_settings_html(
+                self, REQUEST, manage_tabs_message=message
+            )
 
     security.declareProtected(view_management_screens, "getExtraParameters")
 
@@ -158,7 +174,9 @@ class Converter(SimpleItem):
     security.declareProtected(view_management_screens, "manage_settings_html")
     manage_settings_html = PageTemplateFile("zpt/converters/item_edit")
 
-    def __call__(self, file_url, converter_id, output_file_name="", REQUEST=None):
+    def __call__(
+        self, file_url, converter_id, output_file_name="", REQUEST=None
+    ):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized("You are not authorized to view this document")
@@ -180,11 +198,15 @@ class Converter(SimpleItem):
                 "%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url)
             )
         if converter_obj.ct_output and not converter_obj.ct_output == "flash":
-            self.REQUEST.RESPONSE.setHeader("Content-Type", converter_obj.ct_output)
+            self.REQUEST.RESPONSE.setHeader(
+                "Content-Type", converter_obj.ct_output
+            )
 
             # generate 'filename'
             if not output_file_name:
-                if converter_obj.ct_output in list(constants.CONTENT_TYPES.keys()):
+                if converter_obj.ct_output in list(
+                    constants.CONTENT_TYPES.keys()
+                ):
                     output_file_name = "%s%s" % (
                         file_obj.id[: file_obj.id.rfind(".")],
                         constants.CONTENT_TYPES[converter_obj.ct_output],
@@ -290,7 +312,9 @@ class RemoteConverter(Converter):
                 )
                 % message,
             )
-            self.REQUEST.SESSION.set("redirect_to", self.REQUEST["HTTP_REFERER"])
+            self.REQUEST.SESSION.set(
+                "redirect_to", self.REQUEST["HTTP_REFERER"]
+            )
             return file_obj.note()
 
 
@@ -314,7 +338,7 @@ class LocalHttpConverter(Converter):
     def __init__(self, *args, **kwargs):
         super(LocalHttpConverter, self).__init__(*args, **kwargs)
         if not self.suffix:
-            self.suffix = extension(self.ct_input)
+            self.suffix = RepUtils.extension(self.ct_input)
 
     def get_file_data(self, file_obj):
         data_file = getattr(file_obj, "data_file", None)
@@ -338,8 +362,12 @@ class LocalHttpConverter(Converter):
         if accepts_shp:
             shp_container = file_obj.aq_parent
             file_name = file_obj.id.split(".")[0]
-            shx_file = shp_container.unrestrictedTraverse(".".join([file_name, "shx"]))
-            dbf_file = shp_container.unrestrictedTraverse(".".join([file_name, "dbf"]))
+            shx_file = shp_container.unrestrictedTraverse(
+                ".".join([file_name, "shx"])
+            )
+            dbf_file = shp_container.unrestrictedTraverse(
+                ".".join([file_name, "dbf"])
+            )
             shx_data = self.get_file_data(shx_file)
             dbf_data = self.get_file_data(dbf_file)
             files["shx"] = shx_data
@@ -349,7 +377,9 @@ class LocalHttpConverter(Converter):
             if hasattr(dbf_data, "close"):
                 file_handles.append(dbf_data)
         try:
-            resp = requests.post(url, files=files, data={"extraparams": extra_params})
+            resp = requests.post(
+                url, files=files, data={"extraparams": extra_params}
+            )
             response = ConversionResult(resp)
             return response
         finally:
