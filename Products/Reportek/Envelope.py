@@ -632,6 +632,12 @@ class Envelope(
         """ """
         if REQUEST is None:
             REQUEST = self.REQUEST
+
+        if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
+            from zope.interface import alsoProvides
+
+            alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+
         session = getattr(REQUEST, "SESSION", None)
         if session and "status_extra" in list(session.keys()):
             session.delete("status_extra")
@@ -1305,11 +1311,14 @@ class Envelope(
         """return sorted feedbacks by their 'title' property, the manual
         feedback if always first
         """
-        res = []
-        feedback_list = self.getFeedbacks()
-        manual_feedback = self.getManualFeedback()
+        feedback_list = list(self.getFeedbacks())
+        manual_feedback = None
+        for obj in feedback_list:
+            if obj.releasedate == self.reportingdate and not obj.automatic:
+                manual_feedback = obj
+                break
         if manual_feedback:
-            res.append(manual_feedback)
+            res = [manual_feedback]
             auto_feedbacks = RepUtils.utSortByAttr(feedback_list, "title")
             auto_feedbacks.remove(manual_feedback)
             res.extend(auto_feedbacks)
@@ -1568,7 +1577,10 @@ class Envelope(
 
         if cached_zip_path.is_file():
             return stream_response(
-                RESPONSE, cached_zip_path, response_zip_name, "application/x-zip"
+                RESPONSE,
+                cached_zip_path,
+                response_zip_name,
+                "application/x-zip",
             )
         return None
 

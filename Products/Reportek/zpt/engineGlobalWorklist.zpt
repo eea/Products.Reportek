@@ -120,10 +120,11 @@
         </tr>
       </thead>
       <tbody>
-        <tal:block repeat="workitem paginator/object_list">
+        <tal:block define="ldict python:here.localities_dict();
+                         dummy python:{'name': 'Unknown'}"
+                   repeat="workitem paginator/object_list">
           <tr tal:attributes="class python:test(workitem.actor == request.AUTHENTICATED_USER, 'yourown', '')">
-            <td tal:define="country workitem/country"
-              tal:content="python:here.localities_dict(country).get('name')" />
+            <td tal:content="python:ldict.get(workitem.country, dummy)['name']" />
             <td>
               <a tal:define="workitem_parent workitem/getParentNode"
                 tal:attributes="href workitem_parent/absolute_url"

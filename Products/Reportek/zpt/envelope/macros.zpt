@@ -1,6 +1,7 @@
 <tal:block metal:define-macro="status-info-extra">
-  <tal:block tal:condition="python: last == 'Draft'">
-    <tal:block tal:condition="context/is_blocked">
+  <tal:block tal:condition="python: last == 'Draft'"
+             tal:define="qa_wks python:[wi for wi in w_items if wi.activity_id == 'AutomaticQA']">
+    <tal:block tal:condition="python: qa_wks and getattr(qa_wks[-1], 'blocker', False)">
       <div class="ds-footer-entry envelope-blocked-status">
         <strong style="color: red;">
           <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>

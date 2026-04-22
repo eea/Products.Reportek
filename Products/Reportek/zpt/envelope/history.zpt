@@ -1,37 +1,44 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-    <div tal:replace="structure python:context.envelope_tabs(tab='history_section')"/>
-    <h1 i18n:translate="">
-      History of <span tal:replace="context/title_or_id" i18n:name="title"/>
-    </h1>
+    <div tal:replace="structure python:context.envelope_tabs(tab='history_section')" />
+    <h1 i18n:translate="">History of <span tal:replace="context/title_or_id" i18n:name="title" /></h1>
     <p i18n:translate="">
-        This page displays all the history of tasks that have executed in this envelope.
-        If you want to see more details about a task, just expand the <img
-          src="/++resource++images/plus.gif" alt="Expand item for more information"
-          i18n:name="plus-icon"
-          i18n:attributes="alt alt-expand-item"/> icon next to it.
+      This page displays all the history of tasks that have executed in this envelope. If you want to see more details
+      about a task, just expand the
+      <img
+        src="/++resource++images/plus.gif"
+        alt="Expand item for more information"
+        i18n:name="plus-icon"
+        i18n:attributes="alt alt-expand-item"
+      />
+      icon next to it.
     </p>
 
     <table cellpadding="2" cellspacing="2">
       <tal:block repeat="item view/get_workitems">
-        <tr tal:define="info python:view.get_formatted_workitem_info(item);
-                        expanded python:view.is_expanded(item.id)">
+        <tr
+          tal:define="expanded python:view.is_expanded(item.id);
+                        info python:view.get_formatted_workitem_info(item, expanded)"
+        >
           <td valign="top">
             <a rel="nofollow" tal:attributes="href python:view.get_toggle_url(item.id, expanded)">
-              <img tal:condition="expanded"
-                   src="/++resource++images/minus.gif"
-                   alt="Collapse item"
-                   i18n:attributes="alt alt-collapse-item"/>
-              <img tal:condition="not:expanded"
-                   src="/++resource++images/plus.gif"
-                   alt="Expand item for more information"
-                   i18n:attributes="alt alt-expand-item"/>
+              <img
+                tal:condition="expanded"
+                src="/++resource++images/minus.gif"
+                alt="Collapse item"
+                i18n:attributes="alt alt-collapse-item"
+              />
+              <img
+                tal:condition="not:expanded"
+                src="/++resource++images/plus.gif"
+                alt="Expand item for more information"
+                i18n:attributes="alt alt-expand-item"
+              />
             </a>
           </td>
           <td>
-            <metal:info use-macro="context/macros/workitem_info"/>
-            <div tal:condition="expanded"
-                 tal:replace="structure info/details"/>
+            <metal:info use-macro="context/macros/workitem_info" />
+            <div tal:condition="expanded" tal:replace="structure info/details" />
           </td>
         </tr>
       </tal:block>

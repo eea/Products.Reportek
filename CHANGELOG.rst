@@ -1,4 +1,17 @@
+100.2.2 (2026-04-22)
+--------------------
+* Fixed bdr listing for envelopes without title in engineMacros
+* Fixed SSRF issue on run_conversion and run_remote_conversion
+* Performance improvements in templates
+* history_section requires explicit Authentication
+* Improvements in api/envelopes
+* Added ThreadSafeKeyManagerProxy to be registered as KeyManager utility instead of a persistent object
+* Added caching(1h) for history_section and disabled plone.transformchain for the section
+* Disabled CSRF on envelope index_html
+* Improved performance in history_section
+
 100.2.1 (2026-04-06)
+--------------------
 * Buttons instead of anchors for unassign in auditor_details and organisation_details
   [olimpiurob refs #302173]
 * Normalize unassign warning message [olimpiurob refs #302173]

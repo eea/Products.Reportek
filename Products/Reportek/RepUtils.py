@@ -35,6 +35,7 @@ import time
 import traceback
 from copy import deepcopy
 from datetime import datetime
+from pathlib import Path
 from urllib.request import FancyURLopener
 
 from AccessControl.ImplPython import rolesForPermissionOn
@@ -47,11 +48,11 @@ from AccessControl.SecurityManagement import (
 from AccessControl.users import UnrestrictedUser as BaseUnrestrictedUser
 from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
-from zope.datetime import rfc1123_date
 from DateTime import DateTime
-from pathlib import Path
+from plone.keyring.interfaces import IKeyManager
 from zope.component import getUtility
-
+from zope.datetime import rfc1123_date
+from zope.interface import implementer
 from zope.interface.interfaces import ComponentLookupError
 
 from Products.Five import BrowserView
@@ -1072,3 +1073,67 @@ def datify(s):
             s = DateTime(s)
 
     return s
+
+
+@implementer(IKeyManager)
+class ThreadSafeKeyManagerProxy(object):
+    """
+    A thread-safe proxy for the ZODB-persistent KeyManager.
+    Instead of registering a single ZODB object globally (which causes
+    ReadConflictErrors across threads), this proxy dynamically fetches
+    the KeyManager from the current thread's database connection.
+    """
+
+    def _get_real_manager(self):
+        from plone.protect.utils import getRoot
+        from zope.globalrequest import getRequest
+
+        request = getRequest()
+        if request is None:
+            raise RuntimeError(
+                "KeyManager proxy requires an active request. "
+                "Cannot be used from background tasks or startup scripts."
+            )
+
+        root = getRoot(request)
+        if root is None:
+            # getRoot walks aq_parent which can fail for certain contexts
+            # (e.g. /manage_main). Fall back to the request's PARENTS chain.
+            parents = request.get("PARENTS", [])
+            if parents:
+                root = parents[-1]
+
+        manager = getattr(root, "key_manager", None)
+        if manager is None:
+            manager = getattr(root, "_key_manager", None)
+        return manager
+
+    def __setitem__(self, key, value):
+        self._get_real_manager()[key] = value
+
+    def __getitem__(self, key):
+        return self._get_real_manager()[key]
+
+    def __contains__(self, key):
+        return key in self._get_real_manager()
+
+    def __iter__(self):
+        return iter(self._get_real_manager())
+
+    def get(self, key, default=None):
+        return self._get_real_manager().get(key, default)
+
+    def keys(self):
+        return self._get_real_manager().keys()
+
+    def values(self):
+        return self._get_real_manager().values()
+
+    def clear(self, ring="_system"):
+        return self._get_real_manager().clear(ring)
+
+    def rotate(self, ring="_system"):
+        return self._get_real_manager().rotate(ring)
+
+    def secret(self, ring="_system"):
+        return self._get_real_manager().secret(ring)

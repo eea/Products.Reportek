@@ -19,6 +19,7 @@
 # Cornel Nitu, Eau de Web
 
 import os
+import re
 import string
 from copy import deepcopy
 
@@ -28,7 +29,7 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
 from OFS.SimpleItem import SimpleItem
 from RestrictedPython.Eval import RestrictionCapableEval
-from zExceptions import Redirect
+from zExceptions import BadRequest, Redirect
 from ZODB.POSException import POSKeyError
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -36,7 +37,6 @@ from Products.Reportek.blob import StorageError
 
 from . import RepUtils, blob, constants
 from .conversion_registry import request_params
-from .RepUtils import extension
 
 __doc__ = """
       Converter product module.
@@ -45,6 +45,18 @@ __doc__ = """
       $Id$
 """
 __version__ = "$Rev$"[6:-2]
+
+_SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+\-.]*://")
+
+
+def validate_file_url(file_url):
+    """Reject file URLs that point to external resources (SSRF prevention).
+
+    Only relative Zope paths are allowed. Absolute URLs with a scheme
+    (e.g. http://, https://, ftp://) are rejected.
+    """
+    if file_url and isinstance(file_url, str) and _SCHEME_RE.match(file_url):
+        raise BadRequest("External URLs are not allowed in the file parameter.")
 
 
 manage_addConverterForm = PageTemplateFile("zpt/converters/item_add")
@@ -314,7 +326,7 @@ class LocalHttpConverter(Converter):
     def __init__(self, *args, **kwargs):
         super(LocalHttpConverter, self).__init__(*args, **kwargs)
         if not self.suffix:
-            self.suffix = extension(self.ct_input)
+            self.suffix = RepUtils.extension(self.ct_input)
 
     def get_file_data(self, file_obj):
         data_file = getattr(file_obj, "data_file", None)

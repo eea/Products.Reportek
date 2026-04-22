@@ -20,17 +20,15 @@
 
 #     $Id$
 
-from AccessControl.class_init import InitializeClass
 import base64
 import json
 import logging
 import re
-
-from . import constants
-from . import Converter
-import requests
 import xmlrpc.client
+
+import requests
 from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from OFS.Folder import Folder
 from zExceptions import Redirect
@@ -41,7 +39,10 @@ from Products.Reportek.config import (
     LOCAL_CONVERTERS_PORT,
     LOCAL_CONVERTERS_SCHEME,
 )
+from Products.Reportek.Converter import validate_file_url
 from Products.Reportek.exceptions import LocalConversionException
+
+from . import Converter, constants
 
 __doc__ = """
 The Converters is used to make different type of conversions of the Report
@@ -277,6 +278,7 @@ class Converters(Folder):
         self, file_url="", converter_id="", output_file_name="", REQUEST=None
     ):
         """Proxy to run_conversion for API compatibility."""
+        validate_file_url(REQUEST.get("file", file_url))
         name = REQUEST.get("conv", converter_id)
         regex_result = re.match(r"(loc|rem)_(\w+$)", name)
         if regex_result:
@@ -308,6 +310,7 @@ class Converters(Folder):
             source = REQUEST.get("source", source)
             file_url = REQUEST.get("file", file_url)
             converter_id = REQUEST.get("conv", converter_id)
+            validate_file_url(file_url)
 
         if not self.valid_converter(converter_id, source):
             raise Redirect(file_url)
@@ -335,6 +338,7 @@ class Converters(Folder):
     security.declarePublic("run_remote_conversion")
 
     def run_remote_conversion(self, file_url, converter_id, write_to_response=True):
+        validate_file_url(file_url)
         conv = Converter.RemoteConverter(converter_id).__of__(self)
         return conv(file_url, write_to_response=write_to_response)
 
