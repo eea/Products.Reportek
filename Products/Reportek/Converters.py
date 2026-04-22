@@ -80,9 +80,7 @@ class Converters(Folder):
     security.declareProtected(view_management_screens, "index_html")
     index_html = PageTemplateFile("zpt/converters/index")
 
-    security.declareProtected(
-        view_management_screens, "manage_converters_html"
-    )
+    security.declareProtected(view_management_screens, "manage_converters_html")
     manage_converters_html = PageTemplateFile("zpt/converters/edit")
 
     security.declareProtected(view_management_screens, "remote_converters")
@@ -196,17 +194,12 @@ class Converters(Folder):
             )
         except requests.ConnectionError as ex:
             if doc_schema:
-                remote_converters = self.get_remote_converters_for_schema(
-                    doc_schema
-                )
+                remote_converters = self.get_remote_converters_for_schema(doc_schema)
             ex.results = (local_converters, remote_converters)
             raise ex
         possible_good_converters = ""
         for conv_obj in available_local_converters:
-            if (
-                contentType in conv_obj.ct_input
-                or conv_obj.suffix == filesuffix
-            ):
+            if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
                 if doc_schema:
                     if conv_obj.ct_schema:
                         if conv_obj.ct_schema == doc_schema:
@@ -264,9 +257,7 @@ class Converters(Folder):
 
         # Only look in remotes if schema is not empty
         if doc_schema:
-            remote_converters = self.get_remote_converters_for_schema(
-                doc_schema
-            )
+            remote_converters = self.get_remote_converters_for_schema(doc_schema)
         return local_converters, remote_converters
 
     def valid_local_ids(self):
@@ -277,10 +268,7 @@ class Converters(Folder):
         if (
             converter_id == "default"
             or source not in ["local", "remote"]
-            or (
-                source == "local"
-                and converter_id not in self.valid_local_ids()
-            )
+            or (source == "local" and converter_id not in self.valid_local_ids())
         ):
             return False
         else:
@@ -338,16 +326,10 @@ class Converters(Folder):
                             "mime_type": result.content_type,
                             "content": data,
                         }
-                        REQUEST.RESPONSE.setHeader(
-                            "Content-Type", "application/json"
-                        )
+                        REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
                         return json.dumps(json_data)
-                    self.REQUEST.RESPONSE.setStatus(
-                        result.status_code, result.reason
-                    )
-                    self.REQUEST.RESPONSE.setHeader(
-                        "Content-Type", result.content_type
-                    )
+                    self.REQUEST.RESPONSE.setStatus(result.status_code, result.reason)
+                    self.REQUEST.RESPONSE.setHeader("Content-Type", result.content_type)
                     return result.content
 
         if source == "remote":
@@ -355,9 +337,7 @@ class Converters(Folder):
 
     security.declarePublic("run_remote_conversion")
 
-    def run_remote_conversion(
-        self, file_url, converter_id, write_to_response=True
-    ):
+    def run_remote_conversion(self, file_url, converter_id, write_to_response=True):
         validate_file_url(file_url)
         conv = Converter.RemoteConverter(converter_id).__of__(self)
         return conv(file_url, write_to_response=write_to_response)

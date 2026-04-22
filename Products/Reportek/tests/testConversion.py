@@ -31,9 +31,7 @@ class FundamentalsTestCase(BaseTest):
     def test_servername(self):
         """Check that the remote_converter is available and configured"""
         server_name = getattr(self.app, CONVERTERS_ID).remote_converter
-        self.assertEqual(
-            "http://converters.eionet.europa.eu/RpcRouter", server_name
-        )
+        self.assertEqual("http://converters.eionet.europa.eu/RpcRouter", server_name)
 
 
 class ConvertersTestCase(BaseTest, ConfigureReportek):
@@ -70,10 +68,8 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         self.assertNotEqual(None, converters)
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/plain"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/plain"
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -95,10 +91,8 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             ]
         ]
         converters = getattr(self.app, CONVERTERS_ID)
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/plain"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/plain"
         )
         self.assertEqual(1, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -121,26 +115,20 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         ]
         converters = getattr(self.app, CONVERTERS_ID)
         # Lookup on content-type alone
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/pdf"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/pdf"
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
         # Lookup on suffix alone
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/pdf", filename="myfile.pdf"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/pdf", filename="myfile.pdf"
         )
         self.assertEqual(1, len(local_converters))
         self.assertEqual(0, len(remote_converters))
         # Check that the same converter is only listed once
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "application/pdf", filename="myfile.pdf"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "application/pdf", filename="myfile.pdf"
         )
         self.assertEqual(1, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -185,18 +173,14 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             suffix="",
         )
         # Some people end the filename with a period - giving an empty suffix
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/plain", filename="myfile."
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/plain", filename="myfile."
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
         # Some people has no period in the filename
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/plain", filename="myfile"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/plain", filename="myfile"
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -220,19 +204,15 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         converters = getattr(self.app, CONVERTERS_ID)
         # Lookup on content-type alone, must work, since converter was added
         # with no schema
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/xml"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/xml"
         )
         self.assertEqual(1, len(local_converters))
         self.assertEqual(0, len(remote_converters))
         # Lookup on filename, must work, since converter was added with no
         # schema
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "application/octet-stream", filename="xxx.xml"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "application/octet-stream", filename="xxx.xml"
         )
         self.assertEqual(1, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -261,10 +241,8 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         converters = getattr(self.app, CONVERTERS_ID)
         # Lookup on content-type alone, not supposed to work as content-type
         # must also match
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(  # noqa
-                "text/xml"
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
+            "text/xml"
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -293,33 +271,27 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
                 "convert_id": "179",
             },
         ]
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(
-                "text/xml",
-                "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd",
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(
+            "text/xml",
+            "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd",
         )
         self.assertEqual(1, len(local_converters))
         self.assertTrue(len(remote_converters) > 0)
 
         server.ConversionService.listConversions.return_value = []
         # Lookup on suffix or content-type, using a non-existing schema. Must not work
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(
-                "text/xml",
-                "http://localhost/schemas/dir5243eec/schema.xsd",
-                "generalreport.xml",
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(
+            "text/xml",
+            "http://localhost/schemas/dir5243eec/schema.xsd",
+            "generalreport.xml",
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
         # Lookup on suffix, using a non-existing schema. Must not work
-        local_converters, remote_converters = (
-            converters.displayPossibleConversions(
-                "text/xml",
-                "http://localhost/schemas/dir5243eec/schema.xsd",
-                "generalreport.xml",
-            )
+        local_converters, remote_converters = converters.displayPossibleConversions(
+            "text/xml",
+            "http://localhost/schemas/dir5243eec/schema.xsd",
+            "generalreport.xml",
         )
         self.assertEqual(0, len(local_converters))
         self.assertEqual(0, len(remote_converters))
@@ -362,12 +334,10 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         # We check in testDocument.py that the sniff works, so we can just assume it here
         # http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd
         converters = getattr(self.app, CONVERTERS_ID)
-        (local_converters, remote_converters) = (
-            converters.displayPossibleConversions(
-                "text/xml",
-                "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd",
-                "map-dist.gml",
-            )
+        (local_converters, remote_converters) = converters.displayPossibleConversions(
+            "text/xml",
+            "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd",
+            "map-dist.gml",
         )
         self.assertEqual(1, len(local_converters))
         mock_http_params.return_value = [
@@ -395,12 +365,10 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             ],
         ]
         # Create a converter without suffix
-        (local_converters, remote_converters) = (
-            converters.displayPossibleConversions(
-                "text/xml",
-                "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd",
-                "map-dist.gml",
-            )
+        (local_converters, remote_converters) = converters.displayPossibleConversions(
+            "text/xml",
+            "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd",
+            "map-dist.gml",
         )
         self.assertEqual(2, len(local_converters))
 
@@ -426,12 +394,10 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             ]
         ]
         converters = getattr(self.app, CONVERTERS_ID)
-        (local_converters, remote_converters) = (
-            converters.displayPossibleConversions(
-                "text/xml",
-                "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd",
-                "map-dist.gml",
-            )
+        (local_converters, remote_converters) = converters.displayPossibleConversions(
+            "text/xml",
+            "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd",
+            "map-dist.gml",
         )
         self.assertEqual(1, len(local_converters))
 
@@ -457,10 +423,8 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             ]
         ]
         converters = getattr(self.app, CONVERTERS_ID)
-        (local_converters, remote_converters) = (
-            converters.displayPossibleConversions(
-                "text/xml", "good_schema", "map-dist.gml"
-            )
+        (local_converters, remote_converters) = converters.displayPossibleConversions(
+            "text/xml", "good_schema", "map-dist.gml"
         )
         self.assertEqual(0, len(local_converters))
 
