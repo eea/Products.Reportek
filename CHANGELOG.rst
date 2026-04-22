@@ -1,5 +1,5 @@
-100.2.2-dev (Unreleased)
-------------------------
+100.2.2 (2026-04-22)
+--------------------
 * Fixed bdr listing for envelopes without title in engineMacros
 * Fixed SSRF issue on run_conversion and run_remote_conversion
 * Performance improvements in templates
