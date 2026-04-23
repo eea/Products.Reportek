@@ -1,3 +1,6 @@
+100.2.3-dev (Unreleased)
+------------------------
+
 100.2.2 (2026-04-22)
 --------------------
 * Fixed bdr listing for envelopes without title in engineMacros
