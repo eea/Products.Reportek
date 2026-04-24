@@ -196,8 +196,8 @@
                 </td>
                 <td>
                   <a
-                    tal:attributes="href string:mailto:${audit_company/user/email}"
-                    tal:content="string:${audit_company/user/first_name} ${audit_company/user/last_name}"
+                    tal:attributes="href string:mailto:${audit_company/user/email|nothing}"
+                    tal:content="string:${audit_company/user/first_name|nothing} ${audit_company/user/last_name|nothing}"
                   />
                 </td>
                 <td tal:content="python: audit_company['start_date'] or '-'"></td>
