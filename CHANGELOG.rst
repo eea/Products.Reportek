@@ -1,3 +1,6 @@
+100.2.4-dev (Unreleased)
+------------------------
+
 100.2.3 (2026-04-24)
 --------------------
 * Removed RestrictionCapableEval in order to prep for Zope 6
