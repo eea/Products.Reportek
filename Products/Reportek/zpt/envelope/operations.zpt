@@ -1,7 +1,7 @@
 <tal:block define="current_actor request/AUTHENTICATED_USER/getUserName;
                    roles python:request.AUTHENTICATED_USER.getRolesInContext(context)">
   <tal:block condition="not:python:context.status == 'complete'"
-             repeat="item python:context.objectValues('Workitem')">
+             repeat="item python:context.getListOfWorkitems()">
     <tal:block tal:define="OFEngine python: context.getOpenFlowEngine()">
     <tal:block tal:condition="OFEngine">
       <tal:block tal:define="
