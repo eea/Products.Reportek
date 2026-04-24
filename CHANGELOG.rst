@@ -1,5 +1,7 @@
-100.2.3-dev (Unreleased)
-------------------------
+100.2.3 (2026-04-24)
+--------------------
+* Removed RestrictionCapableEval in order to prep for Zope 6
+* Removed startZServer from tests/utils
 
 100.2.2 (2026-04-22)
 --------------------
