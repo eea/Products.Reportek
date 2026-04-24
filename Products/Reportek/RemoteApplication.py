@@ -997,11 +997,11 @@ class RemoteApplication(BaseRemoteApplication):
             if short:
                 result = [
                     [
-                        script.get("query_id").encode("utf-8"),
-                        script.get("short_name").encode("utf-8"),
+                        script.get("query_id"),
+                        script.get("short_name"),
                         "",
-                        script.get("upper_limit").encode("utf-8"),
-                        script.get("content_type_id").encode("utf-8"),
+                        script.get("upper_limit"),
+                        script.get("content_type_id"),
                     ]
                     for script in scripts
                 ]

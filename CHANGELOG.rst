@@ -1,5 +1,6 @@
 100.2.4-dev (Unreleased)
 ------------------------
+* Fixed get_qa_scripts in Remote applications
 
 100.2.3 (2026-04-24)
 --------------------

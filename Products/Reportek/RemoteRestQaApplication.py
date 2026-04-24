@@ -987,11 +987,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     if short:
                         result = [
                             [
-                                script.get("id").encode("utf-8"),
-                                script.get("name").encode("utf-8"),
+                                script.get("id"),
+                                script.get("name"),
                                 "",
-                                script.get("runOnDemandMaxFileSizeMB").encode("utf-8"),
-                                script.get("outputType").encode("utf-8"),
+                                script.get("runOnDemandMaxFileSizeMB"),
+                                script.get("outputType"),
                             ]
                             for script in scripts
                         ]
