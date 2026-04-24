@@ -28,7 +28,6 @@ from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
 from OFS.SimpleItem import SimpleItem
-from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import BadRequest, Redirect
 from ZODB.POSException import POSKeyError
 
@@ -217,7 +216,8 @@ class Converter(SimpleItem):
                     "REQUEST": self.REQUEST,
                 }
                 for k in converter_obj.ct_extraparams:
-                    eval_res = RestrictionCapableEval(k).eval(eval_map)
+                    code = compile(k, "<string>", "eval")
+                    eval_res = eval(code, {"__builtins__": {}}, eval_map)
                     params.append(eval_res)
 
                 command = converter_obj.convert_url % tuple(params)
