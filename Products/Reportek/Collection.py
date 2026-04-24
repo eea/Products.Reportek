@@ -779,9 +779,28 @@ class Collection(
 
     def get_company_data(self):
         """Retrieve company data by interrogating the appropriate registry
-        based on the collection's obligations
+        based on the collection's obligations.
+
+        Results are cached on the REQUEST for the duration of a single
+        request so that company_status(), portal_registration_date(),
+        company_types(), etc. don't each make a separate HTTP call.
         """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            try:
+                request = getattr(self, "REQUEST", None)
+                if not isinstance(request, BaseRequest):
+                    request = None
+            except AttributeError:
+                request = None
+
+            if request is not None:
+                cache_key = "_get_company_data_{}".format(
+                    self.absolute_url_path()
+                )
+                cached = request.get(cache_key)
+                if cached is not None:
+                    return cached
+
             engine = self.getEngine()
             registry = engine.get_registry(self)
             if self.company_id and registry:
@@ -807,6 +826,9 @@ class Collection(
                     )
                 if data:
                     data["registry"] = registry_name
+
+                if request is not None:
+                    request.set(cache_key, data)
 
                 return data
 
