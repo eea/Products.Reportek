@@ -282,7 +282,9 @@ class QARepository(Folder):
                                 }
                                 for k in l_script_obj.qa_extraparams:
                                     code = compile(k, "<string>", "eval")
-                                    eval_res = eval(code, {"__builtins__": {}}, eval_map)
+                                    eval_res = eval(
+                                        code, {"__builtins__": {}}, eval_map
+                                    )
                                     params.append(eval_res)
 
                                 command = l_script_obj.script_url % tuple(params)
