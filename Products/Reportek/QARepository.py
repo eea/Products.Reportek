@@ -26,7 +26,6 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
 from App.Common import package_home
 from OFS.Folder import Folder
-from RestrictedPython.Eval import RestrictionCapableEval
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.constants import ENGINE_ID
@@ -282,7 +281,10 @@ class QARepository(Folder):
                                     "REQUEST": self.REQUEST,
                                 }
                                 for k in l_script_obj.qa_extraparams:
-                                    eval_res = RestrictionCapableEval(k).eval(eval_map)
+                                    code = compile(k, "<string>", "eval")
+                                    eval_res = eval(
+                                        code, {"__builtins__": {}}, eval_map
+                                    )
                                     params.append(eval_res)
 
                                 command = l_script_obj.script_url % tuple(params)

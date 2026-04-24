@@ -20,7 +20,6 @@ $Id$
 
 import json
 import os
-import random
 import shutil
 import sys
 import tempfile
@@ -148,28 +147,6 @@ def importObjectFromFile(container, filename, quiet=0):
         _print("done (%.3fs)\n" % (time.time() - start))
 
 
-_Z2HOST = None
-_Z2PORT = None
-
-
-def startZServer(number_of_threads=1, log=None):
-    """Starts an HTTP ZServer thread."""
-    global _Z2HOST, _Z2PORT
-    if _Z2HOST is None:
-        _Z2HOST = "127.0.0.1"
-        _Z2PORT = random.choice(list(range(55000, 55500)))
-        from ZServer import setNumberOfThreads
-
-        setNumberOfThreads(number_of_threads)
-        from threadutils import QuietThread, zserverRunner
-
-        t = QuietThread(target=zserverRunner, args=(_Z2HOST, _Z2PORT, log))
-        t.setDaemon(1)
-        t.start()
-        time.sleep(0.1)  # Sandor Palfy
-    return _Z2HOST, _Z2PORT
-
-
 def makerequest(app, stdout=sys.stdout, environ={}):
     """Wraps the app into a fresh REQUEST."""
     from ZPublisher.BaseRequest import RequestContainer
@@ -178,8 +155,8 @@ def makerequest(app, stdout=sys.stdout, environ={}):
 
     response = Response(stdout=stdout)
     new_environ = {}
-    new_environ["SERVER_NAME"] = _Z2HOST or "nohost"
-    new_environ["SERVER_PORT"] = "%d" % (_Z2PORT or 80)
+    new_environ["SERVER_NAME"] = "nohost"
+    new_environ["SERVER_PORT"] = "80"
     new_environ["REQUEST_METHOD"] = "GET"
     new_environ.update(environ)
     request = Request(sys.stdin, new_environ, response)
@@ -424,7 +401,6 @@ __all__ = [
     "setupCoreSessions",
     "setupSiteErrorLog",
     "setupZGlobals",
-    "startZServer",
     "importObjectFromFile",
     "appcall",
     "mysleep",
