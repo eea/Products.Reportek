@@ -27,6 +27,7 @@ Envelopes are the basic container objects and are analogous to directories.
 
 $Id$"""
 
+from ZPublisher.BaseRequest import BaseRequest
 from ZPublisher.Iterators import filestream_iterator
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.interface import implements
@@ -296,12 +297,44 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         self.customer = authUser
         EnvelopeInstance.__init__(self, process)
 
+    def _get_request_for_cache(self):
+        """Return the Zope REQUEST if available for per-request caching.
+
+        Returns None when there is no real request (e.g. in tests with
+        Mock objects) so callers can skip caching gracefully.
+        """
+        try:
+            request = getattr(self, 'REQUEST', None)
+            if isinstance(request, BaseRequest):
+                return request
+        except AttributeError:
+            pass
+        return None
+
     def get_qa_workitems(self):
-        """Return a list of AutomaticQA workitems."""
-        return [
+        """Return a list of AutomaticQA workitems.
+
+        Results are cached on the REQUEST for the duration of a single
+        request so that is_blocked, has_no_qa_result, has_failed_qa,
+        successful_qa, and is_acceptable don't each re-traverse.
+        """
+        request = self._get_request_for_cache()
+        if request is not None:
+            cache_key = '_get_qa_workitems_{}'.format(
+                self.absolute_url_path())
+            cached = request.get(cache_key)
+            if cached is not None:
+                return cached
+
+        result = [
             wi for wi in self.getMySelf().getListOfWorkitems()
             if wi.activity_id == 'AutomaticQA'
         ]
+
+        if request is not None:
+            request.set(cache_key, result)
+
+        return result
 
     @property
     def is_blocked(self):
@@ -334,9 +367,27 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         self._audit_info = value
 
     def get_qa_feedbacks(self):
-        """Return a list containing all AutomaticQA feedback objects."""
-        return (rf for rf in self.objectValues('Report Feedback')
-                if getattr(rf, 'title', '').startswith('AutomaticQA'))
+        """Return a list containing all AutomaticQA feedback objects.
+
+        Results are cached on the REQUEST for the duration of a single
+        request so that has_unknown_qa_result, has_unacceptable_qa_result,
+        has_no_qa_result, etc. don't each re-traverse.
+        """
+        request = self._get_request_for_cache()
+        if request is not None:
+            cache_key = '_get_qa_feedbacks_{}'.format(
+                self.absolute_url_path())
+            cached = request.get(cache_key)
+            if cached is not None:
+                return cached
+
+        result = [rf for rf in self.objectValues('Report Feedback')
+                  if getattr(rf, 'title', '').startswith('AutomaticQA')]
+
+        if request is not None:
+            request.set(cache_key, result)
+
+        return result
 
     @property
     def has_unknown_qa_result(self):
@@ -1230,6 +1281,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     def add_feedback(self, **kwargs):
         # Add feedback. To be called by Applications.
         self.manage_addFeedback(**kwargs)
+        self._invalidate_qa_cache()
 
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm

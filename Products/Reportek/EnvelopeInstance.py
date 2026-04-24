@@ -36,6 +36,7 @@ import plone.protect.interfaces
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from constants import ENGINE_ID
 from DateTime import DateTime
+from ZPublisher.BaseRequest import BaseRequest
 
 # Product specific imports
 from expression import exprNamespace
@@ -210,7 +211,24 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         )
         self._setObject(str(w.id), w)
         w.addEvent("creation")
+        self._invalidate_qa_cache()
         return w
+
+    def _invalidate_qa_cache(self):
+        """Clear per-request caches for workitems and feedbacks so that
+        get_qa_workitems, get_qa_feedbacks, and getListOfWorkitems
+        return fresh data after modifications."""
+        try:
+            request = getattr(self, 'REQUEST', None)
+            if not isinstance(request, BaseRequest):
+                return
+            url_path = self.absolute_url_path()
+            for prefix in ('_get_qa_workitems_', '_get_qa_feedbacks_',
+                           '_getListOfWorkitems_'):
+                key = prefix + url_path
+                request.other.pop(key, None)
+        except AttributeError:
+            pass
 
     def getJoiningWorkitem(self, activity_id):
         w_list = (
@@ -299,9 +317,29 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def getListOfWorkitems(self, status=None):
         """Returns all workitems given a list of statuses
-        If the status is not provided, all workitems are returned
+        If the status is not provided, all workitems are returned.
+
+        The full workitem list (status=None) is cached on the REQUEST
+        for the duration of a single request. Filtered results are not
+        cached because workitem status can change during workflow
+        transitions within the same request.
         """
-        workitems = self.objectValues("Workitem")
+        try:
+            request = getattr(self, 'REQUEST', None)
+            if isinstance(request, BaseRequest):
+                cache_key = '_getListOfWorkitems_{}'.format(
+                    self.absolute_url_path())
+                cached = request.get(cache_key)
+                if cached is not None:
+                    workitems = cached
+                else:
+                    workitems = self.objectValues("Workitem")
+                    request.set(cache_key, workitems)
+            else:
+                workitems = self.objectValues("Workitem")
+        except AttributeError:
+            workitems = self.objectValues("Workitem")
+
         if status is None:
             return workitems
 

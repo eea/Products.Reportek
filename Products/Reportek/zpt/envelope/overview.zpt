@@ -45,7 +45,11 @@
     </tal:block>
   </metal:block>
   <metal:block fill-slot="content">
-    <tal:block condition="python:context.canViewContent()">
+    <tal:block condition="python:context.canViewContent()"
+               define="is_fgas python: context.is_fgas();
+                       is_ods python: context.is_ods();
+                       is_fgas_ver python: context.is_fgas_verification();
+                       is_ecr_registry_env python: is_fgas or is_ods or is_fgas_ver">
       <div tal:replace="structure python:context.envelope_tabs(tab='overview')" />
 
       <div id="operations">
@@ -103,7 +107,7 @@
         <table border="0" cellspacing="2" cellpadding="2">
           <tbody>
             <tr
-              tal:attributes="class python: 'hidden-content' if context.is_fgas() or context.is_ods() or context.is_fgas_verification() else ''"
+              tal:attributes="class python: 'hidden-content' if is_ecr_registry_env else ''"
             >
               <th i18n:translate="">Description</th>
               <td tal:content="python:context.descr"></td>
@@ -136,18 +140,18 @@
             <tr>
               <th>
                 <span
-                  tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())"
+                  tal:condition="python: not (is_ecr_registry_env)"
                   i18n:translate=""
                   >Period</span
                 >
                 <span
-                  tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()"
+                  tal:condition="python: is_ecr_registry_env"
                   i18n:translate=""
                   >Transaction year</span
                 >
               </th>
               <tal:block
-                tal:condition="python: not (context.is_fgas() or context.is_ods() or context.is_fgas_verification())"
+                tal:condition="python: not (is_ecr_registry_env)"
               >
                 <td
                   tal:condition="python:context.endyear == ''"
@@ -159,7 +163,7 @@
                 ></td>
               </tal:block>
               <tal:block
-                tal:condition="python: context.is_fgas() or context.is_ods() or context.is_fgas_verification()"
+                tal:condition="python: is_ecr_registry_env"
               >
                 <td>
                   <span tal:content="context/get_transaction_year" />
