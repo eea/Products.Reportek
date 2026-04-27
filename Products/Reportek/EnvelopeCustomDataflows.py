@@ -1933,12 +1933,30 @@ class EnvelopeCustomDataflows(Toolz):
     security.declareProtected("View", "get_domain")
 
     def get_domain(self, df_type=None):
-        """Return True if the envelope is a FGAS envelope."""
+        """Return the domain type (FGAS or ODS).
+
+        Results are cached on the REQUEST for the duration of a single
+        request so that repeated is_fgas/is_ods/is_fgas_verification
+        calls don't re-compute.
+        """
+        request = self._get_request_for_cache()
+        if request is not None:
+            cache_key = '_get_domain_{}_{}'.format(
+                self.absolute_url_path(), df_type)
+            cached = request.get(cache_key)
+            if cached is not None:
+                return cached
+
         engine = getattr(self, ENGINE_ID)
         if self.company_id and engine:
-            return engine.get_df_domain(self.dataflow_uris, df_type)
+            result = engine.get_df_domain(self.dataflow_uris, df_type)
+        else:
+            result = False
 
-        return False
+        if request is not None:
+            request.set(cache_key, result)
+
+        return result
 
     security.declareProtected("View", "is_fgas")
 

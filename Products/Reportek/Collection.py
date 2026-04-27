@@ -44,6 +44,7 @@ from Toolz import Toolz
 from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
+from ZPublisher.BaseRequest import BaseRequest
 
 import Products
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -778,9 +779,28 @@ class Collection(
 
     def get_company_data(self):
         """Retrieve company data by interrogating the appropriate registry
-        based on the collection's obligations
+        based on the collection's obligations.
+
+        Results are cached on the REQUEST for the duration of a single
+        request so that company_status(), portal_registration_date(),
+        company_types(), etc. don't each make a separate HTTP call.
         """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            try:
+                request = getattr(self, "REQUEST", None)
+                if not isinstance(request, BaseRequest):
+                    request = None
+            except AttributeError:
+                request = None
+
+            if request is not None:
+                cache_key = "_get_company_data_{}".format(
+                    self.absolute_url_path()
+                )
+                cached = request.get(cache_key)
+                if cached is not None:
+                    return cached
+
             engine = self.getEngine()
             registry = engine.get_registry(self)
             if self.company_id and registry:
@@ -806,6 +826,9 @@ class Collection(
                     )
                 if data:
                     data["registry"] = registry_name
+
+                if request is not None:
+                    request.set(cache_key, data)
 
                 return data
 
@@ -1305,6 +1328,21 @@ class Collection(
         return envs
 
     def get_latest_env_reportingdate(self):
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        if catalog is not None:
+            path = "/".join(self.getPhysicalPath())
+            brains = catalog.searchResults(
+                meta_type="Report Envelope",
+                sort_on="reportingdate",
+                sort_order="reverse",
+                sort_limit=1,
+                path={"query": path, "depth": 1},
+            )
+            if brains:
+                obj = brains[0].getObject()
+                if obj is not None:
+                    return obj.reportingdate
+            return None
         envs = self.get_children("Report Envelope", "reportingdate")
         if envs:
             return envs[0].reportingdate
@@ -1411,12 +1449,37 @@ class Collection(
     security.declareProtected("View", "get_domain")
 
     def get_domain(self, df_type=None):
-        """Return the domain type (FGAS or ODS)."""
+        """Return the domain type (FGAS or ODS).
+
+        Results are cached on the REQUEST for the duration of a single
+        request so that repeated is_fgas/is_ods/is_fgas_verification
+        calls don't re-compute.
+        """
+        try:
+            request = getattr(self, "REQUEST", None)
+            if not isinstance(request, BaseRequest):
+                request = None
+        except AttributeError:
+            request = None
+
+        if request is not None:
+            cache_key = "_get_domain_{}_{}".format(
+                self.absolute_url_path(), df_type
+            )
+            cached = request.get(cache_key)
+            if cached is not None:
+                return cached
+
         engine = self.getEngine()
         if engine:
-            return engine.get_df_domain(self.dataflow_uris, df_type)
+            result = engine.get_df_domain(self.dataflow_uris, df_type)
+        else:
+            result = False
 
-        return False
+        if request is not None:
+            request.set(cache_key, result)
+
+        return result
 
     security.declareProtected("View", "is_fgas")
 

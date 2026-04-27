@@ -179,14 +179,10 @@ class DataflowsManager:
 
     def getDataflowDict(self, dataflow_uri):
         """returns all properties of a dataflow as dictionary given the uri"""
-        try:
-            return [
-                x
-                for x in self.dataflow_table()
-                if str(x["uri"]) == dataflow_uri
-            ][0]
-        except Exception:
-            return {"SOURCE_TITLE": "Deleted", "TITLE": "Unknown obligation"}
+        result = self.dataflow_dict().get(dataflow_uri)
+        if result is not None:
+            return result
+        return {"SOURCE_TITLE": "Deleted", "TITLE": "Unknown obligation"}
 
     # Getters for the dataflow
 
