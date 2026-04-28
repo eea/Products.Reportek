@@ -1,3 +1,12 @@
+100.2.4 (2026-04-28)
+--------------------
+* engineMacros optimizations for bdr frontpage grouping
+* Use getListOfWorkitems instead of context.objectValues in operations
+* Added per request caching on workitems and invalidations
+* Added per request get_company_data caching
+* Fixed get_qa_scripts in Remote applications
+* Fixed bdr listing for envelopes without title in engineMacros
+
 100.2.3 (2026-04-24)
 --------------------
 * Removed RestrictionCapableEval in order to prep for Zope 6

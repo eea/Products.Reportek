@@ -26,6 +26,7 @@ import logging
 import os
 import tempfile
 import xmlrpc.client
+from collections import OrderedDict
 from copy import copy, deepcopy
 from io import StringIO
 from operator import itemgetter
@@ -94,6 +95,51 @@ logger = logging.getLogger("Reportek")
 BDR_ROLE_AUDITOR = "Auditor"
 BDR_CLIENT_ROLES = ("ClientFG", "ClientODS", "ClientCARS", "ClientHDV")
 BDR_LOCAL_ROLES = (BDR_ROLE_AUDITOR,) + BDR_CLIENT_ROLES
+
+
+def _group_ecr_content_data(user_ct):
+    """Pre-group/sort ECR content for the ecr-collections macro."""
+    if not user_ct:
+        user_ct = {}
+    ct = user_ct.get("ecr", {})
+    rw_colls = ct.get("rw", [])
+    ro_colls = ct.get("ro", [])
+    fgas_audit_envs = ct.get("audit_paths", [])
+    audit_colls = user_ct.get("Auditor", [])
+    client_colls = user_ct.get("Client", [])
+
+    def _group_by_path(colls, sort_key):
+        by_path = OrderedDict()
+        for col in sorted(colls, key=sort_key):
+            path_key = col.getPhysicalPath()[1]
+            by_path.setdefault(path_key, []).append(col)
+        return by_path
+
+    # F-Gas: pre-compute company name once per env.
+    fgas_with_meta = [(env, env.get_zope_company_meta()[0]) for env in fgas_audit_envs]
+    fgas_grouped = {}
+    for env, company_name in fgas_with_meta:
+        company_key = company_name or "Unknown Company"
+        fgas_grouped.setdefault(company_key, []).append(env)
+
+    fgas_by_company = OrderedDict()
+    for company_name in sorted(fgas_grouped.keys()):
+        envs = fgas_grouped[company_name]
+        envs.sort(key=lambda e: e.reportingdate, reverse=True)
+        fgas_by_company[company_name] = envs
+
+    return {
+        "rw_by_path": _group_by_path(rw_colls, lambda k: k.title_or_id().lower()),
+        "ro_by_path": _group_by_path(
+            ro_colls,
+            lambda k: k.getCountryCode() + k.title_or_id().lower(),
+        ),
+        "audit_by_path": _group_by_path(audit_colls, lambda k: k.title_or_id().lower()),
+        "client_by_path": _group_by_path(
+            client_colls, lambda k: k.title_or_id().lower()
+        ),
+        "fgas_by_company": fgas_by_company,
+    }
 
 
 @implementer(IReportekEngine, II18nAware)
@@ -2076,6 +2122,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 by_path.setdefault(path_key, []).append(col)
             return by_path
 
+        security.declarePublic("group_ecr_content")
+
+        def group_ecr_content(self, user_ct):
+            """Group/sort ECR content for the ecr-collections macro."""
+            return _group_ecr_content_data(user_ct)
+
         security.declarePublic("get_ecr_content")
 
         def get_ecr_content(self):
@@ -2261,6 +2313,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declarePublic("get_ecr_content")
 
         def get_ecr_content(self):
+            raise RuntimeError("Method not allowed on this distribution.")
+
+        security.declarePublic("group_ecr_content")
+
+        def group_ecr_content(self, user_ct):
             raise RuntimeError("Method not allowed on this distribution.")
 
     security.declareProtected("View", "xls_export")

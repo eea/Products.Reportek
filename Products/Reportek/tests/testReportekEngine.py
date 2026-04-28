@@ -1,13 +1,17 @@
 import unittest
 import zipfile
+from collections import OrderedDict
 from io import BytesIO
+from unittest.mock import Mock, patch
 
 from DateTime import DateTime
-from unittest.mock import Mock, patch
 
 from Products.Reportek import Converters, constants
 from Products.Reportek.Envelope import Envelope
-from Products.Reportek.ReportekEngine import ReportekEngine
+from Products.Reportek.ReportekEngine import (
+    ReportekEngine,
+    _group_ecr_content_data,
+)
 
 from .common import BaseTest, BaseUnitTest, ConfigureReportek
 from .utils import (
@@ -327,3 +331,189 @@ class ReportekEngineZipTest(BaseUnitTest):
                 response_zip.read("TestedEnvelope/foo.txt"),
                 content.encode("utf-8"),
             )
+
+
+def _make_collection(title, path, country_code=""):
+    """Build a mock collection for ECR grouping tests."""
+    col = Mock()
+    col.title_or_id = Mock(return_value=title)
+    col.getPhysicalPath = Mock(return_value=path)
+    col.getCountryCode = Mock(return_value=country_code)
+    return col
+
+
+def _make_envelope(company_name, reportingdate):
+    """Build a mock envelope for ECR grouping tests."""
+    env = Mock()
+    env.get_zope_company_meta = Mock(return_value=(company_name, "id"))
+    env.reportingdate = reportingdate
+    return env
+
+
+class GroupEcrContentDataTest(BaseUnitTest):
+    """Tests for the ecr-collections grouping helper.
+
+    These exercise _group_ecr_content_data directly so we don't need a
+    BDR-deployed engine or a full Zope test stack.
+    """
+
+    def test_empty_input_returns_empty_groups(self):
+        result = _group_ecr_content_data({})
+        for key in (
+            "rw_by_path",
+            "ro_by_path",
+            "audit_by_path",
+            "client_by_path",
+            "fgas_by_company",
+        ):
+            self.assertEqual(len(result[key]), 0)
+
+    def test_none_input_returns_empty_groups(self):
+        result = _group_ecr_content_data(None)
+        self.assertEqual(len(result["rw_by_path"]), 0)
+        self.assertEqual(len(result["fgas_by_company"]), 0)
+
+    def test_returns_ordered_dicts(self):
+        """All returned groups are OrderedDict for deterministic order."""
+        result = _group_ecr_content_data({})
+        for key in (
+            "rw_by_path",
+            "ro_by_path",
+            "audit_by_path",
+            "client_by_path",
+            "fgas_by_company",
+        ):
+            self.assertIsInstance(result[key], OrderedDict)
+
+    def test_rw_collections_grouped_by_path_first_segment(self):
+        col_a = _make_collection("Alpha", ("", "fgases", "col1"))
+        col_b = _make_collection("Beta", ("", "ods", "col2"))
+        col_c = _make_collection("Gamma", ("", "fgases", "col3"))
+
+        result = _group_ecr_content_data({"ecr": {"rw": [col_a, col_b, col_c]}})
+
+        self.assertEqual(set(result["rw_by_path"].keys()), {"fgases", "ods"})
+        self.assertEqual(len(result["rw_by_path"]["fgases"]), 2)
+        self.assertEqual(len(result["rw_by_path"]["ods"]), 1)
+
+    def test_rw_within_group_sorted_case_insensitive_by_title(self):
+        col_b = _make_collection("Beta", ("", "fgases", "col1"))
+        col_a = _make_collection("alpha", ("", "fgases", "col2"))
+        col_c = _make_collection("Charlie", ("", "fgases", "col3"))
+
+        result = _group_ecr_content_data({"ecr": {"rw": [col_b, col_a, col_c]}})
+
+        titles = [c.title_or_id() for c in result["rw_by_path"]["fgases"]]
+        self.assertEqual(titles, ["alpha", "Beta", "Charlie"])
+
+    def test_ro_sorted_by_country_code_then_title(self):
+        col_b_fr = _make_collection("Beta", ("", "fgases", "col1"), country_code="FR")
+        col_a_de = _make_collection("Alpha", ("", "fgases", "col2"), country_code="DE")
+        col_c_de = _make_collection(
+            "Charlie", ("", "fgases", "col3"), country_code="DE"
+        )
+
+        result = _group_ecr_content_data(
+            {"ecr": {"ro": [col_b_fr, col_c_de, col_a_de]}}
+        )
+
+        titles = [c.title_or_id() for c in result["ro_by_path"]["fgases"]]
+        self.assertEqual(titles, ["Alpha", "Charlie", "Beta"])
+
+    def test_audit_collections_use_auditor_key(self):
+        col = _make_collection("Audit One", ("", "fgases", "audit1"))
+        result = _group_ecr_content_data({"Auditor": [col]})
+        self.assertEqual(len(result["audit_by_path"]["fgases"]), 1)
+
+    def test_client_collections_use_client_key(self):
+        col = _make_collection("Client One", ("", "fgases", "client1"))
+        result = _group_ecr_content_data({"Client": [col]})
+        self.assertEqual(len(result["client_by_path"]["fgases"]), 1)
+
+    def test_fgas_envelopes_grouped_by_company_name(self):
+        env1 = _make_envelope("Acme Corp", 100)
+        env2 = _make_envelope("Beta Inc", 200)
+        env3 = _make_envelope("Acme Corp", 150)
+
+        result = _group_ecr_content_data({"ecr": {"audit_paths": [env1, env2, env3]}})
+
+        self.assertEqual(
+            set(result["fgas_by_company"].keys()),
+            {"Acme Corp", "Beta Inc"},
+        )
+        self.assertEqual(len(result["fgas_by_company"]["Acme Corp"]), 2)
+        self.assertEqual(len(result["fgas_by_company"]["Beta Inc"]), 1)
+
+    def test_fgas_envelopes_within_company_sorted_by_reportingdate_desc(self):
+        env_old = _make_envelope("Acme", 100)
+        env_new = _make_envelope("Acme", 300)
+        env_mid = _make_envelope("Acme", 200)
+
+        result = _group_ecr_content_data(
+            {"ecr": {"audit_paths": [env_old, env_new, env_mid]}}
+        )
+
+        dates = [e.reportingdate for e in result["fgas_by_company"]["Acme"]]
+        self.assertEqual(dates, [300, 200, 100])
+
+    def test_fgas_envelope_with_no_company_uses_unknown_label(self):
+        env_unknown = _make_envelope(None, 100)
+        env_known = _make_envelope("Acme", 200)
+
+        result = _group_ecr_content_data(
+            {"ecr": {"audit_paths": [env_unknown, env_known]}}
+        )
+
+        self.assertIn("Unknown Company", result["fgas_by_company"])
+        self.assertEqual(len(result["fgas_by_company"]["Unknown Company"]), 1)
+
+    def test_fgas_company_keys_alphabetically_sorted_case_sensitive(self):
+        """Matches the original `sorted(fgas_by_company.keys())`."""
+        env_z = _make_envelope("Zeta", 100)
+        env_a = _make_envelope("alpha", 200)
+        env_m = _make_envelope("Mid", 300)
+
+        result = _group_ecr_content_data(
+            {"ecr": {"audit_paths": [env_z, env_a, env_m]}}
+        )
+
+        # Case-sensitive sort: capitals before lowercase in ASCII
+        self.assertEqual(
+            list(result["fgas_by_company"].keys()),
+            ["Mid", "Zeta", "alpha"],
+        )
+
+    def test_fgas_get_zope_company_meta_called_once_per_envelope(self):
+        """Regression guard: previously called up to 3 times per env."""
+        env_a = _make_envelope("Acme", 100)
+        env_b = _make_envelope("Beta", 200)
+
+        _group_ecr_content_data({"ecr": {"audit_paths": [env_a, env_b]}})
+
+        self.assertEqual(env_a.get_zope_company_meta.call_count, 1)
+        self.assertEqual(env_b.get_zope_company_meta.call_count, 1)
+
+    def test_all_sections_populated_independently(self):
+        rw = _make_collection("R", ("", "fgases", "rw1"))
+        ro = _make_collection("O", ("", "fgases", "ro1"))
+        audit = _make_collection("A", ("", "fgases", "a1"))
+        client = _make_collection("C", ("", "fgases", "c1"))
+        fgas_env = _make_envelope("Co", 100)
+
+        result = _group_ecr_content_data(
+            {
+                "ecr": {
+                    "rw": [rw],
+                    "ro": [ro],
+                    "audit_paths": [fgas_env],
+                },
+                "Auditor": [audit],
+                "Client": [client],
+            }
+        )
+
+        self.assertEqual(len(result["rw_by_path"]["fgases"]), 1)
+        self.assertEqual(len(result["ro_by_path"]["fgases"]), 1)
+        self.assertEqual(len(result["audit_by_path"]["fgases"]), 1)
+        self.assertEqual(len(result["client_by_path"]["fgases"]), 1)
+        self.assertEqual(len(result["fgas_by_company"]["Co"]), 1)
