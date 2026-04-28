@@ -787,9 +787,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 request = None
 
             if request is not None:
-                cache_key = "_get_company_data_{}".format(
-                    self.absolute_url_path()
-                )
+                cache_key = "_get_company_data_{}".format(self.absolute_url_path())
                 cached = request.get(cache_key)
                 if cached is not None:
                     return cached
@@ -1438,9 +1436,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             request = None
 
         if request is not None:
-            cache_key = "_get_domain_{}_{}".format(
-                self.absolute_url_path(), df_type
-            )
+            cache_key = "_get_domain_{}_{}".format(self.absolute_url_path(), df_type)
             cached = request.get(cache_key)
             if cached is not None:
                 return cached

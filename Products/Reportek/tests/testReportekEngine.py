@@ -144,9 +144,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         self.root.REQUEST["REQUEST_METHOD"] = "POST"
         self.engine.ZopeTime = Mock(return_value=DateTime())
         self.engine.title = "Before Title"
-        self.engine.manage_editEngine(
-            title="After Title", REQUEST=self.root.REQUEST
-        )
+        self.engine.manage_editEngine(title="After Title", REQUEST=self.root.REQUEST)
         self.assertEqual("After Title", self.engine.title)
 
 
@@ -267,9 +265,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         self.assertEqual(envs, [self.root.second_envelope])
 
     def test_filter_by_country(self):
-        results = self.engine.getSearchResults(
-            country="http://example.com/country/1"
-        )
+        results = self.engine.getSearchResults(country="http://example.com/country/1")
         res = [el.getObject() for el in results]
         self.assertEqual(res, [self.root.first_envelope])
 
@@ -394,9 +390,7 @@ class GroupEcrContentDataTest(BaseUnitTest):
         col_b = _make_collection("Beta", ("", "ods", "col2"))
         col_c = _make_collection("Gamma", ("", "fgases", "col3"))
 
-        result = _group_ecr_content_data(
-            {"ecr": {"rw": [col_a, col_b, col_c]}}
-        )
+        result = _group_ecr_content_data({"ecr": {"rw": [col_a, col_b, col_c]}})
 
         self.assertEqual(set(result["rw_by_path"].keys()), {"fgases", "ods"})
         self.assertEqual(len(result["rw_by_path"]["fgases"]), 2)
@@ -407,20 +401,14 @@ class GroupEcrContentDataTest(BaseUnitTest):
         col_a = _make_collection("alpha", ("", "fgases", "col2"))
         col_c = _make_collection("Charlie", ("", "fgases", "col3"))
 
-        result = _group_ecr_content_data(
-            {"ecr": {"rw": [col_b, col_a, col_c]}}
-        )
+        result = _group_ecr_content_data({"ecr": {"rw": [col_b, col_a, col_c]}})
 
         titles = [c.title_or_id() for c in result["rw_by_path"]["fgases"]]
         self.assertEqual(titles, ["alpha", "Beta", "Charlie"])
 
     def test_ro_sorted_by_country_code_then_title(self):
-        col_b_fr = _make_collection(
-            "Beta", ("", "fgases", "col1"), country_code="FR"
-        )
-        col_a_de = _make_collection(
-            "Alpha", ("", "fgases", "col2"), country_code="DE"
-        )
+        col_b_fr = _make_collection("Beta", ("", "fgases", "col1"), country_code="FR")
+        col_a_de = _make_collection("Alpha", ("", "fgases", "col2"), country_code="DE")
         col_c_de = _make_collection(
             "Charlie", ("", "fgases", "col3"), country_code="DE"
         )
@@ -447,9 +435,7 @@ class GroupEcrContentDataTest(BaseUnitTest):
         env2 = _make_envelope("Beta Inc", 200)
         env3 = _make_envelope("Acme Corp", 150)
 
-        result = _group_ecr_content_data(
-            {"ecr": {"audit_paths": [env1, env2, env3]}}
-        )
+        result = _group_ecr_content_data({"ecr": {"audit_paths": [env1, env2, env3]}})
 
         self.assertEqual(
             set(result["fgas_by_company"].keys()),

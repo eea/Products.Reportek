@@ -1858,8 +1858,7 @@ class EnvelopeCustomDataflows(Toolz):
         """
         request = self._get_request_for_cache()
         if request is not None:
-            cache_key = '_get_domain_{}_{}'.format(
-                self.absolute_url_path(), df_type)
+            cache_key = "_get_domain_{}_{}".format(self.absolute_url_path(), df_type)
             cached = request.get(cache_key)
             if cached is not None:
                 return cached
