@@ -1,5 +1,9 @@
 100.2.4-dev (Unreleased)
 ------------------------
+* engineMacros optimizations for bdr frontpage grouping
+* Use getListOfWorkitems instead of context.objectValues in operations
+* Added per request caching on workitems and invalidations
+* Added per request get_company_data caching
 * Fixed get_qa_scripts in Remote applications
 * Fixed bdr listing for envelopes without title in engineMacros
 
