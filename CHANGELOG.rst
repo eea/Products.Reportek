@@ -1,5 +1,5 @@
-100.2.4-dev (Unreleased)
-------------------------
+100.2.4 (2026-04-28)
+--------------------
 * engineMacros optimizations for bdr frontpage grouping
 * Use getListOfWorkitems instead of context.objectValues in operations
 * Added per request caching on workitems and invalidations
