@@ -39,6 +39,7 @@ from AccessControl.class_init import InitializeClass
 from DateTime import DateTime
 from OFS.Folder import Folder
 from zope.interface import alsoProvides
+from ZPublisher.BaseRequest import BaseRequest
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
@@ -106,13 +107,17 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     # History of the envelope for administrators
     security.declareProtected("Manage OpenFlow", "manage_history_html")
-    manage_history_html = PageTemplateFile("zpt/envelope/manage_history", globals())
+    manage_history_html = PageTemplateFile(
+        "zpt/envelope/manage_history", globals()
+    )
 
     security.declareProtected("Manage OpenFlow", "chooseFallin")
     chooseFallin = PageTemplateFile("zpt/envelope/choose_fallin", globals())
 
     security.declarePublic("activity_operations")
-    activity_operations = PageTemplateFile("zpt/envelope/operations", globals())
+    activity_operations = PageTemplateFile(
+        "zpt/envelope/operations", globals()
+    )
 
     def getWorkflowTabs(self, REQUEST):
         """Returns the tuple:
@@ -127,7 +132,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     [
                         w.id,
                         l_application_url,
-                        self.unrestrictedTraverse(l_application_url).title_or_id(),
+                        self.unrestrictedTraverse(
+                            l_application_url
+                        ).title_or_id(),
                     ]
                 )
         return l_return
@@ -204,13 +211,34 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         )
         self._setObject(str(w.id), w)
         w.addEvent("creation")
+        self._invalidate_qa_cache()
         return w
+
+    def _invalidate_qa_cache(self):
+        """Clear per-request caches for workitems and feedbacks so that
+        get_qa_workitems, get_qa_feedbacks, and getListOfWorkitems
+        return fresh data after modifications."""
+        try:
+            request = getattr(self, "REQUEST", None)
+            if not isinstance(request, BaseRequest):
+                return
+            url_path = self.absolute_url_path()
+            for prefix in (
+                "_get_qa_workitems_",
+                "_get_qa_feedbacks_",
+                "_getListOfWorkitems_",
+            ):
+                key = prefix + url_path
+                request.other.pop(key, None)
+        except AttributeError:
+            pass
 
     def getJoiningWorkitem(self, activity_id):
         w_list = (
             wk
             for wk in self.getListOfWorkitems(status="blocked")
-            if wk.process_path == self.process_path and wk.activity_id == activity_id
+            if wk.process_path == self.process_path
+            and wk.activity_id == activity_id
         )
         # Return the first element from the generator or None
         return next(w_list, None)
@@ -292,9 +320,30 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def getListOfWorkitems(self, status=None):
         """Returns all workitems given a list of statuses
-        If the status is not provided, all workitems are returned
+        If the status is not provided, all workitems are returned.
+
+        The full workitem list (status=None) is cached on the REQUEST
+        for the duration of a single request. Filtered results are not
+        cached because workitem status can change during workflow
+        transitions within the same request.
         """
-        workitems = self.objectValues("Workitem")
+        try:
+            request = getattr(self, "REQUEST", None)
+            if isinstance(request, BaseRequest):
+                cache_key = "_getListOfWorkitems_{}".format(
+                    self.absolute_url_path()
+                )
+                cached = request.get(cache_key)
+                if cached is not None:
+                    workitems = cached
+                else:
+                    workitems = self.objectValues("Workitem")
+                    request.set(cache_key, workitems)
+            else:
+                workitems = self.objectValues("Workitem")
+        except AttributeError:
+            workitems = self.objectValues("Workitem")
+
         if status is None:
             return workitems
 
@@ -358,7 +407,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         }
         if getattr(self, "REQUEST"):
             if self.REQUEST.environ.get("HTTP_ACCEPT") == "application/json":
-                self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+                self.REQUEST.RESPONSE.setHeader(
+                    "Content-Type", "application/json"
+                )
                 return json.dumps(data, indent=4)
             if "DestinationURL" in self.REQUEST:
                 self.REQUEST.RESPONSE.redirect(self.REQUEST["DestinationURL"])
@@ -395,8 +446,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         self.setStatus(status="running", actor=actor)
         activity_id = self.begin_activity_id
         engine = self.getOpenFlowEngine()
-        push_roles = engine.getPushRoles(self.getInstanceProcessId(), activity_id)
-        pull_roles = engine.getPullRoles(self.getInstanceProcessId(), activity_id)
+        push_roles = engine.getPushRoles(
+            self.getInstanceProcessId(), activity_id
+        )
+        pull_roles = engine.getPullRoles(
+            self.getInstanceProcessId(), activity_id
+        )
         w = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.manageWorkitemCreation(w.id)
         if REQUEST and "DestinationURL" in REQUEST:
@@ -464,7 +519,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+                alsoProvides(
+                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+                )
         workitem = getattr(self, str(workitem_id))
         if actor:
             action_actor = actor
@@ -495,7 +552,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+                alsoProvides(
+                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+                )
         workitem = getattr(self, str(workitem_id))
         actor = ""  # We don't need any actor name
         if (
@@ -557,7 +616,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
         if REQUEST:
             if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
-                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+                alsoProvides(
+                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+                )
             if "actor" in REQUEST:
                 actor = REQUEST["actor"]
             else:
@@ -605,7 +666,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """.."""
         # Disable CSRF protection
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
-            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
         result = {}
         engine = getattr(self, ENGINE_ID)
         rmq = getattr(engine, "env_fwd_rmq", False)
@@ -633,7 +696,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     if rmq:
                         activity = self.getActivity(wk.id)
                         queue_msg(
-                            "{}|{}".format(self.absolute_url(), self.get_freq(wk.id)),
+                            "{}|{}".format(
+                                self.absolute_url(), self.get_freq(wk.id)
+                            ),
                             queue=self.get_rmq_queue(activity.getId()),
                         )
                     result["triggered"] = wk.activity_id
@@ -671,7 +736,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     x["transition_id"] for x in transition_condition_list
                 ]
             elif split_mode == "xor":
-                for r in [c for c in transition_condition_list if c["condition"]]:
+                for r in [
+                    c for c in transition_condition_list if c["condition"]
+                ]:
                     expr = Expression(r["condition"])
                     ec = exprNamespace(
                         instance=self,
@@ -770,7 +837,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """instructs openflow to forward the specified workitem"""
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+                alsoProvides(
+                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+                )
         destinations = self.getDestinations(workitem_id, path)
         if destinations == []:
             self.falloutWorkitem(workitem_id)
@@ -783,7 +852,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 workitem.status == "complete"
                 and (not workitem.workitems_to or activity.isSubflow())
             ):
-                activity_to_id_list = [x["activity_to_id"] for x in destinations]
+                activity_to_id_list = [
+                    x["activity_to_id"] for x in destinations
+                ]
                 workitem.addEvent(
                     "forwarded to "
                     + reduce(lambda x, y: x + ", " + y, activity_to_id_list)
@@ -898,7 +969,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Manage OpenFlow", "fallinWorkitem")
 
-    def fallinWorkitem(self, workitem_id, activity_id, coming_from=None, REQUEST=None):
+    def fallinWorkitem(
+        self, workitem_id, activity_id, coming_from=None, REQUEST=None
+    ):
         """the exceptional specified workitem (of the specified instance)
         will be put back in the activity specified by process_path and
         activity_id; workitem will still be in exceptional state:
@@ -906,7 +979,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+                alsoProvides(
+                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+                )
         try:
             username = REQUEST["AUTHENTICATED_USER"].getUserName()
         except Exception:
@@ -914,19 +989,27 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         self.delete_app_jobs(workitem_id)
         workitem_from = getattr(self, workitem_id)
         engine = self.getOpenFlowEngine()
-        push_roles = engine.getPushRoles(self.getInstanceProcessId(), activity_id)
-        pull_roles = engine.getPullRoles(self.getInstanceProcessId(), activity_id)
+        push_roles = engine.getPushRoles(
+            self.getInstanceProcessId(), activity_id
+        )
+        pull_roles = engine.getPullRoles(
+            self.getInstanceProcessId(), activity_id
+        )
         workitem_to = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.linkWorkitems(workitem_id, [workitem_to.id])
-        event = "fallin to activity {} in process {} (workitem {}) - {}".format(
-            activity_id, self.process_path, str(workitem_to.id), username
+        event = (
+            "fallin to activity {} in process {} (workitem {}) - {}".format(
+                activity_id, self.process_path, str(workitem_to.id), username
+            )
         )
         workitem_from.addEvent(event)
-        event = "fallin from activity {} in process {} (workitem {}) - {}".format(
-            workitem_from.activity_id,
-            self.process_path,
-            str(workitem_id),
-            username,
+        event = (
+            "fallin from activity {} in process {} (workitem {}) - {}".format(
+                workitem_from.activity_id,
+                self.process_path,
+                str(workitem_id),
+                username,
+            )
         )
         workitem_to.addEvent(event)
         self.manageWorkitemCreation(workitem_to.id)
@@ -942,7 +1025,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Ends the exceptional state of the given workitem"""
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
-                alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+                alsoProvides(
+                    REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+                )
         workitem = getattr(self, workitem_id)
         workitem.addEvent("handled fallout")
         if not [x for x in workitem.getEventLog() if x["event"] == "complete"]:
@@ -1012,7 +1097,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ """
         engine = self.getOpenFlowEngine()
         application_id = self.getActivity(workitem_id).push_application
-        if application_id != "" and engine._applications[application_id]["url"]:
+        if (
+            application_id != ""
+            and engine._applications[application_id]["url"]
+        ):
             application_url = engine._applications[application_id]["url"]
             args = {"workitem_id": workitem_id, "REQUEST": REQUEST}
             # Why should the application return the actor?
@@ -1054,7 +1142,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.startAutomaticApplication(workitem_id)
                     application_url = self.getApplicationUrl(workitem_id)
                     application = self.restrictedTraverse(application_url)
-                    if rmq and not isinstance(application, RemoteRabbitMQQAApplication):
+                    if rmq and not isinstance(
+                        application, RemoteRabbitMQQAApplication
+                    ):
                         queue_msg(
                             "{}|{}".format(
                                 self.absolute_url(), self.get_freq(workitem_id)
@@ -1091,10 +1181,18 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """TODO!"""
         same_process_path = self.unrestrictedTraverse(self.process_path).id
         while workitem_id != []:
-            engine, workitem, process, activity = self.getEnvironment(workitem_id)
-            if activity and activity.isSubflow() and (process.id != same_process_path):
+            engine, workitem, process, activity = self.getEnvironment(
+                workitem_id
+            )
+            if (
+                activity
+                and activity.isSubflow()
+                and (process.id != same_process_path)
+            ):
                 return workitem_id
-            workitem_id = workitem.workitems_from and workitem.workitems_from[0]
+            workitem_id = (
+                workitem.workitems_from and workitem.workitems_from[0]
+            )
         return None
 
     def completeSubflow(self, workitem_id):
@@ -1199,9 +1297,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         wk = getattr(self, workitem_id)
 
         if wk.status != "complete" and len(self.getActiveWorkitems()) > 0:
-            r_app = wk.activity_id.startswith("Automatic") or wk.activity_id.startswith(
-                "FMEConversion"
-            )
+            r_app = wk.activity_id.startswith(
+                "Automatic"
+            ) or wk.activity_id.startswith("FMEConversion")
             if not r_app:
                 if REQUEST:
                     REQUEST.SESSION.set("note_content_type", "text/html")
@@ -1221,7 +1319,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 )
                 if wk.status != "complete":
                     self.falloutWorkitem(workitem_id, REQUEST=REQUEST)
-                    self.endFallinWorkitem(workitem_id=workitem_id, REQUEST=REQUEST)
+                    self.endFallinWorkitem(
+                        workitem_id=workitem_id, REQUEST=REQUEST
+                    )
             if REQUEST:
                 if "DestinationURL" in REQUEST:
                     REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
@@ -1244,10 +1344,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if wk and getSecurityManager().checkPermission(
             "Reportek Cancel Activity", self
         ):
-            is_lr = wk.activity_id.startswith("Automatic") or wk.activity_id.startswith(
-                "FMEConversion"
+            is_lr = wk.activity_id.startswith(
+                "Automatic"
+            ) or wk.activity_id.startswith("FMEConversion")
+            unfinished = (
+                wk.status != "complete" and len(self.getActiveWorkitems()) > 0
             )
-            unfinished = wk.status != "complete" and len(self.getActiveWorkitems()) > 0
             if is_lr and unfinished:
                 return True
 

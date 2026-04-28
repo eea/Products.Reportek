@@ -36,10 +36,11 @@ from time import time
 
 import requests
 from plone.memoize import ram
-from .RepUtils import inline_replace
-from .XMLRPCMethod import XMLRPCMethod
 
 from Products.Reportek.constants import CUSTOM_DFLOWS
+
+from .RepUtils import inline_replace
+from .XMLRPCMethod import XMLRPCMethod
 
 
 class ServiceTemporarilyUnavailableException(Exception):
@@ -116,7 +117,9 @@ class DataflowsManager:
         return dflows + self.get_custom_dataflows()
 
     def get_dataflows_rest(self):
-        res = requests.get(self.dfm_rest_url, timeout=self.dfm_timeout, verify=False)
+        res = requests.get(
+            self.dfm_rest_url, timeout=self.dfm_timeout, verify=False
+        )
         dflows = []
         if res.status_code == 200:
             prefix = "{}/obligations".format(self.dfm_obl_url_prefix)
@@ -127,7 +130,9 @@ class DataflowsManager:
                     "PK_SOURCE_ID": str(c.get("sourceId")),
                     "SOURCE_TITLE": c.get("sourceAlias"),
                     "TITLE": c.get("oblTitle"),
-                    "details_url": "{}/{}".format(prefix, c.get("obligationId")),
+                    "details_url": "{}/{}".format(
+                        prefix, c.get("obligationId")
+                    ),
                     "terminated": ("1" if c.get("terminate") == "Y" else "0"),
                     "uri": "{}/{}".format(prefix, c.get("obligationId")),
                 }
@@ -171,12 +176,10 @@ class DataflowsManager:
 
     def getDataflowDict(self, dataflow_uri):
         """returns all properties of a dataflow as dictionary given the uri"""
-        try:
-            return [x for x in self.dataflow_table() if str(x["uri"]) == dataflow_uri][
-                0
-            ]
-        except Exception:
-            return {"SOURCE_TITLE": "Deleted", "TITLE": "Unknown obligation"}
+        result = self.dataflow_dict().get(dataflow_uri)
+        if result is not None:
+            return result
+        return {"SOURCE_TITLE": "Deleted", "TITLE": "Unknown obligation"}
 
     # Getters for the dataflow
 
