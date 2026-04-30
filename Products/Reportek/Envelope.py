@@ -1281,12 +1281,17 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     def add_feedback(self, **kwargs):
         # Add feedback. To be called by Applications.
         self.manage_addFeedback(**kwargs)
-        self._invalidate_qa_cache()
 
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
     security.declareProtected('Add Feedback', 'manage_addFeedback')
-    manage_addFeedback = Feedback.manage_addFeedback
+
+    def manage_addFeedback(self, *args, **kwargs):
+        try:
+            return Feedback.manage_addFeedback(self, *args, **kwargs)
+        finally:
+            self._invalidate_qa_cache()
+
     security.declareProtected(
         'View management screens', 'manage_addManualQAFeedback')
     manage_addManualQAFeedback = Feedback.manage_addManualQAFeedback
