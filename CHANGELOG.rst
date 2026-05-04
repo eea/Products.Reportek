@@ -1,5 +1,6 @@
 100.2.5-dev (Unreleased)
 ------------------------
+* Bulletproofed qa cache invalidation
 
 100.2.4 (2026-04-28)
 --------------------
