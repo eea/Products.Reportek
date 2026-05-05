@@ -449,6 +449,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             w = getattr(self, w_id)
             w.addFrom(workitem_from_id)
             w.setGraphLevel(workitem_from.graph_level + 1)
+        self._invalidate_qa_cache()
 
     security.declareProtected("Use OpenFlow", "assignWorkitem")
 
@@ -525,6 +526,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.assignWorkitem(workitem_id, action_actor)
             workitem.setStatus("active", actor=action_actor)
             self.setStatus(status="active", actor=action_actor)
+            self._invalidate_qa_cache()
         return self.handle_wk_response(workitem)
 
     security.declareProtected("Use OpenFlow", "inactivateWorkitem")
@@ -544,6 +546,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             and not workitem.blocked
         ):
             workitem.setStatus("inactive", actor=actor)
+            self._invalidate_qa_cache()
             if len(self.getActiveWorkitems()) == 0:
                 self.setStatus(status="running", actor=actor)
         return self.handle_wk_response(workitem)
@@ -565,6 +568,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             and not workitem.blocked
         ):
             workitem.setStatus("suspended", actor=actor)
+            self._invalidate_qa_cache()
             if len(self.getActiveWorkitems()) == 0:
                 self.setStatus(status="running", actor=actor)
         return self.handle_wk_response(workitem)
@@ -586,6 +590,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             and not workitem.blocked
         ):
             workitem.setStatus("inactive", actor=actor)
+            self._invalidate_qa_cache()
         return self.handle_wk_response(workitem)
 
     security.declareProtected("Use OpenFlow", "completeWorkitem")
@@ -612,6 +617,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if self.isActiveOrRunning():
             if workitem.status in ("active", "fallout"):
                 workitem.setStatus("complete", actor=l_actor)
+                self._invalidate_qa_cache()
                 if len(self.getActiveWorkitems()) == 0:
                     self.setStatus(status="running", actor=l_actor)
                 if self.isEnd(workitem.activity_id):
@@ -924,6 +930,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         else:
             actor = ""
         workitem.setStatus("fallout", actor=actor)
+        self._invalidate_qa_cache()
         return self.handle_wk_response(workitem)
 
     def sendWorkitemsToException(self, process_id, activity_id):

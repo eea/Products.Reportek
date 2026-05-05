@@ -1,3 +1,7 @@
+100.2.5 (2026-05-05)
+--------------------
+* Bulletproofed qa cache invalidation
+
 100.2.4 (2026-04-28)
 --------------------
 * engineMacros optimizations for bdr frontpage grouping
