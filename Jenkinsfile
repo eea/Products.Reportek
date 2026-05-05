@@ -162,7 +162,7 @@ pipeline {
                                 -e GIT_BRANCH="${BRANCH_NAME}" \
                                 -e GIT_CHANGE_ID="${CHANGE_ID}" \
                                 eeacms/reportek-base-dr:z5-latest \
-                                sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh coverage"
+                                sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && rm -rf /opt/zope/lib/python3.12/site-packages/Products/Reportek && /docker-entrypoint.sh coverage"
                             mkdir -p xunit-reports
                             docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/testreports/." xunit-reports/ || true
                             docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/coverage.xml" coverage.xml || true
