@@ -221,6 +221,12 @@
         handler=".subscribers.handleContentishEvent"
     />
 
+  <subscriber
+        for="Products.Reportek.interfaces.ICollection
+             Products.Reportek.interfaces.ILocalRolesChangedEvent"
+        handler="Products.Reportek.security_reindex.on_local_roles_changed"
+    />
+
   <utility
         provides="Products.Reportek.interfaces.IPortalCatalogQueueProcessor"
         name="portal-catalog"
