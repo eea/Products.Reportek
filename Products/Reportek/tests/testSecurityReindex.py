@@ -227,7 +227,8 @@ class OnLocalRolesChangedSubscriberTest(BaseTest, ConfigureReportek):
         ) as mock_walker:
             security_reindex.on_local_roles_changed(
                 self.col, LocalRolesChangedEvent(self.col, {"AnyRole"}))
-        mock_walker.assert_not_called()
+        # mock 1.0.1 has no assert_not_called; check call_count instead
+        self.assertEqual(mock_walker.call_count, 0)
 
     def test_bdr_runs_cascade_unconditionally(self):
         # Cascade runs regardless of whether the changed role grants View.
@@ -382,11 +383,17 @@ class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):
         finally:
             RepUtils.generate_id = original_generate_id
 
+    # Both REPORTEK_DEPLOYMENT module attributes need explicit patching:
+    # one at the call site (Collection) and one at the subscriber side
+    # (security_reindex). Otherwise tests are sensitive to the container's
+    # REPORTEK_DEPLOYMENT env var.
+
     def test_bdr_zmi_triggers_batched_walker(self):
-        # `reindex_security_batched` is bound at import time on the
-        # subscriber module, so patch it there.
         with patch(
             "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
+        ), patch(
+            "Products.Reportek.security_reindex.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_BDR,
         ), patch(
             "Products.Reportek.security_reindex.reindex_security_batched",
             return_value=3,
@@ -401,6 +408,9 @@ class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):
         with patch(
             "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
         ), patch(
+            "Products.Reportek.security_reindex.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_BDR,
+        ), patch(
             "Products.Reportek.security_reindex.reindex_security_batched",
             return_value=3,
         ) as walker:
@@ -412,10 +422,15 @@ class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):
                 "alice", ["UnrelatedRole"], REQUEST=_post(self.app.REQUEST))
         walker.assert_called_once_with(self.col)
 
-    def test_default_mdr_zmi_does_not_invoke_walker(self):
+    def test_non_bdr_zmi_does_not_invoke_walker(self):
+        # Patch Collection deployment to a non-BDR value so the call-site
+        # gate suppresses the event regardless of container env.
         with patch(
+            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR
+        ), patch(
             "Products.Reportek.security_reindex.reindex_security_batched"
         ) as walker:
             self.col.manage_setLocalRoles(
                 "alice", ["AnyRole"], REQUEST=_post(self.app.REQUEST))
-        walker.assert_not_called()
+        # mock 1.0.1 has no assert_not_called; check call_count instead.
+        self.assertEqual(walker.call_count, 0)
