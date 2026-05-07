@@ -37,7 +37,6 @@ import requests
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import change_permissions, manage_users
 from AccessControl.requestmethod import requestmethod
-from Acquisition import aq_base
 from DateTime import DateTime
 from OFS.Folder import Folder
 from Toolz import Toolz
