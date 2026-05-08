@@ -223,9 +223,7 @@ class OnLocalRolesChangedSubscriberTest(BaseTest, ConfigureReportek):
     def test_non_bdr_deployment_is_a_noop(self):
         with patch.object(
             security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR
-        ), patch.object(
-            security_reindex, "reindex_security_batched"
-        ) as mock_walker:
+        ), patch.object(security_reindex, "reindex_security_batched") as mock_walker:
             security_reindex.on_local_roles_changed(
                 self.col, LocalRolesChangedEvent(self.col, {"AnyRole"})
             )
