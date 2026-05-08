@@ -115,23 +115,17 @@ class ReindexSecurityBatchedTest(BaseTest, ConfigureReportek):
         with patch.object(
             catalog, "_reindexObject", wraps=catalog._reindexObject
         ) as spy:
-            count = security_reindex.reindex_security_batched(
-                self.col, batch_size=10
-            )
+            count = security_reindex.reindex_security_batched(self.col, batch_size=10)
         self.assertEqual(count, expected)
         self.assertEqual(spy.call_count, expected)
         # Every envelope must be among the targets.
-        visited = {
-            "/".join(c[0][0].getPhysicalPath()) for c in spy.call_args_list
-        }
+        visited = {"/".join(c[0][0].getPhysicalPath()) for c in spy.call_args_list}
         for env in envs:
             self.assertIn("/".join(env.getPhysicalPath()), visited)
         # Every call uses the right indexes and skips metadata.
         for call in spy.call_args_list:
             kwargs = call[1]
-            self.assertEqual(
-                kwargs.get("idxs"), security_reindex.SECURITY_INDEXES
-            )
+            self.assertEqual(kwargs.get("idxs"), security_reindex.SECURITY_INDEXES)
             self.assertEqual(kwargs.get("update_metadata"), 0)
 
     def test_walker_skips_self(self):
@@ -160,9 +154,7 @@ class ReindexSecurityBatchedTest(BaseTest, ConfigureReportek):
             if brain.getPath() != col_path
         )
         batch_size = 2
-        with patch(
-            "Products.Reportek.security_reindex.transaction.savepoint"
-        ) as sp:
+        with patch("Products.Reportek.security_reindex.transaction.savepoint") as sp:
             count = security_reindex.reindex_security_batched(
                 self.col, batch_size=batch_size
             )
@@ -173,9 +165,7 @@ class ReindexSecurityBatchedTest(BaseTest, ConfigureReportek):
     def test_walker_with_no_catalog_returns_zero(self):
         self.app._delObject(constants.DEFAULT_CATALOG)
         # Must use a fresh acquired wrapper since catalog was removed.
-        self.assertEqual(
-            security_reindex.reindex_security_batched(self.col), 0
-        )
+        self.assertEqual(security_reindex.reindex_security_batched(self.col), 0)
 
     def test_walker_skips_brain_with_missing_object(self):
         self._add_envelopes(2)
@@ -232,12 +222,8 @@ class OnLocalRolesChangedSubscriberTest(BaseTest, ConfigureReportek):
 
     def test_non_bdr_deployment_is_a_noop(self):
         with (
-            patch.object(
-                security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR
-            ),
-            patch.object(
-                security_reindex, "reindex_security_batched"
-            ) as mock_walker,
+            patch.object(security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR),
+            patch.object(security_reindex, "reindex_security_batched") as mock_walker,
         ):
             security_reindex.on_local_roles_changed(
                 self.col, LocalRolesChangedEvent(self.col, {"AnyRole"})
@@ -248,9 +234,7 @@ class OnLocalRolesChangedSubscriberTest(BaseTest, ConfigureReportek):
     def test_bdr_runs_cascade_unconditionally(self):
         # Cascade runs regardless of whether the changed role grants View.
         with (
-            patch.object(
-                security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
-            ),
+            patch.object(security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR),
             patch.object(
                 security_reindex,
                 "reindex_security_batched",
@@ -308,9 +292,7 @@ class CollectionManageRolesIntegrationTest(BaseTest, ConfigureReportek):
     def test_add_local_roles_never_fires_event(self):
         # manage_addLocalRoles never cascaded historically; do not change that
         # even under BDR with a REQUEST.
-        with patch(
-            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
-        ):
+        with patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR):
             self.col.manage_addLocalRoles(
                 "alice", ["Reporter"], REQUEST=_post(self.app.REQUEST)
             )
@@ -318,9 +300,7 @@ class CollectionManageRolesIntegrationTest(BaseTest, ConfigureReportek):
         self.assertIn("Reporter", self.col.get_local_roles_for_userid("alice"))
 
     def test_non_bdr_with_request_does_not_fire_event(self):
-        with patch(
-            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR
-        ):
+        with patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR):
             self.col.manage_setLocalRoles(
                 "alice", ["Reporter"], REQUEST=_post(self.app.REQUEST)
             )
@@ -331,9 +311,7 @@ class CollectionManageRolesIntegrationTest(BaseTest, ConfigureReportek):
 
     def test_bdr_set_local_roles_with_request_fires_event_with_union(self):
         self.col.manage_setLocalRoles("alice", ["OldRole"])
-        with patch(
-            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
-        ):
+        with patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR):
             self.col.manage_setLocalRoles(
                 "alice", ["NewRole"], REQUEST=_post(self.app.REQUEST)
             )
@@ -345,27 +323,19 @@ class CollectionManageRolesIntegrationTest(BaseTest, ConfigureReportek):
 
     def test_bdr_del_local_roles_with_request_fires_event_with_old_roles(self):
         self.col.manage_setLocalRoles("alice", ["RoleA", "RoleB"])
-        with patch(
-            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
-        ):
-            self.col.manage_delLocalRoles(
-                ["alice"], REQUEST=_post(self.app.REQUEST)
-            )
+        with patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR):
+            self.col.manage_delLocalRoles(["alice"], REQUEST=_post(self.app.REQUEST))
         self.assertEqual(len(self.captured), 1)
         evt = self.captured[0]
         self.assertEqual(evt.changed_roles, frozenset({"RoleA", "RoleB"}))
 
     def test_bdr_set_no_previous_roles_event_has_only_new_role(self):
-        with patch(
-            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
-        ):
+        with patch("Products.Reportek.Collection.REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR):
             self.col.manage_setLocalRoles(
                 "newbie", ["FreshRole"], REQUEST=_post(self.app.REQUEST)
             )
         self.assertEqual(len(self.captured), 1)
-        self.assertEqual(
-            self.captured[0].changed_roles, frozenset({"FreshRole"})
-        )
+        self.assertEqual(self.captured[0].changed_roles, frozenset({"FreshRole"}))
 
 
 class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):

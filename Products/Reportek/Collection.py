@@ -130,9 +130,7 @@ class BaseCollection(ReportekContent):
     """BaseCollection class."""
 
 
-class Collection(
-    CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection
-):
+class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -250,9 +248,7 @@ class Collection(
 
     def manage_main(self, *args, **kw):
         """Define manage main to be context aware"""
-        if getSecurityManager().checkPermission(
-            "View management screens", self
-        ):
+        if getSecurityManager().checkPermission("View management screens", self):
             return self.manage_main_inh(*args, **kw)
         else:
             return self.index_html(*args, **kw)
@@ -294,9 +290,7 @@ class Collection(
 
     security.declareProtected("View", "other_reports")
     other_reports = PageTemplateFile(
-        os.path.join(
-            package_home(globals()), "zpt/collection/other_reports.zpt"
-        )
+        os.path.join(package_home(globals()), "zpt/collection/other_reports.zpt")
     )
 
     def local_defined_roles(self):
@@ -308,9 +302,7 @@ class Collection(
 
     def local_unique_roles(self):
         return set(
-            role
-            for roles in list(self.__ac_local_roles__.values())
-            for role in roles
+            role for roles in list(self.__ac_local_roles__.values()) for role in roles
         )
 
     security.declareProtected(manage_users, "get_users_list")
@@ -357,9 +349,7 @@ class Collection(
                     if role_param and role_param in ["Reporter", "Client"]:
                         if role == role_param:
                             if member in members:
-                                members[member]["roles"].append(
-                                    [context, [role]]
-                                )
+                                members[member]["roles"].append([context, [role]])
                             else:
                                 u_type = "user"
                                 if member in ldap_groups:
@@ -371,9 +361,7 @@ class Collection(
                     else:
                         if role in ["Reporter", "Client"]:
                             if member in members:
-                                members[member]["roles"].append(
-                                    [context, list(roles)]
-                                )
+                                members[member]["roles"].append([context, list(roles)])
                             else:
                                 u_type = "user"
                                 if member in ldap_groups:
@@ -646,9 +634,7 @@ class Collection(
             l_ret = p_parameter + "=" + str(p_value)
         return l_ret
 
-    def changeQueryString2(
-        self, p_query_string, p_parameter=None, p_value=None
-    ):
+    def changeQueryString2(self, p_query_string, p_parameter=None, p_value=None):
         """given the QUERY_STRING part of an URL, the function does the
         following:
         - if type(p_parameter) is str  searches for the parameter
@@ -662,13 +648,10 @@ class Collection(
             p_query_string, p_parameter, p_value
         )
         return "&".join(
-            str(x) + "=" + str(l_query_array[x])
-            for x in list(l_query_array.keys())
+            str(x) + "=" + str(l_query_array[x]) for x in list(l_query_array.keys())
         )
 
-    def changeQueryString2Dict(
-        self, p_query_string, p_parameter=None, p_value=None
-    ):
+    def changeQueryString2Dict(self, p_query_string, p_parameter=None, p_value=None):
         """returns the array for changeQueryString2"""
         # store the {key,value} pair in a dictionary
         l_query_array = {}
@@ -729,9 +712,7 @@ class Collection(
                 parent = obj.getParentNode()
             except Exception:
                 return (None, None)
-            if hasattr(obj, "_company_id") and not hasattr(
-                parent, "_company_id"
-            ):
+            if hasattr(obj, "_company_id") and not hasattr(parent, "_company_id"):
                 return (obj.title, obj.getId())
             else:
                 return cname(parent)
@@ -742,9 +723,7 @@ class Collection(
 
     def messageDialog(self, message="", action="", params=None, REQUEST=None):
         """displays a message dialog"""
-        return self.message_dialog(
-            message=message, action=action, params=params
-        )
+        return self.message_dialog(message=message, action=action, params=params)
 
     message_dialog = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/message_dialog.zpt")
@@ -811,9 +790,7 @@ class Collection(
                 request = None
 
             if request is not None:
-                cache_key = "_get_company_data_{}".format(
-                    self.absolute_url_path()
-                )
+                cache_key = "_get_company_data_{}".format(self.absolute_url_path())
                 cached = request.get(cache_key)
                 if cached is not None:
                     return cached
@@ -828,9 +805,7 @@ class Collection(
                         if obl in engine.er_ods_obligations:
                             domain = "ODS"
                             break
-                    data = registry.get_company_details(
-                        self.company_id, domain=domain
-                    )
+                    data = registry.get_company_details(self.company_id, domain=domain)
                 else:
                     # For BDR-Registry, get the domain from the top-level path
                     domain = (
@@ -838,9 +813,7 @@ class Collection(
                         if len(self.getPhysicalPath()) > 1
                         else None
                     )
-                    data = registry.get_company_details(
-                        self.company_id, domain=domain
-                    )
+                    data = registry.get_company_details(self.company_id, domain=domain)
                 if data:
                     data["registry"] = registry_name
 
@@ -997,9 +970,7 @@ class Collection(
                     if not isinstance(data, dict):
                         res["result"] = "Fail"
                         res["message"] = "Malformed body"
-                    response = registry.get_company_paus(
-                        self.company_id, domain=domain
-                    )
+                    response = registry.get_company_paus(self.company_id, domain=domain)
                     if response is not None:
                         if response.status_code != requests.codes.ok:
                             res["result"] = "Fail"
@@ -1250,9 +1221,7 @@ class Collection(
                 alt_street = alt_street + " " + alt_street_no
 
             street = raw_data.get("addr_street", alt_street)
-            city = raw_data.get(
-                "addr_place1", raw_data.get("address", {}).get("city")
-            )
+            city = raw_data.get("addr_place1", raw_data.get("address", {}).get("city"))
             country = raw_data.get("country", raw_data.get("country_code"))
             data = {
                 "name": raw_data.get("name"),
@@ -1470,9 +1439,7 @@ class Collection(
             request = None
 
         if request is not None:
-            cache_key = "_get_domain_{}_{}".format(
-                self.absolute_url_path(), df_type
-            )
+            cache_key = "_get_domain_{}_{}".format(self.absolute_url_path(), df_type)
             cached = request.get(cache_key)
             if cached is not None:
                 return cached
@@ -1529,9 +1496,7 @@ class Collection(
         from zope.interface import alsoProvides
 
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
-            alsoProvides(
-                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
-            )
+            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         # This is a bit weird here, since we expect this to be called
         # from envelopes from audit collection, which is a
         # subcollection of the FGAS collection.
@@ -1571,9 +1536,7 @@ class Collection(
                 try:
                     if key in metadata:
                         amount = metadata.get(key, {}).get("Amount")
-                        mdata[key] = (
-                            int(amount) if amount is not None else None
-                        )
+                        mdata[key] = int(amount) if amount is not None else None
                     else:
                         mdata[key] = None
                 except (ValueError, KeyError, TypeError):
