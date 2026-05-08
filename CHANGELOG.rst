@@ -1,4 +1,4 @@
-100.2.6-dev (Unreleased)
+100.2.6 (2026-05-08)
 --------------------
 * Added batched security reindex for BDR Collection role changes
 
