@@ -37,7 +37,6 @@ import requests
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import change_permissions, manage_users
 from AccessControl.requestmethod import requestmethod
-from Acquisition import aq_base
 from DateTime import DateTime
 from OFS.Folder import Folder
 from Toolz import Toolz
@@ -52,6 +51,7 @@ from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.config import permission_manage_properties_collections
 from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.events import LocalRolesChangedEvent
 from Products.Reportek.interfaces import ICollection
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
@@ -751,13 +751,14 @@ class Collection(
 
     @requestmethod("POST")
     def manage_setLocalRoles(self, userid, roles, REQUEST=None):
+        previous = set(self.get_local_roles_for_userid(userid) or ())
         super(Collection, self).manage_setLocalRoles(userid, roles)
         if REQUEST is not None:
             if hasattr(self, "reindexObject"):
                 self.reindexObject()
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                if hasattr(aq_base(self), "reindexObjectSecurity"):
-                    self.reindexObjectSecurity()
+                changed = previous | set(roles or ())
+                notify(LocalRolesChangedEvent(self, changed))
             stat = "Your changes have been saved."
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -765,13 +766,15 @@ class Collection(
 
     def manage_delLocalRoles(self, userids, REQUEST=None):
         """Remove all local roles for a user."""
+        previous = set()
+        for uid in userids or ():
+            previous.update(self.get_local_roles_for_userid(uid) or ())
         super(Collection, self).manage_delLocalRoles(userids)
         if REQUEST is not None:
             if hasattr(self, "reindexObject"):
                 self.reindexObject()
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                if hasattr(aq_base(self), "reindexObjectSecurity"):
-                    self.reindexObjectSecurity()
+                notify(LocalRolesChangedEvent(self, previous))
             stat = "Your changes have been saved."
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
