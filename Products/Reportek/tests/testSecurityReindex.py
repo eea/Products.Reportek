@@ -221,10 +221,11 @@ class OnLocalRolesChangedSubscriberTest(BaseTest, ConfigureReportek):
         )
 
     def test_non_bdr_deployment_is_a_noop(self):
-        with (
-            patch.object(security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR),
-            patch.object(security_reindex, "reindex_security_batched") as mock_walker,
-        ):
+        with patch.object(
+            security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_CDR
+        ), patch.object(
+            security_reindex, "reindex_security_batched"
+        ) as mock_walker:
             security_reindex.on_local_roles_changed(
                 self.col, LocalRolesChangedEvent(self.col, {"AnyRole"})
             )
@@ -233,14 +234,13 @@ class OnLocalRolesChangedSubscriberTest(BaseTest, ConfigureReportek):
 
     def test_bdr_runs_cascade_unconditionally(self):
         # Cascade runs regardless of whether the changed role grants View.
-        with (
-            patch.object(security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR),
-            patch.object(
-                security_reindex,
-                "reindex_security_batched",
-                return_value=7,
-            ) as mock_walker,
-        ):
+        with patch.object(
+            security_reindex, "REPORTEK_DEPLOYMENT", DEPLOYMENT_BDR
+        ), patch.object(
+            security_reindex,
+            "reindex_security_batched",
+            return_value=7,
+        ) as mock_walker:
             security_reindex.on_local_roles_changed(
                 self.col, LocalRolesChangedEvent(self.col, {"AnyRole"})
             )
@@ -384,20 +384,16 @@ class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):
     # REPORTEK_DEPLOYMENT env var.
 
     def test_bdr_zmi_triggers_batched_walker(self):
-        with (
-            patch(
-                "Products.Reportek.Collection.REPORTEK_DEPLOYMENT",
-                DEPLOYMENT_BDR,
-            ),
-            patch(
-                "Products.Reportek.security_reindex.REPORTEK_DEPLOYMENT",
-                DEPLOYMENT_BDR,
-            ),
-            patch(
-                "Products.Reportek.security_reindex.reindex_security_batched",
-                return_value=3,
-            ) as walker,
-        ):
+        with patch(
+            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_BDR,
+        ), patch(
+            "Products.Reportek.security_reindex.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_BDR,
+        ), patch(
+            "Products.Reportek.security_reindex.reindex_security_batched",
+            return_value=3,
+        ) as walker:
             self.col.manage_setLocalRoles(
                 "alice", ["TestViewer"], REQUEST=_post(self.app.REQUEST)
             )
@@ -406,20 +402,16 @@ class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):
     def test_bdr_zmi_runs_walker_for_any_role(self):
         # Without Layer 1 there is no "skip when role doesn't grant View"
         # short-circuit; the cascade runs for every role under BDR.
-        with (
-            patch(
-                "Products.Reportek.Collection.REPORTEK_DEPLOYMENT",
-                DEPLOYMENT_BDR,
-            ),
-            patch(
-                "Products.Reportek.security_reindex.REPORTEK_DEPLOYMENT",
-                DEPLOYMENT_BDR,
-            ),
-            patch(
-                "Products.Reportek.security_reindex.reindex_security_batched",
-                return_value=3,
-            ) as walker,
-        ):
+        with patch(
+            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_BDR,
+        ), patch(
+            "Products.Reportek.security_reindex.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_BDR,
+        ), patch(
+            "Products.Reportek.security_reindex.reindex_security_batched",
+            return_value=3,
+        ) as walker:
             self.col.manage_permission("View", roles=["RealViewer"], acquire=0)
             self.col.manage_permission(
                 "Reportek Dataflow Admin", roles=["RealAdmin"], acquire=0
@@ -432,15 +424,12 @@ class CollectionEndToEndCascadeTest(BaseTest, ConfigureReportek):
     def test_non_bdr_zmi_does_not_invoke_walker(self):
         # Patch Collection deployment to a non-BDR value so the call-site
         # gate suppresses the event regardless of container env.
-        with (
-            patch(
-                "Products.Reportek.Collection.REPORTEK_DEPLOYMENT",
-                DEPLOYMENT_CDR,
-            ),
-            patch(
-                "Products.Reportek.security_reindex.reindex_security_batched"
-            ) as walker,
-        ):
+        with patch(
+            "Products.Reportek.Collection.REPORTEK_DEPLOYMENT",
+            DEPLOYMENT_CDR,
+        ), patch(
+            "Products.Reportek.security_reindex.reindex_security_batched"
+        ) as walker:
             self.col.manage_setLocalRoles(
                 "alice", ["AnyRole"], REQUEST=_post(self.app.REQUEST)
             )
