@@ -7,6 +7,7 @@ from Products.Reportek.interfaces import (
     IEnvelopeEvent,
     IEnvelopeReleasedEvent,
     IEnvelopeUnReleasedEvent,
+    ILocalRolesChangedEvent,
 )
 
 
@@ -33,3 +34,13 @@ class AuditAssignedEvent(EnvelopeEvent):
 @implementer(IAuditUnassignedEvent)
 class AuditUnassignedEvent(EnvelopeEvent):
     """Audit unassigned event"""
+
+
+@implementer(ILocalRolesChangedEvent)
+class LocalRolesChangedEvent(ObjectEvent):
+    """Fired after manage_setLocalRoles / manage_delLocalRoles mutate
+    __ac_local_roles__ on an object."""
+
+    def __init__(self, obj, changed_roles):
+        ObjectEvent.__init__(self, obj)
+        self.changed_roles = frozenset(changed_roles or ())

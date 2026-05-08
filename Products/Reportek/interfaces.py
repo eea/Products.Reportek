@@ -112,6 +112,15 @@ class IEnvelopeUnReleasedEvent(IEnvelopeEvent):
     """An envelope was unreleased thrown"""
 
 
+class ILocalRolesChangedEvent(IObjectEvent):
+    """Local roles on an object were just mutated.
+
+    Carries the union of (roles previously held by affected users) and
+    (roles being assigned). Subscribers use it to decide whether the
+    change can affect security indexes on descendants.
+    """
+
+
 class IIndexing(Interface):
     """interface for indexing operations, used both for the queue and
     the processors, which perform the actual indexing;  the queue gets

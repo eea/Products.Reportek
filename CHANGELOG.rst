@@ -1,3 +1,7 @@
+100.2.6 (2026-05-08)
+--------------------
+* Added batched security reindex for BDR Collection role changes
+
 100.2.5 (2026-05-05)
 --------------------
 * Bulletproofed qa cache invalidation
