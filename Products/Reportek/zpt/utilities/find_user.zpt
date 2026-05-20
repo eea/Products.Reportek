@@ -1,6 +1,7 @@
-<tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
+<tal:block
+  define="global deployment python: here.ReportekEngine.getDeploymentType();
                    global isCdrDeployment python: deployment == 'CDR';"
-                   />
+/>
 <tal:block metal:define-macro="filters">
   <form id="find-user-form" action="" method="POST">
     <h2 tal:condition="isCdrDeployment" i18n:translate="">1. Search users or groups</h2>
@@ -10,44 +11,55 @@
         <div class="search-type-controls" tal:condition="isCdrDeployment">
           <div class="search-radios">
             <label i18n:translate="">
-              <input type="radio" name="search_type" value="users"
-               tal:attributes="checked python: 'users' == request.get('search_type', 'users')"/>
+              <input
+                type="radio"
+                name="search_type"
+                value="users"
+                tal:attributes="checked python: 'users' == request.get('search_type', 'users')"
+              />
               Users
             </label>
           </div>
           <div class="search-radios">
             <label i18n:translate="">
-              <input type="radio" name="search_type" value="groups"
-                tal:attributes="checked python: 'groups' == request.get('search_type')" />
+              <input
+                type="radio"
+                name="search_type"
+                value="groups"
+                tal:attributes="checked python: 'groups' == request.get('search_type')"
+              />
               LDAP Groups
             </label>
           </div>
         </div>
         <div class="search-box">
-          <input type="text" name="search_term" id="search_term" size="55"
+          <input
+            type="text"
+            name="search_term"
+            id="search_term"
+            size="55"
             tal:attributes="value request/search_term | string:"
             placeholder="You can search on First name, Surname, Userid and Email"
-            i18n:attributes="placeholder placeholder-search-fname-surname-uid-email" />
-          <input type="submit" name="btnFind" value="Search" i18n:attributes="value btn-search"/>
+            i18n:attributes="placeholder placeholder-search-fname-surname-uid-email"
+          />
+          <input type="submit" name="btnFind" value="Search" i18n:attributes="value btn-search" />
         </div>
       </div>
     </div>
   </form>
 </tal:block>
 
-
-<tal:block metal:define-macro="users_table"
-            define="result view/search_entities">
-
+<tal:block metal:define-macro="users_table" define="result view/search_entities">
   <p class="error-msg" tal:condition="result/errors | nothing">
     <strong i18n:translate="">ERROR:</strong>
-    <span tal:content="result/errors"/>
+    <span tal:content="result/errors" />
   </p>
 
-  
-  <tal:block condition="not: result/errors | nothing"
+  <tal:block
+    condition="not: result/errors | nothing"
     tal:define="users result/users | nothing;
-                groups result/groups | nothing">
+                groups result/groups | nothing"
+  >
     <tal:block tal:condition="users">
       <h2 i18n:translate="">2. Select user</h2>
       <table class="datatable">
@@ -62,14 +74,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr tal:repeat="user users"
-            tal:attributes="class python: {'disabled': 'user-disabled'}.get(user.get('employeeType', ''))">
-            <tal:block tal:define="dn user/dn|nothing;
-                                   mail user/mail|nothing">
+          <tr
+            tal:repeat="user users"
+            tal:attributes="class python: {'disabled': 'user-disabled'}.get(user.get('employeeType', ''))"
+          >
+            <tal:block
+              tal:define="dn user/dn|nothing;
+                                   mail user/mail|nothing"
+            >
               <td>
-                <input type="radio" name="username"
+                <input
+                  type="radio"
+                  name="username"
                   tal:attributes="value user/uid|nothing;
-                                  checked python: user.get('uid') == request.get('username')"/>
+                                  checked python: user.get('uid') == request.get('username')"
+                />
               </td>
               <td>
                 <span tal:condition="dn" tal:omit-tag="" i18n:translate="">Local/LDAP</span>
@@ -78,14 +97,15 @@
               <td tal:content="user/uid|nothing" />
               <tal:block tal:define="cn user/cn|nothing">
                 <td>
-                  <span tal:condition="cn"
+                  <span
+                    tal:condition="cn"
                     tal:content="python:cn.decode('utf-8') if isinstance(cn, bytes) else cn"
-                    tal:omit-tag=""/>
+                    tal:omit-tag=""
+                  />
                 </td>
               </tal:block>
               <td>
-                <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
-                  tal:content="mail" />
+                <a tal:condition="mail" tal:attributes="href string:mailto:${mail}" tal:content="mail" />
               </td>
               <td tal:content="dn" />
             </tal:block>
@@ -93,9 +113,7 @@
         </tbody>
       </table>
 
-      <p class="notfound-msg" tal:condition="not: users" i18n:translate="">
-        No users found for this criteria.
-      </p>
+      <p class="notfound-msg" tal:condition="not: users" i18n:translate="">No users found for this criteria.</p>
     </tal:block>
 
     <tal:block tal:condition="groups">
@@ -109,37 +127,54 @@
             <th></th>
           </tr>
         </thead>
-        <tbody tal:define="country_codes view/get_all_country_codes;
+        <tbody
+          tal:define="country_codes view/get_all_country_codes;
                            com_exceptions python: ['uk', 'uk_gb', 'el'];
-                           all_country_codes python: country_codes + com_exceptions">
+                           all_country_codes python: country_codes + com_exceptions"
+        >
           <tr tal:repeat="group groups">
-            <tal:block tal:define="dn python: group.get('dn', '');
+            <tal:block
+              tal:define="dn python: group.get('dn', '');
                                    description group/description | nothing;
                                    cn python: group.get('cn', '');
                                    suffix python: cn.split('-')[-1];
-                                   potential_c python: [cn + '-' + code.lower() for code in all_country_codes]">
+                                   potential_c python: [cn + '-' + code.lower() for code in all_country_codes]"
+            >
               <td>
-                <input type="radio" name="groupsname"
+                <input
+                  type="radio"
+                  name="groupsname"
                   tal:attributes="value group/cn;
-                                  checked python: group.get('cn') == request.get('groupsname')"/>
+                                  checked python: group.get('cn') == request.get('groupsname')"
+                />
               </td>
-                <td>
-                  <span tal:condition="cn"
-                    tal:content="python:cn.decode('utf-8')"
-                    tal:omit-tag=""/>
-                </td>
               <td>
-                <span tal:condition="description"
-                  tal:content="python:description.decode('utf-8')" tal:omit-tag=""/>
+                <span
+                  tal:condition="cn"
+                  tal:content="python:cn.decode('utf-8') if isinstance(cn, bytes) else cn"
+                  tal:omit-tag=""
+                />
               </td>
-              <tal:def tal:define="children python: [child.get('cn') for child in groups
-                                  if child.get('cn') in potential_c]">
+              <td>
+                <span
+                  tal:condition="description"
+                  tal:content="python:description.decode('utf-8') if isinstance(description, bytes) else description"
+                  tal:omit-tag=""
+                />
+              </td>
+              <tal:def
+                tal:define="children python: [child.get('cn') for child in groups
+                                  if child.get('cn') in potential_c]"
+              >
                 <td>
                   <tal:block tal:condition="python: len(children) > 1">
                     <label i18n:translate="">
-                      <input type="radio" name="use-subgroups"
-                       tal:attributes="value python: ','.join(children);
-                                       checked python: ','.join(children) == request.get('use-subgroups')" />
+                      <input
+                        type="radio"
+                        name="use-subgroups"
+                        tal:attributes="value python: ','.join(children);
+                                       checked python: ','.join(children) == request.get('use-subgroups')"
+                      />
                       Use country codes of sub-group
                     </label>
                   </tal:block>
@@ -150,9 +185,7 @@
         </tbody>
       </table>
 
-      <p class="notfound-msg" tal:condition="not: groups" i18n:translate="">
-        No groups found for this criteria.
-      </p>
+      <p class="notfound-msg" tal:condition="not: groups" i18n:translate="">No groups found for this criteria.</p>
     </tal:block>
   </tal:block>
 </tal:block>
