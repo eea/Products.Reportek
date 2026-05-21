@@ -1,3 +1,8 @@
+100.2.7 (2026-05-21)
+--------------------
+* Fixed decoding issues in find_user
+* Added support for LDAP memcached backends
+
 100.2.6 (2026-05-08)
 --------------------
 * Added batched security reindex for BDR Collection role changes
