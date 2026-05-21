@@ -233,4 +233,9 @@
         handler=".session.extract_beaker_session"
     />
 
+    <utility
+        provides="pas.plugins.ldap.interfaces.ICacheSettingsRecordProvider"
+        factory="pas.plugins.ldap.plonecontrolpanel.cache.CacheSettingsRecordProvider"
+    />
+
 </configure>

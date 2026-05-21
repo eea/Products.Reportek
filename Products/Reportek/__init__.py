@@ -20,6 +20,7 @@
 
 
 import logging
+import os
 
 # Zope imports
 import Zope2
@@ -207,6 +208,17 @@ def create_reportek_objects(app):
     registry = getUtility(IRegistry)
     # setup registry for caching purposes
     registry_setup(registry)
+
+    ldap_memcached = os.environ.get("LDAP_MEMCACHED_SERVERS", "").strip()
+    if ldap_memcached:
+        from pas.plugins.ldap.interfaces import ICacheSettingsRecordProvider
+        from zope.component import queryUtility as _queryUtility
+
+        provider = _queryUtility(ICacheSettingsRecordProvider)
+        if provider is not None:
+            record = provider()
+            if not record.value:
+                record.value = ldap_memcached
 
     # register key manager from plone.keyring
     km = getattr(app, "key_manager", None)
