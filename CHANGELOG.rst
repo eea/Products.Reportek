@@ -1,5 +1,5 @@
-100.2.7-dev (Unreleased)
-------------------------
+100.2.7 (2026-05-21)
+--------------------
 * Fixed decoding issues in find_user
 * Added support for LDAP memcached backends
 
