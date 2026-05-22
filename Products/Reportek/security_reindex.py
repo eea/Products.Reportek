@@ -25,6 +25,32 @@ DEFAULT_BATCH_SIZE = 500
 SECURITY_INDEXES = ("allowedRolesAndUsers", "allowedAdminRolesAndUsers")
 
 
+def _reindex_brain(catalog, brain, self_path):
+    """Reindex security indexes for a single catalog brain.
+
+    Returns True if the brain's object was reindexed, False if it was
+    skipped (it is `obj` itself or could not be resolved).
+    """
+    brain_path = brain.getPath()
+    if brain_path == self_path:
+        return False
+    try:
+        ob = brain._unrestrictedGetObject()
+    except (AttributeError, KeyError):
+        return False
+    if ob is None:
+        logger.warning(
+            "reindex_security_batched: cannot get %s from catalog",
+            brain_path,
+        )
+        return False
+    was_ghost = getattr(ob, "_p_changed", 0) is None
+    catalog._reindexObject(ob, idxs=SECURITY_INDEXES, update_metadata=0)
+    if was_ghost:
+        ob._p_deactivate()
+    return True
+
+
 def reindex_security_batched(obj, batch_size=DEFAULT_BATCH_SIZE):
     """Reindex security indexes on every descendant of `obj` in batches.
 
@@ -38,23 +64,8 @@ def reindex_security_batched(obj, batch_size=DEFAULT_BATCH_SIZE):
     brains = catalog.unrestrictedSearchResults(path=self_path)
     reindexed = 0
     for brain in brains:
-        brain_path = brain.getPath()
-        if brain_path == self_path:
+        if not _reindex_brain(catalog, brain, self_path):
             continue
-        try:
-            ob = brain._unrestrictedGetObject()
-        except (AttributeError, KeyError):
-            continue
-        if ob is None:
-            logger.warning(
-                "reindex_security_batched: cannot get %s from catalog",
-                brain_path,
-            )
-            continue
-        was_ghost = getattr(ob, "_p_changed", 0) is None
-        catalog._reindexObject(ob, idxs=SECURITY_INDEXES, update_metadata=0)
-        if was_ghost:
-            ob._p_deactivate()
         reindexed += 1
         if batch_size and reindexed % batch_size == 0:
             transaction.savepoint(optimistic=True)
