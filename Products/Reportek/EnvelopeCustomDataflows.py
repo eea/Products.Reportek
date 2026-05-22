@@ -68,6 +68,7 @@ SHORT_ESRI_EXTENSIONS = ["shp", "shx", "dbf", "prj"]
 EXTENDED_ESRI_EXTENSIONS = ["shp", "shx", "dbf", "prj", "xml", "shp.xml"]
 OPTIONAL_ESRI_EXTENSIONS = ["xml", "shp.xml"]
 ESRI_EXTRAEXTENSIONS = [".shp", ".shx", ".dbf", ".prj", ".xml"]
+AUDIT_DATE_FORMAT = "%d %b %Y %H:%M"
 
 
 def invoke_conversion_service(server_name, method_name, url):
@@ -2138,7 +2139,7 @@ class EnvelopeCustomDataflows(Toolz):
                 self.is_audit_assigned = False
                 audit_info = self.audit_info
                 audit_info["audit_end_date"] = DateTime().strftime(
-                    "%d %b %Y %H:%M"
+                    AUDIT_DATE_FORMAT
                 )
                 self.audit_info = audit_info
                 if notify_event:
@@ -2188,7 +2189,7 @@ class EnvelopeCustomDataflows(Toolz):
             try:
                 res = json.loads(engine.assign_for_audit(audit_data))
                 if res.get("success"):
-                    audit_start_date = DateTime().strftime("%d %b %Y %H:%M")
+                    audit_start_date = DateTime().strftime(AUDIT_DATE_FORMAT)
             except HTTPError as e:
                 # If error is 400, check if it's already assigned
                 aa_marker = (
@@ -2231,7 +2232,7 @@ class EnvelopeCustomDataflows(Toolz):
                         remote_start_date = found_audit.get("start_date")
                         audit_start_date = DateTime(
                             remote_start_date
-                        ).strftime("%d %b %Y %H:%M")
+                        ).strftime(AUDIT_DATE_FORMAT)
                     else:
                         raise e
                 else:
