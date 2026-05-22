@@ -54,7 +54,9 @@ def _http_error(status_code=400, auditor=ALREADY_ASSIGNED):
 class _AuditStub(object):
     """Stub carrying the real method functions under test."""
 
-    _find_matching_audit = EnvelopeCustomDataflows._find_matching_audit.__func__
+    _find_matching_audit = (
+        EnvelopeCustomDataflows._find_matching_audit.__func__
+    )
     _recover_already_assigned = (
         EnvelopeCustomDataflows._recover_already_assigned.__func__
     )
@@ -116,9 +118,8 @@ class RecoverAlreadyAssignedTest(BaseUnitTest):
         self.assertEqual(res, {"success": True, "message": "Already assigned"})
         expected = DateTime(audit["start_date"]).strftime(AUDIT_DATE_FORMAT)
         self.assertEqual(start_date, expected)
-        self.engine.FGASRegistryAPI.get_auditor_details.assert_called_once_with(
-            "uid-1"
-        )
+        get_details = self.engine.FGASRegistryAPI.get_auditor_details
+        get_details.assert_called_once_with("uid-1")
 
     def test_reraises_when_no_matching_audit(self):
         self._details([_matching_audit(end_date="2024-02-01 00:00:00")])
@@ -183,7 +184,9 @@ class AssignAuditorTest(BaseUnitTest):
             stub.assign_auditor()
 
     def test_no_audit_when_verification_none(self, _also, _notify):
-        stub = self._make_stub(settings={"verificationOptions": {"none": True}})
+        stub = self._make_stub(
+            settings={"verificationOptions": {"none": True}}
+        )
         self.assertIsNone(stub.assign_auditor())
         self.assertFalse(self.engine.assign_for_audit.called)
 
