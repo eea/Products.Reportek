@@ -68,6 +68,7 @@ SHORT_ESRI_EXTENSIONS = ["shp", "shx", "dbf", "prj"]
 EXTENDED_ESRI_EXTENSIONS = ["shp", "shx", "dbf", "prj", "xml", "shp.xml"]
 OPTIONAL_ESRI_EXTENSIONS = ["xml", "shp.xml"]
 ESRI_EXTRAEXTENSIONS = [".shp", ".shx", ".dbf", ".prj", ".xml"]
+AUDIT_DATE_FORMAT = "%d %b %Y %H:%M"
 
 
 def invoke_conversion_service(server_name, method_name, url):
@@ -2138,7 +2139,7 @@ class EnvelopeCustomDataflows(Toolz):
                 self.is_audit_assigned = False
                 audit_info = self.audit_info
                 audit_info["audit_end_date"] = DateTime().strftime(
-                    "%d %b %Y %H:%M"
+                    AUDIT_DATE_FORMAT
                 )
                 self.audit_info = audit_info
                 if notify_event:
@@ -2188,54 +2189,11 @@ class EnvelopeCustomDataflows(Toolz):
             try:
                 res = json.loads(engine.assign_for_audit(audit_data))
                 if res.get("success"):
-                    audit_start_date = DateTime().strftime("%d %b %Y %H:%M")
+                    audit_start_date = DateTime().strftime(AUDIT_DATE_FORMAT)
             except HTTPError as e:
-                # If error is 400, check if it's already assigned
-                aa_marker = (
-                    "Verification envelope already has an auditor assigned"
+                res, audit_start_date = self._recover_already_assigned(
+                    engine, audit_data, e
                 )
-                errors = e.response.json().get("errors", {})
-                if e.response.status_code == 400 and aa_marker in errors.get(
-                    "auditor", {}
-                ):
-                    auditor_details = (
-                        engine.FGASRegistryAPI.get_auditor_details(
-                            audit_data.get("auditor_uid")
-                        )
-                    )
-                    audits = (auditor_details or {}).get(
-                        "audited_companies", []
-                    )
-                    verification_url = audit_data.get(
-                        "verification_envelope_url"
-                    )
-                    reporting_url = audit_data.get("reporting_envelope_url")
-                    lead_auditor_email = audit_data.get("lead_auditor")
-
-                    found_audit = None
-                    for audit in audits:
-                        if (
-                            audit.get("verification_envelope_url")
-                            == verification_url
-                            and audit.get("reporting_envelope_url")
-                            == reporting_url
-                            and audit.get("user", {}).get("email")
-                            == lead_auditor_email
-                            and not audit.get("end_date")
-                        ):
-                            found_audit = audit
-                            break
-
-                    if found_audit:
-                        res = {"success": True, "message": "Already assigned"}
-                        remote_start_date = found_audit.get("start_date")
-                        audit_start_date = DateTime(
-                            remote_start_date
-                        ).strftime("%d %b %Y %H:%M")
-                    else:
-                        raise e
-                else:
-                    raise e
 
             if res and res.get("success"):
                 self.is_audit_assigned = True
@@ -2250,6 +2208,49 @@ class EnvelopeCustomDataflows(Toolz):
         except (ValueError, AttributeError) as e:
             msg = "Failed to create audit envelope: {}".format(str(e))
             raise ValueError(msg)
+
+    def _find_matching_audit(self, audits, audit_data):
+        """Return the open audit matching `audit_data`, or None."""
+        verification_url = audit_data.get("verification_envelope_url")
+        reporting_url = audit_data.get("reporting_envelope_url")
+        lead_auditor_email = audit_data.get("lead_auditor")
+        for audit in audits:
+            if (
+                audit.get("verification_envelope_url") == verification_url
+                and audit.get("reporting_envelope_url") == reporting_url
+                and audit.get("user", {}).get("email") == lead_auditor_email
+                and not audit.get("end_date")
+            ):
+                return audit
+        return None
+
+    def _recover_already_assigned(self, engine, audit_data, error):
+        """Recover audit info when assignment failed because an auditor is
+        already assigned.
+
+        Returns (res, audit_start_date). Re-raises `error` if it is not a
+        recoverable "already assigned" 400 response.
+        """
+        aa_marker = "Verification envelope already has an auditor assigned"
+        errors = error.response.json().get("errors", {})
+        if error.response.status_code != 400 or aa_marker not in errors.get(
+            "auditor", {}
+        ):
+            raise error
+
+        auditor_details = engine.FGASRegistryAPI.get_auditor_details(
+            audit_data.get("auditor_uid")
+        )
+        audits = (auditor_details or {}).get("audited_companies", [])
+        found_audit = self._find_matching_audit(audits, audit_data)
+        if not found_audit:
+            raise error
+
+        res = {"success": True, "message": "Already assigned"}
+        audit_start_date = DateTime(found_audit.get("start_date")).strftime(
+            AUDIT_DATE_FORMAT
+        )
+        return res, audit_start_date
 
     def _load_verification_settings(self):
         """Load and parse verification settings.

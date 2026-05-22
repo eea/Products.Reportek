@@ -25,6 +25,7 @@ $Id$"""
 
 import json
 import logging
+import numbers
 import operator
 from datetime import datetime
 
@@ -114,6 +115,84 @@ def manage_addCollection(
     if REQUEST is not None:
         # Return to containers's view
         return REQUEST.RESPONSE.redirect(self.absolute_url())
+
+
+def _is_numeric(val):
+    """True for real numbers, excluding booleans."""
+    return isinstance(val, numbers.Real) and not isinstance(val, bool)
+
+
+def _raw_sort_value(ob, sort_on, getter):
+    """Extract the raw sort value of `ob` for `get_children`.
+
+    `sort_on` is either a callable applied to `ob`, or an attribute name;
+    `getter` is a precomputed ``operator.attrgetter(sort_on)`` (or None).
+    Bound methods are called with no arguments. Any failure yields None.
+    """
+    if callable(sort_on):
+        try:
+            return sort_on(ob)
+        except Exception:
+            return None
+
+    if getter is not None:
+        try:
+            val = getter(ob)
+        except Exception:
+            val = getattr(ob, sort_on, None)
+    else:
+        val = getattr(ob, sort_on, None)
+
+    # If it's a bound method, call it (no args)
+    if callable(val):
+        try:
+            return val()
+        except Exception:
+            return None
+    return val
+
+
+def _normalize_sort_value(val):
+    """Map a raw value to a (type_rank, comparable) pair for sorting.
+
+    The type rank groups values by kind so heterogeneous values order
+    deterministically: numbers, dates, strings, None, then everything else.
+    """
+    if val is None:
+        return (3, None)  # None last
+    if _is_numeric(val):
+        return (0, val)
+    if isinstance(val, basestring):
+        try:
+            return (2, val.lower())
+        except Exception:
+            return (2, unicode(val).lower())
+    try:
+        if hasattr(val, "ISO8601"):
+            try:
+                return (1, val.ISO8601())
+            except Exception:
+                return (4, repr(val))
+        if hasattr(val, "isoformat"):
+            try:
+                return (1, val.isoformat())
+            except Exception:
+                return (4, repr(val))
+    except Exception:
+        return (4, repr(val))
+    return (4, repr(val))
+
+
+def _tie_breaker(ob):
+    """Stable tie-breaker for equal sort keys: the object id."""
+    try:
+        if hasattr(ob, "getId"):
+            tid = ob.getId()
+            if tid is not None:
+                return tid
+    except Exception:
+        pass
+    return "id-%s" % (id(ob),)
 
 
 class BaseCollection(object):
@@ -1352,89 +1431,19 @@ class Collection(
 
     def get_children(self, m_types, sort_on, desc=1):
         """Return sorted children."""
-        objs = list(self.objectValues(m_types))
+        objs = self.objectValues(m_types)
 
-        # Local bindings for speed in the hot loop
-        _attrgetter = operator.attrgetter
-        _getattr = getattr
-        _hasattr = hasattr
-        _isinstance = isinstance
-        _basestring = basestring
-
-        import numbers
-
-        def _is_numeric(val):
-            return isinstance(val, numbers.Real) and not isinstance(val, bool)
-
-        if callable(sort_on):
-
-            def raw_getter(ob):
-                try:
-                    return sort_on(ob)
-                except Exception:
-                    return None
-        else:
+        getter = None
+        if not callable(sort_on):
             try:
-                _getter = _attrgetter(sort_on)
+                getter = operator.attrgetter(sort_on)
             except Exception:
-                _getter = None
-
-            def raw_getter(ob):
-                if _getter is not None:
-                    try:
-                        val = _getter(ob)
-                    except Exception:
-                        val = _getattr(ob, sort_on, None)
-                else:
-                    val = _getattr(ob, sort_on, None)
-
-                # If it's a bound method, call it (no args)
-                if callable(val):
-                    try:
-                        return val()
-                    except Exception:
-                        return None
-                return val
-
-        def normalize(val):
-            if val is None:
-                return (3, None)  # None last
-            if _is_numeric(val):
-                return (0, val)
-            if _isinstance(val, _basestring):
-                try:
-                    return (2, val.lower())
-                except Exception:
-                    return (2, unicode(val).lower())
-            try:
-                if _hasattr(val, "ISO8601"):
-                    try:
-                        return (1, val.ISO8601())
-                    except Exception:
-                        return (4, repr(val))
-                if _hasattr(val, "isoformat"):
-                    try:
-                        return (1, val.isoformat())
-                    except Exception:
-                        return (4, repr(val))
-            except Exception:
-                return (4, repr(val))
-            return (4, repr(val))
-
-        def tie_for(ob):
-            try:
-                if _hasattr(ob, "getId"):
-                    tid = ob.getId()
-                    if tid is not None:
-                        return tid
-            except Exception:
-                pass
-            return "id-%s" % (id(ob),)
+                getter = None
 
         def key_for(ob):
-            raw = raw_getter(ob)
-            typ, norm = normalize(raw)
-            return (typ, norm, tie_for(ob))
+            raw = _raw_sort_value(ob, sort_on, getter)
+            typ, norm = _normalize_sort_value(raw)
+            return (typ, norm, _tie_breaker(ob))
 
         return sorted(objs, key=key_for, reverse=bool(desc))
 
