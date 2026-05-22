@@ -84,6 +84,10 @@ __version__ = '$Revision$'[11:-2]
 
 logger = logging.getLogger("Reportek")
 
+DOCUMENT_META_TYPE = Document.Document.meta_type
+HYPERLINK_META_TYPE = Hyperlink.ReportHyperlink.meta_type
+FEEDBACK_META_TYPE = Feedback.ReportFeedback.meta_type
+
 
 def error_response(exc, message, REQUEST):
     """Return an error"""
@@ -182,7 +186,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if previous_delivery:
         l_envelope = self.restrictedTraverse(previous_delivery)
         l_data = l_envelope.manage_copyObjects(
-            l_envelope.objectIds('Report Document'))
+            l_envelope.objectIds(DOCUMENT_META_TYPE))
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
@@ -381,7 +385,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             if cached is not None:
                 return cached
 
-        result = [rf for rf in self.objectValues('Report Feedback')
+        result = [rf for rf in self.objectValues(FEEDBACK_META_TYPE)
                   if getattr(rf, 'title', '').startswith('AutomaticQA')]
 
         if request is not None:
@@ -510,11 +514,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """ Called by Zope to determine what kind of object the envelope can
             contain
         """
-        y = [{'name': 'Report Document', 'action': 'manage_addDocumentForm',
+        y = [{'name': DOCUMENT_META_TYPE, 'action': 'manage_addDocumentForm',
               'permission': 'Add Envelopes'},
-             {'name': 'Report Hyperlink', 'action': 'manage_addHyperlinkForm',
+             {'name': HYPERLINK_META_TYPE,
+              'action': 'manage_addHyperlinkForm',
               'permission': 'Add Envelopes'},
-             {'name': 'Report Feedback', 'action': 'manage_addFeedbackForm',
+             {'name': FEEDBACK_META_TYPE, 'action': 'manage_addFeedbackForm',
               'permission': 'Add Feedback'}]
         return y
 
@@ -544,8 +549,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     security.declareProtected('View', 'getSubmittedDocs')
 
     def getSubmittedDocs(self):
-        documents_list = self.objectValues(['Report Document',
-                                            'Report Hyperlink'])
+        documents_list = self.objectValues([DOCUMENT_META_TYPE,
+                                            HYPERLINK_META_TYPE])
         documents_list.sort(key=lambda ob: ob.getId().lower())
         return documents_list
 
@@ -561,7 +566,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """ Copies files from another envelope """
         l_envelope = self.unrestrictedTraverse(previous_delivery)
         l_files_ids = l_envelope.objectIds(
-            ['Report Document', 'Report Hyperlink'])
+            [DOCUMENT_META_TYPE, HYPERLINK_META_TYPE])
         if len(l_files_ids) > 0:
             l_data = l_envelope.manage_copyObjects(l_files_ids)
             self.manage_pasteObjects(l_data)
@@ -672,7 +677,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     def getDocuments(self, REQUEST):
         """ return the list of documents """
         documents_list = self.objectValues(
-            ['Report Document', 'Report Hyperlink'])
+            [DOCUMENT_META_TYPE, HYPERLINK_META_TYPE])
         documents_list.sort(key=lambda ob: ob.getId().lower())
         # Show 10 documents per page
         paginator = DiggPaginator(
@@ -996,9 +1001,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     def apply_restrictions(self):
         """ Apply restrictions to envelope's contents
         """
-        ids = self.objectIds(['Report Document',
-                              'Report Feedback',
-                              'Report Hyperlink'])
+        ids = self.objectIds([DOCUMENT_META_TYPE,
+                              FEEDBACK_META_TYPE,
+                              HYPERLINK_META_TYPE])
         self.manage_restrict(ids)
         self.reindexObject()
 
@@ -1036,9 +1041,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             for oid in l_ids:
                 obj = self.unrestrictedTraverse(oid)
                 m_types = [
-                    'Report Document',
-                    'Report Feedback',
-                    'Report Hyperlink'
+                    DOCUMENT_META_TYPE,
+                    FEEDBACK_META_TYPE,
+                    HYPERLINK_META_TYPE
                 ]
                 if getattr(obj, 'meta_type', None) in m_types:
                     restricted.append(oid)
@@ -1113,7 +1118,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """ Returns 1 if at least a file is restricted from the public,
             0 otherwise
         """
-        for doc in self.objectValues(['Report Document', 'Report Hyperlink']):
+        for doc in self.objectValues(
+                [DOCUMENT_META_TYPE, HYPERLINK_META_TYPE]):
             if not doc.acquiredRolesAreUsedBy('View'):
                 return 1
         return 0
@@ -1190,14 +1196,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     def getFeedbacks(self):
         """ return all the feedbacks """
-        return self.objectValues('Report Feedback')
+        return self.objectValues(FEEDBACK_META_TYPE)
 
     security.declareProtected('View', 'feedback_objects_details')
 
     def feedback_objects_details(self):
         """ xml-rpc interface to get feedbacks details """
         result = {'feedbacks': []}
-        feedbacks = self.objectValues('Report Feedback')
+        feedbacks = self.objectValues(FEEDBACK_META_TYPE)
         for item in feedbacks:
             if item.document_id:
                 referred_file = '%s/%s' % (self.absolute_url(),
@@ -1479,7 +1485,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         restricted_docs = []
 
         security_manager = getSecurityManager()
-        for doc in self.objectValues('Report Document'):
+        for doc in self.objectValues(DOCUMENT_META_TYPE):
             if security_manager.checkPermission('View', doc):
                 public_docs.append(doc)
             else:
@@ -1555,7 +1561,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """Add feedback content to the zip archive."""
         security_manager = getSecurityManager()
 
-        for feedback in self.objectValues('Report Feedback'):
+        for feedback in self.objectValues(FEEDBACK_META_TYPE):
             if security_manager.checkPermission('View', feedback):
                 # Add the feedback content as HTML
                 zip_file.writestr(
@@ -1695,7 +1701,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     def _getObjectsForContentRegistry(self):
         objByMetatype = {}
-        metatypes = ['Report Document', 'Report Hyperlink', 'Report Feedback']
+        metatypes = [DOCUMENT_META_TYPE, HYPERLINK_META_TYPE,
+                     FEEDBACK_META_TYPE]
         for t in metatypes:
             objByMetatype[t] = [o for o in self.objectValues(t)]
         return objByMetatype
@@ -1731,11 +1738,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                    RepUtils.xmlEncode(parse_uri(self.absolute_url(),
                                                 http_res)))
 
-        for o in objsByType.get('Report Document', []):
+        for o in objsByType.get(DOCUMENT_META_TYPE, []):
             res.append('<hasFile rdf:resource="%s"/>' %
                        RepUtils.xmlEncode(parse_uri(o.absolute_url(),
                                                     http_res)))
-        for o in objsByType.get('Report Feedback', []):
+        for o in objsByType.get(FEEDBACK_META_TYPE, []):
             res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' %
                        (RepUtils.xmlEncode(
                         parse_uri(self.absolute_url(), http_res)), o.id))
@@ -1755,7 +1762,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         for metatype, objs in objsByType.items():
             for o in objs:
                 xmlChunk = []
-                if metatype == 'Report Document':
+                if metatype == DOCUMENT_META_TYPE:
                     try:
                         xmlChunk.append('<File rdf:about="%s">' %
                                         parse_uri(o.absolute_url(), http_res))
@@ -1785,7 +1792,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                         xmlChunk.append('</File>')
                     except Exception:
                         xmlChunk = []
-                elif metatype == 'Report Hyperlink':
+                elif metatype == HYPERLINK_META_TYPE:
                     try:
                         xmlChunk.append('<File rdf:about="%s">' %
                                         o.hyperlinkurl())
@@ -1804,7 +1811,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                         xmlChunk.append('</File>')
                     except Exception:
                         xmlChunk = []
-                elif metatype == 'Report Feedback':
+                elif metatype == FEEDBACK_META_TYPE:
                     try:
                         xmlChunk.append('<cr:Feedback rdf:about="%s">' %
                                         parse_uri(o.absolute_url(), http_res))
@@ -1938,7 +1945,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     def get_files_info(self):
         files = []
-        for fileObj in self.objectValues('Report Document'):
+        for fileObj in self.objectValues(DOCUMENT_META_TYPE):
             files.append(fileObj.absolute_url_path())
 
         return files
@@ -1984,7 +1991,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             how = 0
         else:
             how = 1
-        objects = self.objectValues(['Report Document'])
+        objects = self.objectValues([DOCUMENT_META_TYPE])
         objects = RepUtils.utSortByAttr(objects, sortby, how)
         try:
             start = abs(int(start))
