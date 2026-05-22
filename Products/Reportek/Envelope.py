@@ -1945,8 +1945,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     def get_files_info(self):
         files = []
-        for fileObj in self.objectValues(DOCUMENT_META_TYPE):
-            files.append(fileObj.absolute_url_path())
+        for file_obj in self.objectValues(DOCUMENT_META_TYPE):
+            files.append(file_obj.absolute_url_path())
 
         return files
 
