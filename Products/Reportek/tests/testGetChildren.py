@@ -94,9 +94,7 @@ class NormalizeSortValueTest(BaseUnitTest):
 class RawSortValueTest(BaseUnitTest):
     def test_callable_sort_on(self):
         child = _Child("a", title="x")
-        self.assertEqual(
-            _raw_sort_value(child, lambda ob: ob.title, None), "x"
-        )
+        self.assertEqual(_raw_sort_value(child, lambda ob: ob.title, None), "x")
 
     def test_callable_sort_on_swallows_errors(self):
         def boom(ob):
@@ -169,9 +167,7 @@ class GetChildrenTest(BaseUnitTest):
     def test_callable_sort_on(self):
         objs = [_Child("a", val=2), _Child("b", val=1)]
         stub = _CollectionStub(objs)
-        result = stub.get_children(
-            "Report Envelope", lambda ob: ob.val, desc=0
-        )
+        result = stub.get_children("Report Envelope", lambda ob: ob.val, desc=0)
         self.assertEqual(self._ids(result), ["b", "a"])
 
     def test_missing_attribute_sorts_as_none(self):

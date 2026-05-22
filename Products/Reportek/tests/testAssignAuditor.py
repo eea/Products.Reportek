@@ -56,9 +56,7 @@ class _AuditStub(object):
     """Stub carrying the real method functions under test."""
 
     _find_matching_audit = EnvelopeCustomDataflows._find_matching_audit
-    _recover_already_assigned = (
-        EnvelopeCustomDataflows._recover_already_assigned
-    )
+    _recover_already_assigned = EnvelopeCustomDataflows._recover_already_assigned
     assign_auditor = EnvelopeCustomDataflows.assign_auditor
 
 
@@ -122,37 +120,27 @@ class RecoverAlreadyAssignedTest(BaseUnitTest):
         self._details([_matching_audit(end_date="2024-02-01 00:00:00")])
         err = _http_error()
         with self.assertRaises(HTTPError) as ctx:
-            self.stub._recover_already_assigned(
-                self.engine, _audit_data(), err
-            )
+            self.stub._recover_already_assigned(self.engine, _audit_data(), err)
         self.assertIs(ctx.exception, err)
 
     def test_reraises_on_non_400(self):
         err = _http_error(status_code=500)
         with self.assertRaises(HTTPError) as ctx:
-            self.stub._recover_already_assigned(
-                self.engine, _audit_data(), err
-            )
+            self.stub._recover_already_assigned(self.engine, _audit_data(), err)
         self.assertIs(ctx.exception, err)
-        self.assertFalse(
-            self.engine.FGASRegistryAPI.get_auditor_details.called
-        )
+        self.assertFalse(self.engine.FGASRegistryAPI.get_auditor_details.called)
 
     def test_reraises_when_marker_absent(self):
         err = _http_error(auditor="Some other auditor error")
         with self.assertRaises(HTTPError) as ctx:
-            self.stub._recover_already_assigned(
-                self.engine, _audit_data(), err
-            )
+            self.stub._recover_already_assigned(self.engine, _audit_data(), err)
         self.assertIs(ctx.exception, err)
 
     def test_handles_missing_auditor_details(self):
         self.engine.FGASRegistryAPI.get_auditor_details.return_value = None
         err = _http_error()
         with self.assertRaises(HTTPError) as ctx:
-            self.stub._recover_already_assigned(
-                self.engine, _audit_data(), err
-            )
+            self.stub._recover_already_assigned(self.engine, _audit_data(), err)
         self.assertIs(ctx.exception, err)
 
 
@@ -166,9 +154,7 @@ class AssignAuditorTest(BaseUnitTest):
         stub._load_verification_settings = Mock(
             return_value=settings if settings is not None else {}
         )
-        stub._prepare_audit_data = Mock(
-            return_value=audit_data or _audit_data()
-        )
+        stub._prepare_audit_data = Mock(return_value=audit_data or _audit_data())
         stub._extract_audit_info = Mock(return_value={})
         self.engine = Mock()
         stub.getEngine = Mock(return_value=self.engine)
@@ -181,17 +167,13 @@ class AssignAuditorTest(BaseUnitTest):
             stub.assign_auditor()
 
     def test_no_audit_when_verification_none(self, _also, _notify):
-        stub = self._make_stub(
-            settings={"verificationOptions": {"none": True}}
-        )
+        stub = self._make_stub(settings={"verificationOptions": {"none": True}})
         self.assertIsNone(stub.assign_auditor())
         self.assertFalse(self.engine.assign_for_audit.called)
 
     def test_successful_assignment(self, _also, notify):
         stub = self._make_stub()
-        self.engine.assign_for_audit.return_value = json.dumps(
-            {"success": True}
-        )
+        self.engine.assign_for_audit.return_value = json.dumps({"success": True})
         result = stub.assign_auditor()
         self.assertEqual(json.loads(result), {"success": True})
         self.assertTrue(stub.is_audit_assigned)
