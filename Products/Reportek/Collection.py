@@ -25,6 +25,7 @@ $Id$"""
 
 import json
 import logging
+import numbers
 import operator
 import os
 from datetime import datetime
@@ -125,12 +126,92 @@ def manage_addCollection(
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
+def _is_numeric(val):
+    """True for real numbers, excluding booleans."""
+    return isinstance(val, numbers.Real) and not isinstance(val, bool)
+
+
+def _raw_sort_value(ob, sort_on, getter):
+    """Extract the raw sort value of `ob` for `get_children`.
+
+    `sort_on` is either a callable applied to `ob`, or an attribute name;
+    `getter` is a precomputed ``operator.attrgetter(sort_on)`` (or None).
+    Bound methods are called with no arguments. Any failure yields None.
+    """
+    if callable(sort_on):
+        try:
+            return sort_on(ob)
+        except Exception:
+            return None
+
+    if getter is not None:
+        try:
+            val = getter(ob)
+        except Exception:
+            val = getattr(ob, sort_on, None)
+    else:
+        val = getattr(ob, sort_on, None)
+
+    # If it's a bound method, call it (no args)
+    if callable(val):
+        try:
+            return val()
+        except Exception:
+            return None
+    return val
+
+
+def _normalize_sort_value(val):
+    """Map a raw value to a (type_rank, comparable) pair for sorting.
+
+    The type rank groups values by kind so heterogeneous values order
+    deterministically: numbers, dates, strings, None, then everything else.
+    """
+    if val is None:
+        return (3, None)  # None last
+    if _is_numeric(val):
+        return (0, val)
+    if isinstance(val, str):
+        try:
+            return (2, val.lower())
+        except Exception:
+            return (2, str(val).lower())
+    try:
+        if hasattr(val, "ISO8601"):
+            try:
+                return (1, val.ISO8601())
+            except Exception:
+                return (4, repr(val))
+        if hasattr(val, "isoformat"):
+            try:
+                return (1, val.isoformat())
+            except Exception:
+                return (4, repr(val))
+    except Exception:
+        return (4, repr(val))
+    return (4, repr(val))
+
+
+def _tie_breaker(ob):
+    """Stable tie-breaker for equal sort keys: the object id."""
+    try:
+        if hasattr(ob, "getId"):
+            tid = ob.getId()
+            if tid is not None:
+                return tid
+    except Exception:
+        pass
+    return "id-%s" % (id(ob),)
+
+
 @implementer(ICollection)
 class BaseCollection(ReportekContent):
     """BaseCollection class."""
 
 
-class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection):
+class Collection(
+    CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection
+):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -248,7 +329,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def manage_main(self, *args, **kw):
         """Define manage main to be context aware"""
-        if getSecurityManager().checkPermission("View management screens", self):
+        if getSecurityManager().checkPermission(
+            "View management screens", self
+        ):
             return self.manage_main_inh(*args, **kw)
         else:
             return self.index_html(*args, **kw)
@@ -290,7 +373,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     security.declareProtected("View", "other_reports")
     other_reports = PageTemplateFile(
-        os.path.join(package_home(globals()), "zpt/collection/other_reports.zpt")
+        os.path.join(
+            package_home(globals()), "zpt/collection/other_reports.zpt"
+        )
     )
 
     def local_defined_roles(self):
@@ -302,7 +387,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def local_unique_roles(self):
         return set(
-            role for roles in list(self.__ac_local_roles__.values()) for role in roles
+            role
+            for roles in list(self.__ac_local_roles__.values())
+            for role in roles
         )
 
     security.declareProtected(manage_users, "get_users_list")
@@ -349,7 +436,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     if role_param and role_param in ["Reporter", "Client"]:
                         if role == role_param:
                             if member in members:
-                                members[member]["roles"].append([context, [role]])
+                                members[member]["roles"].append(
+                                    [context, [role]]
+                                )
                             else:
                                 u_type = "user"
                                 if member in ldap_groups:
@@ -361,7 +450,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     else:
                         if role in ["Reporter", "Client"]:
                             if member in members:
-                                members[member]["roles"].append([context, list(roles)])
+                                members[member]["roles"].append(
+                                    [context, list(roles)]
+                                )
                             else:
                                 u_type = "user"
                                 if member in ldap_groups:
@@ -634,7 +725,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             l_ret = p_parameter + "=" + str(p_value)
         return l_ret
 
-    def changeQueryString2(self, p_query_string, p_parameter=None, p_value=None):
+    def changeQueryString2(
+        self, p_query_string, p_parameter=None, p_value=None
+    ):
         """given the QUERY_STRING part of an URL, the function does the
         following:
         - if type(p_parameter) is str  searches for the parameter
@@ -648,10 +741,13 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             p_query_string, p_parameter, p_value
         )
         return "&".join(
-            str(x) + "=" + str(l_query_array[x]) for x in list(l_query_array.keys())
+            str(x) + "=" + str(l_query_array[x])
+            for x in list(l_query_array.keys())
         )
 
-    def changeQueryString2Dict(self, p_query_string, p_parameter=None, p_value=None):
+    def changeQueryString2Dict(
+        self, p_query_string, p_parameter=None, p_value=None
+    ):
         """returns the array for changeQueryString2"""
         # store the {key,value} pair in a dictionary
         l_query_array = {}
@@ -712,7 +808,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 parent = obj.getParentNode()
             except Exception:
                 return (None, None)
-            if hasattr(obj, "_company_id") and not hasattr(parent, "_company_id"):
+            if hasattr(obj, "_company_id") and not hasattr(
+                parent, "_company_id"
+            ):
                 return (obj.title, obj.getId())
             else:
                 return cname(parent)
@@ -723,7 +821,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def messageDialog(self, message="", action="", params=None, REQUEST=None):
         """displays a message dialog"""
-        return self.message_dialog(message=message, action=action, params=params)
+        return self.message_dialog(
+            message=message, action=action, params=params
+        )
 
     message_dialog = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/message_dialog.zpt")
@@ -790,7 +890,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 request = None
 
             if request is not None:
-                cache_key = "_get_company_data_{}".format(self.absolute_url_path())
+                cache_key = "_get_company_data_{}".format(
+                    self.absolute_url_path()
+                )
                 cached = request.get(cache_key)
                 if cached is not None:
                     return cached
@@ -805,7 +907,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                         if obl in engine.er_ods_obligations:
                             domain = "ODS"
                             break
-                    data = registry.get_company_details(self.company_id, domain=domain)
+                    data = registry.get_company_details(
+                        self.company_id, domain=domain
+                    )
                 else:
                     # For BDR-Registry, get the domain from the top-level path
                     domain = (
@@ -813,7 +917,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                         if len(self.getPhysicalPath()) > 1
                         else None
                     )
-                    data = registry.get_company_details(self.company_id, domain=domain)
+                    data = registry.get_company_details(
+                        self.company_id, domain=domain
+                    )
                 if data:
                     data["registry"] = registry_name
 
@@ -970,7 +1076,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     if not isinstance(data, dict):
                         res["result"] = "Fail"
                         res["message"] = "Malformed body"
-                    response = registry.get_company_paus(self.company_id, domain=domain)
+                    response = registry.get_company_paus(
+                        self.company_id, domain=domain
+                    )
                     if response is not None:
                         if response.status_code != requests.codes.ok:
                             res["result"] = "Fail"
@@ -1221,7 +1329,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 alt_street = alt_street + " " + alt_street_no
 
             street = raw_data.get("addr_street", alt_street)
-            city = raw_data.get("addr_place1", raw_data.get("address", {}).get("city"))
+            city = raw_data.get(
+                "addr_place1", raw_data.get("address", {}).get("city")
+            )
             country = raw_data.get("country", raw_data.get("country_code"))
             data = {
                 "name": raw_data.get("name"),
@@ -1325,89 +1435,19 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def get_children(self, m_types, sort_on, desc=1):
         """Return sorted children."""
-        objs = list(self.objectValues(m_types))
+        objs = self.objectValues(m_types)
 
-        # Local bindings for speed in the hot loop
-        _attrgetter = operator.attrgetter
-        _getattr = getattr
-        _hasattr = hasattr
-        _isinstance = isinstance
-        _basestring = str
-
-        import numbers
-
-        def _is_numeric(val):
-            return isinstance(val, numbers.Real) and not isinstance(val, bool)
-
-        if callable(sort_on):
-
-            def raw_getter(ob):
-                try:
-                    return sort_on(ob)
-                except Exception:
-                    return None
-        else:
+        getter = None
+        if not callable(sort_on):
             try:
-                _getter = _attrgetter(sort_on)
+                getter = operator.attrgetter(sort_on)
             except Exception:
-                _getter = None
-
-            def raw_getter(ob):
-                if _getter is not None:
-                    try:
-                        val = _getter(ob)
-                    except Exception:
-                        val = _getattr(ob, sort_on, None)
-                else:
-                    val = _getattr(ob, sort_on, None)
-
-                # If it's a bound method, call it (no args)
-                if callable(val):
-                    try:
-                        return val()
-                    except Exception:
-                        return None
-                return val
-
-        def normalize(val):
-            if val is None:
-                return (3, None)  # None last
-            if _is_numeric(val):
-                return (0, val)
-            if _isinstance(val, _basestring):
-                try:
-                    return (2, val.lower())
-                except Exception:
-                    return (2, str(val).lower())
-            try:
-                if _hasattr(val, "ISO8601"):
-                    try:
-                        return (1, val.ISO8601())
-                    except Exception:
-                        return (4, repr(val))
-                if _hasattr(val, "isoformat"):
-                    try:
-                        return (1, val.isoformat())
-                    except Exception:
-                        return (4, repr(val))
-            except Exception:
-                return (4, repr(val))
-            return (4, repr(val))
-
-        def tie_for(ob):
-            try:
-                if _hasattr(ob, "getId"):
-                    tid = ob.getId()
-                    if tid is not None:
-                        return tid
-            except Exception:
-                pass
-            return "id-%s" % (id(ob),)
+                getter = None
 
         def key_for(ob):
-            raw = raw_getter(ob)
-            typ, norm = normalize(raw)
-            return (typ, norm, tie_for(ob))
+            raw = _raw_sort_value(ob, sort_on, getter)
+            typ, norm = _normalize_sort_value(raw)
+            return (typ, norm, _tie_breaker(ob))
 
         return sorted(objs, key=key_for, reverse=bool(desc))
 
@@ -1439,7 +1479,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             request = None
 
         if request is not None:
-            cache_key = "_get_domain_{}_{}".format(self.absolute_url_path(), df_type)
+            cache_key = "_get_domain_{}_{}".format(
+                self.absolute_url_path(), df_type
+            )
             cached = request.get(cache_key)
             if cached is not None:
                 return cached
@@ -1496,7 +1538,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         from zope.interface import alsoProvides
 
         if hasattr(plone.protect.interfaces, "IDisableCSRFProtection"):
-            alsoProvides(self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+            alsoProvides(
+                self.REQUEST, plone.protect.interfaces.IDisableCSRFProtection
+            )
         # This is a bit weird here, since we expect this to be called
         # from envelopes from audit collection, which is a
         # subcollection of the FGAS collection.
@@ -1536,7 +1580,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 try:
                     if key in metadata:
                         amount = metadata.get(key, {}).get("Amount")
-                        mdata[key] = int(amount) if amount is not None else None
+                        mdata[key] = (
+                            int(amount) if amount is not None else None
+                        )
                     else:
                         mdata[key] = None
                 except (ValueError, KeyError, TypeError):
