@@ -1,3 +1,12 @@
+100.2.8 (2026-05-25)
+--------------------
+* chore: cosmetics switched var to snake case
+* chore: refactored Collection's get_children, added tests
+* chore: refactored to avoid querying for string literals in Envelope.py
+* chore: refactored assign_auditor and added tests for it
+* chore: refactored reindex_security_batched
+* chore: define AUDIT_DATE_FORMAT to avoid the same string literal
+
 100.2.7 (2026-05-21)
 --------------------
 * Fixed decoding issues in find_user

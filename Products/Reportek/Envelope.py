@@ -103,6 +103,10 @@ __version__ = "$Revision$"[11:-2]
 
 logger = logging.getLogger("Reportek")
 
+DOCUMENT_META_TYPE = Document.Document.meta_type
+HYPERLINK_META_TYPE = Hyperlink.ReportHyperlink.meta_type
+FEEDBACK_META_TYPE = Feedback.ReportFeedback.meta_type
+
 
 def error_response(exc, message, REQUEST):
     """Return an error"""
@@ -236,7 +240,7 @@ def manage_addEnvelope(
     ob = self._getOb(id)
     if previous_delivery:
         l_envelope = self.restrictedTraverse(previous_delivery)
-        l_data = l_envelope.manage_copyObjects(l_envelope.objectIds("Report Document"))
+        l_data = l_envelope.manage_copyObjects(l_envelope.objectIds(DOCUMENT_META_TYPE))
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
@@ -463,7 +467,7 @@ class Envelope(
 
         result = [
             rf
-            for rf in self.objectValues("Report Feedback")
+            for rf in self.objectValues(FEEDBACK_META_TYPE)
             if getattr(rf, "title", "").startswith("AutomaticQA")
         ]
 
@@ -591,17 +595,17 @@ class Envelope(
         """
         y = [
             {
-                "name": "Report Document",
+                "name": DOCUMENT_META_TYPE,
                 "action": "manage_addDocumentForm",
                 "permission": "Add Envelopes",
             },
             {
-                "name": "Report Hyperlink",
+                "name": HYPERLINK_META_TYPE,
                 "action": "manage_addHyperlinkForm",
                 "permission": "Add Envelopes",
             },
             {
-                "name": "Report Feedback",
+                "name": FEEDBACK_META_TYPE,
                 "action": "manage_addFeedbackForm",
                 "permission": "Add Feedback",
             },
@@ -635,7 +639,7 @@ class Envelope(
     security.declareProtected("View", "getSubmittedDocs")
 
     def getSubmittedDocs(self):
-        documents_list = self.objectValues(["Report Document", "Report Hyperlink"])
+        documents_list = self.objectValues([DOCUMENT_META_TYPE, HYPERLINK_META_TYPE])
         documents_list.sort(key=lambda ob: ob.getId().lower())
         return documents_list
 
@@ -650,7 +654,7 @@ class Envelope(
     def manage_copyDelivery(self, previous_delivery, REQUEST=None):
         """Copies files from another envelope"""
         l_envelope = self.unrestrictedTraverse(previous_delivery)
-        l_files_ids = l_envelope.objectIds(["Report Document", "Report Hyperlink"])
+        l_files_ids = l_envelope.objectIds([DOCUMENT_META_TYPE, HYPERLINK_META_TYPE])
         if len(l_files_ids) > 0:
             l_data = l_envelope.manage_copyObjects(l_files_ids)
             self.manage_pasteObjects(l_data)
@@ -766,7 +770,7 @@ class Envelope(
 
     def getDocuments(self, REQUEST):
         """return the list of documents"""
-        documents_list = self.objectValues(["Report Document", "Report Hyperlink"])
+        documents_list = self.objectValues([DOCUMENT_META_TYPE, HYPERLINK_META_TYPE])
         documents_list.sort(key=lambda ob: ob.getId().lower())
         # Show 10 documents per page
         paginator = DiggPaginator(documents_list, 20, body=5, padding=2, orphans=5)
@@ -1115,7 +1119,9 @@ class Envelope(
 
     def apply_restrictions(self):
         """Apply restrictions to envelope's contents"""
-        ids = self.objectIds(["Report Document", "Report Feedback", "Report Hyperlink"])
+        ids = self.objectIds(
+            [DOCUMENT_META_TYPE, FEEDBACK_META_TYPE, HYPERLINK_META_TYPE]
+        )
         self.manage_restrict(ids)
         self.reindexObject()
 
@@ -1156,9 +1162,9 @@ class Envelope(
             for oid in l_ids:
                 obj = self.unrestrictedTraverse(oid)
                 m_types = [
-                    "Report Document",
-                    "Report Feedback",
-                    "Report Hyperlink",
+                    DOCUMENT_META_TYPE,
+                    FEEDBACK_META_TYPE,
+                    HYPERLINK_META_TYPE,
                 ]
                 if getattr(obj, "meta_type", None) in m_types:
                     restricted.append(oid)
@@ -1248,7 +1254,7 @@ class Envelope(
         """Returns 1 if at least a file is restricted from the public,
         0 otherwise
         """
-        for doc in self.objectValues(["Report Document", "Report Hyperlink"]):
+        for doc in self.objectValues([DOCUMENT_META_TYPE, HYPERLINK_META_TYPE]):
             if not doc.acquiredRolesAreUsedBy("View"):
                 return 1
         return 0
@@ -1322,14 +1328,14 @@ class Envelope(
 
     def getFeedbacks(self):
         """return all the feedbacks"""
-        return self.objectValues("Report Feedback")
+        return self.objectValues(FEEDBACK_META_TYPE)
 
     security.declareProtected("View", "feedback_objects_details")
 
     def feedback_objects_details(self):
         """xml-rpc interface to get feedbacks details"""
         result = {"feedbacks": []}
-        feedbacks = self.objectValues("Report Feedback")
+        feedbacks = self.objectValues(FEEDBACK_META_TYPE)
         for item in feedbacks:
             if item.document_id:
                 referred_file = "%s/%s" % (
@@ -1615,7 +1621,7 @@ class Envelope(
         restricted_docs = []
 
         security_manager = getSecurityManager()
-        for doc in self.objectValues("Report Document"):
+        for doc in self.objectValues(DOCUMENT_META_TYPE):
             if security_manager.checkPermission("View", doc):
                 public_docs.append(doc)
             else:
@@ -1696,7 +1702,7 @@ class Envelope(
         """Add feedback content to the zip archive."""
         security_manager = getSecurityManager()
 
-        for feedback in self.objectValues("Report Feedback"):
+        for feedback in self.objectValues(FEEDBACK_META_TYPE):
             if security_manager.checkPermission("View", feedback):
                 # Add the feedback content as HTML
                 content = zip_content.get_feedback_content(feedback)
@@ -1856,7 +1862,11 @@ class Envelope(
 
     def _getObjectsForContentRegistry(self):
         objByMetatype = {}
-        metatypes = ["Report Feedback", "Report Document", "Report Hyperlink"]
+        metatypes = [
+            FEEDBACK_META_TYPE,
+            DOCUMENT_META_TYPE,
+            HYPERLINK_META_TYPE,
+        ]
         for t in metatypes:
             objByMetatype[t] = [o for o in self.objectValues(t)]
         return objByMetatype
@@ -1893,12 +1903,12 @@ class Envelope(
             % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res))
         )
 
-        for o in objsByType.get("Report Document", []):
+        for o in objsByType.get(DOCUMENT_META_TYPE, []):
             res.append(
                 '<hasFile rdf:resource="%s"/>'
                 % RepUtils.xmlEncode(parse_uri(o.absolute_url(), http_res))
             )
-        for o in objsByType.get("Report Feedback", []):
+        for o in objsByType.get(FEEDBACK_META_TYPE, []):
             res.append(
                 '<cr:hasFeedback rdf:resource="%s/%s"/>'
                 % (
@@ -1924,7 +1934,7 @@ class Envelope(
         for metatype, objs in list(objsByType.items()):
             for o in objs:
                 xmlChunk = []
-                if metatype == "Report Document":
+                if metatype == DOCUMENT_META_TYPE:
                     try:
                         xmlChunk.append(
                             '<File rdf:about="%s">'
@@ -1974,7 +1984,7 @@ class Envelope(
                         xmlChunk.append("</File>")
                     except Exception:
                         xmlChunk = []
-                elif metatype == "Report Hyperlink":
+                elif metatype == HYPERLINK_META_TYPE:
                     try:
                         xmlChunk.append('<File rdf:about="%s">' % o.hyperlinkurl())
                         xmlChunk.append(
@@ -2002,7 +2012,7 @@ class Envelope(
                         xmlChunk.append("</File>")
                     except Exception:
                         xmlChunk = []
-                elif metatype == "Report Feedback":
+                elif metatype == FEEDBACK_META_TYPE:
                     try:
                         xmlChunk.append(
                             '<cr:Feedback rdf:about="%s">'
@@ -2170,8 +2180,8 @@ class Envelope(
 
     def get_files_info(self):
         files = []
-        for fileObj in self.objectValues("Report Document"):
-            files.append(fileObj.absolute_url_path())
+        for file_obj in self.objectValues(DOCUMENT_META_TYPE):
+            files.append(file_obj.absolute_url_path())
 
         return files
 
@@ -2212,7 +2222,7 @@ class Envelope(
             how = 0
         else:
             how = 1
-        objects = self.objectValues(["Report Document"])
+        objects = self.objectValues([DOCUMENT_META_TYPE])
         objects = RepUtils.utSortByAttr(objects, sortby, how)
         try:
             start = abs(int(start))
