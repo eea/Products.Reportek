@@ -1,5 +1,5 @@
-100.2.8-dev (Unreleased)
-------------------------
+100.2.8 (2026-05-25)
+--------------------
 * chore: cosmetics switched var to snake case
 * chore: refactored Collection's get_children, added tests
 * chore: refactored to avoid querying for string literals in Envelope.py
