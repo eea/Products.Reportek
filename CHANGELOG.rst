@@ -1,3 +1,6 @@
+100.2.9-dev (Unreleased)
+------------------------
+
 100.2.8 (2026-05-25)
 --------------------
 * chore: cosmetics switched var to snake case
