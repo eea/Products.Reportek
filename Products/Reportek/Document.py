@@ -515,7 +515,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             try:
                 fbs.append(brain.getObject())
             except KeyError as e:
-                logger.error(
+                logger.exception(
                     """Error retrieving feedback object: {} from catalog """
                     """brain: {}""".format(brain.getPath(), str(e))
                 )

@@ -108,11 +108,11 @@ class QARepository(Folder):
         elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
                     if (getattr(x, 'workflow', None) in dataflow_uris)]
-        elif not dataflow_uris and content_type_in:
+        elif content_type_in:
             return [x for x in self.objectValues('QAScript')
                     if (content_type_in == getattr(x, 'content_type_in',
                                                    None))]
-        elif not dataflow_uris:
+        else:
             return self.objectValues('QAScript')
 
     def _get_remote_qa_scripts(self, p_schema=''):

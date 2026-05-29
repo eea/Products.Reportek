@@ -115,11 +115,6 @@ class DataflowMappings(Folder):
         'zpt/dataflow-mappings/dataflows_select',
         globals())
 
-    security.declarePublic('dataflows_select')
-    dataflows_select = PageTemplateFile(
-        'zpt/dataflow-mappings/dataflows_select',
-        globals())
-
     def get_xls_conversion_type(self, dataflow_uris=None, web_form_only=False):
         """Return the xls conversion type."""
         brains = self.get_dataflow_mapping_records(dataflow_uris,

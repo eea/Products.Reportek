@@ -303,7 +303,7 @@ class EnvelopeCustomDataflows(Toolz):
             )
         except Exception as e:
             if REQUEST is not None:
-                conversion_log.error(
+                conversion_log.exception(
                     """Error while calling remote {} for xmlrpc """
                     """method {}. ({})""".format(
                         l_server_name, method_name, str(e)
@@ -586,7 +586,7 @@ class EnvelopeCustomDataflows(Toolz):
                 content_type=l_doc.content_type,
             )
             if REQUEST is not None:
-                conversion_log.error(
+                conversion_log.exception(
                     l_ret_list.get(
                         "resultDescription",
                         "Error in converting file at %s"
@@ -816,11 +816,7 @@ class EnvelopeCustomDataflows(Toolz):
             return 0
         else:
             l_filename = file.filename.lower()
-            if (
-                l_filename.endswith(".xls")
-                or l_filename.endswith(".xlsx")
-                or l_filename.endswith(".ods")
-            ):
+            if l_filename.endswith((".xls", ".xlsx", ".ods")):
                 return self.convert_excel_file(
                     file=file,
                     restricted=restricted,
@@ -968,7 +964,7 @@ class EnvelopeCustomDataflows(Toolz):
 
                     if (
                         replace_xml
-                        and zipped_file.xml_schema_location in xml_f.keys()
+                        and zipped_file.xml_schema_location in xml_f
                     ):
                         # delete all the XML files from this envelope which
                         # have this schema
@@ -1680,7 +1676,7 @@ class EnvelopeCustomDataflows(Toolz):
                 try:
                     r_metadata = json.loads(conv.content)
                 except Exception:
-                    conversion_log.error(
+                    conversion_log.exception(
                         """Unable to extract metadata for {}, with """
                         """converter: {}""".format(doc.getId(), converter.id)
                     )
@@ -1815,7 +1811,7 @@ class EnvelopeCustomDataflows(Toolz):
                     self.year = int(year)
                     self.reindexObject()
                 except Exception:
-                    conversion_log.error(
+                    conversion_log.exception(
                         "Unable to extract year from xml metadata."
                     )
 
@@ -2059,7 +2055,7 @@ class EnvelopeCustomDataflows(Toolz):
 
         except (ValueError, TypeError) as e:
             self.REQUEST.RESPONSE.setStatus(400)
-            conversion_log.error(
+            conversion_log.exception(
                 "Invalid request format: %s",
                 str(e),
                 exc_info=True,
@@ -2098,7 +2094,7 @@ class EnvelopeCustomDataflows(Toolz):
             res["message"] = err
 
         except Exception as e:
-            conversion_log.error(
+            conversion_log.exception(
                 "Error deleting files in envelope: %s", str(e), exc_info=True
             )
             self.REQUEST.RESPONSE.setStatus(500)
@@ -2492,7 +2488,7 @@ class EnvelopeCustomDataflows(Toolz):
                 audit = IAudit(self)
                 audit_metadata = audit.get_audit_metadata()
             except Exception:
-                logging.error(
+                logging.exception(
                     "Error getting audit metadata for envelope %s",
                     self.getId(),
                 )
@@ -2521,7 +2517,7 @@ class EnvelopeCustomDataflows(Toolz):
                         else json.dumps(error_data)
                     )
             except Exception:
-                logging.error(
+                logging.exception(
                     "Error accessing parent nodes for envelope %s",
                     self.getId(),
                 )
@@ -2553,7 +2549,7 @@ class EnvelopeCustomDataflows(Toolz):
                     }
                 )
             except (AttributeError, KeyError):
-                logging.error(
+                logging.exception(
                     "Error getting report details for envelope %s",
                     self.getId(),
                 )
@@ -2569,7 +2565,7 @@ class EnvelopeCustomDataflows(Toolz):
             )
 
         except Exception:
-            logging.error(
+            logging.exception(
                 "Unexpected error in get_audit_metadata for envelope %s",
                 self.getId(),
             )

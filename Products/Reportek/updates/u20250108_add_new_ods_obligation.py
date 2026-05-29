@@ -71,7 +71,7 @@ def add_new_ods_obligation(app):
                         obj.absolute_url(), obj.dataflow_uris)
             except Exception as e:
                 errors += 1
-                logger.error(
+                logger.exception(
                     'Error processing %s: %s', brain.getURL(), str(e))
                 continue
 

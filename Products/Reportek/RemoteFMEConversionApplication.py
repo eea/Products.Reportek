@@ -148,9 +148,8 @@ class RemoteFMEConversionApplication(SimpleItem):
         self.retryFrequency = REQUEST.form.get('retryFrequency')
         self.app_name = REQUEST.form.get('app_name')
         self.nRetries = int(REQUEST.form.get('nRetries'))
-        if REQUEST is not None:
-            return self.manage_settings_html(
-                manage_tabs_message='Saved changes.')
+        return self.manage_settings_html(
+            manage_tabs_message='Saved changes.')
 
     def get_fme_token(self):
         """Retrieves the token from FME"""
@@ -184,7 +183,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     ''' retrieve token: {}-{}'''.format(resp.status_code,
                                                         resp.content))
         except Exception as e:
-            logger.error(
+            logger.exception(
                 '''FME authentication request failed. Could not'''
                 ''' retrieve token: {}'''.format(str(e)))
 
@@ -239,8 +238,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     'Convertible file extensions for this workflow: {}.'
                     .format(', '.join(ext)))
             up_group = latest.keys()[
-                latest.values().index(
-                    sorted(latest.values(), reverse=True)[0])]
+                latest.values().index(max(latest.values()))]
             files = [f for f in env.objectValues('Report Document')
                      if f.title_or_id().lower().startswith(up_group.lower())]
         else:
@@ -408,7 +406,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             return upload_storage['paths'][-1]
         if shapefile and upload_storage['paths']:
             for p in reversed(upload_storage['paths']):
-                if p.endswith('.shp') or p.endswith('.zip'):
+                if p.endswith(('.shp', '.zip')):
                     gmls = [fid.split('.')[0] for fid in env.objectIds(
                         'Report Document') if fid.endswith('.gml')]
                     if not [x for x in gmls if p.split('.')[0] in x]:

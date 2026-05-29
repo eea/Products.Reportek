@@ -40,7 +40,7 @@ def migrate_partofyear(app, ctype):
                 obj.reindexObject()
                 changed_count += 1
             except Exception as e:
-                logger.error("Unable to change value {}\
+                logger.exception("Unable to change value {}\
                               for {} due to {}".format(obj.partofyear,
                                                        obj.absolute_url(),
                                                        str(e)))

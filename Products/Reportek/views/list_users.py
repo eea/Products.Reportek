@@ -179,7 +179,7 @@ class ListUsers(BaseAdmin):
 
         if path:
             parts = path.split('/')
-            if path.startswith('http') or path.startswith('/'):
+            if path.startswith(('http', '/')):
                 use_path = path
                 if path.startswith('http'):
                     use_path = '/{0}'.format('/'.join(parts[3:]))
@@ -216,7 +216,7 @@ class ListUsers(BaseAdmin):
                                      for user in brain.local_defined_users)
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     # Hide our internal user agent from search results
-                    if 'bdr_folder_agent' in users.keys():
+                    if 'bdr_folder_agent' in users:
                         del users['bdr_folder_agent']
 
                 if not users and role != 'Reporter (Owner)':

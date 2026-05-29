@@ -113,4 +113,4 @@ def handle_audit_unassigned_event(obj, event):
                     )
                 )
     except Exception as e:
-        logger.error("Error completing audit envelope: {}".format(e))
+        logger.exception("Error completing audit envelope: {}".format(e))
