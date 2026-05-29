@@ -148,9 +148,8 @@ class RemoteFMEConversionApplication(SimpleItem):
         self.retryFrequency = REQUEST.form.get('retryFrequency')
         self.app_name = REQUEST.form.get('app_name')
         self.nRetries = int(REQUEST.form.get('nRetries'))
-        if REQUEST is not None:
-            return self.manage_settings_html(
-                manage_tabs_message='Saved changes.')
+        return self.manage_settings_html(
+            manage_tabs_message='Saved changes.')
 
     def get_fme_token(self):
         """Retrieves the token from FME"""

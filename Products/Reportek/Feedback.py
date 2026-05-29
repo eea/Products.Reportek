@@ -541,10 +541,10 @@ class ReportFeedback(
         """Delete an attachment
         FIXME: Why is the 'go' parameter not an method argument?   !#&%!!
         """
-        p_action = REQUEST.get("go", "")
-        if p_action == "Delete":
-            self.manage_delObjects(file_id)
         if REQUEST is not None:
+            p_action = REQUEST.get("go", "")
+            if p_action == "Delete":
+                self.manage_delObjects(file_id)
             REQUEST.RESPONSE.redirect(
                 "%s/manage_editFeedbackForm" % self.absolute_url()
             )
