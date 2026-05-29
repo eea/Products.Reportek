@@ -964,7 +964,7 @@ class EnvelopeCustomDataflows(Toolz):
 
                     if (
                         replace_xml
-                        and zipped_file.xml_schema_location in xml_f.keys()
+                        and zipped_file.xml_schema_location in xml_f
                     ):
                         # delete all the XML files from this envelope which
                         # have this schema
