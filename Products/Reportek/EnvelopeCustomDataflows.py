@@ -816,11 +816,7 @@ class EnvelopeCustomDataflows(Toolz):
             return 0
         else:
             l_filename = file.filename.lower()
-            if (
-                l_filename.endswith(".xls")
-                or l_filename.endswith(".xlsx")
-                or l_filename.endswith(".ods")
-            ):
+            if l_filename.endswith((".xls", ".xlsx", ".ods")):
                 return self.convert_excel_file(
                     file=file,
                     restricted=restricted,
