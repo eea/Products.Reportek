@@ -238,8 +238,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     'Convertible file extensions for this workflow: {}.'
                     .format(', '.join(ext)))
             up_group = latest.keys()[
-                latest.values().index(
-                    sorted(latest.values(), reverse=True)[0])]
+                latest.values().index(max(latest.values()))]
             files = [f for f in env.objectValues('Report Document')
                      if f.title_or_id().lower().startswith(up_group.lower())]
         else:
