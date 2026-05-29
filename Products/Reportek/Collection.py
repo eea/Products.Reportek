@@ -550,7 +550,9 @@ class Collection(
             return dataflow_uris
 
         except Exception as e:
-            logger.exception("Error retrieving dataflow URIs: {}".format(str(e)))
+            logger.exception(
+                "Error retrieving dataflow URIs: {}".format(str(e))
+            )
             return []
 
     security.declarePublic("num_terminated_dataflows")
