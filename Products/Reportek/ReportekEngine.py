@@ -334,8 +334,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.xmlrpc_localities.timeout = float(value)
 
     # security stuff
-    security = ClassSecurityInfo()
-
     security.declarePublic("getDeploymentType")
 
     def getDeploymentType(self):

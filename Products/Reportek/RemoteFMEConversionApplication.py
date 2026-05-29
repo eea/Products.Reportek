@@ -406,7 +406,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             return upload_storage['paths'][-1]
         if shapefile and upload_storage['paths']:
             for p in reversed(upload_storage['paths']):
-                if p.endswith('.shp') or p.endswith('.zip'):
+                if p.endswith(('.shp', '.zip')):
                     gmls = [fid.split('.')[0] for fid in env.objectIds(
                         'Report Document') if fid.endswith('.gml')]
                     if not [x for x in gmls if p.split('.')[0] in x]:
