@@ -30,9 +30,7 @@ def computed_attribute_decorator(level=0):
     return computed_attribute_wrapper
 
 
-class workitem(
-    CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware
-):
+class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     """describes a single workitem of the history graph"""
 
     meta_type = "Workitem"
