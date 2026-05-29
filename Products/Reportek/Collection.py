@@ -543,14 +543,14 @@ class Collection(
                     if active_dataflow in dataflow_uris:
                         return [active_dataflow]
                 except AttributeError as e:
-                    logger.error(
+                    logger.exception(
                         "Failed to get active FGAS dataflow: {}".format(str(e))
                     )
 
             return dataflow_uris
 
         except Exception as e:
-            logger.error("Error retrieving dataflow URIs: {}".format(str(e)))
+            logger.exception("Error retrieving dataflow URIs: {}".format(str(e)))
             return []
 
     security.declarePublic("num_terminated_dataflows")

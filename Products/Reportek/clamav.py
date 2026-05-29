@@ -68,7 +68,7 @@ class AVService(SimpleItem):
                     try:
                         result = self._check_file_rest(file)
                     except requests.exceptions.RequestException as e:
-                        logger.error(
+                        logger.exception(
                             '''Unable to establish connection with the '''
                             '''clamav rest service: {}'''.format(str(e)))
                     if result and 'Everything ok : true' not in result.text:
@@ -79,7 +79,7 @@ class AVService(SimpleItem):
                     try:
                         result = self._check_file_clamd(file)
                     except Exception as e:
-                        logger.error(
+                        logger.exception(
                             'Connection to ClamD was lost: {}'.format(str(e)))
                     if result and result.get('stream')[0] == 'FOUND':
                         sig = result.get('stream')[1]

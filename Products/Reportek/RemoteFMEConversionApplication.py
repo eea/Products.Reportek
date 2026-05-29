@@ -184,7 +184,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     ''' retrieve token: {}-{}'''.format(resp.status_code,
                                                         resp.content))
         except Exception as e:
-            logger.error(
+            logger.exception(
                 '''FME authentication request failed. Could not'''
                 ''' retrieve token: {}'''.format(str(e)))
 

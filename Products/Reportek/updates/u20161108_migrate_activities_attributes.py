@@ -31,7 +31,7 @@ def migrate_activities_attributes(app):
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error('Unable to retrieve object: {} due to {}'.format(
+            logger.exception('Unable to retrieve object: {} due to {}'.format(
                 brain.getURL(), str(e)))
         if obj and hasattr(obj, 'setstate'):
             del obj.setstate

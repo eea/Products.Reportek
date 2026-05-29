@@ -382,7 +382,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             try:
                 payload = json.loads(self.REQUEST.get("BODY"))
             except Exception as e:
-                feedback_log.error(
+                feedback_log.exception(
                     "Unable to parse payload: {}".format(str(e))
                 )
 

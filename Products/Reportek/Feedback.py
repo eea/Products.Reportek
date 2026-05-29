@@ -457,7 +457,7 @@ class ReportFeedback(
                             setattr(self, attr, data[attr])
                     except Exception as e:
                         err_msg = "Error while setting %s: %s" % (attr, e)
-                        logger.error(err_msg)
+                        logger.exception(err_msg)
                         res["result"] = "Fail"
                         res["message"] = err_msg
                         return json.dumps(res)
