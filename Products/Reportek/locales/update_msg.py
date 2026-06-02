@@ -15,7 +15,7 @@ def update(pofile):
     with open(pofile, "r") as pobj:
         lines = pobj.readlines()
         for line in lines:
-            if not (line.startswith("msgid") or line.startswith("msgstr")):
+            if not line.startswith(('msgid', 'msgstr')):
                 newfile.append(line)
 
             if line.startswith("msgid"):

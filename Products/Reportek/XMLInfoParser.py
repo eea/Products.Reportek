@@ -41,7 +41,7 @@ def locations_str(locations):
 
 
 def absolute_location(location):
-    return location.startswith("http://") or location.startswith("https://")
+    return location.startswith(('http://', 'https://'))
 
 
 def detect_schema(src):

@@ -75,7 +75,8 @@ def add_new_fgas_obligation(app):
                     )
             except Exception as e:
                 errors += 1
-                logger.error("Error processing %s: %s", brain.getURL(), str(e))
+                logger.exception(
+                    'Error processing %s: %s', brain.getURL(), str(e))
                 continue
 
         transaction.commit()

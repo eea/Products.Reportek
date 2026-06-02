@@ -102,7 +102,6 @@ def allowedRolesAndUsers(obj):
         localroles = _mergedLocalRoles(obj)
     for user, roles in list(localroles.items()):
         if allowed.intersection(roles):
-            allowed.update(["user:" + user])
-    if "Owner" in allowed:
-        allowed.remove("Owner")
+            allowed.update(['user:' + user])
+    allowed.discard('Owner')
     return list(allowed)

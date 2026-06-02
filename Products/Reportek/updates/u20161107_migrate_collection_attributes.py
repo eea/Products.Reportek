@@ -26,9 +26,8 @@ def migrate_collection_attributes(app):
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error(
-                "Unable to retrieve object: {} due to {}".format(brain.getURL(), str(e))
-            )
+            logger.exception('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)))
 
         if obj and hasattr(obj, "setstate"):
             del obj.setstate

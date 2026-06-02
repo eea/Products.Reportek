@@ -331,8 +331,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.xmlrpc_localities.timeout = float(value)
 
     # security stuff
-    security = ClassSecurityInfo()
-
     security.declarePublic("getDeploymentType")
 
     def getDeploymentType(self):
@@ -779,8 +777,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     override,
                 )
             except Exception as e:
-                logger.error(
-                    "Unable to load verification metadata override: {}".format(str(e))
+                logger.exception(
+                    "Unable to load verification metadata override: {}".format(
+                        str(e)
+                    )
                 )
         ctx.allow_collections = 1
         existing = ctx.objectValues("Report Collection")
@@ -1478,7 +1478,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 msg = "Error while triggering application for: {} - ({})".format(
                     brain.getURL(), str(e)
                 )
-                logger.error(msg)
+                logger.exception(msg)
 
         return result
 
@@ -2505,7 +2505,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         "[SYNC] Unable to retrieve remote collection "
                         "metadata: {}".format(str(e))
                     )
-                    logger.error(msg)
+                    logger.exception(msg)
                     return self.jsonify({"error": msg})
                 if metadata:
                     local_c = self.unrestrictedTraverse(collection, None)

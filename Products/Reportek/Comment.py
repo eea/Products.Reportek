@@ -128,9 +128,9 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
     def deleteFileComment(self, file_id="", REQUEST=None):
         """Delete an attachment"""
         if self.checkPermissionEditComments():
-            if "delete" in REQUEST:
-                self.manage_delObjects(file_id)
             if REQUEST is not None:
+                if 'delete' in REQUEST:
+                    self.manage_delObjects(file_id)
                 return REQUEST.RESPONSE.redirect(
                     "%s/comment_edit" % self.absolute_url()
                 )

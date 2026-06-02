@@ -93,9 +93,8 @@ def rebuild_tempc(app, tempc):
         try:
             fb = brain.getObject()
         except Exception as e:
-            logger.error(
-                "Unable to retrieve object: {} due to {}".format(brain.getURL(), str(e))
-            )
+            logger.exception('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)))
         if fb:
             tempc.catalog_object(fb, "/".join(fb.getPhysicalPath()))
         if count % 10000 == 0:
@@ -119,9 +118,8 @@ def add_missing_postingdate(app):
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error(
-                "Unable to retrieve object: {} due to {}".format(brain.getURL(), str(e))
-            )
+            logger.exception('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)))
         if obj:
             if obj.postingdate != brain.postingdate:
                 new_postingdate = get_posting_date(obj)

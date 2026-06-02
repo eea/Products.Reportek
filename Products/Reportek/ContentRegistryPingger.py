@@ -142,4 +142,4 @@ class ContentRegistryPingger(object):
             send_message(msg, queue="cr_queue")
             return True
         except Exception as err:
-            logger.error("Sending '%s' in 'cr_queue' FAILED: %s", msg, err)
+            logger.exception("Sending '%s' in 'cr_queue' FAILED: %s", msg, err)

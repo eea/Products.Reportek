@@ -1,6 +1,16 @@
 100.2.9-dev (Unreleased)
 ------------------------
 * feat: added reportek_modification_date to avoid relying on Zope's _p_mtime for bobobase_modification_time
+* fix: sonarqube fixes
+* fix: use max instead of sorting to get the max val
+* fix: fixed logic in some conditions checks
+* fix: replaced chained startswith with a single call with tuple arg
+* fix: removed unnecessary .keys() call
+* fix: removed duplicate assignment
+* fix: fixed logic in REQUEST check
+* fix: use logger.exception instead of logger.error in exception handling
+* fix: handle situations where name could be None
+* fix: fixed MRO conflict
 
 100.2.8 (2026-05-25)
 --------------------

@@ -179,8 +179,8 @@ class ListUsers(BaseAdmin):
                 use_role = "Owner"
 
         if path:
-            parts = path.split("/")
-            if path.startswith("http") or path.startswith("/"):
+            parts = path.split('/')
+            if path.startswith(('http', '/')):
                 use_path = path
                 if path.startswith("http"):
                     use_path = "/{0}".format("/".join(parts[3:]))
@@ -226,8 +226,8 @@ class ListUsers(BaseAdmin):
                         )
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     # Hide our internal user agent from search results
-                    if "bdr_folder_agent" in list(users.keys()):
-                        del users["bdr_folder_agent"]
+                    if 'bdr_folder_agent' in users:
+                        del users['bdr_folder_agent']
 
                 if not users and role != "Reporter (Owner)":
                     continue

@@ -40,12 +40,10 @@ def migrate_partofyear(app, ctype):
                 obj.reindexObject()
                 changed_count += 1
             except Exception as e:
-                logger.error(
-                    "Unable to change value {}\
-                              for {} due to {}".format(
-                        obj.partofyear, obj.absolute_url(), str(e)
-                    )
-                )
+                logger.exception("Unable to change value {}\
+                              for {} due to {}".format(obj.partofyear,
+                                                       obj.absolute_url(),
+                                                       str(e)))
             if (count % 1000) == 0:
                 logger.info("Savepoint at: {} objects".format(count))
                 transaction.savepoint()
