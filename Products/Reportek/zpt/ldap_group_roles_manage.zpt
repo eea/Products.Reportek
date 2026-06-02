@@ -1,0 +1,160 @@
+<tal:block replace="structure context/manage_page_header" />
+<tal:block replace="structure context/manage_tabs" />
+  <h2>LDAP Group Role Mappings</h2>
+
+  <p>
+    These mappings preserve LDAPUserFolder-style LDAP group to Zope role
+    mapping. Roles are granted only when the authenticated LDAP principal is a
+    member of the mapped LDAP group.
+  </p>
+
+  <h3>Current mappings</h3>
+  <form method="post" action="manage_deleteGroupRoleMappings">
+    <table class="listing">
+      <thead><tr><th></th><th>LDAP group id</th><th>Zope role</th></tr></thead>
+      <tbody>
+        <tr tal:repeat="item context/listGroupRoleMappings">
+          <td><input type="checkbox" name="group_ids:list" tal:attributes="value item/group" /></td>
+          <td tal:content="item/group" />
+          <td tal:content="item/role" />
+        </tr>
+        <tr tal:condition="not:context/listGroupRoleMappings">
+          <td colspan="3"><em>No mappings configured.</em></td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="submit" value="Delete selected" />
+  </form>
+
+  <h3>Add/update mapping</h3>
+  <form method="post" action="manage_addGroupRoleMapping">
+    <div class="form-element">
+      <label>LDAP group id</label>
+      <input type="text" name="group_id" size="50" />
+    </div>
+    <div class="form-element">
+      <label>Zope role</label>
+      <select name="role_id">
+        <option tal:repeat="role context/listAvailableRoles"
+                tal:attributes="value role"
+                tal:content="role" />
+      </select>
+    </div>
+    <input type="submit" value="Add/update mapping" />
+  </form>
+
+  <h3>Implicit mapping</h3>
+  <p>
+    If enabled, every LDAP group name is also treated as a Zope role name.
+    This reproduces old LDAPUserFolder implicit mapping behavior, but should be
+    used carefully.
+  </p>
+  <form method="post" action="manage_setImplicitMapping">
+    <label>
+      <input type="checkbox" name="enabled" value="1"
+             tal:attributes="checked python:context.implicit_mapping and 'checked' or None" />
+      Enable implicit mapping
+    </label>
+    <input type="submit" value="Save" />
+  </form>
+
+  <h3>Search LDAP principals</h3>
+  <form method="get" action="manage_workspace">
+    <input type="text" name="search" tal:attributes="value request/search|nothing" />
+    <input type="submit" value="Search users/groups" />
+  </form>
+
+  <div tal:define="results python:context.searchPrincipals(request.get('search', ''))"
+       tal:condition="request/search|nothing">
+    <h4>Search results</h4>
+    <table class="listing">
+      <thead><tr><th>Type</th><th>Id</th><th>Login/title</th><th>Plugin</th></tr></thead>
+      <tbody>
+        <tr tal:repeat="item results">
+          <td tal:content="item/type" />
+          <td tal:content="item/id" />
+          <td tal:content="item/title" />
+          <td tal:content="item/pluginid" />
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Direct PAS role assignment</h3>
+  <p>
+    Assign a Zope role directly to a principal id in /acl_users/roles. This is
+    useful for specific LDAP user ids. For LDAP groups, prefer compatibility
+    mappings above unless you intentionally want direct PAS assignment.
+  </p>
+  <form method="post" action="manage_assignRoleToPrincipal">
+    <label>Principal id</label>
+    <input type="text" name="principal_id" size="50" />
+    <label>Zope role</label>
+    <select name="role_id">
+      <option tal:repeat="role context/listAvailableRoles"
+              tal:attributes="value role"
+              tal:content="role" />
+    </select>
+    <input type="submit" value="Assign role" />
+  </form>
+
+  <h4>Edit direct assignments in /acl_users/roles</h4>
+  <table class="listing" style="width: 100%">
+    <thead>
+      <tr>
+        <th>Principal</th>
+        <th>Source</th>
+        <th>Current roles</th>
+        <th>Modify roles</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="item context/listDirectPrincipalRoleAssignments">
+        <td>
+          <strong tal:content="item/principal" /><br />
+          <small>
+            <span tal:replace="item/type" />
+            <span tal:condition="python:item['title'] != item['principal']">
+              - <span tal:replace="item/title" />
+            </span>
+          </small>
+        </td>
+        <td tal:content="item/source" />
+        <td tal:content="python:', '.join(item['roles'])" />
+        <td>
+          <div style="display: flex; gap: 1em; align-items: center; flex-wrap: wrap">
+            <form method="post" action="manage_assignRoleToPrincipal"
+                  style="display: flex; gap: 0.4em; align-items: center; margin: 0">
+              <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
+              <label>Add</label>
+              <select name="role_id" style="max-width: 16em">
+                <option tal:repeat="role item/unassigned_roles"
+                        tal:attributes="value role"
+                        tal:content="role" />
+              </select>
+              <input type="submit" value="Add" />
+            </form>
+            <form method="post" action="manage_removeRoleFromPrincipal"
+                  style="display: flex; gap: 0.4em; align-items: center; margin: 0">
+              <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
+              <label>Remove</label>
+              <select name="role_id" style="max-width: 16em">
+                <option tal:repeat="role item/roles"
+                        tal:attributes="value role"
+                        tal:content="role" />
+              </select>
+              <input type="submit" value="Remove" />
+            </form>
+          </div>
+        </td>
+        <td>
+          <form method="post" action="manage_updatePrincipalRoles" style="margin: 0">
+            <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
+            <input type="submit" value="Remove all" />
+          </form>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+<tal:block replace="structure context/manage_page_footer" />
