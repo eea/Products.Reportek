@@ -1,5 +1,7 @@
 # from Testing import ZopeTestCase
 # ZopeTestCase.installProduct('Reportek')
+from zope.component import queryMultiAdapter
+
 from .common import BaseTest, ConfigureReportek
 
 
@@ -26,3 +28,10 @@ class InitialisationTestCase(BaseTest, ConfigureReportek):
     def testWorkflowEngine(self):
         of = getattr(self.app, "WorkflowEngine")
         self.assertEqual(of.meta_type, "Workflow Engine")
+
+    def test_pluggable_auth_service_csrf_token_view_is_registered(self):
+        """PAS ZMI templates use context/@@csrf_token/token."""
+        view = queryMultiAdapter((self.app, self.app.REQUEST), name="csrf_token")
+
+        self.assertIsNotNone(view)
+        self.assertTrue(hasattr(view, "token"))

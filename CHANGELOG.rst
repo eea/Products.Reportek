@@ -1,5 +1,6 @@
 100.2.9-dev (Unreleased)
 ------------------------
+* fix: include Products.PluggableAuthService in configure.zcml to fix AttributeError: @@csrf_token in some ZMI pages
 * feat: added reportek_modification_date to avoid relying on Zope's _p_mtime for bobobase_modification_time
 * fix: sonarqube fixes
 * fix: use max instead of sorting to get the max val
