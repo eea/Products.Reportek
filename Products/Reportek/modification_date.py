@@ -104,9 +104,7 @@ def _reindex_modification_date(obj):
     try:
         reindex(idxs=[MODIFICATION_INDEX], update_metadata=1)
     except Exception:
-        logger.exception(
-            "Could not reindex %s for %r", MODIFICATION_INDEX, obj
-        )
+        logger.exception("Could not reindex %s for %r", MODIFICATION_INDEX, obj)
         raise
 
 
