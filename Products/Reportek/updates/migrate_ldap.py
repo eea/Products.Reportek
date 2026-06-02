@@ -143,10 +143,6 @@ def migrate(app):
     # 4. Activate new plugin for the same PAS interfaces
     # ---------------------------------------------------------------
     from Products.PluggableAuthService.interfaces.plugins import (
-        IAuthenticationPlugin,
-        ICredentialsResetPlugin,
-        IUserEnumerationPlugin,
-        IRoleEnumerationPlugin,
         IGroupsPlugin,
         IGroupEnumerationPlugin,
         IPropertiesPlugin,
