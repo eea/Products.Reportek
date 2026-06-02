@@ -778,9 +778,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 )
             except Exception as e:
                 logger.exception(
-                    "Unable to load verification metadata override: {}".format(
-                        str(e)
-                    )
+                    "Unable to load verification metadata override: {}".format(str(e))
                 )
         ctx.allow_collections = 1
         existing = ctx.objectValues("Report Collection")

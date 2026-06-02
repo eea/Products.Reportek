@@ -355,11 +355,11 @@ def get_content_type(file_or_content):
     else:
         body = file_or_content[:100]
 
-    name = (name or '').lower()
-    if name.endswith('.gml'):
-        return 'text/xml'
-    elif name.endswith('.rar'):
-        return 'application/x-rar-compressed'
+    name = (name or "").lower()
+    if name.endswith(".gml"):
+        return "text/xml"
+    elif name.endswith(".rar"):
+        return "application/x-rar-compressed"
 
     h_ctype = None
     if headers and "content-type" in headers:

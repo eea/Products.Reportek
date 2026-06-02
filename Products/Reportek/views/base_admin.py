@@ -188,8 +188,8 @@ class BaseAdmin(BrowserView):
             entity = ""
 
         if path:
-            parts = path.split('/')
-            if path.startswith(('http', '/')):
+            parts = path.split("/")
+            if path.startswith(("http", "/")):
                 use_path = path
                 if path.startswith("http"):
                     use_path = "/{0}".format("/".join(parts[3:]))

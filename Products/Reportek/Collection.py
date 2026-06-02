@@ -547,9 +547,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             return dataflow_uris
 
         except Exception as e:
-            logger.exception(
-                "Error retrieving dataflow URIs: {}".format(str(e))
-            )
+            logger.exception("Error retrieving dataflow URIs: {}".format(str(e)))
             return []
 
     security.declarePublic("num_terminated_dataflows")

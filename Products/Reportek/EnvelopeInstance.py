@@ -1290,9 +1290,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             "Reportek Cancel Activity", self
         ):
             is_lr = wk.activity_id.startswith(("Automatic", "FMEConversion"))
-            unfinished = (
-                wk.status != "complete" and len(self.getActiveWorkitems()) > 0
-            )
+            unfinished = wk.status != "complete" and len(self.getActiveWorkitems()) > 0
             if is_lr and unfinished:
                 return True
 

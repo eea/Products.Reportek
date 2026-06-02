@@ -920,10 +920,7 @@ class EnvelopeCustomDataflows(Toolz):
                         file_ids_not_uploaded.append(zipped_file_id)
                         transaction.commit()
 
-                    if (
-                        replace_xml
-                        and zipped_file.xml_schema_location in xml_f
-                    ):
+                    if replace_xml and zipped_file.xml_schema_location in xml_f:
                         # delete all the XML files from this envelope which
                         # have this schema
                         for f in xml_f[zipped_file.xml_schema_location]:
