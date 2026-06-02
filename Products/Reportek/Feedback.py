@@ -54,6 +54,7 @@ from Products.Reportek.blob import add_OfsBlobFile
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.Comment import CommentsManager
 from Products.Reportek.interfaces import IFeedback, IFeedbackHistory
+from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 
 __version__ = "$Rev$"[6:-2]
@@ -258,6 +259,7 @@ class ReportFeedback(
         feedback_status="",
     ):
         """Initialize a new Feedback instance"""
+        set_reportek_modification_date(self)
         self.id = id
         self.releasedate = releasedate
         self.title = title

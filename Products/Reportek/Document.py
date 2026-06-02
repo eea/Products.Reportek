@@ -59,6 +59,7 @@ from Products.Reportek.constants import (
     QAREPOSITORY_ID,
 )
 from Products.Reportek.interfaces import IDocument
+from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.RepUtils import (
     DFlowCatalogAware,
     getToolByName,
@@ -301,6 +302,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         If a document is created through FTP, self.absolute_url doesn't
         work.
         """
+        set_reportek_modification_date(self)
         self.id = id
         self.title = title
         self.xml_schema_location = ""  # needed for XML files

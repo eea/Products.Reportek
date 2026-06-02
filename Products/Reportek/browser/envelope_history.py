@@ -4,6 +4,7 @@ from AccessControl import Unauthorized
 from plone.memoize import ram
 
 from Products.Five import BrowserView
+from Products.Reportek.modification_date import get_reportek_modification_date
 
 
 def history_cache_key(method, self):
@@ -14,9 +15,10 @@ def history_cache_key(method, self):
         for k, v in self.request.form.items()
         if k.startswith("w") and v in ("0", "1")
     )
+    modified = get_reportek_modification_date(self.context)
     return (
         self.context.absolute_url_path(),
-        getattr(self.context, "_p_mtime", 0),
+        modified.timeTime() if modified is not None else 0,
         expanded_items,
         time() // (60 * 60),
     )

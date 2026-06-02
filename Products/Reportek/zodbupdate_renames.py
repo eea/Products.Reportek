@@ -31,7 +31,9 @@ RENAMES = {
     "Products.SiteAccess.SiteRoot": _REMOVED,
     # Remove other obsolete Zope 2 classes
     "Products.SiteErrorLog.SiteErrorLog.SiteErrorLog": _REMOVED,
-    "Products.TemporaryFolder.TemporaryFolder.MountedTemporaryFolder": (_REMOVED),
+    "Products.TemporaryFolder.TemporaryFolder.MountedTemporaryFolder": (
+        _REMOVED
+    ),
     # Remove obsolete App.Product classes
     "App.Product ProductFolder": _REMOVED,
     "App.Product Product": _REMOVED,
@@ -54,11 +56,15 @@ RENAMES = {
     "Products.ZCatalog CatalogPathAwareBase": _REMOVED,
     # Remove obsolete PluginIndexes.TextIndex classes
     "Products.PluginIndexes.TextIndex.Vocabulary Vocabulary": _REMOVED,
-    "Products.PluginIndexes.TextIndex.GlobbingLexicon GlobbingLexicon": (_REMOVED),
+    "Products.PluginIndexes.TextIndex.GlobbingLexicon GlobbingLexicon": (
+        _REMOVED
+    ),
     "Products.PluginIndexes.TextIndex.TextIndex TextIndex": _REMOVED,
     "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter.ZopeSplitter "
     "ZopeSplitter": _REMOVED,
-    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter Splitter": (_REMOVED),
+    "Products.PluginIndexes.TextIndex.Splitter.ZopeSplitter Splitter": (
+        _REMOVED
+    ),
     "Products.PluginIndexes.TextIndex.Lexicon Lexicon": _REMOVED,
     # Remove obsolete ZClasses classes
     "ZClasses.ZClass ZClass": _REMOVED,
@@ -77,6 +83,8 @@ RENAMES = {
     "Products.ZopeTutorial.TutorialTopic GlossaryTopic": _REMOVED,
     # Remove obsolete ExternalMethod classes
     "Products.ExternalMethod.ExternalMethod ExternalMethod": _REMOVED,
+    "Products.RDFGrabber.RDFGrabber RDFGrabber": _REMOVED,
+    "Products.SmallObligations.SmallObligationFolder SmallObligationFolder": _REMOVED,
     # Remove problematic DTMLFile instances
     # (these cause Python 3 unpickling errors)
     "App.special_dtml DTMLFile": _REMOVED,

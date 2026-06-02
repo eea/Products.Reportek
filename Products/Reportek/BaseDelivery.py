@@ -4,6 +4,7 @@ from zope.interface import implementer
 
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.interfaces import IBaseDelivery
+from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.reportekcontent import ReportekContent
 from Products.Reportek.RepUtils import parse_uri, xmlEncode
 
@@ -29,7 +30,7 @@ class BaseDelivery(ReportekContent):
         dataflow_uris=None,
     ):
         """Envelope constructor"""
-        self.modification_date = DateTime()
+        set_reportek_modification_date(self)
         self.year = year
         self.endyear = endyear
         self._check_year_range()

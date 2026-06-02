@@ -1,5 +1,6 @@
 100.2.9-dev (Unreleased)
 ------------------------
+* feat: added reportek_modification_date to avoid relying on Zope's _p_mtime for bobobase_modification_time
 
 100.2.8 (2026-05-25)
 --------------------

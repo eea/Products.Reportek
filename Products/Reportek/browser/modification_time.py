@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-from DateTime import DateTime
 from zope.interface import implementer
 from zope.publisher.interfaces import IPublishTraverse
 
 from Products.Five import BrowserView
+from Products.Reportek.modification_date import get_reportek_modification_date
 
 
 @implementer(IPublishTraverse)
 class ModificationTimeView(BrowserView):
     """Provides safe access to object modification time.
 
-    This view exposes _p_mtime which is protected from direct access
-    in restricted code (Page Templates, Python Scripts) since
-    AccessControl blocks all attributes starting with underscore.
+    This view exposes the persisted Reportek business modification date
+    for restricted code (Page Templates, Python Scripts).
     """
 
     def __init__(self, context, request):
@@ -32,23 +31,18 @@ class ModificationTimeView(BrowserView):
                 return method()
             return "not available"
 
-        mtime = getattr(self.context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            return DateTime(mtime)
-        return None
+        return get_reportek_modification_date(self.context)
 
     def date(self):
         """Returns modification date as formatted string."""
-        mtime = getattr(self.context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            dt = DateTime(mtime)
+        dt = get_reportek_modification_date(self.context)
+        if dt is not None:
             return dt.Date()
         return "not available"
 
     def iso(self):
         """Returns modification time in ISO format."""
-        mtime = getattr(self.context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            dt = DateTime(mtime)
+        dt = get_reportek_modification_date(self.context)
+        if dt is not None:
             return dt.ISO()
         return None

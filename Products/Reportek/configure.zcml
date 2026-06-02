@@ -212,6 +212,12 @@
 
   <subscriber
         for=".interfaces.IReportekContent
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.handle_reportek_modified_event"
+    />
+
+  <subscriber
+        for=".interfaces.IReportekContent
            zope.interface.interfaces.IObjectEvent"
         handler=".subscribers.handleContentishEvent"
     />

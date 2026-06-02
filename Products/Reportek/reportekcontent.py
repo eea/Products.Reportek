@@ -1,8 +1,11 @@
-from DateTime import DateTime
 from zope.interface import implementer
 
 from Products.Reportek.interfaces import IReportekContent
-from Products.Reportek.RepUtils import datify
+from Products.Reportek.modification_date import (
+    get_reportek_modification_date,
+    mark_modified,
+    set_reportek_modification_date,
+)
 
 
 @implementer(IReportekContent)
@@ -14,13 +17,10 @@ class ReportekContent(object):
     """
 
     def __init__(self):
-        self.modification_date = DateTime()
+        set_reportek_modification_date(self)
 
     def bobobase_modification_time(self):
-        date = getattr(self, "modification_date", None)
-        if date is None:
-            # Upgrade.
-            date = DateTime(self._p_mtime)
-            self.modification_date = date
-        date = datify(date)
-        return date
+        return get_reportek_modification_date(self)
+
+    def notifyModified(self):
+        mark_modified(self, cascade=True, reindex=True)
