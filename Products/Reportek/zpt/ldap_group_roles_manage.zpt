@@ -1,17 +1,23 @@
 <tal:block replace="structure context/manage_page_header" />
 <tal:block replace="structure context/manage_tabs" />
-  <h2>LDAP Group Role Mappings</h2>
+  <h2 i18n:translate="">LDAP Group Role Mappings</h2>
 
-  <p>
+  <p i18n:translate="">
     These mappings preserve LDAPUserFolder-style LDAP group to Zope role
     mapping. Roles are granted only when the authenticated LDAP principal is a
     member of the mapped LDAP group.
   </p>
 
-  <h3>Current mappings</h3>
+  <h3 i18n:translate="">Current mappings</h3>
   <form method="post" action="manage_deleteGroupRoleMappings">
     <table class="listing">
-      <thead><tr><th></th><th>LDAP group id</th><th>Zope role</th></tr></thead>
+      <thead>
+        <tr>
+          <th></th>
+          <th i18n:translate="">LDAP group id</th>
+          <th i18n:translate="">Zope role</th>
+        </tr>
+      </thead>
       <tbody>
         <tr tal:repeat="item context/listGroupRoleMappings">
           <td><input type="checkbox" name="group_ids:list" tal:attributes="value item/group" /></td>
@@ -19,32 +25,32 @@
           <td tal:content="item/role" />
         </tr>
         <tr tal:condition="not:context/listGroupRoleMappings">
-          <td colspan="3"><em>No mappings configured.</em></td>
+          <td colspan="3"><em i18n:translate="">No mappings configured.</em></td>
         </tr>
       </tbody>
     </table>
-    <input type="submit" value="Delete selected" />
+    <input type="submit" value="Delete selected" i18n:attributes="value" />
   </form>
 
-  <h3>Add/update mapping</h3>
+  <h3 i18n:translate="">Add/update mapping</h3>
   <form method="post" action="manage_addGroupRoleMapping">
     <div class="form-element">
-      <label>LDAP group id</label>
+      <label i18n:translate="">LDAP group id</label>
       <input type="text" name="group_id" size="50" />
     </div>
     <div class="form-element">
-      <label>Zope role</label>
+      <label i18n:translate="">Zope role</label>
       <select name="role_id">
         <option tal:repeat="role context/listAvailableRoles"
                 tal:attributes="value role"
                 tal:content="role" />
       </select>
     </div>
-    <input type="submit" value="Add/update mapping" />
+    <input type="submit" value="Add/update mapping" i18n:attributes="value" />
   </form>
 
-  <h3>Implicit mapping</h3>
-  <p>
+  <h3 i18n:translate="">Implicit mapping</h3>
+  <p i18n:translate="">
     If enabled, every LDAP group name is also treated as a Zope role name.
     This reproduces old LDAPUserFolder implicit mapping behavior, but should be
     used carefully.
@@ -53,22 +59,29 @@
     <label>
       <input type="checkbox" name="enabled" value="1"
              tal:attributes="checked python:context.implicit_mapping and 'checked' or None" />
-      Enable implicit mapping
+      <span i18n:translate="">Enable implicit mapping</span>
     </label>
-    <input type="submit" value="Save" />
+    <input type="submit" value="Save" i18n:attributes="value" />
   </form>
 
-  <h3>Search LDAP principals</h3>
+  <h3 i18n:translate="">Search LDAP principals</h3>
   <form method="get" action="manage_workspace">
     <input type="text" name="search" tal:attributes="value request/search|nothing" />
-    <input type="submit" value="Search users/groups" />
+    <input type="submit" value="Search users/groups" i18n:attributes="value" />
   </form>
 
   <div tal:define="results python:context.searchPrincipals(request.get('search', ''))"
        tal:condition="request/search|nothing">
-    <h4>Search results</h4>
+    <h4 i18n:translate="">Search results</h4>
     <table class="listing">
-      <thead><tr><th>Type</th><th>Id</th><th>Login/title</th><th>Plugin</th></tr></thead>
+      <thead>
+        <tr>
+          <th i18n:translate="">Type</th>
+          <th i18n:translate="">Id</th>
+          <th i18n:translate="">Login/title</th>
+          <th i18n:translate="">Plugin</th>
+        </tr>
+      </thead>
       <tbody>
         <tr tal:repeat="item results">
           <td tal:content="item/type" />
@@ -80,32 +93,32 @@
     </table>
   </div>
 
-  <h3>Direct PAS role assignment</h3>
-  <p>
+  <h3 i18n:translate="">Direct PAS role assignment</h3>
+  <p i18n:translate="">
     Assign a Zope role directly to a principal id in /acl_users/roles. This is
     useful for specific LDAP user ids. For LDAP groups, prefer compatibility
     mappings above unless you intentionally want direct PAS assignment.
   </p>
   <form method="post" action="manage_assignRoleToPrincipal">
-    <label>Principal id</label>
+    <label i18n:translate="">Principal id</label>
     <input type="text" name="principal_id" size="50" />
-    <label>Zope role</label>
+    <label i18n:translate="">Zope role</label>
     <select name="role_id">
       <option tal:repeat="role context/listAvailableRoles"
               tal:attributes="value role"
               tal:content="role" />
     </select>
-    <input type="submit" value="Assign role" />
+    <input type="submit" value="Assign role" i18n:attributes="value" />
   </form>
 
-  <h4>Edit direct assignments in /acl_users/roles</h4>
+  <h4 i18n:translate="">Edit direct assignments in /acl_users/roles</h4>
   <table class="listing" style="width: 100%">
     <thead>
       <tr>
-        <th>Principal</th>
-        <th>Source</th>
-        <th>Current roles</th>
-        <th>Modify roles</th>
+        <th i18n:translate="">Principal</th>
+        <th i18n:translate="">Source</th>
+        <th i18n:translate="">Current roles</th>
+        <th i18n:translate="">Modify roles</th>
         <th></th>
       </tr>
     </thead>
@@ -127,31 +140,31 @@
             <form method="post" action="manage_assignRoleToPrincipal"
                   style="display: flex; gap: 0.4em; align-items: center; margin: 0">
               <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
-              <label>Add</label>
+              <label i18n:translate="">Add</label>
               <select name="role_id" style="max-width: 16em">
                 <option tal:repeat="role item/unassigned_roles"
                         tal:attributes="value role"
                         tal:content="role" />
               </select>
-              <input type="submit" value="Add" />
+              <input type="submit" value="Add" i18n:attributes="value" />
             </form>
             <form method="post" action="manage_removeRoleFromPrincipal"
                   style="display: flex; gap: 0.4em; align-items: center; margin: 0">
               <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
-              <label>Remove</label>
+              <label i18n:translate="">Remove</label>
               <select name="role_id" style="max-width: 16em">
                 <option tal:repeat="role item/roles"
                         tal:attributes="value role"
                         tal:content="role" />
               </select>
-              <input type="submit" value="Remove" />
+              <input type="submit" value="Remove" i18n:attributes="value" />
             </form>
           </div>
         </td>
         <td>
           <form method="post" action="manage_updatePrincipalRoles" style="margin: 0">
             <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
-            <input type="submit" value="Remove all" />
+            <input type="submit" value="Remove all" i18n:attributes="value" />
           </form>
         </td>
       </tr>

@@ -105,7 +105,6 @@ def migrate(app):
     users_attrmap["login"] = login_attr
     for s in schema:
         ldap_name = s["ldap_name"]
-        friendly = s["friendly_name"]
         if ldap_name == "cn":
             users_attrmap["fullname"] = "cn"
         elif ldap_name == "mail":
@@ -152,18 +151,6 @@ def migrate(app):
         IGroupEnumerationPlugin,
         IPropertiesPlugin,
     )
-
-    # Map interface IDs to actual interfaces
-    iface_map = {
-        "IAuthenticationPlugin": IAuthenticationPlugin,
-        "ICredentialsResetPlugin": ICredentialsResetPlugin,
-        "IRolesPlugin": IRolesPlugin,
-        "IUserEnumerationPlugin": IUserEnumerationPlugin,
-        "IRoleEnumerationPlugin": IRoleEnumerationPlugin,
-        "IGroupsPlugin": IGroupsPlugin,
-        "IGroupEnumerationPlugin": IGroupEnumerationPlugin,
-        "IPropertiesPlugin": IPropertiesPlugin,
-    }
 
     for iface_id, iface in old_interfaces:
         try:
