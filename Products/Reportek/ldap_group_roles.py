@@ -208,7 +208,9 @@ class LDAPGroupRolesPlugin(BasePlugin, SimpleItem):
             row["available_roles"] = [
                 {"id": role, "assigned": role in assigned} for role in available
             ]
-            row["unassigned_roles"] = [role for role in available if role not in assigned]
+            row["unassigned_roles"] = [
+                role for role in available if role not in assigned
+            ]
             rows.append(row)
         return rows
 

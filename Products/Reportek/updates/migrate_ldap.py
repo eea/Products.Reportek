@@ -6,14 +6,14 @@ Run via:
 
 Or paste into zconsole debug session.
 """
+
 import transaction
-from node.ext.ldap.scope import SUBTREE
 from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 from odict import odict
 
-OLD_PLUGIN_ID = 'ldapmultiplugin'
-NEW_PLUGIN_ID = 'ldap'
-ROLE_PLUGIN_ID = 'ldap_group_roles'
+OLD_PLUGIN_ID = "ldapmultiplugin"
+NEW_PLUGIN_ID = "ldap"
+ROLE_PLUGIN_ID = "ldap_group_roles"
 
 
 def migrate(app):
@@ -30,9 +30,9 @@ def migrate(app):
     # Build LDAP URI from server list
     uris = []
     for s in servers:
-        proto = s['protocol']
-        host = s['host']
-        port = s['port']
+        proto = s["protocol"]
+        host = s["host"]
+        port = s["port"]
         uris.append(f"{proto}://{host}:{port}")
     uri = " ".join(uris)
 
@@ -51,10 +51,10 @@ def migrate(app):
     # Collect which PAS interfaces the old plugin is active for
     old_interfaces = []
     for info in plugins.listPluginTypeInfo():
-        iface = info['interface']
+        iface = info["interface"]
         actives = [pid for pid, p in plugins.listPlugins(iface)]
         if OLD_PLUGIN_ID in actives:
-            old_interfaces.append((info['id'], iface))
+            old_interfaces.append((info["id"], iface))
 
     print(f"Old plugin URI: {uri}")
     print(f"Old plugin bind DN: {bind_dn}")
@@ -66,6 +66,7 @@ def migrate(app):
     # 2. Create new pas.plugins.ldap plugin
     # ---------------------------------------------------------------
     from pas.plugins.ldap.plugin import manage_addLDAPPlugin
+
     if NEW_PLUGIN_ID in acl.objectIds():
         print(f"Plugin '{NEW_PLUGIN_ID}' already exists, removing first...")
         acl.manage_delObjects([NEW_PLUGIN_ID])
@@ -80,61 +81,61 @@ def migrate(app):
     settings = new_plugin.settings
 
     # Server settings
-    settings['server.uri'] = uri
-    settings['server.user'] = bind_dn
-    settings['server.password'] = bind_pwd
-    settings['server.conn_timeout'] = 5
-    settings['server.op_timeout'] = 10
-    settings['server.start_tls'] = False
-    settings['server.ignore_cert'] = False
-    settings['server.page_size'] = 1000
+    settings["server.uri"] = uri
+    settings["server.user"] = bind_dn
+    settings["server.password"] = bind_pwd
+    settings["server.conn_timeout"] = 5
+    settings["server.op_timeout"] = 10
+    settings["server.start_tls"] = False
+    settings["server.ignore_cert"] = False
+    settings["server.page_size"] = 1000
 
     # Cache
-    settings['cache.cache'] = True
-    settings['cache.timeout'] = 300
+    settings["cache.cache"] = True
+    settings["cache.timeout"] = 300
 
     # Users config
-    settings['users.baseDN'] = users_base
-    settings['users.scope'] = users_scope
+    settings["users.baseDN"] = users_base
+    settings["users.scope"] = users_scope
 
     # Build user attribute map from old schema
     users_attrmap = odict()
-    users_attrmap['rdn'] = rdn_attr
-    users_attrmap['id'] = uid_attr
-    users_attrmap['login'] = login_attr
+    users_attrmap["rdn"] = rdn_attr
+    users_attrmap["id"] = uid_attr
+    users_attrmap["login"] = login_attr
     for s in schema:
-        ldap_name = s['ldap_name']
-        friendly = s['friendly_name']
-        if ldap_name == 'cn':
-            users_attrmap['fullname'] = 'cn'
-        elif ldap_name == 'mail':
-            users_attrmap['email'] = 'mail'
-        elif ldap_name == 'sn':
-            users_attrmap['sn'] = 'sn'
+        ldap_name = s["ldap_name"]
+        friendly = s["friendly_name"]
+        if ldap_name == "cn":
+            users_attrmap["fullname"] = "cn"
+        elif ldap_name == "mail":
+            users_attrmap["email"] = "mail"
+        elif ldap_name == "sn":
+            users_attrmap["sn"] = "sn"
         elif ldap_name == uid_attr:
             pass  # already mapped
-        elif ldap_name == 'employeeType':
-            users_attrmap['employeeType'] = 'employeeType'
+        elif ldap_name == "employeeType":
+            users_attrmap["employeeType"] = "employeeType"
     # Ensure id attr is in the map for propertysheet
-    if users_attrmap['id'] not in users_attrmap:
-        users_attrmap[users_attrmap['id']] = users_attrmap['id']
-    settings['users.attrmap'] = users_attrmap
-    settings['users.queryFilter'] = '(&(objectClass=person)(uid=*))'
-    settings['users.objectClasses'] = obj_classes
-    settings['users.memberOfSupport'] = True
-    settings['users.recursiveGroups'] = False
+    if users_attrmap["id"] not in users_attrmap:
+        users_attrmap[users_attrmap["id"]] = users_attrmap["id"]
+    settings["users.attrmap"] = users_attrmap
+    settings["users.queryFilter"] = "(&(objectClass=person)(uid=*))"
+    settings["users.objectClasses"] = obj_classes
+    settings["users.memberOfSupport"] = True
+    settings["users.recursiveGroups"] = False
 
     # Groups config
-    settings['groups.baseDN'] = groups_base
-    settings['groups.scope'] = groups_scope
+    settings["groups.baseDN"] = groups_base
+    settings["groups.scope"] = groups_scope
     groups_attrmap = odict()
-    groups_attrmap['rdn'] = 'cn'
-    groups_attrmap['id'] = 'cn'
-    groups_attrmap['title'] = 'description'
-    settings['groups.attrmap'] = groups_attrmap
-    settings['groups.queryFilter'] = '(objectClass=groupOfUniqueNames)'
-    settings['groups.objectClasses'] = ['groupOfUniqueNames']
-    settings['groups.memberOfSupport'] = True
+    groups_attrmap["rdn"] = "cn"
+    groups_attrmap["id"] = "cn"
+    groups_attrmap["title"] = "description"
+    settings["groups.attrmap"] = groups_attrmap
+    settings["groups.queryFilter"] = "(objectClass=groupOfUniqueNames)"
+    settings["groups.objectClasses"] = ["groupOfUniqueNames"]
+    settings["groups.memberOfSupport"] = True
 
     new_plugin._p_changed = True
     print("Settings configured")
@@ -145,7 +146,6 @@ def migrate(app):
     from Products.PluggableAuthService.interfaces.plugins import (
         IAuthenticationPlugin,
         ICredentialsResetPlugin,
-        IRolesPlugin,
         IUserEnumerationPlugin,
         IRoleEnumerationPlugin,
         IGroupsPlugin,
@@ -155,14 +155,14 @@ def migrate(app):
 
     # Map interface IDs to actual interfaces
     iface_map = {
-        'IAuthenticationPlugin': IAuthenticationPlugin,
-        'ICredentialsResetPlugin': ICredentialsResetPlugin,
-        'IRolesPlugin': IRolesPlugin,
-        'IUserEnumerationPlugin': IUserEnumerationPlugin,
-        'IRoleEnumerationPlugin': IRoleEnumerationPlugin,
-        'IGroupsPlugin': IGroupsPlugin,
-        'IGroupEnumerationPlugin': IGroupEnumerationPlugin,
-        'IPropertiesPlugin': IPropertiesPlugin,
+        "IAuthenticationPlugin": IAuthenticationPlugin,
+        "ICredentialsResetPlugin": ICredentialsResetPlugin,
+        "IRolesPlugin": IRolesPlugin,
+        "IUserEnumerationPlugin": IUserEnumerationPlugin,
+        "IRoleEnumerationPlugin": IRoleEnumerationPlugin,
+        "IGroupsPlugin": IGroupsPlugin,
+        "IGroupEnumerationPlugin": IGroupEnumerationPlugin,
+        "IPropertiesPlugin": IPropertiesPlugin,
     }
 
     for iface_id, iface in old_interfaces:
@@ -174,15 +174,15 @@ def migrate(app):
 
     # Also activate additional interfaces that pas.plugins.ldap supports
     extra_ifaces = [
-        ('IGroupsPlugin', IGroupsPlugin),
-        ('IGroupEnumerationPlugin', IGroupEnumerationPlugin),
-        ('IPropertiesPlugin', IPropertiesPlugin),
+        ("IGroupsPlugin", IGroupsPlugin),
+        ("IGroupEnumerationPlugin", IGroupEnumerationPlugin),
+        ("IPropertiesPlugin", IPropertiesPlugin),
     ]
     for iface_id, iface in extra_ifaces:
         try:
             plugins.activatePlugin(iface, NEW_PLUGIN_ID)
             print(f"  Activated {iface_id} (extra)")
-        except Exception as e:
+        except Exception:
             # May already be active or not supported
             pass
 
@@ -197,20 +197,22 @@ def migrate(app):
 
     manage_addLDAPGroupRolesPlugin(acl, ROLE_PLUGIN_ID)
     role_plugin = acl[ROLE_PLUGIN_ID]
-    group_mappings = dict(getattr(luf, '_groups_mappings', {}) or {})
+    group_mappings = dict(getattr(luf, "_groups_mappings", {}) or {})
     try:
         group_mappings = dict(luf.getGroupMappings())
     except Exception:
         pass
     role_plugin.set_mappings(
         group_mappings,
-        implicit_mapping=getattr(luf, '_implicit_mapping', False),
-        default_roles=getattr(luf, '_roles', ()),
+        implicit_mapping=getattr(luf, "_implicit_mapping", False),
+        default_roles=getattr(luf, "_roles", ()),
     )
     plugins.activatePlugin(IRolesPlugin, ROLE_PLUGIN_ID)
     print(f"Created {ROLE_PLUGIN_ID} with {len(group_mappings)} group role mappings")
-    if getattr(luf, '_local_groups', False):
-        print("WARNING: old LDAPUserFolder had _local_groups enabled; _groups_store needs separate review")
+    if getattr(luf, "_local_groups", False):
+        print(
+            "WARNING: old LDAPUserFolder had _local_groups enabled; _groups_store needs separate review"
+        )
 
     # ---------------------------------------------------------------
     # 6. Deactivate old plugin
@@ -232,7 +234,7 @@ def migrate(app):
     return new_plugin
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # When run via zconsole run, 'app' is available as a global
     new_plugin = migrate(app)  # noqa: F821
     # Auto-commit when run as script
