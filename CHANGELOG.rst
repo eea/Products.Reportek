@@ -1,5 +1,5 @@
-100.2.9-dev (Unreleased)
-------------------------
+100.2.9 (2026-06-03)
+--------------------
 * feat: improved ldap integration with pas.plugins.ldap
 * feat: added migrate_ldap script
 * feat: added ldap_group_roles plugin to manage groups and users role assignments
