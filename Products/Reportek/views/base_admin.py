@@ -189,7 +189,7 @@ class BaseAdmin(BrowserView):
 
         if path:
             parts = path.split("/")
-            if path.startswith("http") or path.startswith("/"):
+            if path.startswith(("http", "/")):
                 use_path = path
                 if path.startswith("http"):
                     use_path = "/{0}".format("/".join(parts[3:]))

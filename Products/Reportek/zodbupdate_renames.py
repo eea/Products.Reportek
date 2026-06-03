@@ -77,6 +77,8 @@ RENAMES = {
     "Products.ZopeTutorial.TutorialTopic GlossaryTopic": _REMOVED,
     # Remove obsolete ExternalMethod classes
     "Products.ExternalMethod.ExternalMethod ExternalMethod": _REMOVED,
+    "Products.RDFGrabber.RDFGrabber RDFGrabber": _REMOVED,
+    "Products.SmallObligations.SmallObligationFolder SmallObligationFolder": _REMOVED,
     # Remove problematic DTMLFile instances
     # (these cause Python 3 unpickling errors)
     "App.special_dtml DTMLFile": _REMOVED,

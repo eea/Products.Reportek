@@ -54,6 +54,7 @@ from Products.Reportek.blob import add_OfsBlobFile
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.Comment import CommentsManager
 from Products.Reportek.interfaces import IFeedback, IFeedbackHistory
+from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 
 __version__ = "$Rev$"[6:-2]
@@ -258,6 +259,7 @@ class ReportFeedback(
         feedback_status="",
     ):
         """Initialize a new Feedback instance"""
+        set_reportek_modification_date(self)
         self.id = id
         self.releasedate = releasedate
         self.title = title
@@ -440,7 +442,7 @@ class ReportFeedback(
                             setattr(self, attr, data[attr])
                     except Exception as e:
                         err_msg = "Error while setting %s: %s" % (attr, e)
-                        logger.error(err_msg)
+                        logger.exception(err_msg)
                         res["result"] = "Fail"
                         res["message"] = err_msg
                         return json.dumps(res)
@@ -522,10 +524,10 @@ class ReportFeedback(
         """Delete an attachment
         FIXME: Why is the 'go' parameter not an method argument?   !#&%!!
         """
-        p_action = REQUEST.get("go", "")
-        if p_action == "Delete":
-            self.manage_delObjects(file_id)
         if REQUEST is not None:
+            p_action = REQUEST.get("go", "")
+            if p_action == "Delete":
+                self.manage_delObjects(file_id)
             REQUEST.RESPONSE.redirect(
                 "%s/manage_editFeedbackForm" % self.absolute_url()
             )

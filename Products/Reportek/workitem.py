@@ -17,6 +17,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.interfaces import IWkMetadata, IWorkitem
+from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.RepUtils import DFlowCatalogAware
 
 ANNOTATION_KEY = "workitem.metadata"
@@ -53,6 +54,7 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAw
         pull_roles=[],
         blocker=False,
     ):
+        set_reportek_modification_date(self)
         self.id = id
         self.activity_id = activity_id
         self.instance_id = instance_id

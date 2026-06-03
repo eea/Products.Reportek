@@ -784,7 +784,7 @@ class OpenFlowEngine(Folder, Toolz):
                         }
                         problem_apps.append(app_cmp)
         except OpenFlowEngineImportError as e:
-            logger.error(
+            logger.exception(
                 "Workflow Import/Export: Failed to import OpenFlowEngine json.\
                  Reason: %s"
                 % str(e.args)
@@ -800,7 +800,7 @@ class OpenFlowEngine(Folder, Toolz):
                             of Export to JSON functionality?"
             transaction.abort()
         except Exception as e:
-            logger.error(
+            logger.exception(
                 "Workflow Import/Export: Failed to import OpenFlowEngine json.\
                  Reason: %s"
                 % str(e.args)

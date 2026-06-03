@@ -26,7 +26,7 @@ def migrate_collection_attributes(app):
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error(
+            logger.exception(
                 "Unable to retrieve object: {} due to {}".format(brain.getURL(), str(e))
             )
 

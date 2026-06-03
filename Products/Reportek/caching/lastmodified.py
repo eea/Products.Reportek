@@ -11,6 +11,7 @@ from Products.Reportek.interfaces import (
     IFeedback,
     IWorkitem,
 )
+from Products.Reportek.modification_date import get_reportek_modification_date
 from z3c.caching.interfaces import ILastModified
 from zope.browserresource.interfaces import IResource
 from zope.component import adapter
@@ -86,6 +87,13 @@ class ResourceLastModified(object):
             return datetime.fromtimestamp(lmt, tzlocal())
 
 
+def _reportek_last_modified(context):
+    date = get_reportek_modification_date(context)
+    if date is not None:
+        return datetime.fromtimestamp(date.timeTime(), tzlocal())
+    return None
+
+
 @implementer(ILastModified)
 @adapter(IBaseDelivery)
 class BaseDeliveryLastModified(object):
@@ -93,11 +101,7 @@ class BaseDeliveryLastModified(object):
         self.context = context
 
     def __call__(self):
-        context = aq_base(self.context)
-        mtime = getattr(context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            return datetime.fromtimestamp(mtime, tzlocal())
-        return None
+        return _reportek_last_modified(self.context)
 
 
 @implementer(ILastModified)
@@ -107,11 +111,7 @@ class FeedbackLastModified(object):
         self.context = context
 
     def __call__(self):
-        context = aq_base(self.context)
-        mtime = getattr(context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            return datetime.fromtimestamp(mtime, tzlocal())
-        return None
+        return _reportek_last_modified(self.context)
 
 
 @implementer(ILastModified)
@@ -121,11 +121,7 @@ class CollectionLastModified(object):
         self.context = context
 
     def __call__(self):
-        context = aq_base(self.context)
-        mtime = getattr(context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            return datetime.fromtimestamp(mtime, tzlocal())
-        return None
+        return _reportek_last_modified(self.context)
 
 
 @implementer(ILastModified)
@@ -135,11 +131,7 @@ class DocumentLastModified(object):
         self.context = context
 
     def __call__(self):
-        context = aq_base(self.context)
-        mtime = getattr(context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            return datetime.fromtimestamp(mtime, tzlocal())
-        return None
+        return _reportek_last_modified(self.context)
 
 
 @implementer(ILastModified)
@@ -149,8 +141,4 @@ class WorkitemLastModified(object):
         self.context = context
 
     def __call__(self):
-        context = aq_base(self.context)
-        mtime = getattr(context, "_p_mtime", None)
-        if mtime is not None and mtime > 0:
-            return datetime.fromtimestamp(mtime, tzlocal())
-        return None
+        return _reportek_last_modified(self.context)

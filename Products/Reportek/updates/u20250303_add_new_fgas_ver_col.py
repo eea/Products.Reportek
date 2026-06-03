@@ -79,7 +79,7 @@ def add_new_fgas_ver_col(app):
             except Exception as e:
                 errors += 1
                 print("Skipping error processing: {}".format(brain.getURL()))
-                logger.error("Error processing %s: %s", brain.getURL(), str(e))
+                logger.exception("Error processing %s: %s", brain.getURL(), str(e))
                 continue
 
         transaction.commit()

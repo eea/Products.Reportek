@@ -1246,9 +1246,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         wk = getattr(self, workitem_id)
 
         if wk.status != "complete" and len(self.getActiveWorkitems()) > 0:
-            r_app = wk.activity_id.startswith("Automatic") or wk.activity_id.startswith(
-                "FMEConversion"
-            )
+            r_app = wk.activity_id.startswith(("Automatic", "FMEConversion"))
             if not r_app:
                 if REQUEST:
                     REQUEST.SESSION.set("note_content_type", "text/html")
@@ -1291,9 +1289,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if wk and getSecurityManager().checkPermission(
             "Reportek Cancel Activity", self
         ):
-            is_lr = wk.activity_id.startswith("Automatic") or wk.activity_id.startswith(
-                "FMEConversion"
-            )
+            is_lr = wk.activity_id.startswith(("Automatic", "FMEConversion"))
             unfinished = wk.status != "complete" and len(self.getActiveWorkitems()) > 0
             if is_lr and unfinished:
                 return True

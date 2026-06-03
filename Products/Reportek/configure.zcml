@@ -14,6 +14,7 @@
     <include package="zope.browsermenu" />
     <include package="Products.Five" />
     <include package="Products.GenericSetup" file="meta.zcml" />
+    <include package="Products.PluggableAuthService" />
 
     <subscriber
         for="zope.processlifetime.IDatabaseOpenedWithRoot"
@@ -209,6 +210,12 @@
             interface="plone.registry.interfaces.IRegistry"
         />
     </class>
+
+  <subscriber
+        for=".interfaces.IReportekContent
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.handle_reportek_modified_event"
+    />
 
   <subscriber
         for=".interfaces.IReportekContent

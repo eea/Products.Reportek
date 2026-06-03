@@ -355,7 +355,7 @@ def get_content_type(file_or_content):
     else:
         body = file_or_content[:100]
 
-    name = name.lower()
+    name = (name or "").lower()
     if name.endswith(".gml"):
         return "text/xml"
     elif name.endswith(".rar"):

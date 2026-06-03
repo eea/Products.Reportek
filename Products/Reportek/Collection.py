@@ -54,6 +54,7 @@ from Products.Reportek.config import (
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.events import LocalRolesChangedEvent
 from Products.Reportek.interfaces import ICollection
+from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
 
@@ -249,6 +250,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         allow_envelopes=0,
     ):
         """constructor"""
+        set_reportek_modification_date(self)
         self.id = id
         self.title = title
         try:
@@ -538,14 +540,14 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     if active_dataflow in dataflow_uris:
                         return [active_dataflow]
                 except AttributeError as e:
-                    logger.error(
+                    logger.exception(
                         "Failed to get active FGAS dataflow: {}".format(str(e))
                     )
 
             return dataflow_uris
 
         except Exception as e:
-            logger.error("Error retrieving dataflow URIs: {}".format(str(e)))
+            logger.exception("Error retrieving dataflow URIs: {}".format(str(e)))
             return []
 
     security.declarePublic("num_terminated_dataflows")

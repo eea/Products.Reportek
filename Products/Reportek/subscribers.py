@@ -7,17 +7,19 @@ from OFS.interfaces import IObjectWillBeMovedEvent
 from zope.lifecycleevent.interfaces import IObjectAddedEvent, IObjectMovedEvent
 
 from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.modification_date import mark_modified
 
 logger = logging.getLogger(__name__)
 
 
 def handle_document_removed_event(obj, event):
     """Delete associated feedback objects when file is deleted"""
+    parent = getattr(event, "oldParent", None) or getattr(obj, "aq_parent", None)
     fbs_id = [fb.getId() for fb in obj.getFeedbacksForDocument()]
-    if fbs_id:
-        parent = getattr(obj, "aq_parent", None)
-        if parent:
-            parent.manage_delObjects(fbs_id)
+    if fbs_id and parent:
+        parent.manage_delObjects(fbs_id)
+    if parent:
+        mark_modified(parent, cascade=True, reindex=True)
 
 
 def handle_feedback_added_event(obj, event):
@@ -57,6 +59,11 @@ def handle_collection_removed_event(obj, event):
         if engine.cols_sync_history:
             del engine.cols_sync_history["/".join(obj.getPhysicalPath())]
             engine._p_changed = True
+
+
+def handle_reportek_modified_event(obj, event):
+    """Update persisted modification dates for explicit content changes."""
+    mark_modified(obj, cascade=True, reindex=True)
 
 
 def handleContentishEvent(ob, event):
@@ -113,4 +120,4 @@ def handle_audit_unassigned_event(obj, event):
                     )
                 )
     except Exception as e:
-        logger.error("Error completing audit envelope: {}".format(e))
+        logger.exception("Error completing audit envelope: {}".format(e))

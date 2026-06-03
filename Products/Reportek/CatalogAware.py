@@ -17,7 +17,6 @@ import logging
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from Acquisition import aq_base
-from DateTime import DateTime
 from ExtensionClass import Base
 from zope.component import queryUtility
 from zope.interface import implementer
@@ -25,6 +24,10 @@ from zope.interface import implementer
 from Products.Reportek.interfaces import (
     IReportekCatalog,
     IReportekCatalogAware,
+)
+from Products.Reportek.modification_date import (
+    get_reportek_modification_date,
+    mark_modified,
 )
 
 logger = logging.getLogger("CMFCore.CMFCatalogAware")
@@ -107,10 +110,17 @@ class CatalogAware(Base):
                 ob._p_deactivate()
 
     def bobobase_modification_time(self):
-        """Zope 4 no longer has bobobase_modification_time
-        Move this somewhere else
+        """Return Reportek's persisted business modification date."""
+        return get_reportek_modification_date(self)
+
+    def notifyModified(self):
+        """Update the persisted business modification date.
+
+        This mirrors the CMF/Plone convention used by ``reindexObject`` for a
+        full content reindex, but stores the value independently from ZODB
+        ``_p_mtime`` so migrations do not overwrite historical dates.
         """
-        return DateTime(self._p_mtime)
+        mark_modified(self, cascade=True, reindex=True)
 
 
 InitializeClass(CatalogAware)

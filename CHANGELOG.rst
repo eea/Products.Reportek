@@ -1,3 +1,21 @@
+100.2.9 (2026-06-03)
+--------------------
+* feat: improved ldap integration with pas.plugins.ldap
+* feat: added migrate_ldap script
+* feat: added ldap_group_roles plugin to manage groups and users role assignments
+* fix: include Products.PluggableAuthService in configure.zcml to fix AttributeError: @@csrf_token in some ZMI pages
+* feat: added reportek_modification_date to avoid relying on Zope's _p_mtime for bobobase_modification_time
+* fix: sonarqube fixes
+* fix: use max instead of sorting to get the max val
+* fix: fixed logic in some conditions checks
+* fix: replaced chained startswith with a single call with tuple arg
+* fix: removed unnecessary .keys() call
+* fix: removed duplicate assignment
+* fix: fixed logic in REQUEST check
+* fix: use logger.exception instead of logger.error in exception handling
+* fix: handle situations where name could be None
+* fix: fixed MRO conflict
+
 100.2.8 (2026-05-25)
 --------------------
 * chore: cosmetics switched var to snake case
