@@ -1,3 +1,6 @@
+100.2.10-dev (Unreleased)
+-------------------------
+
 100.2.9 (2026-06-03)
 --------------------
 * feat: improved ldap integration with pas.plugins.ldap
