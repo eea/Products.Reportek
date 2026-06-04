@@ -29,9 +29,9 @@ class RemoteApplicationFeedbackContentTest(BaseUnitTest):
 
     def test_legacy_remote_application_bytes_feedback_is_saved_as_text(self):
         text = "smałl aut°mătic feedback"
-        remoteapp = RemoteApplication(
-            "remoteapp", "", "", "", "the_app"
-        ).__of__(self.envelope)
+        remoteapp = RemoteApplication("remoteapp", "", "", "", "the_app").__of__(
+            self.envelope
+        )
         remoteapp.QARepository = {
             "mock-script": Mock(title="mock script"),
         }
@@ -54,8 +54,26 @@ class RemoteFMEConversionApplicationFeedbackContentTest(BaseUnitTest):
     def test_fme_bytes_are_decoded_to_text(self):
         text = "smałl FME feedback"
         app = RemoteFMEConversionApplication(
-            "fme", "", "", "", None, "", "", "", "minute", "", "", "",
-            None, None, False, "", None, True, 300, "fme_app"
+            "fme",
+            "",
+            "",
+            "",
+            None,
+            "",
+            "",
+            "",
+            "minute",
+            "",
+            "",
+            "",
+            None,
+            None,
+            False,
+            "",
+            None,
+            True,
+            300,
+            "fme_app",
         )
 
         self.assertEqual(app.ensure_text(text.encode("utf-8")), text)

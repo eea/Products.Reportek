@@ -95,9 +95,7 @@ def walk(container, path="/"):
                     fixed.append(p)
 
             except Exception as e:
-                errors.append(
-                    (p, "cannot fix/recompile PythonScript", repr(e))
-                )
+                errors.append((p, "cannot fix/recompile PythonScript", repr(e)))
 
         try:
             has_children = hasattr(obj, "objectIds")

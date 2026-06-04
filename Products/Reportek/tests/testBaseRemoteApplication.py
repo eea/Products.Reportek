@@ -37,12 +37,11 @@ class FakeFeedback(object):
 
 
 class BaseRemoteApplicationFeedbackContentTest(BaseUnitTest):
-
     def setUp(self):
         self.app = BaseRemoteApplication()
 
     def test_ensure_text_decodes_utf8_bytes(self):
-        text = u"smałl aut°mătic feedback"
+        text = "smałl aut°mătic feedback"
 
         self.assertEqual(
             self.app.ensure_text(text.encode("utf-8")),
@@ -50,7 +49,7 @@ class BaseRemoteApplicationFeedbackContentTest(BaseUnitTest):
         )
 
     def test_ensure_bytes_encodes_text(self):
-        text = u"smałl aut°mătic feedback"
+        text = "smałl aut°mătic feedback"
 
         self.assertEqual(
             self.app.ensure_bytes(text),
@@ -59,7 +58,7 @@ class BaseRemoteApplicationFeedbackContentTest(BaseUnitTest):
 
     def test_small_bytes_feedback_is_stored_inline_as_text(self):
         feedback = FakeFeedback()
-        text = u'<div class="feedbacktext">smałl</div>'
+        text = '<div class="feedbacktext">smałl</div>'
 
         self.app.store_feedback_content(
             feedback,
@@ -74,7 +73,7 @@ class BaseRemoteApplicationFeedbackContentTest(BaseUnitTest):
 
     def test_small_custom_content_type_stays_inline(self):
         feedback = FakeFeedback()
-        text = u"custom textual output"
+        text = "custom textual output"
 
         self.app.store_feedback_content(
             feedback,
@@ -89,7 +88,7 @@ class BaseRemoteApplicationFeedbackContentTest(BaseUnitTest):
 
     def test_large_bytes_feedback_creates_bytes_attachment(self):
         feedback = FakeFeedback()
-        text = u"large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
+        text = "large automatic feedback: " + ("[10 chąṛŝ]" * 10240)
         raw = text.encode("utf-8")
         self.assertGreater(len(raw), FEEDBACKTEXT_LIMIT)
 
