@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+import transaction
 from Acquisition import aq_base
 from DateTime import DateTime
 from OFS.Folder import Folder
@@ -13,6 +14,7 @@ from Products.Reportek.modification_date import (
     MODIFICATION_DATE_ATTR,
     MODIFICATION_INDEX,
     get_reportek_modification_date,
+    flush_modified,
     mark_modified,
     set_reportek_modification_date,
 )
@@ -49,6 +51,9 @@ class LegacyObject(object):
 
 
 class ModificationDateTests(unittest.TestCase):
+    def tearDown(self):
+        transaction.abort()
+
     def test_new_content_constructors_set_reportek_modification_date(self):
         objects = [
             Collection("collection"),
@@ -88,8 +93,10 @@ class ModificationDateTests(unittest.TestCase):
         document = envelope.document
         expected = DateTime("2021/02/03 04:05:06")
 
-        marked = mark_modified(document, date=expected, cascade=True, reindex=True)
+        queued = mark_modified(document, date=expected, cascade=True, reindex=True)
+        marked = flush_modified()
 
+        self.assertEqual(len(queued), 3)
         self.assertEqual(len(marked), 3)
         self.assertEqual(document.reportek_modification_date, expected)
         self.assertEqual(envelope.reportek_modification_date, expected)
@@ -106,6 +113,7 @@ class ModificationDateTests(unittest.TestCase):
         expected = DateTime("2022/03/04 05:06:07")
 
         mark_modified(child, date=expected, cascade=True, reindex=False)
+        flush_modified()
 
         self.assertEqual(child.reportek_modification_date, expected)
         self.assertEqual(parent.reportek_modification_date, expected)
@@ -120,9 +128,74 @@ class ModificationDateTests(unittest.TestCase):
         expected = DateTime("2023/04/05 06:07:08")
 
         mark_modified(collection, date=expected, cascade=True, reindex=False)
+        flush_modified()
 
         self.assertEqual(collection.reportek_modification_date, expected)
         self.assertFalse(hasattr(aq_base(envelope), MODIFICATION_DATE_ATTR))
+
+    def test_multiple_children_same_envelope_reindex_parents_once(self):
+        collection = DummyFolder("collection", "Report Collection")
+        envelope = DummyFolder("envelope", "Report Envelope")
+        document1 = DummyItem("document1", "Report Document")
+        document2 = DummyItem("document2", "Report Document")
+        collection._setObject("envelope", envelope)
+        envelope = collection.envelope
+        envelope._setObject("document1", document1)
+        envelope._setObject("document2", document2)
+        document1 = envelope.document1
+        document2 = envelope.document2
+
+        mark_modified(document1, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        mark_modified(document2, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        flush_modified()
+
+        self.assertEqual(document1.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(document2.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(envelope.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(collection.reindexed, [([MODIFICATION_INDEX], 1)])
+
+    def test_multiple_envelopes_same_collection_reindex_collection_once(self):
+        collection = DummyFolder("collection", "Report Collection")
+        envelope1 = DummyFolder("envelope1", "Report Envelope")
+        envelope2 = DummyFolder("envelope2", "Report Envelope")
+        document1 = DummyItem("document1", "Report Document")
+        document2 = DummyItem("document2", "Report Document")
+        collection._setObject("envelope1", envelope1)
+        collection._setObject("envelope2", envelope2)
+        envelope1 = collection.envelope1
+        envelope2 = collection.envelope2
+        envelope1._setObject("document1", document1)
+        envelope2._setObject("document2", document2)
+        document1 = envelope1.document1
+        document2 = envelope2.document2
+
+        mark_modified(document1, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        mark_modified(document2, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        flush_modified()
+
+        self.assertEqual(document1.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(document2.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(envelope1.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(envelope2.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(collection.reindexed, [([MODIFICATION_INDEX], 1)])
+
+    def test_mark_modified_deduplicates_within_transaction(self):
+        collection = DummyFolder("collection", "Report Collection")
+        envelope = DummyFolder("envelope", "Report Envelope")
+        document = DummyItem("document", "Report Document")
+        collection._setObject("envelope", envelope)
+        envelope = collection.envelope
+        envelope._setObject("document", document)
+        document = envelope.document
+
+        mark_modified(document, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        mark_modified(document, date=DateTime("2021/01/02"), cascade=True, reindex=True)
+        flush_modified()
+
+        self.assertEqual(document.reportek_modification_date, DateTime("2021/01/02"))
+        self.assertEqual(document.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(envelope.reindexed, [([MODIFICATION_INDEX], 1)])
+        self.assertEqual(collection.reindexed, [([MODIFICATION_INDEX], 1)])
 
     def test_modified_event_handler_marks_and_cascades(self):
         collection = DummyFolder("collection", "Report Collection")
@@ -131,6 +204,7 @@ class ModificationDateTests(unittest.TestCase):
         feedback = collection.feedback
 
         handle_reportek_modified_event(feedback, object())
+        flush_modified()
 
         self.assertTrue(hasattr(feedback, MODIFICATION_DATE_ATTR))
         self.assertEqual(
