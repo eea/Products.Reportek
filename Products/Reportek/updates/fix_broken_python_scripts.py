@@ -106,7 +106,11 @@ def walk(container, path="/"):
             walk(obj, p)
 
 
-walk(app)
+root = globals().get("app")
+if root is None:
+    raise RuntimeError("This script must be run with zconsole, where 'app' is provided")
+
+walk(root)
 
 print("")
 print("Found Python Scripts:", found)
