@@ -1,5 +1,5 @@
-100.2.11-dev (Unreleased)
--------------------------
+100.2.11 (2026-06-04)
+---------------------
 * feat: added script to fix broken python scripts
 * fix: normalize Remote Applications feedback handling and conversions
 * fix: bulletproofed Feedback's content
