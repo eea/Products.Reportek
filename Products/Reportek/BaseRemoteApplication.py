@@ -17,6 +17,83 @@ except ImportError:
 
 
 class BaseRemoteApplication(SimpleItem):
+    def ensure_text(self, value, encoding="utf-8"):
+        """Return text for values received from remote services."""
+        if value is None:
+            return ""
+        if isinstance(value, str):
+            return value
+        if isinstance(value, bytes):
+            for enc in (encoding, "utf-8-sig", "utf-8", "cp1252", "latin-1"):
+                try:
+                    return value.decode(enc)
+                except UnicodeDecodeError:
+                    pass
+            return value.decode(encoding, "replace")
+        return str(value)
+
+    def ensure_bytes(self, value, encoding="utf-8"):
+        """Return bytes for attachment/blob writes."""
+        if value is None:
+            return b""
+        if isinstance(value, bytes):
+            return value
+        if isinstance(value, str):
+            return value.encode(encoding)
+        return str(value).encode(encoding)
+
+    def normalize_content_type(self, content_type, default="text/html"):
+        content_type = self.ensure_text(content_type).strip()
+        return content_type or default
+
+    def store_feedback_content(
+        self,
+        feedback_ob,
+        content,
+        content_type="text/html",
+        filename="qa-output",
+        limit=None,
+    ):
+        """Store remote QA output safely.
+
+        Inline feedback text is always stored as ``str``. Large feedback is
+        stored as bytes in an attachment, preserving previous behaviour.
+        """
+        if limit is None:
+            limit = FEEDBACKTEXT_LIMIT
+
+        content_type = self.normalize_content_type(content_type)
+        raw = self.ensure_bytes(content)
+
+        if len(raw) > limit:
+            text = self.ensure_text(raw[:8192])
+            file_h = BytesIO(raw)
+            file_h.filename = filename
+            if hasattr(feedback_ob, "_getOb"):
+                feedback_attach = feedback_ob._getOb(filename, None)
+            else:
+                feedback_attach = feedback_ob.unrestrictedTraverse(filename, None)
+            if feedback_attach is not None:
+                feedback_ob.manage_uploadAttFeedback(filename, file_h)
+            else:
+                feedback_ob.manage_uploadFeedback(file_h, filename=filename)
+            if hasattr(feedback_ob, "_getOb"):
+                feedback_attach = feedback_ob._getOb(filename)
+            else:
+                feedback_attach = feedback_ob.unrestrictedTraverse(filename)
+            feedback_attach.data_file.content_type = content_type
+            feedback_ob.feedbacktext = (
+                "Feedback too large for inline display; "
+                '<a href="{}/view">see attachment</a>.'.format(filename)
+            )
+            feedback_ob.content_type = "text/html"
+        else:
+            text = self.ensure_text(content)
+            feedback_ob.feedbacktext = text
+            feedback_ob.content_type = content_type
+
+        return text
+
     @property
     def wf_state_type(self):
         return getattr(self, "_wf_state_type", "forwarding")
@@ -30,6 +107,7 @@ class BaseRemoteApplication(SimpleItem):
         fb_message = "N/A"
         f = getattr(fb, "feedbacktext", string_content)
         if f:
+            f = self.ensure_text(f)
             soup = bs(f, features="html.parser")
             log_sum = soup.find("span", attrs={"id": "feedbackStatus"})
             if log_sum:
@@ -64,26 +142,16 @@ class BaseRemoteApplication(SimpleItem):
             f_name = envelope.cook_file_id(f)
             if f_name:
                 if f_name.endswith(".html"):
-                    if len(archive.read()) > FEEDBACKTEXT_LIMIT:
-                        archive.seek(0)
-                        feedback_ob.manage_uploadFeedback(archive, filename="qa-output")
-                        archive.seek(0)
-                        html_header = archive.read(8096)
-                        feedback_attach = feedback_ob["qa-output"]
-                        feedback_attach.data_file.content_type = "text/html"
-                        feedback_ob.feedbacktext = (
-                            "Feedback too large for inline display; "
-                            '<a href="qa-output/view">see attachment</a>.'
-                        )
-                        feedback_ob.content_type = "text/html"
-                        fb_status, fb_message = self.extract_metadata(
-                            string_content=html_header
-                        )
-                    else:
-                        archive.seek(0)
-                        feedback_ob.feedbacktext = archive.read()
-                        feedback_ob.content_type = "text/html"
-                        fb_status, fb_message = self.extract_metadata(feedback_ob)
+                    content = archive.read()
+                    preview = self.store_feedback_content(
+                        feedback_ob,
+                        content,
+                        "text/html",
+                        limit=FEEDBACKTEXT_LIMIT,
+                    )
+                    fb_status, fb_message = self.extract_metadata(
+                        string_content=preview
+                    )
                     feedback_ob.feedback_status = fb_status
                     if fb_status == "BLOCKER":
                         wk.blocker = True
@@ -116,21 +184,13 @@ class BaseRemoteApplication(SimpleItem):
         content_type = l_ret.get("feedbackContentType")
         content_type = content_type if content_type else "text/html"
 
-        if len(rfile.read()) > FEEDBACKTEXT_LIMIT:
-            rfile.seek(0)
-            feedback_ob.manage_uploadFeedback(rfile, filename="qa-output")
-            feedback_attach = feedback_ob.objectValues()[0]
-            feedback_attach.data_file.content_type = content_type
-            feedback_ob.feedbacktext = (
-                "Feedback too large for inline display; "
-                '<a href="qa-output/view">see attachment</a>.'
-            )
-            feedback_ob.content_type = "text/html"
-
-        else:
-            rfile.seek(0)
-            feedback_ob.feedbacktext = rfile.read()
-            feedback_ob.content_type = content_type
+        content = rfile.read()
+        self.store_feedback_content(
+            feedback_ob,
+            content,
+            content_type,
+            limit=FEEDBACKTEXT_LIMIT,
+        )
 
         fb_status = l_ret.get("feedbackStatus")
         fb_status = fb_status if fb_status else "UNKNOWN"

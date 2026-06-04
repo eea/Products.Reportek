@@ -61,6 +61,34 @@ __version__ = "$Rev$"[6:-2]
 ANNOTATION_KEY = "feedback.history"
 logger = logging.getLogger("Reportek")
 
+
+def ensure_text(value, encoding="utf-8"):
+    """Return text for feedback fields stored/rendered inline."""
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, bytes):
+        for enc in (encoding, "utf-8-sig", "utf-8", "cp1252", "latin-1"):
+            try:
+                return value.decode(enc)
+            except UnicodeDecodeError:
+                pass
+        return value.decode(encoding, "replace")
+    return str(value)
+
+
+def ensure_bytes(value, encoding="utf-8"):
+    """Return bytes for feedback attachments/blob writes."""
+    if value is None:
+        return b""
+    if isinstance(value, bytes):
+        return value
+    if isinstance(value, str):
+        return value.encode(encoding)
+    return str(value).encode(encoding)
+
+
 manage_addFeedbackForm = PageTemplateFile("zpt/feedback/add", globals())
 
 
@@ -89,6 +117,7 @@ def manage_addFeedback(
     # Normally, there can only be one feedback for a release
     if not id:
         id = "feedback" + str(int(releasedate))
+    feedbacktext = ensure_text(feedbacktext)
     tmp = StringIO(feedbacktext)
     convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
     # if Local Conversion Service is down
@@ -264,7 +293,7 @@ class ReportFeedback(
         self.releasedate = releasedate
         self.title = title
         self.automatic = automatic
-        self.feedbacktext = feedbacktext
+        self.feedbacktext = ensure_text(feedbacktext)
         self.content_type = content_type
         self.activity_id = activity_id
         self.document_id = document_id
@@ -321,6 +350,7 @@ class ReportFeedback(
         if title:
             self.title = title
         if feedbacktext:
+            feedbacktext = ensure_text(feedbacktext)
             tmp = StringIO(feedbacktext)
             convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
             # if Local Conversion Service is down
@@ -348,7 +378,7 @@ class ReportFeedback(
 
     def sanitize_html(self, html):
         """Sanitizes HTML."""
-        tmp = StringIO(html)
+        tmp = StringIO(ensure_text(html))
         convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
         sanitizer = convs["safe_html"]
         return sanitizer.convert(tmp, sanitizer.id).text
@@ -356,31 +386,32 @@ class ReportFeedback(
     def set_html_feedback(self, content, metadata):
         """Sets HTML feedback."""
 
-        if isinstance(content, str):
-            content = content.encode("utf8")
-        filename = metadata.get("filename")
-        if len(content) > constants.FEEDBACKTEXT_LIMIT or filename:
+        raw_content = ensure_bytes(content)
+        text_content = ensure_text(content)
+        filename = ensure_text(metadata.get("filename") or "")
+        content_type = ensure_text(
+            metadata.get("content_type") or metadata.get("content-type") or "text/html"
+        )
+        if len(raw_content) > constants.FEEDBACKTEXT_LIMIT or filename:
             filename = filename or "qa-output"
             with tempfile.TemporaryFile() as tmp:
-                tmp.write(content)
+                tmp.write(raw_content)
                 tmp.seek(0)
                 if not self.unrestrictedTraverse(filename, None):
                     self.manage_uploadFeedback(tmp, filename=filename)
                 else:
                     self.manage_uploadAttFeedback(filename, tmp)
             fb_attach = self.unrestrictedTraverse(filename)
-            fb_attach.data_file.content_type = metadata.get("content_type", "text/html")
+            fb_attach.data_file.content_type = content_type
             if filename == "qa-output":
                 self.feedbacktext = (
                     "Feedback too large for inline display; "
-                    '<a href="{}/view">see attachment</a>.'.format(
-                        metadata.get("filename", "qa-output")
-                    )
+                    '<a href="{}/view">see attachment</a>.'.format(filename)
                 )
                 self.content_type = "text/html"
         else:
-            self.feedbacktext = content
-            self.content_type = metadata.get("content_type", "text/html")
+            self.feedbacktext = text_content
+            self.content_type = content_type
 
     def deserialize_html_feedback(self, value):
         """Deserializes HTML feedback."""
@@ -393,9 +424,9 @@ class ReportFeedback(
         kwargs = {}
         if isinstance(value, dict):
             if "content-type" in value:
-                kwargs["content-type"] = value["content-type"].encode("utf8")
+                kwargs["content_type"] = ensure_text(value["content-type"])
             if "filename" in value:
-                kwargs["filename"] = value["filename"].encode("utf8")
+                kwargs["filename"] = ensure_text(value["filename"])
             if "encoding" in value:
                 value = value.get("data", "").decode(value["encoding"])
             else:
@@ -533,12 +564,13 @@ class ReportFeedback(
             )
 
     def renderFeedbacktext(self):
+        feedbacktext = ensure_text(self.feedbacktext)
         pt = ZopePageTemplate(self.id + "_tmp")
-        pt.write(self.feedbacktext)
+        pt.write(feedbacktext)
         try:
             result = pt.__of__(self)()
         except Exception:
-            result = self.feedbacktext
+            result = feedbacktext
             logger.warning(
                 "Unable to render feedbacktext with translations: {}".format(
                     self.absolute_url()
@@ -553,7 +585,7 @@ class ReportFeedback(
         response = REQUEST.RESPONSE
         response.setHeader("Content-type", self.content_type)
         # fixme: loop chunk of data to display, not all at once
-        response.write(self.feedbacktext)
+        response.write(ensure_text(self.feedbacktext))
 
     def getActivityDetails(self, p_attribute):
         """returns the activity's description"""

@@ -96,6 +96,39 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             0,
         )
 
+    def test_bytes_feedbacktext_is_normalized_on_create(self):
+        self.envelope.manage_addProduct["Reportek"].manage_addFeedback(
+            "feedbackid",
+            "Title",
+            "ÐBlåbærgrød content text".encode("utf-8"),
+            "",
+            "Script URL",
+            0,
+        )
+        self.assertIsInstance(self.envelope.feedbackid.feedbacktext, str)
+
+    def test_set_html_feedback_small_text_stores_text_not_bytes(self):
+        self.create_feedback()
+        text = "smałl html feedback"
+
+        self.feedback.set_html_feedback(
+            text,
+            {"content-type": "application/x-mock"},
+        )
+
+        self.assertIsInstance(self.feedback.feedbacktext, str)
+        self.assertEqual(self.feedback.feedbacktext, text)
+        self.assertEqual(self.feedback.content_type, "application/x-mock")
+
+    def test_render_feedbacktext_handles_legacy_bytes(self):
+        self.create_feedback()
+        self.feedback.feedbacktext = "smałl html feedback".encode("utf-8")
+
+        rendered = self.feedback.renderFeedbacktext()
+
+        self.assertIsInstance(rendered, str)
+        self.assertIn("smałl html feedback", rendered)
+
     def testZipNational(self):
         self.testNationalChars()
         self.app.REQUEST.method = "POST"

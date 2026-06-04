@@ -1,3 +1,9 @@
+100.2.11 (2026-06-04)
+---------------------
+* feat: added script to fix broken python scripts
+* fix: normalize Remote Applications feedback handling and conversions
+* fix: bulletproofed Feedback's content
+
 100.2.10 (2026-06-04)
 ---------------------
 * feat: batch Reportek modification-date reindexes per transaction

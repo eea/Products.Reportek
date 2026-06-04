@@ -89,6 +89,50 @@ class RemoteApplicationFeedbackTest(BaseUnitTest):
         self.assertIn("see attachment", feedback.feedbacktext)
         self.assertEqual(feedback.content_type, "text/html")
 
+    def test_local_qa_bytes_feedback_is_saved_inline_as_text(self):
+        text = "smałl aut°mătic feedback"
+        self.remoteapp.QARepository = {
+            "mock-script": Mock(title="mock script"),
+        }
+        workitem = Mock(activity_id="mock-activity")
+
+        self.remoteapp._addFeedback(
+            "results_file",
+            ("application/x-mock", Mock(data=text.encode("utf-8"))),
+            workitem,
+            "mock-script",
+        )
+
+        [feedback] = self.envelope.objectValues()
+        self.assertEqual(feedback.objectValues(), [])
+        self.assertEqual(feedback.content_type, "application/x-mock")
+        self.assertIsInstance(feedback.feedbacktext, str)
+        self.assertEqual(feedback.feedbacktext, text)
+
+    def test_local_qa_large_bytes_feedback_creates_attachment(self):
+        text = "large automatic feedback: " + ("[10 chąṛŝ]" * 10240)
+        self.remoteapp.QARepository = {
+            "mock-script": Mock(title="mock script"),
+        }
+        workitem = Mock(activity_id="mock-activity")
+
+        self.remoteapp._addFeedback(
+            "results_file",
+            ("application/x-mock", Mock(data=text.encode("utf-8"))),
+            workitem,
+            "mock-script",
+        )
+
+        [feedback] = self.envelope.objectValues()
+        [attach] = feedback.objectValues()
+        with attach.data_file.open() as f:
+            self.assertEqual(f.read().decode("utf-8"), text)
+
+        self.assertIsInstance(feedback.feedbacktext, str)
+        self.assertIn("see attachment", feedback.feedbacktext)
+        self.assertEqual(feedback.content_type, "text/html")
+        self.assertEqual(attach.data_file.content_type, "application/x-mock")
+
     def test_feedback_for_file_with_space_chars(self):
         self.remoteapp.the_workitem = Mock(
             the_app={
