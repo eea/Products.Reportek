@@ -390,9 +390,7 @@ class ReportFeedback(
         text_content = ensure_text(content)
         filename = ensure_text(metadata.get("filename") or "")
         content_type = ensure_text(
-            metadata.get("content_type")
-            or metadata.get("content-type")
-            or "text/html"
+            metadata.get("content_type") or metadata.get("content-type") or "text/html"
         )
         if len(raw_content) > constants.FEEDBACKTEXT_LIMIT or filename:
             filename = filename or "qa-output"
