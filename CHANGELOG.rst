@@ -1,3 +1,6 @@
+100.2.12-dev (Unreleased)
+-------------------------
+
 100.2.11 (2026-06-04)
 ---------------------
 * feat: added script to fix broken python scripts
