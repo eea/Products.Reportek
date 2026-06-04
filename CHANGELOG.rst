@@ -1,3 +1,6 @@
+100.2.11-dev (Unreleased)
+-------------------------
+
 100.2.10 (2026-06-04)
 ---------------------
 * feat: batch Reportek modification-date reindexes per transaction
