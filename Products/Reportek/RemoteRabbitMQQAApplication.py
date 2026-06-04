@@ -23,7 +23,6 @@
 
 import json
 import logging
-import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -338,21 +337,12 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 if not content_type:
                     content_type = "text/html"
 
-                if content and len(content) > FEEDBACKTEXT_LIMIT:
-                    with tempfile.TemporaryFile() as tmp:
-                        tmp.write(content.encode("utf-8"))
-                        tmp.seek(0)
-                        feedback_ob.manage_uploadFeedback(tmp, filename="qa-output")
-                    fb_attach = feedback_ob.objectValues()[0]
-                    fb_attach.data_file.content_type = content_type
-                    feedback_ob.feedbacktext = (
-                        "Feedback too large for inline display; "
-                        '<a href="qa-output/view">see attachment</a>.'
-                    )
-                    feedback_ob.content_type = "text/html"
-                else:
-                    feedback_ob.feedbacktext = content
-                    feedback_ob.content_type = content_type
+                self.store_feedback_content(
+                    feedback_ob,
+                    content,
+                    content_type,
+                    limit=FEEDBACKTEXT_LIMIT,
+                )
 
                 feedback_ob.message = job_result.get("feedbackMessage", "")
                 fb_status = job_result.get("feedbackStatus")

@@ -186,6 +186,20 @@ class RemoteFMEConversionApplication(SimpleItem):
         self.nRetries = int(REQUEST.form.get("nRetries"))
         return self.manage_settings_html(manage_tabs_message="Saved changes.")
 
+    def ensure_text(self, value, encoding="utf-8"):
+        if value is None:
+            return ""
+        if isinstance(value, str):
+            return value
+        if isinstance(value, bytes):
+            for enc in (encoding, "utf-8-sig", "utf-8", "cp1252", "latin-1"):
+                try:
+                    return value.decode(enc)
+                except UnicodeDecodeError:
+                    pass
+            return value.decode(encoding, "replace")
+        return str(value)
+
     def get_fme_token(self):
         """Retrieves the token from FME"""
         res = {}
@@ -849,8 +863,9 @@ class RemoteFMEConversionApplication(SimpleItem):
                 fb_message = None
                 with doc.data_file.open() as f:
                     content = f.read()
+                    text_content = self.ensure_text(content)
                     if doc.content_type == "text/html":
-                        soup = bs(content, features="html.parser")
+                        soup = bs(text_content, features="html.parser")
                         log_sum = soup.find("span", attrs={"id": "feedbackStatus"})
                         fb_status = log_sum.get("class", ["UNKNOWN"])
                         if isinstance(fb_status, list):
@@ -870,7 +885,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         )
                         feedback_ob.content_type = "text/html"
                     else:
-                        feedback_ob.feedbacktext = content
+                        feedback_ob.feedbacktext = text_content
                         feedback_ob.content_type = doc.content_type
                 if fb_status and fb_message:
                     if fb_status == "BLOCKER":

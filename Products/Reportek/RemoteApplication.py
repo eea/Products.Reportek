@@ -22,7 +22,6 @@
 #
 
 import logging
-import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -384,22 +383,12 @@ class RemoteApplication(BaseRemoteApplication):
         content = result[1].data
         content_type = result[0]
         content_type = content_type if content_type else "text/html"
-        if len(content) > FEEDBACKTEXT_LIMIT:
-            with tempfile.TemporaryFile() as tmp:
-                tmp.write(content.encode("utf-8"))
-                tmp.seek(0)
-                feedback_ob.manage_uploadFeedback(tmp, filename="qa-output")
-            feedback_attach = feedback_ob.objectValues()[0]
-            feedback_attach.data_file.content_type = content_type
-            feedback_ob.feedbacktext = (
-                "Feedback too large for inline display; "
-                '<a href="qa-output/view">see attachment</a>.'
-            )
-            feedback_ob.content_type = "text/html"
-
-        else:
-            feedback_ob.feedbacktext = content
-            feedback_ob.content_type = content_type
+        self.store_feedback_content(
+            feedback_ob,
+            content,
+            content_type,
+            limit=FEEDBACKTEXT_LIMIT,
+        )
 
     def _runLocalQAScripts(self, workitem):
         # 'localQA': {'file_name':{'script_name': 'status',
@@ -690,24 +679,12 @@ class RemoteApplication(BaseRemoteApplication):
                         if not content_type:
                             content_type = "text/html"
 
-                        if len(content) > FEEDBACKTEXT_LIMIT:
-                            with tempfile.TemporaryFile() as tmp:
-                                tmp.write(content.encode("utf-8"))
-                                tmp.seek(0)
-                                feedback_ob.manage_uploadFeedback(
-                                    tmp, filename="qa-output"
-                                )
-                            feedback_attach = feedback_ob.objectValues()[0]
-                            feedback_attach.data_file.content_type = content_type
-                            feedback_ob.feedbacktext = (
-                                "Feedback too large for inline display; "
-                                '<a href="qa-output/view">see attachment</a>.'
-                            )
-                            feedback_ob.content_type = "text/html"
-
-                        else:
-                            feedback_ob.feedbacktext = content
-                            feedback_ob.content_type = content_type
+                        self.store_feedback_content(
+                            feedback_ob,
+                            content,
+                            content_type,
+                            limit=FEEDBACKTEXT_LIMIT,
+                        )
 
                         feedback_ob.message = l_ret.get("FEEDBACK_MESSAGE", "")
                         fb_status = l_ret.get("FEEDBACK_STATUS")
