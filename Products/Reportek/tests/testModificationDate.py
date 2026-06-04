@@ -145,8 +145,12 @@ class ModificationDateTests(unittest.TestCase):
         document1 = envelope.document1
         document2 = envelope.document2
 
-        mark_modified(document1, date=DateTime("2021/01/01"), cascade=True, reindex=True)
-        mark_modified(document2, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        mark_modified(
+            document1, date=DateTime("2021/01/01"), cascade=True, reindex=True
+        )
+        mark_modified(
+            document2, date=DateTime("2021/01/01"), cascade=True, reindex=True
+        )
         flush_modified()
 
         self.assertEqual(document1.reindexed, [([MODIFICATION_INDEX], 1)])
@@ -169,8 +173,12 @@ class ModificationDateTests(unittest.TestCase):
         document1 = envelope1.document1
         document2 = envelope2.document2
 
-        mark_modified(document1, date=DateTime("2021/01/01"), cascade=True, reindex=True)
-        mark_modified(document2, date=DateTime("2021/01/01"), cascade=True, reindex=True)
+        mark_modified(
+            document1, date=DateTime("2021/01/01"), cascade=True, reindex=True
+        )
+        mark_modified(
+            document2, date=DateTime("2021/01/01"), cascade=True, reindex=True
+        )
         flush_modified()
 
         self.assertEqual(document1.reindexed, [([MODIFICATION_INDEX], 1)])
