@@ -90,6 +90,40 @@ __version__ = "$Rev$"[6:-2]
 logger = logging.getLogger("Reportek")
 
 
+def _env_enabled(name):
+    return os.environ.get(name, "").lower() in ("1", "true", "yes", "on")
+
+
+def _configure_faulthandler():
+    """Enable on-demand Python thread dumps in debug deployments.
+
+    When both ZOPE_DEBUG_MODE and PYTHONFAULTHANDLER are enabled, SIGUSR1
+    writes stack traces for all Python threads to stderr. This lets Kubernetes
+    operators run ``kill -USR1 1`` inside a wedged pod and capture the stacks in
+    pod logs without enabling faulthandler in normal production mode.
+    """
+    if not (_env_enabled("ZOPE_DEBUG_MODE") and _env_enabled("PYTHONFAULTHANDLER")):
+        return
+
+    try:
+        import faulthandler
+        import signal
+        import sys
+
+        if getattr(faulthandler, "_reportek_sigusr1_registered", False):
+            return
+
+        faulthandler.enable(file=sys.stderr, all_threads=True)
+        faulthandler.register(signal.SIGUSR1, file=sys.stderr, all_threads=True)
+        faulthandler._reportek_sigusr1_registered = True
+        logger.info("Python faulthandler enabled for SIGUSR1 thread dumps")
+    except Exception:
+        logger.exception("Failed to enable Python faulthandler")
+
+
+_configure_faulthandler()
+
+
 MessageFactory = MessageFactory("Reportek")
 
 maintenance_options = (

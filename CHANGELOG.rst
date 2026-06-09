@@ -1,5 +1,6 @@
 100.2.12-dev (Unreleased)
 -------------------------
+* feat: register SIGUSR1 handler when ZOPE_DEBUG_MODE and PYTHONFAULTHANDLER are set, used for stack dump
 * fix: fixed script_edit.zpt and script_add.zpt missing closing tags
 * fix: fixed templates paths for converters and company_details
 
