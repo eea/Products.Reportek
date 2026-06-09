@@ -1,5 +1,6 @@
 100.2.12-dev (Unreleased)
 -------------------------
+* fix: fixed templates paths for converters and company_details
 
 100.2.11 (2026-06-04)
 ---------------------
