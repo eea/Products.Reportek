@@ -34,4 +34,11 @@
       preserveOriginal="false"
     />
 
+    <monkey:patch description="Apply LDAP timeouts to authentication binds"
+      class="node.ext.ldap.session.LDAPSession"
+      original="authenticate"
+      replacement=".patch_node_ext_ldap.patched_authenticate"
+      preserveOriginal="false"
+    />
+
 </configure>
