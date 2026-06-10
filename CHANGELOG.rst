@@ -1,5 +1,6 @@
 100.2.13-dev (Unreleased)
 -------------------------
+* fix: fixed ErrorView not working correctly in Zope 5
 
 100.2.12 (2026-06-10)
 ---------------------

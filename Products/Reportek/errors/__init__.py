@@ -10,13 +10,14 @@ class ErrorView(object):
     def __call__(self, *args, **kwargs):
         accept = self.request.environ.get("HTTP_ACCEPT")
         error_type = self.context.__class__.__name__
+        error_message = str(self.context)
         if accept == "application/json":
             status = {"Unauthorized": 401, "NotFound": 404, "BadRequest": 400}
             self.request.response.setHeader("Content-Type", "application/json")
             self.request.response.setStatus(status.get(error_type))
             error = {
                 "title": error_type,
-                "description": re.sub("<[^<]+?>", "", self.context.message),
+                "description": re.sub("<[^<]+?>", "", error_message),
             }
             data = {
                 "errors": [error],
@@ -29,6 +30,6 @@ class ErrorView(object):
                 ctx,
                 self.request,
                 error_type=error_type,
-                error_value=self.context.message,
+                error_value=error_message,
             )
         return error_type
