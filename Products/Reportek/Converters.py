@@ -78,13 +78,13 @@ class Converters(Folder):
     manage_addConverter = Converter.manage_addConverter
 
     security.declareProtected(view_management_screens, "index_html")
-    index_html = PageTemplateFile("zpt/converters/index")
+    index_html = PageTemplateFile("zpt/converters/index.zpt", globals())
 
     security.declareProtected(view_management_screens, "manage_converters_html")
-    manage_converters_html = PageTemplateFile("zpt/converters/edit")
+    manage_converters_html = PageTemplateFile("zpt/converters/edit.zpt", globals())
 
     security.declareProtected(view_management_screens, "remote_converters")
-    remote_converters = PageTemplateFile("zpt/converters/remote")
+    remote_converters = PageTemplateFile("zpt/converters/remote.zpt", globals())
 
     def __init__(self):
         """ """

@@ -58,7 +58,7 @@ def validate_file_url(file_url):
         raise BadRequest("External URLs are not allowed in the file parameter.")
 
 
-manage_addConverterForm = PageTemplateFile("zpt/converters/item_add")
+manage_addConverterForm = PageTemplateFile("zpt/converters/item_add.zpt", globals())
 
 
 def manage_addConverter(
@@ -167,7 +167,7 @@ class Converter(SimpleItem):
         return RepUtils.utConvertListToLines(self.ct_extraparams)
 
     security.declareProtected(view_management_screens, "manage_settings_html")
-    manage_settings_html = PageTemplateFile("zpt/converters/item_edit")
+    manage_settings_html = PageTemplateFile("zpt/converters/item_edit.zpt", globals())
 
     def __call__(self, file_url, converter_id, output_file_name="", REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)

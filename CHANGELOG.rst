@@ -1,3 +1,10 @@
+100.2.12 (2026-06-10)
+---------------------
+* fix: added patch_node_ext_ldap to make ldap authenticate use the timeouts defined in ldap settings
+* feat: register SIGUSR1 handler when ZOPE_DEBUG_MODE and PYTHONFAULTHANDLER are set, used for stack dump
+* fix: fixed script_edit.zpt and script_add.zpt missing closing tags
+* fix: fixed templates paths for converters and company_details
+
 100.2.11 (2026-06-04)
 ---------------------
 * feat: added script to fix broken python scripts

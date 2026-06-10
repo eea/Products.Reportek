@@ -367,7 +367,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     )
 
     security.declareProtected("View", "company_details")
-    company_details = PageTemplateFile("zpt/collection/company_details")
+    company_details = PageTemplateFile("zpt/collection/company_details.zpt", globals())
 
     security.declareProtected("View", "other_reports")
     other_reports = PageTemplateFile(
