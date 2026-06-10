@@ -1,3 +1,7 @@
+100.2.13 (2026-06-10)
+---------------------
+* fix: fixed ErrorView not working correctly in Zope 5
+
 100.2.12 (2026-06-10)
 ---------------------
 * fix: added patch_node_ext_ldap to make ldap authenticate use the timeouts defined in ldap settings
