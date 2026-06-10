@@ -1,3 +1,6 @@
+100.2.13-dev (Unreleased)
+-------------------------
+
 100.2.12 (2026-06-10)
 ---------------------
 * fix: added patch_node_ext_ldap to make ldap authenticate use the timeouts defined in ldap settings
