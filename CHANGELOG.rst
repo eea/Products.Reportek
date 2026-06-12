@@ -1,5 +1,6 @@
 100.2.14-dev (Unreleased)
 -------------------------
+* fix: fixed test_utilities
 * fix: migrated away from LDAPUserFolder calls
 * feat: added ldap_utils helpers
 * fix: changed ReportekPropertiedUser to not rely on old LDAPUserFolder
