@@ -1,5 +1,5 @@
-100.2.14-dev (Unreleased)
--------------------------
+100.2.14 (2026-06-12)
+---------------------
 * fix: fixed test_utilities
 * fix: migrated away from LDAPUserFolder calls
 * feat: added ldap_utils helpers
