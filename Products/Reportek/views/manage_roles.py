@@ -4,7 +4,6 @@ from Products.Reportek.constants import ENGINE_ID, ECAS_ID, DEFAULT_CATALOG
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.rabbitmq import queue_msg
-from functools import reduce
 
 
 class ManageRoles(BaseAdmin):

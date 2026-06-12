@@ -401,7 +401,11 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         roles_plugin = getattr(self.acl_users, "roles", None)
         if roles_plugin is not None:
             for role in ["Reporter", "Client"]:
-                if role_param and role_param in ["Reporter", "Client"] and role != role_param:
+                if (
+                    role_param
+                    and role_param in ["Reporter", "Client"]
+                    and role != role_param
+                ):
                     continue
                 for member, title in roles_plugin.listAssignedPrincipals(role):
                     if member in global_members:

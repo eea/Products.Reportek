@@ -197,9 +197,7 @@ def migrate(app):
         default_roles=getattr(luf, "_roles", ()),
     )
     plugins.activatePlugin(IRolesPlugin, ROLE_PLUGIN_ID)
-    print(
-        f"Created {ROLE_PLUGIN_ID} with {len(group_mappings)} group role mappings"
-    )
+    print(f"Created {ROLE_PLUGIN_ID} with {len(group_mappings)} group role mappings")
     if getattr(luf, "_local_groups", False):
         print(
             "WARNING: old LDAPUserFolder had _local_groups enabled; _groups_store needs separate review"
