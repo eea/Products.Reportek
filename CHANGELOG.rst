@@ -1,5 +1,9 @@
 100.2.14-dev (Unreleased)
 -------------------------
+* fix: migrated away from LDAPUserFolder calls
+* feat: added ldap_utils helpers
+* fix: changed ReportekPropertiedUser to not rely on old LDAPUserFolder
+* fix: updated the ldap migration script to set ldap.settings["users.memberOfSupport"] = False
 
 100.2.13 (2026-06-10)
 ---------------------

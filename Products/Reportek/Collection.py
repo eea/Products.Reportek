@@ -392,33 +392,25 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         """List accounts with the reporter and client roles for current
         folder and subfolders
         """
-        from ldap.dn import explode_dn
-
         role_param = REQUEST.get("role", "")
         members = {}
         global_members = {}
         catalog = getattr(self, constants.DEFAULT_CATALOG)
         ldap_groups = self.getLDAPGroups()
-        # retrieve the global accounts
-        ldap_user_folder = self.acl_users["ldapmultiplugin"]["acl_users"]
-        for user_dn, roles in ldap_user_folder.getLocalUsers():
-            member = explode_dn(user_dn, notypes=1)[0]
-            for role in roles:
-                if role_param and role_param in ["Reporter", "Client"]:
-                    if role == role_param:
+        # retrieve the global accounts from PAS role assignments
+        roles_plugin = getattr(self.acl_users, "roles", None)
+        if roles_plugin is not None:
+            for role in ["Reporter", "Client"]:
+                if role_param and role_param in ["Reporter", "Client"] and role != role_param:
+                    continue
+                for member, title in roles_plugin.listAssignedPrincipals(role):
+                    if member in global_members:
+                        global_members[member]["roles"].append(role)
+                    else:
                         global_members[member] = {
-                            "type": "user",
+                            "type": "group" if member in ldap_groups else "user",
                             "roles": [role],
                         }
-                else:
-                    if role in ["Reporter", "Client"]:
-                        if member in global_members:
-                            global_members[member]["roles"].append(role)
-                        else:
-                            global_members[member] = {
-                                "type": "user",
-                                "roles": [role],
-                            }
         # retrieve the local accounts
         folders = catalog.searchResults(
             **dict(meta_type=["Report Collection"], path=self.absolute_url(1))

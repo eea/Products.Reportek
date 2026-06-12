@@ -10,7 +10,13 @@ logger = logging.getLogger("Reportek")
 
 class ReportekPropertiedUser(PropertiedUser):
     def getGroups(self):
-        """Also return LDAP groups if applicable"""
+        """Also return LDAP groups for CDR deployments.
+
+        LDAP groups are now provided by pas.plugins.ldap via PAS IGroupsPlugin.
+        Do not query the legacy Products.LDAPUserFolder here: doing so performs
+        LDAP bind/search calls while PAS is resolving roles and can exhaust all
+        Waitress workers when LDAP is slow.
+        """
         local_groups = super(ReportekPropertiedUser, self).getGroups()
         if REPORTEK_DEPLOYMENT == CDR:
             return list(set(local_groups) | set(self.get_ldap_groups()))
@@ -67,19 +73,14 @@ class ReportekPropertiedUser(PropertiedUser):
                 return None
 
     def get_ldap_groups(self):
-        """Return the user's ldap groups"""
-        acl_users = getattr(self, "acl_users")
-        ldapplugins = acl_users.objectIds("LDAP Multi Plugin")
+        """Return LDAP/PAS groups without using legacy LDAPUserFolder.
 
-        for plugin_id in ldapplugins:
-            plugin = acl_users[plugin_id]
-            ldapfolder = getattr(plugin, "acl_users")
-
-            if ldapfolder:
-                user = ldapfolder.getUserById(self.getId())
-                return getattr(user, "_ldap_groups", [])
-
-        return []
+        During migration, pas.plugins.ldap became responsible for LDAP group
+        enumeration. The ldap_group_roles PAS plugin then maps these group ids
+        to Zope roles. Calling the old LDAP Multi Plugin/LDAPUserFolder here
+        re-enters LDAP during authorization and can block all Waitress workers.
+        """
+        return super(ReportekPropertiedUser, self).getGroups()
 
     def get_ldap_role_in_context(self, obj, user_id):
         """Return the LDAP Group's role in context"""

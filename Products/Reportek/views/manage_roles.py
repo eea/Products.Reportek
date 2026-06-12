@@ -204,14 +204,10 @@ class ManageRoles(BaseAdmin):
         self.request["op_results"] = results
 
     def search_ldap_users(self, term):
+        from Products.Reportek.ldap_utils import search_ldap_users
+
         params = [name for name, value in self.get_ldap_schema()]
-        acl_users = self.get_acl_users()
-
-        users = [acl_users.findUser(search_param=p, search_term=term) for p in params]
-        users = reduce(lambda x, y: x + y, users)  # noqa: F821
-        users = list({user.get("uid"): user for user in users}.values())
-
-        return users
+        return search_ldap_users(self.context, term, params=params)
 
     def search_ecas_users(self, term):
         ecas_path = "/" + ENGINE_ID + "/acl_users/" + ECAS_ID
@@ -272,7 +268,9 @@ class ManageRoles(BaseAdmin):
         return response
 
     def get_ldap_schema(self):
-        return self.get_acl_users().getLDAPSchema()
+        from Products.Reportek.ldap_utils import get_ldap_schema
+
+        return get_ldap_schema(self.context)
 
     def display_confirmation(self):
         return (
@@ -283,13 +281,16 @@ class ManageRoles(BaseAdmin):
         disabled_uids = []
         query = {"meta_type": ["Report Collection"]}
         result = {}
-        acl_users = self.get_acl_users()
-        disabled_users = acl_users.findUser(
-            search_param="employeeType", search_term="disabled", exact_match="1"
+        from Products.Reportek.ldap_utils import get_ldap_group_ids, search_ldap_users
+
+        disabled_users = search_ldap_users(
+            self.context,
+            "disabled",
+            params=("employeeType",),
+            exact_match=True,
         )
         disabled_uids = [user.get("uid") for user in disabled_users]
-        groups = acl_users.getGroups()
-        groups = [group[0] for group in groups]
+        groups = get_ldap_group_ids(self.context)
         group_prefixes = tuple({group.split("-")[0] for group in groups})
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         brains = catalog.searchResults(**query)
