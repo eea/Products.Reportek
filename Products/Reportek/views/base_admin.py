@@ -8,6 +8,7 @@ from zope.browsermenu.menu import getMenu
 
 from Products.Five import BrowserView
 from Products.Reportek import config, constants
+from Products.Reportek.ldap_utils import get_ldap_plugin, search_ldap_groups
 from Products.Reportek.RepUtils import getToolByName
 
 
@@ -267,16 +268,15 @@ class BaseAdmin(BrowserView):
         return breadcrumbs
 
     def get_acl_users(self):
-        pas = getattr(self.context, "acl_users")
-        if pas:
-            ldapmultiplugin = getattr(pas, "ldapmultiplugin")
-            if ldapmultiplugin:
-                return getattr(ldapmultiplugin, "acl_users")
+        """Return the pas.plugins.ldap plugin.
+
+        Kept for compatibility with admin views that historically used the old
+        LDAPUserFolder object through this helper.
+        """
+        return get_ldap_plugin(self.context)
 
     def search_ldap_groups(self, term):
-        acl_users = self.get_acl_users()
-        groups = acl_users.searchGroups(cn=term)
-
+        groups = search_ldap_groups(self.context, term)
         if groups:
             group_list = list({group.get("cn"): group for group in groups}.values())
             group_list.sort(key=itemgetter("cn"))

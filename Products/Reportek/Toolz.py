@@ -35,6 +35,7 @@ from Products.Reportek import constants
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 
 from . import RepUtils
+from .ldap_utils import get_ldap_group_ids, get_ldap_user
 
 # from string import rfind
 
@@ -84,16 +85,7 @@ class Toolz:
 
     # LDAP users info
     def getLDAPUser(self, uid):
-        ldap_user_folder = self.getPhysicalRoot().acl_users["ldapmultiplugin"][
-            "acl_users"
-        ]
-        res = ldap_user_folder.findUser(
-            search_param="uid", search_term=uid, exact_match=True
-        )
-        if len(res) > 0:
-            return res[0]
-
-        return {}
+        return get_ldap_user(self, uid)
 
     def getLDAPUserFirstName(self, dn):
         return dn.get("sn", "")
@@ -110,13 +102,7 @@ class Toolz:
     @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def getLDAPGroups(self):
         """Return a list of LDAP group ids"""
-        ldap_user_folder = self.getPhysicalRoot().acl_users["ldapmultiplugin"][
-            "acl_users"
-        ]
-        groups = ldap_user_folder.getGroups()
-        group_ids = [group[0] for group in groups if group[0]]
-
-        return group_ids
+        return get_ldap_group_ids(self)
 
     # collection related - must be globals to be able
     # to call them in any context (ROOT or collection)

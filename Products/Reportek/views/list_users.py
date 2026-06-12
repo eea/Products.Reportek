@@ -3,6 +3,7 @@ from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
+from Products.Reportek.ldap_utils import get_ldap_group_ids, get_ldap_user
 from time import time
 import json
 
@@ -16,24 +17,14 @@ class ListUsers(BaseAdmin):
             return engine.authMiddleware
 
     def is_ldap_user(self, username):
-        acl_users = self.context.acl_users
-        if hasattr(acl_users, "ldapmultiplugin"):
-            ldap_users = acl_users.ldapmultiplugin.acl_users
-            user_ob = ldap_users.getUserById(username)
-            if user_ob:
-                return user_ob
+        user_ob = get_ldap_user(self.context, username)
+        if user_ob:
+            return user_ob
 
     @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def getLDAPGroups(self):
         """Return a list of LDAP group ids"""
-        group_ids = []
-        acl_users = self.context.acl_users
-        if hasattr(acl_users, "ldapmultiplugin"):
-            ldap_users = acl_users.ldapmultiplugin.acl_users
-            groups = ldap_users.getGroups()
-            group_ids = [group[0] for group in groups if group[0]]
-
-        return group_ids
+        return get_ldap_group_ids(self.context)
 
     def is_ldap_group(self, username):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
@@ -92,8 +83,8 @@ class ListUsers(BaseAdmin):
 
         user = self.is_ldap_user(username)
         if user:
-            r["fullname"] = getattr(user, "cn", "N/A")
-            r["email"] = getattr(user, "mail", "N/A")
+            r["fullname"] = user.get("cn", "N/A")
+            r["email"] = user.get("mail", "N/A")
 
         return r
 

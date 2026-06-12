@@ -8,8 +8,9 @@ Or paste into zconsole debug session.
 """
 
 import transaction
-from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 from odict import odict
+
+from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 
 OLD_PLUGIN_ID = "ldapmultiplugin"
 NEW_PLUGIN_ID = "ldap"
@@ -121,7 +122,10 @@ def migrate(app):
     settings["users.attrmap"] = users_attrmap
     settings["users.queryFilter"] = "(&(objectClass=person)(uid=*))"
     settings["users.objectClasses"] = obj_classes
-    settings["users.memberOfSupport"] = True
+    # We have stored group membership on group entries (groupOfUniqueNames /
+    # uniqueMember), not as memberOf on user entries. Keep this disabled so
+    # pas.plugins.ldap resolves user groups by searching groups for the user's DN.
+    settings["users.memberOfSupport"] = False
     settings["users.recursiveGroups"] = False
 
     # Groups config
@@ -143,8 +147,8 @@ def migrate(app):
     # 4. Activate new plugin for the same PAS interfaces
     # ---------------------------------------------------------------
     from Products.PluggableAuthService.interfaces.plugins import (
-        IGroupsPlugin,
         IGroupEnumerationPlugin,
+        IGroupsPlugin,
         IPropertiesPlugin,
     )
 
@@ -172,7 +176,9 @@ def migrate(app):
     # ---------------------------------------------------------------
     # 5. Preserve old LDAP group -> Zope role mappings
     # ---------------------------------------------------------------
-    from Products.Reportek.ldap_group_roles import manage_addLDAPGroupRolesPlugin
+    from Products.Reportek.ldap_group_roles import (
+        manage_addLDAPGroupRolesPlugin,
+    )
 
     if ROLE_PLUGIN_ID in acl.objectIds():
         print(f"Plugin '{ROLE_PLUGIN_ID}' already exists, removing first...")

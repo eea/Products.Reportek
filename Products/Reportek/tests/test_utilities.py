@@ -49,6 +49,62 @@ class MockedLDAPPlugin(Folder):
     acl_users = None
 
 
+class MockedPASLDAPPlugin(SimpleItem):
+    def __init__(self, users):
+        self.users = MockedPASLDAPUsers(users)
+        self.groups = MockedPASLDAPGroups([])
+        self.settings = {
+            "users.attrmap": (
+                ("cn", "Canonical Name"),
+                ("mail", "Mail"),
+                ("sn", "Last Name"),
+                ("uid", "uid"),
+            )
+        }
+
+
+class MockedPASLDAPUsers:
+    def __init__(self, users):
+        self._users = users
+
+    def __getitem__(self, uid):
+        user = self._users.getUserById(uid)
+        if user is None:
+            raise KeyError(uid)
+        return user
+
+    def search(self, criteria=None, attrlist=(), exact_match=False):
+        criteria = criteria or {}
+        results = []
+        for obj_id in self._users.objectIds():
+            user = self._users._getOb(obj_id)
+            matched = True
+            for name, value in criteria.items():
+                attr_value = getattr(user, name, "")
+                if exact_match:
+                    matched = attr_value == value
+                else:
+                    matched = attr_value.startswith(value.rstrip("*"))
+                if not matched:
+                    break
+            if matched:
+                attrs = {name: [getattr(user, name, "")] for name in attrlist}
+                results.append((user.uid, attrs))
+        return results
+
+
+class MockedPASLDAPGroups:
+    def __init__(self, group_ids):
+        self._group_ids = group_ids
+
+    def keys(self):
+        return self._group_ids
+
+    def search(self, criteria=None, exact_match=False):
+        term = (criteria or {}).get("id", "").rstrip("*")
+        return [group for group in self._group_ids if group.startswith(term)]
+
+
 class MockedACLUsers(Folder):
     def getUserById(self, name):
         return getattr(self, name, None)
@@ -405,6 +461,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         mock_user.sn = "user"
         mock_user.mail = "test_user_1_@test.com"
         acl_users._setObject("test_user_1_", mock_user)
+        self.app.acl_users.ldap = MockedPASLDAPPlugin(acl_users)
 
         # Commit all test setup so WSGI publisher can see the objects
         transaction.commit()

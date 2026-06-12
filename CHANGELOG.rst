@@ -1,3 +1,11 @@
+100.2.14 (2026-06-12)
+---------------------
+* fix: fixed test_utilities
+* fix: migrated away from LDAPUserFolder calls
+* feat: added ldap_utils helpers
+* fix: changed ReportekPropertiedUser to not rely on old LDAPUserFolder
+* fix: updated the ldap migration script to set ldap.settings["users.memberOfSupport"] = False
+
 100.2.13 (2026-06-10)
 ---------------------
 * fix: fixed ErrorView not working correctly in Zope 5
