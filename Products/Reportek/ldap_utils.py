@@ -1,6 +1,6 @@
 """Helpers for accessing LDAP data through pas.plugins.ldap."""
 
-USER_ATTRS = ("uid", "cn", "sn", "givenName", "mail", "employeeType")
+USER_ATTRS = ("uid", "cn", "sn", "givenName", "mail", "employeeType", "dn")
 
 
 def _root(context):
@@ -33,6 +33,8 @@ def user_to_mapping(user):
     attrs = getattr(user, "attrs", {}) or {}
     result = {name: _first(attrs.get(name)) for name in USER_ATTRS}
     result["uid"] = result.get("uid") or getattr(user, "id", "")
+    context = getattr(user, "context", None)
+    result["dn"] = result.get("dn") or getattr(context, "DN", "")
     return result
 
 
@@ -71,6 +73,11 @@ def search_ldap_users(context, term, params=None, exact_match=False):
         for user_id, attrs in matches:
             row = {name: _first(attrs.get(name)) for name in attrlist}
             row["uid"] = row.get("uid") or user_id
+            if not row.get("dn"):
+                try:
+                    row["dn"] = getattr(users[row["uid"]].context, "DN", "")
+                except (AttributeError, KeyError, TypeError):
+                    row["dn"] = ""
             results[row["uid"]] = row
     return list(results.values())
 
