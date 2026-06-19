@@ -50,7 +50,7 @@
 		<td><input type="text" name="script_url" id="script_url" size="40" /></td>
 	</tr>
 	<tr>
-		<th><label for="max_size" class="form-label" i18n:translate="">Upper limit for file size</th>
+	    <th><label for="max_size" class="form-label" i18n:translate="">Upper limit for file size</label></th>
 		<td i18n:translate=""><input type="text" name="max_size" id="max_size" size="70"
 						value="10.00" />MB (default 10.00 MB)</td>
 	</tr>

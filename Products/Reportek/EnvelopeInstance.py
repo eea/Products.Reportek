@@ -1060,7 +1060,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ """
         self.activateWorkitem(workitem_id, "openflow_engine")
         self.completeWorkitem(workitem_id)
-        if not self.isEnd(self.getInstanceProcessId(), self.getActivity().id):
+        if not self.isEnd(self.getActivity(workitem_id).id):
             self.forwardWorkitem(workitem_id)
 
     security.declareProtected("Use OpenFlow", "startAutomaticApplication")
@@ -1201,8 +1201,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def completeSubflow(self, workitem_id):
         """ """
         self.completeWorkitem(workitem_id)
-        process = self.unrestrictedTraverse(self.process_path)
-        if not self.isEnd(process.id, self.getActivity(workitem_id).id):
+        if not self.isEnd(self.getActivity(workitem_id).id):
             self.forwardWorkitem(workitem_id)
 
     def traceActivity(self, steps=0, activity_type=None):
