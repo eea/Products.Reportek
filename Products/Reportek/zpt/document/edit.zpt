@@ -1,6 +1,6 @@
 <tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
 
-  <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="++resource++static/eionet/screen.css" media="screen" />
 
   <tal:cond tal:condition="nothing">
     <metal:def define-macro="document-edit">

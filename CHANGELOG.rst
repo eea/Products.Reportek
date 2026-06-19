@@ -1,5 +1,6 @@
 100.2.16-dev (Unreleased)
 -------------------------
+* feat: decouple styles from eionet site
 
 100.2.15 (2026-06-15)
 ---------------------
