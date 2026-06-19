@@ -5,8 +5,7 @@ Glossary
 
     Data Repository
         A website based on the Reportek product. Examples of such instances are:
-        `Central Data Repository <http://cdr.eionet.europa.eu>`_ and
-        `Mediterranean Data Repository <http://mdr.eionet.europa.eu>`_
+        `Central Data Repository <http://cdr.eionet.europa.eu>`_
 
     Collection
         Folder-like container used to create a Data Repository site structure

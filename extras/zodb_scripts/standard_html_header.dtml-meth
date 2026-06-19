@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <dtml-call "RESPONSE.setHeader('content-type', 'text/html;charset='+ management_page_charset)">
   <head>
@@ -22,13 +22,13 @@
 <dtml-else>
    <link rel="stylesheet" type="text/css"
           media="print"
-          href="http://www.eionet.europa.eu/styles/eionet2007/print.css" />
+          href="/++resource++static/eionet/print.css" />
     <link rel="stylesheet" type="text/css"
-          href="http://www.eionet.europa.eu/styles/eionet2007/screen.css"
+          href="++resource++static/eionet/screen.css"
           media="screen" />
     <link rel="stylesheet" type="text/css"
           media="handheld"
-          href="http://www.eionet.europa.eu/styles/eionet2007/handheld.css" />
+          href="++resource++static/eionet/handheld.css" />
 </dtml-if>
     <link rel="stylesheet" type="text/css"
           href="/styles/eionet2007.css"

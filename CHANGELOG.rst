@@ -1,3 +1,7 @@
+100.2.16 (2026-06-19)
+---------------------
+* feat: decouple styles from eionet site
+
 100.2.15 (2026-06-15)
 ---------------------
 * fix: include "dn" in ldap_utils
