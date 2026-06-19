@@ -1,3 +1,5 @@
+/*jslint browser:true */
+/* jslint:disable */
 /* ----- cookie_functions.js ----- */
 function createCookie(name,value,days) {
     if (days) {
@@ -103,4 +105,3 @@ function addEvent(obj, evType, fn){
 }
 
 addEvent(window,'load',fullscreenModeLoad);
-
