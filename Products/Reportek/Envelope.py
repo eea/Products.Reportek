@@ -1292,9 +1292,36 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
     security.declareProtected('Add Feedback', 'manage_addFeedback')
 
-    def manage_addFeedback(self, *args, **kwargs):
+    def manage_addFeedback(
+        self,
+        id="",
+        title="",
+        feedbacktext="",
+        file=None,
+        activity_id="",
+        automatic=0,
+        content_type="text/plain",
+        document_id=None,
+        script_url=None,
+        restricted="",
+        REQUEST=None,
+    ):
+        """Add feedback to this envelope."""
         try:
-            return Feedback.manage_addFeedback(self, *args, **kwargs)
+            return Feedback.manage_addFeedback(
+                self,
+                id=id,
+                title=title,
+                feedbacktext=feedbacktext,
+                file=file,
+                activity_id=activity_id,
+                automatic=automatic,
+                content_type=content_type,
+                document_id=document_id,
+                script_url=script_url,
+                restricted=restricted,
+                REQUEST=REQUEST,
+            )
         finally:
             self._invalidate_qa_cache()
 
