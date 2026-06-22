@@ -1,3 +1,7 @@
+100.2.17 (2026-06-22)
+---------------------
+fix: fixed regression when adding manual feedbacks
+
 100.2.16 (2026-06-19)
 ---------------------
 * feat: decouple styles from eionet site
