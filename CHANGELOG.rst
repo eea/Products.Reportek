@@ -1,5 +1,8 @@
-100.2.18 (2026-06-25)
+100.2.19-dev (Unreleased)
 -------------------------
+
+100.2.18 (2026-06-25)
+---------------------
 * feat: added highlights for terminated obligations in workflowMapProcesses and reportek.js
 * feat: removed unused load_from_dd and avoid write on get for xls_conversion property
 
