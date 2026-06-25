@@ -21,7 +21,6 @@
 </p>
 
 <form action="" method="post">
-
   <table cellspacing="0" cellpadding="2" border="0">
     <tr>
       <td>
@@ -153,13 +152,6 @@
 </form>
 
 <br />
-
-<form action="load_from_dd" method="post">
-  <div class="form-element" i18n:translate="">
-    Load mappings from DataDictionary and WebQ:
-    <button type="submit" i18n:translate="">Load</button>
-  </div>
-</form>
 
 <form action="" method="post">
   <table cellspacing="0" cellpadding="2" border="0">
