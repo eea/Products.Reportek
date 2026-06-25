@@ -22,6 +22,35 @@
   width: 100%;
 }
 
+.select-container .terminated-selected .select2-choice {
+  background: #eeeeee;
+  border-color: #cfcfcf;
+  color: #666;
+}
+
+.select-container .terminated-label,
+.select2-results .terminated-label {
+  color: #777;
+  font-size: 0.85em;
+  font-style: italic;
+  margin-left: 0.75em;
+  white-space: nowrap;
+}
+
+.select2-results .terminated-result {
+  background-color: #eeeeee;
+  color: #666;
+}
+
+.select2-results .select2-highlighted.terminated-result {
+  background-color: #3875d7;
+  color: #fff;
+}
+
+.select2-results .select2-highlighted .terminated-label {
+  color: inherit;
+}
+
 /*Workaround for select2 overflowing the containers width in searchdataflow*/
 td.select-fixed-width.select-container {
   width: 650px;

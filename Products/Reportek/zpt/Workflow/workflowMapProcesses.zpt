@@ -3,6 +3,16 @@
 
 <style type="text/css">
   .menu { list-style: none; padding:0; margin:0 }
+  .terminated-obligation {
+    background-color: #eeeeee;
+    color: #666;
+  }
+  .terminated-obligation .terminated-label {
+    color: #777;
+    font-size: 0.85em;
+    font-style: italic;
+    margin-left: 0.4em;
+  }
 </style>
 
 <p class="form-help" i18n:translate="">Applicability of processes for dataflows and countries.</p>
@@ -34,10 +44,16 @@
           <td>
              <ul class="menu">
                 <li tal:condition="python:l_dataflows==['*']" i18n:translate="">All</li>
-                <li tal:repeat="df l_dataflows" tal:attributes="class python:test(path('repeat/df/odd'), 'row-hilite', None)">
-                   <tal:block tal:replace="python:here.ReportekEngine.getDataflowTitle(df)" />
-                   (<a tal:attributes="href df" class="list-item" title="Obligation identifier" tal:content="df" i18n:attributes="title title-obl-identifier"/>)
-               </li>
+                <tal:block tal:repeat="df l_dataflows">
+                  <tal:block tal:define="df_info python:here.ReportekEngine.dataflow_lookup(df);
+                                         is_terminated python:df_info.get('terminated', '0') == '1'">
+                    <li tal:attributes="class python:test(is_terminated, test(path('repeat/df/odd'), 'row-hilite terminated-obligation', 'terminated-obligation'), test(path('repeat/df/odd'), 'row-hilite', None))">
+                       <tal:block tal:replace="df_info/TITLE" />
+                       <span tal:condition="is_terminated" class="terminated-label" i18n:translate="">(Terminated)</span>
+                       (<a tal:attributes="href df" class="list-item" title="Obligation identifier" tal:content="df" i18n:attributes="title title-obl-identifier"/>)
+                    </li>
+                  </tal:block>
+                </tal:block>
                <li tal:condition="python:len(l_dataflows)==0" i18n:translate="">None</li>
            </ul>
           </td>
