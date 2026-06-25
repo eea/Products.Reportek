@@ -1,6 +1,11 @@
+100.2.18 (2026-06-25)
+-------------------------
+* feat: added highlights for terminated obligations in workflowMapProcesses and reportek.js
+* feat: removed unused load_from_dd and avoid write on get for xls_conversion property
+
 100.2.17 (2026-06-22)
 ---------------------
-fix: fixed regression when adding manual feedbacks
+* fix: fixed regression when adding manual feedbacks
 
 100.2.16 (2026-06-19)
 ---------------------

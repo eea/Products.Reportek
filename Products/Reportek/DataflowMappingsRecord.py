@@ -2,7 +2,6 @@ import logging
 import os
 import xmlrpc.client
 
-import requests
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view_management_screens
@@ -16,7 +15,6 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG
 from Products.Reportek.RepUtils import getToolByName
 
-from . import messages
 
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
@@ -100,47 +98,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     def mapping(self, value):
         if "schemas" in value:
             self._mappings = PersistentList(value["schemas"])
-
-    security.declareProtected(view_management_screens, "load_from_dd")
-
-    def load_from_dd(self, REQUEST):
-        """ """
-        resp = requests.get(
-            os.environ["DATADICTIONARY_SCHEMAS_URL"],
-            params={
-                "obligationId": self.dataflow_uri.replace(".eu.int", ".europa.eu"),
-            },
-        )
-        if resp.status_code == 200:
-            webq_url = self.ReportekEngine.webq_url
-            webq = xmlrpc.client.ServerProxy(webq_url).WebQService
-            webq_resp = webq.getXForm([row["url"] for row in resp.json()])
-
-            new_mappings = PersistentList()
-            for i, row in enumerate(resp.json()):
-                mapping = {
-                    "url": row["url"],
-                    "name": row["name"],
-                    "has_webform": (True if webq_resp.get(row["url"]) else False),
-                }
-                new_mappings.append(mapping)
-            self._mappings = new_mappings
-            messages.add(REQUEST, "Mappings updated from Data Dictionary.")
-
-        elif resp.status_code == 404:
-            log.info("404 response from DD for %r (%s)", resp.url, self.dataflow_uri)
-            messages.add(REQUEST, "No mappings found in Data Dictionary.", "error")
-
-        else:
-            log.warn(
-                "Error fetching DD mappings for %r: %r, %r",
-                self.dataflow_uri,
-                resp,
-                resp.text,
-            )
-            messages.add(REQUEST, "Error fetching from Data Dictionary", "error")
-
-        REQUEST.RESPONSE.redirect(self.absolute_url() + "/edit")
 
     security.declareProtected(view_management_screens, "add_schema")
 
@@ -226,10 +183,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     @property
     def xls_conversion(self):
         """Return the type of xls conversion."""
-        if not getattr(self, "_xls_conversion", None):
-            self._xls_conversion = "split"
-
-        return getattr(self, "_xls_conversion", None)
+        return getattr(self, "_xls_conversion", None) or "split"
 
 
 InitializeClass(DataflowMappingsRecord)
