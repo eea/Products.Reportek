@@ -15,7 +15,6 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.constants import DATAFLOW_MAPPINGS, DEFAULT_CATALOG
 from Products.Reportek.RepUtils import getToolByName
 
-from . import messages
 
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
@@ -29,9 +28,7 @@ class AddForm(BrowserView):
     def add(self):
         form = self.request.form
         oid = form.get("id")
-        ob = DataflowMappingsRecord(
-            oid, form.get("title"), form.get("dataflow_uris")
-        )
+        ob = DataflowMappingsRecord(oid, form.get("title"), form.get("dataflow_uris"))
         self.parent._setObject(oid, ob)
         return self.request.response.redirect(
             self.parent.absolute_url() + "/manage_main"
@@ -149,9 +146,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         )
 
     _edit = PageTemplateFile(
-        os.path.join(
-            package_home(globals()), "zpt/dataflow-mappings/edit_record.zpt"
-        )
+        os.path.join(package_home(globals()), "zpt/dataflow-mappings/edit_record.zpt")
     )
 
     security.declareProtected(view_management_screens, "edit")
