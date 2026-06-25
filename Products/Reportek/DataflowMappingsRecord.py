@@ -1,8 +1,5 @@
 import logging
-from os import environ
 
-import messages
-import requests
 import xmlrpclib
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
