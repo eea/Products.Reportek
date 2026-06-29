@@ -28,6 +28,7 @@ import logging
 import numbers
 import operator
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 
 import constants
 import Envelope
@@ -1578,9 +1579,17 @@ class Collection(
                 try:
                     if key in metadata:
                         amount = metadata.get(key, {}).get("Amount")
-                        mdata[key] = (
-                            int(amount) if amount is not None else None
-                        )
+                        try:
+                            mdata[key] = (
+                                Decimal(amount) if amount is not None else None
+                            )
+                        except (
+                            InvalidOperation,
+                            ValueError,
+                            KeyError,
+                            TypeError,
+                        ):
+                            mdata[key] = None
                     else:
                         mdata[key] = None
                 except (ValueError, KeyError, TypeError):
