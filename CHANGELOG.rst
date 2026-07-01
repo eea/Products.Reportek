@@ -1,5 +1,10 @@
+100.2.19 (2026-07-01)
+---------------------
+* fix: fixed scripts args processing for running with zconsole
+* fix: use Decimal in get_auditable_data_reports - refs #305282
+
 100.2.18 (2026-06-25)
--------------------------
+---------------------
 * feat: added highlights for terminated obligations in workflowMapProcesses and reportek.js
 * feat: removed unused load_from_dd and avoid write on get for xls_conversion property
 

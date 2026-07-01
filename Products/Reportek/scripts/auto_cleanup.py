@@ -11,10 +11,10 @@
 """
 
 from OFS.interfaces import IFolder
-from Products.Reportek.scripts import get_zope_site
+from Products.Reportek.scripts import get_script_args, get_zope_site
 import transaction
-import sys
 import argparse
+import sys
 
 
 def do_cleanup(container, c_type, prefix, threshold):
@@ -50,7 +50,7 @@ def main():
         help="Threshold for the number of old c_type objects",
         dest="threshold",
     )
-    args = parser.parse_args(sys.argv[3:])
+    args = parser.parse_args(get_script_args("auto_cleanup"))
     if (
         args.container is None
         or args.recursive is None

@@ -17,7 +17,7 @@ import sys
 import transaction
 from DateTime import DateTime
 from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.Reportek.scripts import get_zope_site
+from Products.Reportek.scripts import get_script_args, get_zope_site
 from Products.Reportek.RepUtils import getToolByName
 
 
@@ -115,7 +115,7 @@ def main():
         dest="env_year_offset",
         default="+0",
     )
-    args = parser.parse_args(sys.argv[3:])
+    args = parser.parse_args(get_script_args("auto_fallin"))
 
     if (
         args.obligations is None or args.act_from is None or args.act_to is None
