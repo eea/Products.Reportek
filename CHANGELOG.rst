@@ -1,5 +1,5 @@
-100.2.19-dev (Unreleased)
--------------------------
+100.2.19 (2026-07-01)
+---------------------
 * fix: fixed scripts args processing for running with zconsole
 * fix: use Decimal in get_auditable_data_reports - refs #305282
 
