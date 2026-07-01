@@ -1,3 +1,6 @@
+100.2.20-dev (Unreleased)
+-------------------------
+
 100.2.19 (2026-07-01)
 ---------------------
 * fix: fixed scripts args processing for running with zconsole
