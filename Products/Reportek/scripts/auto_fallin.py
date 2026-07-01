@@ -12,6 +12,8 @@ It has multiple entry points that all do different things:
 import argparse
 import math
 import os
+import sys
+
 import transaction
 from DateTime import DateTime
 from Products.Reportek.constants import DEFAULT_CATALOG

@@ -14,6 +14,7 @@ from OFS.interfaces import IFolder
 from Products.Reportek.scripts import get_script_args, get_zope_site
 import transaction
 import argparse
+import sys
 
 
 def do_cleanup(container, c_type, prefix, threshold):
