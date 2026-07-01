@@ -1,5 +1,6 @@
 100.2.20-dev (Unreleased)
 -------------------------
+* fix: fixed Zope5 incompatibility in scripts
 
 100.2.19 (2026-07-01)
 ---------------------
