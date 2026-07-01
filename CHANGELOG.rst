@@ -1,5 +1,7 @@
 100.2.21-dev (Unreleased)
 -------------------------
+* feat: added style.css link in workflowMapProcesses.zpt
+* feat: added line-through text decoration for terminated obligations in workflowMapProcesses
 
 100.2.20 (2026-07-01)
 ---------------------
