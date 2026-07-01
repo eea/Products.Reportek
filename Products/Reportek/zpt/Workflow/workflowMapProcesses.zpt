@@ -6,6 +6,7 @@
   .terminated-obligation {
     background-color: #eeeeee;
     color: #666;
+    text-decoration-line: line-through;
   }
   .terminated-obligation .terminated-label {
     color: #777;
@@ -18,7 +19,7 @@
 <p class="form-help" i18n:translate="">Applicability of processes for dataflows and countries.</p>
 
 <form action="handle_workflow_map_processes" method="post">
-  <table border="1" style="width:100%; border-collapse:collapse">
+  <table class="workflow-map-processes" border="1" style="width:100%; border-collapse:collapse">
     <thead>
       <tr>
         <th></th>
