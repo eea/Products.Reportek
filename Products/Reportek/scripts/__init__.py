@@ -40,10 +40,9 @@ def get_zope_site():
     import Zope2
 
     app = Zope2.app()
-    from Testing.ZopeTestCase import utils
+    from Testing.makerequest import makerequest
 
-    utils._Z2HOST = HOST
-    app = utils.makerequest(app)
+    app = makerequest(app, environ={"SERVER_NAME": HOST})
     app.REQUEST["PARENTS"] = [app]
     from zope.globalrequest import setRequest
 
