@@ -8,12 +8,11 @@
 
 """
 
-from Products.Reportek.scripts import get_zope_site
+from Products.Reportek.scripts import get_script_args, get_zope_site
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.constants import DEFAULT_CATALOG
 from DateTime import DateTime
 import transaction
-import sys
 import argparse
 
 
@@ -124,7 +123,7 @@ def main():
         dest="limit",
         default=None,
     )
-    args = parser.parse_args(sys.argv[3:])
+    args = parser.parse_args(get_script_args("auto_env_cleanup"))
     site = get_zope_site()
     do_cleanup(site, inactive_for=args.inactive_for, limit=args.limit)
     print("Operations completed.")
