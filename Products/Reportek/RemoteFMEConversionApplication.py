@@ -24,7 +24,7 @@
 import json
 import logging
 from datetime import datetime, timedelta
-from io import StringIO
+from io import BytesIO
 
 import requests
 from AccessControl import ClassSecurityInfo
@@ -368,7 +368,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         headers["Accept"] = "application/zip"
         res = requests.post(url, params=params, headers=headers)
         if res.status_code == 200:
-            z = StringIO(res.content)
+            z = BytesIO(res.content)
             z.filename = "resources.zip"
             return env.manage_addDDzipfile(file=z, verbose=True)
         else:

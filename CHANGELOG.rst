@@ -1,5 +1,6 @@
 100.2.21-dev (Unreleased)
 -------------------------
+* fix: fixed RemoteFMEConversionApplication
 * feat: added style.css link in workflowMapProcesses.zpt
 * feat: added line-through text decoration for terminated obligations in workflowMapProcesses
 
