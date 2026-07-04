@@ -1,3 +1,6 @@
+100.2.22-dev (Unreleased)
+-------------------------
+
 100.2.21 (2026-07-04)
 ---------------------
 * fix: fixed RemoteFMEConversionApplication
