@@ -167,6 +167,7 @@ class TestReportekCASPlugin(unittest.TestCase):
             )
         )
         self.plugin.validateServiceTicket = lambda service, ticket: assertion
+        self.plugin._isBdrDeployment = lambda: True
 
         credentials = self.plugin.extractCredentials(request)
 
