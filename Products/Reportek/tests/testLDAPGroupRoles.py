@@ -138,11 +138,7 @@ class LDAPGroupRolesPluginTest(unittest.TestCase):
 
         count = migrate_local_groups_store(
             plugin,
-            {
-                "uid=%s,ou=Users,o=EIONET,l=Europe" % DUMMY_PRINCIPAL: [
-                    "Manager"
-                ]
-            },
+            {"uid=%s,ou=Users,o=EIONET,l=Europe" % DUMMY_PRINCIPAL: ["Manager"]},
         )
 
         self.assertEqual(count, 1)
@@ -189,7 +185,9 @@ class LDAPGroupRolesPluginTest(unittest.TestCase):
         )
         self.assertIn("Role%20removed", remove_result)
 
-        update_request = DummyRequest(principal_id=DUMMY_PRINCIPAL, role_ids=["Manager"])
+        update_request = DummyRequest(
+            principal_id=DUMMY_PRINCIPAL, role_ids=["Manager"]
+        )
         update_result = UpdatePrincipalRolesView(plugin, update_request)()
         self.assertIn(
             (DUMMY_PRINCIPAL, "<%s: not found>" % DUMMY_PRINCIPAL),

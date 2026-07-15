@@ -26,7 +26,7 @@ import transaction
 from persistent.mapping import PersistentMapping
 
 from Products.PluggableAuthService.interfaces import plugins as pas_ifaces
-from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.constants import ECAS_ID
 from Products.Reportek.ReportekCASPlugin import (
     EcasClient,
@@ -51,9 +51,7 @@ DEFAULT_INTERFACES = [
 def _interface_map():
     names = DEFAULT_INTERFACES + ["ICredentialsUpdatePlugin"]
     return dict(
-        (name, getattr(pas_ifaces, name))
-        for name in names
-        if hasattr(pas_ifaces, name)
+        (name, getattr(pas_ifaces, name)) for name in names if hasattr(pas_ifaces, name)
     )
 
 
@@ -116,9 +114,7 @@ def _set_plugin_properties(plugin, properties, export_data=None):
             if hasattr(plugin, "hasProperty") and plugin.hasProperty(
                 "serviceValidationEndpoint"
             ):
-                plugin._updateProperty(
-                    "serviceValidationEndpoint", "laxValidate"
-                )
+                plugin._updateProperty("serviceValidationEndpoint", "laxValidate")
             else:
                 setattr(plugin, "serviceValidationEndpoint", "laxValidate")
         except Exception as exc:
@@ -184,9 +180,7 @@ def update(
     trans = transaction.begin()
     try:
         existing = acl_users._getOb(plugin_id, None)
-        if existing is not None and not isinstance(
-            existing, ReportekCASPlugin
-        ):
+        if existing is not None and not isinstance(existing, ReportekCASPlugin):
             if not replace:
                 raise RuntimeError(
                     "/acl_users/%s exists and is %s. Re-run with replace=True."
@@ -200,8 +194,7 @@ def update(
             addReportekCASPlugin(
                 acl_users,
                 plugin_id,
-                export_data.get("properties", {}).get("title")
-                or "Reportek CAS Plugin",
+                export_data.get("properties", {}).get("title") or "Reportek CAS Plugin",
             )
             plugin = acl_users._getOb(plugin_id)
             print("Created /acl_users/%s" % plugin_id)
@@ -209,9 +202,7 @@ def update(
             plugin = existing
             print("Updating existing /acl_users/%s" % plugin_id)
 
-        _set_plugin_properties(
-            plugin, export_data.get("properties", {}), export_data
-        )
+        _set_plugin_properties(plugin, export_data.get("properties", {}), export_data)
         _restore_mapping(plugin, export_data)
         _activate(
             acl_users,

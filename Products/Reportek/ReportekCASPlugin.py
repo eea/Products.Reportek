@@ -26,6 +26,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from OFS.Cache import Cacheable
 from persistent import Persistent
+
 try:
     from persistent.mapping import PersistentMapping
 except ImportError:  # pragma: no cover - ZODB compatibility fallback
@@ -39,7 +40,6 @@ from Products.PluggableAuthService.interfaces.plugins import (
 )
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
-from zope.interface import implementer
 
 try:  # defusedxml is preferred for parsing CAS server XML responses.
     from defusedxml import ElementTree
@@ -52,7 +52,7 @@ except ImportError:  # pragma: no cover - buildout should provide python-cas
     CASClient = None
 
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
-from Products.Reportek.constants import ECAS_ID, ENGINE_ID
+from Products.Reportek.constants import ECAS_ID
 
 LOG = logging.getLogger("Products.Reportek.ReportekCASPlugin")
 CAS_CACHE_PREFIX = os.environ.get("CAS_CACHE_PREFIX", "reportek:cas")
@@ -137,8 +137,11 @@ def is_email(value):
 
 def _strip_ticket(url):
     parsed = urlparse(url)
-    query = [(k, v) for k, v in parse_qsl(parsed.query, keep_blank_values=True)
-             if k.lower() != "ticket"]
+    query = [
+        (k, v)
+        for k, v in parse_qsl(parsed.query, keep_blank_values=True)
+        if k.lower() != "ticket"
+    ]
     return urlunparse(parsed._replace(query=urlencode(query)))
 
 
@@ -210,24 +213,104 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
 
     _properties = (
         {"id": "serviceUrl", "label": "Service URL", "type": "string", "mode": "w"},
-        {"id": "casServerUrlPrefix", "label": "CAS Server URL Prefix", "type": "string", "mode": "w"},
-        {"id": "casServerValidationUrl", "label": "ECAS Validation URL Prefix", "type": "string", "mode": "w"},
-        {"id": "proxyCallbackUrlPrefix", "label": "Proxy Callback URL Prefix", "type": "string", "mode": "w"},
-        {"id": "ticketValidationSpecification", "label": "Validation Specification", "select_variable": "ticketValidationSpecification_values", "type": "selection", "mode": "w"},
-        {"id": "serviceValidationEndpoint", "label": "Service validation endpoint", "select_variable": "serviceValidationEndpoint_values", "type": "selection", "mode": "w"},
-        {"id": "loginIdentifier", "label": "PAS login identifier", "select_variable": "loginIdentifier_values", "type": "selection", "mode": "w"},
-        {"id": "displayIdentifier", "label": "Displayed user identifier", "select_variable": "displayIdentifier_values", "type": "selection", "mode": "w"},
-        {"id": "minimumAuthenticationLevel", "label": "Minimum authentication level", "select_variable": "minimumAuthenticationLevel_values", "type": "selection", "mode": "w"},
-        {"id": "authenticationLevelGuide", "label": "Authentication level guide", "type": "text", "mode": "r"},
+        {
+            "id": "casServerUrlPrefix",
+            "label": "CAS Server URL Prefix",
+            "type": "string",
+            "mode": "w",
+        },
+        {
+            "id": "casServerValidationUrl",
+            "label": "ECAS Validation URL Prefix",
+            "type": "string",
+            "mode": "w",
+        },
+        {
+            "id": "proxyCallbackUrlPrefix",
+            "label": "Proxy Callback URL Prefix",
+            "type": "string",
+            "mode": "w",
+        },
+        {
+            "id": "ticketValidationSpecification",
+            "label": "Validation Specification",
+            "select_variable": "ticketValidationSpecification_values",
+            "type": "selection",
+            "mode": "w",
+        },
+        {
+            "id": "serviceValidationEndpoint",
+            "label": "Service validation endpoint",
+            "select_variable": "serviceValidationEndpoint_values",
+            "type": "selection",
+            "mode": "w",
+        },
+        {
+            "id": "loginIdentifier",
+            "label": "PAS login identifier",
+            "select_variable": "loginIdentifier_values",
+            "type": "selection",
+            "mode": "w",
+        },
+        {
+            "id": "displayIdentifier",
+            "label": "Displayed user identifier",
+            "select_variable": "displayIdentifier_values",
+            "type": "selection",
+            "mode": "w",
+        },
+        {
+            "id": "minimumAuthenticationLevel",
+            "label": "Minimum authentication level",
+            "select_variable": "minimumAuthenticationLevel_values",
+            "type": "selection",
+            "mode": "w",
+        },
+        {
+            "id": "authenticationLevelGuide",
+            "label": "Authentication level guide",
+            "type": "text",
+            "mode": "r",
+        },
         {"id": "useSession", "label": "Use Session", "type": "boolean", "mode": "w"},
         {"id": "renew", "label": "Renew", "type": "boolean", "mode": "w"},
         {"id": "gateway", "label": "Gateway", "type": "boolean", "mode": "w"},
-        {"id": "internalMapping", "label": "Use internal ECAS mapping", "type": "boolean", "mode": "w"},
-        {"id": "verifySslCertificate", "label": "Verify TLS certificates", "type": "boolean", "mode": "w"},
-        {"id": "requestTimeout", "label": "CAS request timeout seconds", "type": "int", "mode": "w"},
-        {"id": "pgtCallbackTimeout", "label": "PGT callback wait seconds", "type": "int", "mode": "w"},
-        {"id": "acceptAnyProxy", "label": "Accept any proxy chain", "type": "boolean", "mode": "w"},
-        {"id": "allowedProxyChains", "label": "Allowed proxy chains", "type": "lines", "mode": "w"},
+        {
+            "id": "internalMapping",
+            "label": "Use internal ECAS mapping",
+            "type": "boolean",
+            "mode": "w",
+        },
+        {
+            "id": "verifySslCertificate",
+            "label": "Verify TLS certificates",
+            "type": "boolean",
+            "mode": "w",
+        },
+        {
+            "id": "requestTimeout",
+            "label": "CAS request timeout seconds",
+            "type": "int",
+            "mode": "w",
+        },
+        {
+            "id": "pgtCallbackTimeout",
+            "label": "PGT callback wait seconds",
+            "type": "int",
+            "mode": "w",
+        },
+        {
+            "id": "acceptAnyProxy",
+            "label": "Accept any proxy chain",
+            "type": "boolean",
+            "mode": "w",
+        },
+        {
+            "id": "allowedProxyChains",
+            "label": "Allowed proxy chains",
+            "type": "lines",
+            "mode": "w",
+        },
     )
 
     def __init__(self, id, title=None):
@@ -284,6 +367,7 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         if client is None:
             try:
                 import redis
+
                 client = redis.from_url(url)
             except Exception:
                 LOG.debug("Could not create Redis CAS cache client", exc_info=True)
@@ -307,7 +391,10 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
                 self._v_redisDisabledUntil = time.time() + 60
         with self._storageLock():
             self._cleanup_storage()
-            self._volatileStorage()[bucket][key] = {"value": value, "created": time.time()}
+            self._volatileStorage()[bucket][key] = {
+                "value": value,
+                "created": time.time(),
+            }
 
     def _cacheGet(self, bucket, key):
         client = self._redisClient()
@@ -342,7 +429,11 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
     def _cas_client(self, service=None, validation=False, target_service=None):
         if CASClient is None:
             raise RuntimeError("python-cas is not installed")
-        server_url = self.casServerValidationUrl if validation and self.casServerValidationUrl else self.casServerUrlPrefix
+        server_url = (
+            self.casServerValidationUrl
+            if validation and self.casServerValidationUrl
+            else self.casServerUrlPrefix
+        )
         kwargs = {
             "version": 3 if self.ticketValidationSpecification == "CAS 3.0" else 2,
             "server_url": server_url.rstrip("/") + "/",
@@ -378,6 +469,7 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return None
 
     security.declarePrivate("extractCredentials")
+
     def extractCredentials(self, request):
         creds = {}
         if not self._isBdrDeployment():
@@ -409,7 +501,9 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
                 if self.useSession:
                     session.set(self.CAS_ASSERTION, assertion)
             else:
-                LOG.warning("CAS assertion validated but no session data could be created")
+                LOG.warning(
+                    "CAS assertion validated but no session data could be created"
+                )
             self._mapAssertionUser(assertion)
 
         principal = assertion.getPrincipal()
@@ -439,6 +533,7 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return self._identifierFromPrincipal(principal, self.displayIdentifier)
 
     security.declarePrivate("authenticateCredentials")
+
     def authenticateCredentials(self, credentials):
         if credentials.get("extractor") != self.getId():
             return None
@@ -448,6 +543,7 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return login, credentials.get("display_name") or login
 
     security.declarePrivate("challenge")
+
     def challenge(self, request, response, **kw):
         if not self._isBdrDeployment():
             return 0
@@ -464,6 +560,7 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return 1
 
     security.declarePrivate("resetCredentials")
+
     def resetCredentials(self, request, response):
         if not self._isBdrDeployment():
             return 0
@@ -472,23 +569,33 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
             session.clear()
         if self.casServerUrlPrefix:
             client = self._cas_client(service=self.getService(raw=True))
-            response.redirect(client.get_logout_url(redirect_url=self.getService(raw=True)), lock=1)
+            response.redirect(
+                client.get_logout_url(redirect_url=self.getService(raw=True)), lock=1
+            )
             return 1
         return 0
 
     security.declarePublic("proxyCallback")
+
     def proxyCallback(self, pgtId=None, pgtIou=None):
         if pgtId and pgtIou:
             self._cacheSet("pgt", pgtIou, pgtId, self.pgtStorageTimeout)
-            return ('<?xml version="1.0"?>'
-                    '<casClient:proxySuccess xmlns:casClient="http://www.yale.edu/tp/casClient" />')
+            return (
+                '<?xml version="1.0"?>'
+                '<casClient:proxySuccess xmlns:casClient="http://www.yale.edu/tp/casClient" />'
+            )
         return "success"
 
     security.declarePublic("logoutCallback")
+
     def logoutCallback(self, logoutRequest=None):
         logoutRequest = logoutRequest or self.REQUEST.form.get("logoutRequest", "")
         try:
-            root = ElementTree.fromstring(logoutRequest.encode("utf-8") if isinstance(logoutRequest, str) else logoutRequest)
+            root = ElementTree.fromstring(
+                logoutRequest.encode("utf-8")
+                if isinstance(logoutRequest, str)
+                else logoutRequest
+            )
         except Exception:
             LOG.warning("Invalid CAS single logout request", exc_info=True)
             return "Invalid logout request."
@@ -509,15 +616,22 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
                 session.clear()
                 try:
                     import transaction
+
                     transaction.commit()
                 except Exception:
-                    LOG.debug("Could not commit CAS logout session invalidation", exc_info=True)
+                    LOG.debug(
+                        "Could not commit CAS logout session invalidation",
+                        exc_info=True,
+                    )
         return "Logout success."
 
     security.declarePublic("validateProxyTicket")
+
     def validateProxyTicket(self, ticket):
         try:
-            assertion = self.validateServiceTicket(self.getService(raw=True), ticket, proxy=True)
+            assertion = self.validateServiceTicket(
+                self.getService(raw=True), ticket, proxy=True
+            )
             return True, assertion
         except Exception:
             LOG.warning("CAS proxy ticket validation failed", exc_info=True)
@@ -548,7 +662,9 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
             if element.tag.endswith("authenticationFailure"):
                 failure = element
         if failure is not None:
-            raise ValueError("CAS authentication failure: %s" % (failure.get("code") or "unknown"))
+            raise ValueError(
+                "CAS authentication failure: %s" % (failure.get("code") or "unknown")
+            )
         if success is None:
             raise ValueError("CAS authentication response missing success element")
         data = {}
@@ -572,7 +688,9 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         actual = attributes.get("authenticationLevel")
         levels = {"BASIC": 0, "MEDIUM": 1, "HIGH": 2}
         if actual not in levels:
-            raise ValueError("CAS authentication level missing or unsupported: %r" % actual)
+            raise ValueError(
+                "CAS authentication level missing or unsupported: %r" % actual
+            )
         if levels[actual] < levels.get(required, 0):
             raise ValueError(
                 "CAS authentication level %s is below required %s" % (actual, required)
@@ -580,7 +698,12 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
 
     def _principal_from_cas(self, user, attributes, pgt=None):
         ecas_id = attributes.get("user") or user
-        moniker = attributes.get("moniker") or attributes.get("uid") or attributes.get("username") or user
+        moniker = (
+            attributes.get("moniker")
+            or attributes.get("uid")
+            or attributes.get("username")
+            or user
+        )
         meta = {
             "user": attributes.get("user"),
             "moniker": attributes.get("moniker"),
@@ -627,7 +750,11 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return service if raw else service
 
     def getProxyCallbackUrl(self):
-        return self.proxyCallbackUrlPrefix and "%s/proxyCallback" % self.proxyCallbackUrlPrefix.rstrip("/") or ""
+        return (
+            self.proxyCallbackUrlPrefix
+            and "%s/proxyCallback" % self.proxyCallbackUrlPrefix.rstrip("/")
+            or ""
+        )
 
     def getAssertion(self, session):
         if self.useSession and session:
@@ -643,7 +770,9 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return self.getAssertion(self._getRequestSession(create=False))
 
     def _addSession(self, mapping_id, session_id):
-        self._cacheSet("id_to_session", mapping_id, session_id, self.sessionMappingTimeout)
+        self._cacheSet(
+            "id_to_session", mapping_id, session_id, self.sessionMappingTimeout
+        )
 
     def _revokeSession(self, session_id):
         self._cacheSet("revoked_sessions", session_id, "1", self.sessionMappingTimeout)
@@ -665,7 +794,11 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         username = principal.id
         ecas_id = principal.ecas_id or username
         self.mapUser(self, ecas_id, username)
-        email = principal.meta.get("email") or principal.meta.get("mail") if principal.meta else None
+        email = (
+            principal.meta.get("email") or principal.meta.get("mail")
+            if principal.meta
+            else None
+        )
         if email:
             self.mapUser(self, ecas_id, email)
 

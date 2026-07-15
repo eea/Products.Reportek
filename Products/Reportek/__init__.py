@@ -79,6 +79,7 @@ from Products.Reportek.ReportekUserFactoryPlugin import (
     addReportekUserFactoryPlugin,
     manage_addReportekUserFactoryPluginForm,
 )
+
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     from Products.Reportek.ReportekCASPlugin import (
         ReportekCASPlugin,

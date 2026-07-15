@@ -156,6 +156,8 @@ def test_suite():
     suite.addTest(
         unittest.TestLoader().loadTestsFromTestCase(TestZopeBeakerSessionWrapper)
     )
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestBeakerSessionFilterFactory))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(TestBeakerSessionFilterFactory)
+    )
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestExtractBeakerSession))
     return suite

@@ -265,9 +265,7 @@ def migrate(app):
     # Roles plugin.
     local_groups_enabled = getattr(luf, "_local_groups", False)
     groups_store = dict(getattr(luf, "_groups_store", {}) or {})
-    migrated_local_assignments = migrate_local_groups_store(
-        role_plugin, groups_store
-    )
+    migrated_local_assignments = migrate_local_groups_store(role_plugin, groups_store)
     if local_groups_enabled:
         print(
             "Migrated %s local LDAPUserFolder _groups_store role assignments"

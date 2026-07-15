@@ -67,4 +67,3 @@ setup(
     beaker_session = Products.Reportek.session:beaker_session_filter_factory
     """,
 )
-

@@ -285,7 +285,6 @@ class LDAPGroupRolesPlugin(BasePlugin, SimpleItem):
         return tuple(roles)
 
 
-
 class LDAPGroupRolesActionView(BrowserView):
     """Base view for ZMI POST actions on LDAPGroupRolesPlugin."""
 

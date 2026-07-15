@@ -10,7 +10,9 @@ from Products.Reportek.ReportekCASPlugin import (
     _TimeoutSession,
 )
 from Products.Reportek.session import ZopeBeakerSessionWrapper
-from Products.Reportek.updates.u20260709_import_ecas_plugin import _set_plugin_properties
+from Products.Reportek.updates.u20260709_import_ecas_plugin import (
+    _set_plugin_properties,
+)
 
 
 class DummyRequest:
@@ -71,14 +73,18 @@ class TestReportekCASPlugin(unittest.TestCase):
         self.plugin.ticketValidationSpecification = "CAS 2.0"
         self.plugin.serviceValidationEndpoint = "laxValidate"
         with patch("Products.Reportek.ReportekCASPlugin.CASClient", DummyCASClient):
-            client = self.plugin._cas_client(service="https://bdr.example/", validation=True)
+            client = self.plugin._cas_client(
+                service="https://bdr.example/", validation=True
+            )
         self.assertEqual(client.url_suffix, "laxValidate")
         self.assertEqual(client.kwargs["version"], 2)
         self.assertEqual(client.kwargs["server_url"], "https://ecas.example/cas/")
 
     def test_cas_client_uses_request_timeout_session(self):
         with patch("Products.Reportek.ReportekCASPlugin.CASClient", DummyCASClient):
-            client = self.plugin._cas_client(service="https://bdr.example/", validation=True)
+            client = self.plugin._cas_client(
+                service="https://bdr.example/", validation=True
+            )
         self.assertIsInstance(client.kwargs["session"], _TimeoutSession)
         self.assertEqual(client.kwargs["session"].timeout, 10)
 
@@ -204,10 +210,16 @@ class TestReportekCASPlugin(unittest.TestCase):
             ecas_id="ecas-unique-id",
             meta={"email": "user.one@example.org", "uid": "ecas-unique-id"},
         )
-        self.assertEqual(self.plugin._getLoginFromPrincipal(principal), "ecas-unique-id")
+        self.assertEqual(
+            self.plugin._getLoginFromPrincipal(principal), "ecas-unique-id"
+        )
 
     def test_authenticate_credentials_returns_display_name(self):
-        credentials = {"extractor": "eCas", "login": "ecas-unique-id", "display_name": "user.one@example.org"}
+        credentials = {
+            "extractor": "eCas",
+            "login": "ecas-unique-id",
+            "display_name": "user.one@example.org",
+        }
         self.assertEqual(
             self.plugin.authenticateCredentials(credentials),
             ("ecas-unique-id", "user.one@example.org"),
@@ -219,7 +231,9 @@ class TestReportekCASPlugin(unittest.TestCase):
             ecas_id="ecas-unique-id",
             meta={"email": "user.one@example.org"},
         )
-        self.assertEqual(self.plugin._getDisplayNameFromPrincipal(principal), "user.one@example.org")
+        self.assertEqual(
+            self.plugin._getDisplayNameFromPrincipal(principal), "user.one@example.org"
+        )
 
     def test_display_identifier_uses_email_like_moniker_when_email_missing(self):
         principal = ReportekCASPrincipal(
@@ -227,7 +241,9 @@ class TestReportekCASPlugin(unittest.TestCase):
             ecas_id="ecas-unique-id",
             meta={"moniker": "user.one@example.org"},
         )
-        self.assertEqual(self.plugin._getDisplayNameFromPrincipal(principal), "user.one@example.org")
+        self.assertEqual(
+            self.plugin._getDisplayNameFromPrincipal(principal), "user.one@example.org"
+        )
 
     def test_display_identifier_can_use_ecas_id(self):
         self.plugin.displayIdentifier = "ecas_id"
@@ -236,7 +252,9 @@ class TestReportekCASPlugin(unittest.TestCase):
             ecas_id="ecas-unique-id",
             meta={"email": "user.one@example.org"},
         )
-        self.assertEqual(self.plugin._getDisplayNameFromPrincipal(principal), "ecas-unique-id")
+        self.assertEqual(
+            self.plugin._getDisplayNameFromPrincipal(principal), "ecas-unique-id"
+        )
 
     def test_login_identifier_can_use_email(self):
         self.plugin.loginIdentifier = "email"
@@ -245,7 +263,9 @@ class TestReportekCASPlugin(unittest.TestCase):
             ecas_id="ecas-unique-id",
             meta={"email": "user.one@example.org"},
         )
-        self.assertEqual(self.plugin._getLoginFromPrincipal(principal), "user.one@example.org")
+        self.assertEqual(
+            self.plugin._getLoginFromPrincipal(principal), "user.one@example.org"
+        )
 
     def test_login_identifier_can_use_moniker_for_legacy_compatibility(self):
         self.plugin.loginIdentifier = "moniker"
@@ -257,14 +277,24 @@ class TestReportekCASPlugin(unittest.TestCase):
         self.assertEqual(self.plugin._getLoginFromPrincipal(principal), "user.one")
 
     def test_extractor_is_noop_outside_bdr(self):
-        with patch("Products.Reportek.ReportekCASPlugin.REPORTEK_DEPLOYMENT", config.DEPLOYMENT_CDR):
-            result = self.plugin.extractCredentials(DummyRequest(session=DummySession(), ticket="ST-1"))
+        with patch(
+            "Products.Reportek.ReportekCASPlugin.REPORTEK_DEPLOYMENT",
+            config.DEPLOYMENT_CDR,
+        ):
+            result = self.plugin.extractCredentials(
+                DummyRequest(session=DummySession(), ticket="ST-1")
+            )
         self.assertIsNone(result)
 
     def test_challenge_is_noop_outside_bdr(self):
         response = DummyResponse()
-        with patch("Products.Reportek.ReportekCASPlugin.REPORTEK_DEPLOYMENT", config.DEPLOYMENT_CDR):
-            result = self.plugin.challenge(DummyRequest(session=DummySession()), response)
+        with patch(
+            "Products.Reportek.ReportekCASPlugin.REPORTEK_DEPLOYMENT",
+            config.DEPLOYMENT_CDR,
+        ):
+            result = self.plugin.challenge(
+                DummyRequest(session=DummySession()), response
+            )
         self.assertEqual(result, 0)
         self.assertIsNone(response.redirect_url)
 
