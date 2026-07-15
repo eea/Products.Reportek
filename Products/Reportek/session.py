@@ -8,6 +8,10 @@ from ZPublisher.interfaces import IPubStart
 logger = logging.getLogger("Products.Reportek.session")
 
 
+def _env_bool(name, default):
+    return os.environ.get(name, default).lower() in ("1", "true", "yes", "on")
+
+
 def beaker_session_filter_factory(app, global_conf, **local_conf):
     """
     WSGI filter_app factory for PasteDeploy.
@@ -50,6 +54,9 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
         "session.key": "beaker.session",
         "session.auto": True,
         "session.cookie_expires": cookie_expires,
+        "session.secure": _env_bool("SESSION_COOKIE_SECURE", "true"),
+        "session.httponly": _env_bool("SESSION_COOKIE_HTTPONLY", "true"),
+        "session.samesite": os.environ.get("SESSION_COOKIE_SAMESITE", "Lax"),
         "session.timeout": timeout,  # expire server-side inactivity (seconds)
     }
 

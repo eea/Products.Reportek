@@ -1,0 +1,19 @@
+<html>
+  <head><title>Add Reportek CAS Plugin</title></head>
+  <body>
+    <h1>Add Reportek CAS Plugin</h1>
+    <form action="addReportekCASPlugin" method="post">
+      <table>
+        <tr>
+          <th align="left">Id</th>
+          <td><input type="text" name="id" value="eCas" /></td>
+        </tr>
+        <tr>
+          <th align="left">Title</th>
+          <td><input type="text" name="title" value="Reportek CAS Plugin" /></td>
+        </tr>
+      </table>
+      <input type="submit" value="Add" />
+    </form>
+  </body>
+</html>

@@ -17,6 +17,61 @@ NEW_PLUGIN_ID = "ldap"
 ROLE_PLUGIN_ID = "ldap_group_roles"
 
 
+def principal_id_from_dn(dn):
+    """Extract the PAS principal id from an LDAP DN.
+
+    Old LDAPUserFolder stores `_groups_store` keys as full DNs, while the new
+    pas.plugins.ldap principal id is the uid value.
+    """
+    first = dn.split(",", 1)[0]
+    key, value = first.split("=", 1)
+    if key.lower() != "uid":
+        print(f"  WARNING: unexpected local group DN RDN {first!r}; using {value!r}")
+    return value
+
+
+def ensure_role_manager_role(role_plugin, role_id):
+    """Ensure acl_users/roles knows a role before assigning it.
+
+    Zope's global valid roles may include Reportek roles such as ClientFG, but
+    ZODBRoleManager can only assign roles that are defined in its own _roles
+    mapping. Create the local role definition on demand before assigning it to
+    a principal.
+    """
+    roles_plugin = role_plugin.aq_parent.roles
+    if role_id not in roles_plugin.listRoleIds():
+        roles_plugin.addRole(role_id, title=role_id)
+        print("  Added role %s to acl_users/roles" % role_id)
+
+
+def migrate_local_groups_store(role_plugin, groups_store):
+    """Migrate old LDAPUserFolder DN -> groups to direct role assignments."""
+    if not groups_store:
+        return 0
+
+    valid_roles = set(role_plugin.validRoles())
+    count = 0
+    skipped = 0
+    for dn, roles in sorted(groups_store.items()):
+        principal_id = principal_id_from_dn(dn)
+        for role_id in roles or []:
+            if role_id not in valid_roles:
+                print(
+                    "  WARNING: skipping local group %r for %r; not a valid role"
+                    % (role_id, principal_id)
+                )
+                skipped += 1
+                continue
+            ensure_role_manager_role(role_plugin, role_id)
+            role_plugin.manage_assignRoleToPrincipal(role_id, principal_id)
+            print("  Assigned local LDAP role %s to %s" % (role_id, principal_id))
+            count += 1
+
+    if skipped:
+        print("  Skipped %s local LDAP assignments" % skipped)
+    return count
+
+
 def migrate(app):
     acl = app.acl_users
     plugins = acl.plugins
@@ -198,13 +253,34 @@ def migrate(app):
     )
     plugins.activatePlugin(IRolesPlugin, ROLE_PLUGIN_ID)
     print(f"Created {ROLE_PLUGIN_ID} with {len(group_mappings)} group role mappings")
-    if getattr(luf, "_local_groups", False):
+
+    # ---------------------------------------------------------------
+    # 6. Preserve old LDAPUserFolder local user -> group assignments
+    # ---------------------------------------------------------------
+    # LDAPUserFolder's `_local_groups` stores per-user group assignments in
+    # `_groups_store` as DN -> [group ids]. In BDR those group ids are used as
+    # role ids (ClientFG, ClientODS, Manager, ...). pas.plugins.ldap reads real
+    # LDAP group membership from LDAP, so these local ZODB-only assignments need
+    # to become direct principal role assignments in our Reportek LDAP Group
+    # Roles plugin.
+    local_groups_enabled = getattr(luf, "_local_groups", False)
+    groups_store = dict(getattr(luf, "_groups_store", {}) or {})
+    migrated_local_assignments = migrate_local_groups_store(
+        role_plugin, groups_store
+    )
+    if local_groups_enabled:
         print(
-            "WARNING: old LDAPUserFolder had _local_groups enabled; _groups_store needs separate review"
+            "Migrated %s local LDAPUserFolder _groups_store role assignments"
+            % migrated_local_assignments
+        )
+    elif groups_store:
+        print(
+            "Migrated %s _groups_store role assignments even though _local_groups is false"
+            % migrated_local_assignments
         )
 
     # ---------------------------------------------------------------
-    # 6. Deactivate old plugin
+    # 7. Deactivate old plugin
     # ---------------------------------------------------------------
     for iface_id, iface in old_interfaces:
         try:

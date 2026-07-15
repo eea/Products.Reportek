@@ -1,5 +1,14 @@
 100.2.22-dev (Unreleased)
 -------------------------
+* feat: add BDR-only Reportek CAS plugin for Zope 5 with ECAS laxValidate support, configurable PAS login/display identifiers and minimum authentication level, Beaker/Redis sessions, Redis-backed CAS runtime cache, and eID/STORK attribute preservation
+* fix: keep BDR CAS dependencies optional so CDR installs do not require python-cas or defusedxml
+* feat: configure Beaker session Secure, HttpOnly, and SameSite cookie attributes from environment
+* fix: avoid ZODB writes for CAS runtime state to prevent high-traffic conflict errors
+* test: cover Reportek CAS endpoint selection, ECAS/eID attribute parsing, Beaker pickle safety, BDR-only guards, Redis-safe runtime cache behavior, and legacy eCas import mapping
+* feat: add Zope 5 browser action views for ldap_group_roles ZMI role and mapping updates
+* fix: migrate LDAPUserFolder local _groups_store assignments to direct PAS role assignments
+* fix: auto-create missing ZODBRoleManager roles before assigning LDAP principal roles
+* test: cover ldap_group_roles mappings, direct principal assignments, migration helper, and browser actions
 
 100.2.21 (2026-07-04)
 ---------------------

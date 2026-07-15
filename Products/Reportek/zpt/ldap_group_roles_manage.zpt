@@ -9,7 +9,7 @@
   </p>
 
   <h3 i18n:translate="">Current mappings</h3>
-  <form method="post" action="manage_deleteGroupRoleMappings">
+  <form method="post" action="@@manage_deleteGroupRoleMappings">
     <table class="listing">
       <thead>
         <tr>
@@ -33,7 +33,7 @@
   </form>
 
   <h3 i18n:translate="">Add/update mapping</h3>
-  <form method="post" action="manage_addGroupRoleMapping">
+  <form method="post" action="@@manage_addGroupRoleMapping">
     <div class="form-element">
       <label i18n:translate="">LDAP group id</label>
       <input type="text" name="group_id" size="50" />
@@ -55,7 +55,7 @@
     This reproduces old LDAPUserFolder implicit mapping behavior, but should be
     used carefully.
   </p>
-  <form method="post" action="manage_setImplicitMapping">
+  <form method="post" action="@@manage_setImplicitMapping">
     <label>
       <input type="checkbox" name="enabled" value="1"
              tal:attributes="checked python:context.implicit_mapping and 'checked' or None" />
@@ -80,6 +80,7 @@
           <th i18n:translate="">Id</th>
           <th i18n:translate="">Login/title</th>
           <th i18n:translate="">Plugin</th>
+          <th i18n:translate="">Assign role</th>
         </tr>
       </thead>
       <tbody>
@@ -88,6 +89,18 @@
           <td tal:content="item/id" />
           <td tal:content="item/title" />
           <td tal:content="item/pluginid" />
+          <td>
+            <form method="post" action="@@manage_assignRoleToPrincipal"
+                  style="display: flex; gap: 0.4em; align-items: center; margin: 0">
+              <input type="hidden" name="principal_id" tal:attributes="value item/id" />
+              <select name="role_id" style="max-width: 16em">
+                <option tal:repeat="role context/listAvailableRoles"
+                        tal:attributes="value role"
+                        tal:content="role" />
+              </select>
+              <input type="submit" value="Assign" i18n:attributes="value" />
+            </form>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -99,7 +112,7 @@
     useful for specific LDAP user ids. For LDAP groups, prefer compatibility
     mappings above unless you intentionally want direct PAS assignment.
   </p>
-  <form method="post" action="manage_assignRoleToPrincipal">
+  <form method="post" action="@@manage_assignRoleToPrincipal">
     <label i18n:translate="">Principal id</label>
     <input type="text" name="principal_id" size="50" />
     <label i18n:translate="">Zope role</label>
@@ -137,7 +150,7 @@
         <td tal:content="python:', '.join(item['roles'])" />
         <td>
           <div style="display: flex; gap: 1em; align-items: center; flex-wrap: wrap">
-            <form method="post" action="manage_assignRoleToPrincipal"
+            <form method="post" action="@@manage_assignRoleToPrincipal"
                   style="display: flex; gap: 0.4em; align-items: center; margin: 0">
               <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
               <label i18n:translate="">Add</label>
@@ -148,7 +161,7 @@
               </select>
               <input type="submit" value="Add" i18n:attributes="value" />
             </form>
-            <form method="post" action="manage_removeRoleFromPrincipal"
+            <form method="post" action="@@manage_removeRoleFromPrincipal"
                   style="display: flex; gap: 0.4em; align-items: center; margin: 0">
               <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
               <label i18n:translate="">Remove</label>
@@ -162,7 +175,7 @@
           </div>
         </td>
         <td>
-          <form method="post" action="manage_updatePrincipalRoles" style="margin: 0">
+          <form method="post" action="@@manage_updatePrincipalRoles" style="margin: 0">
             <input type="hidden" name="principal_id" tal:attributes="value item/principal" />
             <input type="submit" value="Remove all" i18n:attributes="value" />
           </form>

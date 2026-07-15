@@ -2638,6 +2638,11 @@ InitializeClass(ReportekEngine)
 class EngineMacrosView(BrowserView):
     """View that exposes template macros without rendering the template."""
 
+    # Zope 5 verbose security can deny access to attributes on browser view
+    # instances used only as macro containers unless the class explicitly allows
+    # traversal to its public attributes.
+    __allow_access_to_unprotected_subobjects__ = {"macros": True}
+
     _template = ViewPageTemplateFile("zpt/engineMacros.zpt")
 
     @property

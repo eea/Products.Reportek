@@ -6,10 +6,12 @@ from AccessControl.class_init import InitializeClass
 from App.Common import package_home
 from OFS.SimpleItem import SimpleItem
 from persistent.mapping import PersistentMapping
+from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 from Products.PluggableAuthService.permissions import ManageUsers
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
+from zope.interface import Interface
 from zope.interface import implementer
 
 import os
@@ -28,7 +30,11 @@ def manage_addLDAPGroupRolesPlugin(
         RESPONSE.redirect("manage_workspace")
 
 
-@implementer(IRolesPlugin)
+class ILDAPGroupRolesPlugin(Interface):
+    """Marker interface for Reportek LDAP group roles plugin."""
+
+
+@implementer(IRolesPlugin, ILDAPGroupRolesPlugin)
 class LDAPGroupRolesPlugin(BasePlugin, SimpleItem):
     """Map LDAP group ids from principal.getGroups() to Zope roles.
 
@@ -177,13 +183,29 @@ class LDAPGroupRolesPlugin(BasePlugin, SimpleItem):
         return rows
 
     @security.protected(ManageUsers)
+    def _ensureRoleManagerRole(self, role_id):
+        """Ensure ZODBRoleManager can assign this role directly.
+
+        Reportek roles may exist as global Zope roles while not yet being
+        defined in acl_users/roles. ZODBRoleManager requires a local role
+        definition before assignRoleToPrincipal can store principal mappings.
+        """
+        roles_plugin = self.aq_parent.roles
+        if role_id not in roles_plugin.listRoleIds():
+            roles_plugin.addRole(role_id, title=role_id)
+        return roles_plugin
+
+    @security.protected(ManageUsers)
     def manage_assignRoleToPrincipal(self, role_id, principal_id, REQUEST=None):
-        self.aq_parent.roles.assignRoleToPrincipal(role_id, principal_id.strip())
+        roles_plugin = self._ensureRoleManagerRole(role_id)
+        roles_plugin.assignRoleToPrincipal(role_id, principal_id.strip())
+        REQUEST = REQUEST or getattr(self, "REQUEST", None)
         if REQUEST is not None:
             return REQUEST.RESPONSE.redirect(
                 self.absolute_url()
                 + "/manage_workspace?manage_tabs_message=Role%20assigned"
             )
+        return "Role assigned"
 
     @security.protected(ManageUsers)
     def listDirectPrincipalRoleAssignments(self):
@@ -221,23 +243,28 @@ class LDAPGroupRolesPlugin(BasePlugin, SimpleItem):
         roles_plugin = self.aq_parent.roles
         for role in self.listAvailableRoles():
             if role in role_ids:
+                roles_plugin = self._ensureRoleManagerRole(role)
                 roles_plugin.assignRoleToPrincipal(role, principal_id)
-            else:
+            elif role in roles_plugin.listRoleIds():
                 roles_plugin.removeRoleFromPrincipal(role, principal_id)
+        REQUEST = REQUEST or getattr(self, "REQUEST", None)
         if REQUEST is not None:
             return REQUEST.RESPONSE.redirect(
                 self.absolute_url()
                 + "/manage_workspace?manage_tabs_message=Principal%20roles%20updated"
             )
+        return "Principal roles updated"
 
     @security.protected(ManageUsers)
     def manage_removeRoleFromPrincipal(self, role_id, principal_id, REQUEST=None):
         self.aq_parent.roles.removeRoleFromPrincipal(role_id, principal_id)
+        REQUEST = REQUEST or getattr(self, "REQUEST", None)
         if REQUEST is not None:
             return REQUEST.RESPONSE.redirect(
                 self.absolute_url()
                 + "/manage_workspace?manage_tabs_message=Role%20removed"
             )
+        return "Role removed"
 
     @security.private
     def getRolesForPrincipal(self, principal, request=None):
@@ -256,6 +283,84 @@ class LDAPGroupRolesPlugin(BasePlugin, SimpleItem):
                 roles.append(role)
 
         return tuple(roles)
+
+
+
+class LDAPGroupRolesActionView(BrowserView):
+    """Base view for ZMI POST actions on LDAPGroupRolesPlugin."""
+
+    message = "Updated"
+
+    def redirect(self):
+        return self.request.RESPONSE.redirect(
+            self.context.absolute_url()
+            + "/manage_workspace?manage_tabs_message="
+            + self.message.replace(" ", "%20")
+        )
+
+
+class AddGroupRoleMappingView(LDAPGroupRolesActionView):
+    message = "Mapping saved"
+
+    def __call__(self):
+        self.context.manage_addGroupRoleMapping(
+            self.request.get("group_id", ""),
+            self.request.get("role_id", ""),
+        )
+        return self.redirect()
+
+
+class DeleteGroupRoleMappingsView(LDAPGroupRolesActionView):
+    message = "Mapping deleted"
+
+    def __call__(self):
+        self.context.manage_deleteGroupRoleMappings(
+            self.request.get("group_ids", ()),
+        )
+        return self.redirect()
+
+
+class SetImplicitMappingView(LDAPGroupRolesActionView):
+    message = "Implicit mapping saved"
+
+    def __call__(self):
+        self.context.manage_setImplicitMapping(
+            self.request.get("enabled", False),
+        )
+        return self.redirect()
+
+
+class AssignRoleToPrincipalView(LDAPGroupRolesActionView):
+    message = "Role assigned"
+
+    def __call__(self):
+        self.context.manage_assignRoleToPrincipal(
+            self.request.get("role_id", ""),
+            self.request.get("principal_id", ""),
+        )
+        return self.redirect()
+
+
+class RemoveRoleFromPrincipalView(LDAPGroupRolesActionView):
+    message = "Role removed"
+
+    def __call__(self):
+        self.context.manage_removeRoleFromPrincipal(
+            self.request.get("role_id", ""),
+            self.request.get("principal_id", ""),
+        )
+        return self.redirect()
+
+
+class UpdatePrincipalRolesView(LDAPGroupRolesActionView):
+    message = "Principal roles updated"
+
+    def __call__(self):
+        self.context.manage_updatePrincipalRoles(
+            self.request.get("principal_id", ""),
+            self.request.get("role_ids", ()),
+        )
+        return self.redirect()
 
 
 InitializeClass(LDAPGroupRolesPlugin)

@@ -1,10 +1,13 @@
+import os
 import unittest
+from unittest.mock import patch
 
 from AccessControl.ZopeGuards import guarded_getattr
 from ZPublisher.pubevents import PubStart
 
 from Products.Reportek.session import (
     ZopeBeakerSessionWrapper,
+    beaker_session_filter_factory,
     extract_beaker_session,
 )
 
@@ -95,6 +98,34 @@ class MockRequest:
         self.environ = environ
 
 
+class TestBeakerSessionFilterFactory(unittest.TestCase):
+    def test_cookie_security_options_are_read_from_environment(self):
+        captured = {}
+
+        def fake_middleware(app, opts):
+            captured.update(opts)
+            return app
+
+        env = {
+            "USE_BEAKER_SESSION": "1",
+            "REDIS_URL": "redis://example/0",
+            "SESSION_SECRET": "test-secret",
+            "SESSION_COOKIE_SECURE": "false",
+            "SESSION_COOKIE_HTTPONLY": "true",
+            "SESSION_COOKIE_SAMESITE": "Lax",
+        }
+        with patch.dict(os.environ, env, clear=False):
+            with patch("Products.Reportek.session.SessionMiddleware", fake_middleware):
+                app = object()
+                self.assertIs(beaker_session_filter_factory(app, {}), app)
+
+        self.assertEqual(captured["session.url"], "redis://example/0")
+        self.assertEqual(captured["session.secret"], "test-secret")
+        self.assertFalse(captured["session.secure"])
+        self.assertTrue(captured["session.httponly"])
+        self.assertEqual(captured["session.samesite"], "Lax")
+
+
 class TestExtractBeakerSession(unittest.TestCase):
     def test_extract_beaker_session(self):
         # Create a mock request and event
@@ -125,5 +156,6 @@ def test_suite():
     suite.addTest(
         unittest.TestLoader().loadTestsFromTestCase(TestZopeBeakerSessionWrapper)
     )
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestBeakerSessionFilterFactory))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestExtractBeakerSession))
     return suite
