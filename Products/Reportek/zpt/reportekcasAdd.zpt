@@ -1,0 +1,21 @@
+<html lang="en">
+  <head>
+    <title i18n:translate="">Add Reportek CAS Plugin</title>
+  </head>
+  <body>
+    <h1 i18n:translate="">Add Reportek CAS Plugin</h1>
+    <form action="manage_addReportekCASPlugin" method="post">
+      <table>
+        <tr>
+          <th align="left" i18n:translate="">Id</th>
+          <td><input type="text" name="id" value="eCas" /></td>
+        </tr>
+        <tr>
+          <th align="left" i18n:translate="">Title</th>
+          <td><input type="text" name="title" value="Reportek CAS Plugin" /></td>
+        </tr>
+      </table>
+      <input type="submit" value="Add" i18n:attributes="value" />
+    </form>
+  </body>
+</html>

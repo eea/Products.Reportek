@@ -877,13 +877,13 @@ InitializeClass(ReportekCASPlugin)
 
 
 manage_addReportekCASPluginForm = PageTemplateFile(
-    "zpt/reportekcasAdd",
+    "zpt/reportekcasAdd.zpt",
     globals(),
     __name__="manage_addReportekCASPluginForm",
 )
 
 
-def addReportekCASPlugin(dispatcher, id=ECAS_ID, title="", RESPONSE=None):
+def manage_addReportekCASPlugin(dispatcher, id=ECAS_ID, title="", RESPONSE=None):
     plugin = ReportekCASPlugin(id, title)
     dispatcher._setObject(id, plugin)
     if RESPONSE is not None:
@@ -891,3 +891,7 @@ def addReportekCASPlugin(dispatcher, id=ECAS_ID, title="", RESPONSE=None):
             "%s/manage_main?manage_tabs_message=%s"
             % (dispatcher.absolute_url(), "ReportekCASPlugin+added.")
         )
+
+
+# Backwards-compatible name used by the migration/import script.
+addReportekCASPlugin = manage_addReportekCASPlugin

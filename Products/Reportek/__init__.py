@@ -84,6 +84,7 @@ if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     from Products.Reportek.ReportekCASPlugin import (
         ReportekCASPlugin,
         addReportekCASPlugin,
+        manage_addReportekCASPlugin,
         manage_addReportekCASPluginForm,
     )
 from Products.Reportek.RepUtils import ThreadSafeKeyManagerProxy, getToolByName
@@ -396,7 +397,11 @@ def startup(context):
 
 registerMultiPlugin(ReportekUserFactoryPlugin.meta_type)
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-    registerMultiPlugin(ReportekCASPlugin.meta_type)
+    try:
+        registerMultiPlugin(ReportekCASPlugin.meta_type)
+    except RuntimeError:
+        # Product refresh / repeated imports may register the PAS type already.
+        pass
 
 
 def initialize(context):
@@ -453,9 +458,9 @@ def initialize(context):
             permission=ManageUsers,
             constructors=(
                 manage_addReportekCASPluginForm,
-                addReportekCASPlugin,
+                manage_addReportekCASPlugin,
             ),
-            visibility=None,
+            visibility="Global",
             icon="www/openflowEngine.gif",
         )
 

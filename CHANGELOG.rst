@@ -4,6 +4,8 @@
 * fix: keep BDR CAS dependencies optional so CDR installs do not require python-cas or defusedxml
 * feat: configure Beaker session Secure, HttpOnly, and SameSite cookie attributes from environment
 * fix: avoid ZODB writes for CAS runtime state to prevent high-traffic conflict errors
+* fix: register Products.Reportek as a BDR Zope 5 product package so the Reportek CAS Plugin is available from the PAS/ZMI add menu
+* fix: rename the Reportek CAS plugin add template to reportekcasAdd.zpt and wire the ZMI form to manage_addReportekCASPlugin
 * test: cover Reportek CAS endpoint selection, ECAS/eID attribute parsing, Beaker pickle safety, BDR-only guards, Redis-safe runtime cache behavior, and legacy eCas import mapping
 * feat: add Zope 5 browser action views for ldap_group_roles ZMI role and mapping updates
 * fix: migrate LDAPUserFolder local _groups_store assignments to direct PAS role assignments

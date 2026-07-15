@@ -10,9 +10,7 @@ from Products.Reportek.ReportekCASPlugin import (
     _TimeoutSession,
 )
 from Products.Reportek.session import ZopeBeakerSessionWrapper
-from Products.Reportek.updates.u20260709_import_ecas_plugin import (
-    _set_plugin_properties,
-)
+from Products.Reportek.updates.import_ecas_plugin import _set_plugin_properties
 
 
 class DummyRequest:
