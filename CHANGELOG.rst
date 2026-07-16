@@ -1,5 +1,5 @@
-100.2.22-dev (Unreleased)
--------------------------
+100.2.22 (2026-07-16)
+---------------------
 * feat: add BDR-only Reportek CAS plugin for Zope 5 with ECAS laxValidate support, configurable PAS login/display identifiers and minimum authentication level, Beaker/Redis sessions, Redis-backed CAS runtime cache, and eID/STORK attribute preservation
 * fix: keep BDR CAS dependencies optional so CDR installs do not require python-cas or defusedxml
 * feat: configure Beaker session Secure, HttpOnly, and SameSite cookie attributes from environment
