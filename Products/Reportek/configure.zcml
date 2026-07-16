@@ -87,6 +87,43 @@
     <include package=".caching" />
     <include package=".indexer" />
 
+    <browser:page
+        name="manage_addGroupRoleMapping"
+        for="Products.Reportek.ldap_group_roles.ILDAPGroupRolesPlugin"
+        class=".ldap_group_roles.AddGroupRoleMappingView"
+        permission="zope2.ManageUsers"
+    />
+    <browser:page
+        name="manage_deleteGroupRoleMappings"
+        for="Products.Reportek.ldap_group_roles.ILDAPGroupRolesPlugin"
+        class=".ldap_group_roles.DeleteGroupRoleMappingsView"
+        permission="zope2.ManageUsers"
+    />
+    <browser:page
+        name="manage_setImplicitMapping"
+        for="Products.Reportek.ldap_group_roles.ILDAPGroupRolesPlugin"
+        class=".ldap_group_roles.SetImplicitMappingView"
+        permission="zope2.ManageUsers"
+    />
+    <browser:page
+        name="manage_assignRoleToPrincipal"
+        for="Products.Reportek.ldap_group_roles.ILDAPGroupRolesPlugin"
+        class=".ldap_group_roles.AssignRoleToPrincipalView"
+        permission="zope2.ManageUsers"
+    />
+    <browser:page
+        name="manage_removeRoleFromPrincipal"
+        for="Products.Reportek.ldap_group_roles.ILDAPGroupRolesPlugin"
+        class=".ldap_group_roles.RemoveRoleFromPrincipalView"
+        permission="zope2.ManageUsers"
+    />
+    <browser:page
+        name="manage_updatePrincipalRoles"
+        for="Products.Reportek.ldap_group_roles.ILDAPGroupRolesPlugin"
+        class=".ldap_group_roles.UpdatePrincipalRolesView"
+        permission="zope2.ManageUsers"
+    />
+
 
     <subscriber
         for="Products.Reportek.interfaces.IEnvelope

@@ -1,8 +1,11 @@
 <configure
   xmlns="http://namespaces.zope.org/zope"
   xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:five="http://namespaces.zope.org/five"
   xmlns:meta="http://namespaces.zope.org/meta"
   xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <five:registerPackage package="." initialize=".initialize" />
 
   <include file="api/views.bdr.zcml" />
 

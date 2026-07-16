@@ -5,6 +5,7 @@ from setuptools import find_packages, setup
 NAME = "Products.Reportek"
 PATH = NAME.split(".") + ["version.txt"]
 VERSION = open(join(*PATH)).read().strip()
+
 setup(
     name=NAME,
     version=VERSION,
@@ -44,6 +45,12 @@ setup(
         "Beaker",
         "redis",
     ],
+    extras_require={
+        "bdr-cas": [
+            "python-cas==1.6.0",
+            "defusedxml==0.7.1",
+        ],
+    },
     entry_points="""
     # -*- Entry points: -*-
     [console_scripts]

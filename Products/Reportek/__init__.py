@@ -79,11 +79,32 @@ from Products.Reportek.ReportekUserFactoryPlugin import (
     addReportekUserFactoryPlugin,
     manage_addReportekUserFactoryPluginForm,
 )
+
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    from Products.Reportek.ReportekCASPlugin import (
+        ReportekCASPlugin,
+        manage_addReportekCASPlugin,
+        manage_addReportekCASPluginForm,
+    )
 from Products.Reportek.RepUtils import ThreadSafeKeyManagerProxy, getToolByName
 from Products.ZCTextIndex.ZCTextIndex import PLexicon, ZCTextIndex
 
 # workaround for BaseRequest assuming requests not GET, POST, PURGE as webdav
 BaseRequest.maybe_webdav_client = False
+
+# Python 2-era TTW templates in migrated ZODBs may still use restricted
+# expressions such as ``python: unicode(value)``. Provide a safe Python 3 alias
+# so error templates and legacy customisations keep rendering while the ZODB
+# templates are cleaned up explicitly.
+try:
+    from Products.PageTemplates.ZRPythonExpr import PythonExpr
+
+    PythonExpr._globals.setdefault("unicode", str)
+    PythonExpr._globals.setdefault("basestring", str)
+except Exception:
+    logging.getLogger("Reportek").exception(
+        "Could not install Python 2 template aliases"
+    )
 
 __doc__ = """Reportek __init__ """
 __version__ = "$Rev$"[6:-2]
@@ -374,6 +395,12 @@ def startup(context):
 
 
 registerMultiPlugin(ReportekUserFactoryPlugin.meta_type)
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    try:
+        registerMultiPlugin(ReportekCASPlugin.meta_type)
+    except RuntimeError:
+        # Product refresh / repeated imports may register the PAS type already.
+        pass
 
 
 def initialize(context):
@@ -423,6 +450,18 @@ def initialize(context):
         visibility=None,
         icon="www/openflowEngine.gif",
     )
+
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        context.registerClass(
+            ReportekCASPlugin,
+            permission=ManageUsers,
+            constructors=(
+                manage_addReportekCASPluginForm,
+                manage_addReportekCASPlugin,
+            ),
+            visibility="Global",
+            icon="www/openflowEngine.gif",
+        )
 
     ###########################################
     #   Registration of other classes
