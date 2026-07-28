@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 from pathlib import Path
 
 from Products.Reportek import conversion_registry
-from Products.Reportek.Converter import LocalHttpConverter
+from Products.Reportek.Converter import LocalHttpConverter, _strip_hop_by_hop_headers
 from Products.Reportek.Converters import Converters
 
 from .common import BaseTest, BaseUnitTest
@@ -34,6 +34,26 @@ class ConversionServiceTest(BaseUnitTest):
 
         self.app = self.app.__of__(
             RequestContainer(REQUEST=BaseTest.create_mock_request())
+        )
+
+    def test_strip_hop_by_hop_headers(self):
+        headers = {
+            "Content-Type": "text/plain",
+            "Connection": "keep-alive, X-Internal-Header",
+            "Keep-Alive": "timeout=5",
+            "Transfer-Encoding": "chunked",
+            "TE": "trailers",
+            "Upgrade": "websocket",
+            "X-Internal-Header": "remove-me",
+            "X-Application-Header": "keep-me",
+        }
+
+        self.assertEqual(
+            {
+                "Content-Type": "text/plain",
+                "X-Application-Header": "keep-me",
+            },
+            _strip_hop_by_hop_headers(headers),
         )
 
     @patch.object(Converters, "_get_local_converters")
