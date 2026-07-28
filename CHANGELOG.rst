@@ -1,5 +1,6 @@
 100.2.23-dev (Unreleased)
 -------------------------
+* fix: strip hop by hop headers to fix AssertionError: Connection is a "hop-by-hop" header; it cannot be used by a WSGI application (see PEP 3333)
 
 100.2.22 (2026-07-16)
 ---------------------

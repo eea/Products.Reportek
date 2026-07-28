@@ -46,6 +46,32 @@ __doc__ = """
 __version__ = "$Rev$"[6:-2]
 
 _SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+\-.]*://")
+_HOP_BY_HOP_HEADERS = {
+    "connection",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailer",
+    "transfer-encoding",
+    "upgrade",
+}
+
+
+def _strip_hop_by_hop_headers(headers):
+    """Remove HTTP hop-by-hop headers before copying to a WSGI response."""
+    connection_tokens = {
+        token.strip().lower()
+        for header, value in list(headers.items())
+        if header.lower() == "connection"
+        for token in value.split(",")
+        if token.strip()
+    }
+    blocked_headers = _HOP_BY_HOP_HEADERS | connection_tokens
+    for header in list(headers):
+        if header.lower() in blocked_headers:
+            headers.pop(header, None)
+    return headers
 
 
 def validate_file_url(file_url):
@@ -272,8 +298,7 @@ class RemoteConverter(Converter):
             # it handles chunked and gzip automatically, but what
             # about the rest?
 
-            if headers.get("Transfer-Encoding"):
-                headers.pop("Transfer-Encoding")
+            _strip_hop_by_hop_headers(headers)
             # Due to https://taskman.eionet.europa.eu/issues/96712. The recent
             # changes to converters allow the converters to return gzip
             # content.
