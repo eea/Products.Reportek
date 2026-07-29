@@ -374,7 +374,11 @@ def create_reportek_indexes(catalog):
     add_index("document_id", catalog, "FieldIndex")
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         add_index("get_fgas_activities", catalog, "FieldIndex", meta=True)
-        add_index("get_fgas_reported_gases", catalog, "FieldIndex", meta=True)
+        # get_fgas_reported_gases returns a list of dictionaries. Keep it as
+        # metadata for display/export, but do not create a FieldIndex for it:
+        # Python 3 cannot order dict/list keys in the index BTree.
+        if "get_fgas_reported_gases" not in catalog.schema():
+            catalog.addColumn("get_fgas_reported_gases")
         add_index("get_fgas_i_authorisations", catalog, "FieldIndex", meta=True)
         add_index("get_fgas_a_authorisations", catalog, "FieldIndex", meta=True)
         add_index("company_id", catalog, "FieldIndex", meta=True)
