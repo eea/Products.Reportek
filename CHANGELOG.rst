@@ -1,5 +1,6 @@
-100.2.27-dev (Unreleased)
--------------------------
+100.2.27 (2026-07-29)
+---------------------
+* fix: remove unsafe FGAS reported gases FieldIndex in Python 3
 
 100.2.26 (2026-07-29)
 ---------------------
