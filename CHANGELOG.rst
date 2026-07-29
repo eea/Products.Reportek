@@ -1,3 +1,6 @@
+100.2.27-dev (Unreleased)
+-------------------------
+
 100.2.26 (2026-07-29)
 ---------------------
 * fix: handle python 3 bound method permission check in ReportekPropertiedUser
