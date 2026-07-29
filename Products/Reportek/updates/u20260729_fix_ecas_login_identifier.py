@@ -79,8 +79,7 @@ def fix_ecas_login_identifier(app):
     """Set migrated ReportekCASPlugin loginIdentifier to legacy moniker."""
     if REPORTEK_DEPLOYMENT not in APPLIES_TO:
         log_msg(
-            "Skipping eCas loginIdentifier fix for deployment: %s"
-            % REPORTEK_DEPLOYMENT
+            "Skipping eCas loginIdentifier fix for deployment: %s" % REPORTEK_DEPLOYMENT
         )
         return False
 
