@@ -1,3 +1,7 @@
+100.2.26 (2026-07-29)
+---------------------
+* fix: handle python 3 bound method permission check in ReportekPropertiedUser
+
 100.2.25 (2026-07-29)
 ---------------------
 * fix: Use physical path instead of absolute_url(1) for middleware authorization path
