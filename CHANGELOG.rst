@@ -1,3 +1,7 @@
+100.2.25 (2026-07-29)
+---------------------
+* fix: Use physical path instead of absolute_url(1) for middleware authorization path
+
 100.2.24 (2026-07-29)
 ---------------------
 * fix: fixed CAS plugin loginidentifier

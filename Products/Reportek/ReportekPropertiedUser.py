@@ -35,18 +35,29 @@ class ReportekPropertiedUser(PropertiedUser):
             if not hasattr(obj, "im_self"):
                 return []
             obj = obj.__self__
-        current_path_parts = obj.absolute_url(1).split("/")
+        if hasattr(obj, "getPhysicalPath"):
+            current_path_parts = [p for p in obj.getPhysicalPath() if p]
+        else:
+            current_path_parts = obj.absolute_url(1).split("/")
         if len(current_path_parts) < 3:
             return []
 
         col_path = "/".join(current_path_parts)
         m_auth = self.get_middleware_authorization(user_id, col_path)
         if m_auth:
-            return {
+            roles = {
                 "RW": ["Owner"],
                 "RO": ["Reader"],
                 "AUDIT": ["AuditorFgas"],
-            }.get(m_auth)
+            }.get(m_auth, [])
+            if not roles:
+                logger.warning(
+                    "Unknown middleware authorization %r for user %s on %s",
+                    m_auth,
+                    user_id,
+                    col_path,
+                )
+            return roles
         ldap_roles = self.get_ldap_role_in_context(obj, user_id)
         if ldap_roles:
             return ldap_roles
