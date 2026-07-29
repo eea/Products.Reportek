@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Fix migrated eCas login identifier for legacy BDR authorization.
+"""Untracked zconsole utility to fix migrated eCas CAS/PAS settings.
 
 Run from an already migrated Zope 5 BDR deployment, for example::
 
@@ -7,9 +7,10 @@ Run from an already migrated Zope 5 BDR deployment, for example::
     >>> from Products.Reportek.updates import u20260729_fix_ecas_login_identifier
     >>> u20260729_fix_ecas_login_identifier.update(app)
 
-The migration is intentionally small: it updates ``/acl_users/eCas`` so PAS
-continues authenticating users with the legacy EU Login moniker identity, while
-``getEcasUserId()`` still exposes the stable ECAS id for the registry API.
+This utility is intentionally small and not migration-tracked. It updates
+``/acl_users/eCas`` so PAS continues authenticating users with the legacy EU
+Login moniker identity, while ``getEcasUserId()`` still exposes the stable ECAS
+id for the registry API.
 
 It also deactivates stale legacy ``eionetCas`` PAS registrations. After the
 Zope 5 migration those objects may still be listed as active for extraction or
@@ -25,11 +26,9 @@ from Products.PluggableAuthService.interfaces import plugins as pas_ifaces
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.constants import ECAS_ID
 from Products.Reportek.ReportekCASPlugin import ReportekCASPlugin
-from Products.Reportek.updates import MigrationBase
 
 logger = logging.getLogger(__name__)
 
-VERSION = 24
 APPLIES_TO = [DEPLOYMENT_BDR]
 LEGACY_LOGIN_IDENTIFIER = "moniker"
 STALE_ECAS_PLUGIN_IDS = ("eionetCas",)
@@ -121,6 +120,5 @@ def fix_ecas_login_identifier(app):
     return True
 
 
-@MigrationBase.checkMigration(__name__)
-def update(app, skipMigrationCheck=False):
+def update(app):
     return fix_ecas_login_identifier(app)
