@@ -1,3 +1,8 @@
+100.2.24 (2026-07-29)
+---------------------
+* fix: fixed CAS plugin loginidentifier
+* fix: fixed partials.zpt for registry
+
 100.2.23 (2026-07-28)
 ---------------------
 * fix: strip hop by hop headers to fix AssertionError: Connection is a "hop-by-hop" header; it cannot be used by a WSGI application (see PEP 3333)

@@ -133,7 +133,7 @@
       <tr>
         <th i18n:translate="">Business profiles</th>
         <td tal:define="profiles python:company.get('businessprofiles', []);
-                        dummy python: profiles.sort(key=lambda x: x.get('code', ''));">
+                        dummy python: profiles.sort(key=lambda x: x.get('code') or '');">
           <ul class="types">
             <tal:rep tal:repeat="profile profiles">
               <li>

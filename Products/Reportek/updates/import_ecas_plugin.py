@@ -48,6 +48,7 @@ DEFAULT_INTERFACES = [
     "IChallengePlugin",
     "ICredentialsResetPlugin",
 ]
+STALE_ECAS_PLUGIN_IDS = ("eionetCas",)
 
 
 def _interface_map():
@@ -73,11 +74,28 @@ def _find_export_path(export_path=None):
 
 def _deactivate_all(acl_users, plugin_id):
     registry = acl_users._getOb("plugins")
-    for iface in _interface_map().values():
+    changed = []
+    for iface_name, iface in _interface_map().items():
         try:
+            if plugin_id not in registry.listPluginIds(iface):
+                continue
             registry.deactivatePlugin(iface, plugin_id)
+            changed.append(iface_name)
         except Exception:
             pass
+    return changed
+
+
+def _deactivate_stale_ecas_plugins(acl_users, current_plugin_id):
+    for plugin_id in STALE_ECAS_PLUGIN_IDS:
+        if plugin_id == current_plugin_id:
+            continue
+        changed = _deactivate_all(acl_users, plugin_id)
+        if changed:
+            print(
+                "Deactivated stale eCas PAS registrations for %s: %s"
+                % (plugin_id, ", ".join(changed))
+            )
 
 
 def _activate(acl_users, plugin_id, interface_names):
@@ -121,6 +139,23 @@ def _set_plugin_properties(plugin, properties, export_data=None):
                 setattr(plugin, "serviceValidationEndpoint", "laxValidate")
         except Exception as exc:
             print("Could not set eCas serviceValidationEndpoint: %s" % exc)
+
+        # The legacy anz.ecasclient authenticated users as the EU Login
+        # moniker (the value used by existing ZODB local roles), while keeping
+        # the stable ECAS id separately for getEcasUserId()/registry lookups.
+        # New imports do not contain this Zope-5-only property, so keep the
+        # legacy authorization identity unless an export explicitly provides a
+        # different value.
+        if "loginIdentifier" not in (properties or {}):
+            try:
+                if hasattr(plugin, "hasProperty") and plugin.hasProperty(
+                    "loginIdentifier"
+                ):
+                    plugin._updateProperty("loginIdentifier", "moniker")
+                else:
+                    setattr(plugin, "loginIdentifier", "moniker")
+            except Exception as exc:
+                print("Could not set eCas loginIdentifier: %s" % exc)
 
 
 def _restore_mapping(plugin, export_data):
@@ -211,6 +246,7 @@ def update(
             plugin_id,
             export_data.get("active_interfaces") or DEFAULT_INTERFACES,
         )
+        _deactivate_stale_ecas_plugins(acl_users, plugin_id)
 
         trans.commit()
         print("Imported eCas export from %s" % export_path)
