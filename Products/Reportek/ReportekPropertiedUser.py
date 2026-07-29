@@ -29,12 +29,15 @@ class ReportekPropertiedUser(PropertiedUser):
         # when creating objects in a parent, we don't have an absolute_url yet
         # look for the parent
         if not hasattr(obj, "absolute_url"):
-            # when accessing ZMI specific objects we don't have im_self either
-            # if the classical authorization failed then fail this one too
+            # Bound protected methods do not have absolute_url themselves.
+            # Python 2 used im_self; Python 3 uses __self__.
+            parent = getattr(obj, "__self__", None) or getattr(obj, "im_self", None)
+            # when accessing ZMI specific objects we don't have a bound context
+            # either; if classical authorization failed then fail this one too
             # because this is not a FGAS Portal case
-            if not hasattr(obj, "im_self"):
+            if parent is None:
                 return []
-            obj = obj.__self__
+            obj = parent
         if hasattr(obj, "getPhysicalPath"):
             current_path_parts = [p for p in obj.getPhysicalPath() if p]
         else:
