@@ -1,5 +1,7 @@
 100.2.24-dev (Unreleased)
 -------------------------
+* fix: fixed CAS plugin loginidentifier
+* fix: fixed partials.zpt for registry
 
 100.2.23 (2026-07-28)
 ---------------------

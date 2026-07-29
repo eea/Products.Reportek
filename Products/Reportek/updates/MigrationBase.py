@@ -83,13 +83,15 @@ def checkMigration(module_name):
             # if they are missing from kwargs.
             # but we need some defaults here, thus we inspect the spec of the
             # inner function
-            aSpec = inspect.getargspec(migrationFunc)
+            try:
+                aSpec = inspect.getfullargspec(migrationFunc)
+            except AttributeError:  # pragma: no cover - Python 2 compatibility
+                aSpec = inspect.getargspec(migrationFunc)
+            defaults = aSpec.defaults or ()
             defaultArgs = {}
             # skip the initial, non-default ones
-            for i, arg in enumerate(
-                aSpec.args[len(aSpec.args) - len(aSpec.defaults) :]
-            ):
-                defaultArgs[arg] = aSpec[3][i]
+            for i, arg in enumerate(aSpec.args[len(aSpec.args) - len(defaults) :]):
+                defaultArgs[arg] = defaults[i]
             # if we have a default in the inner function for skip
             # and it is not overridden by the actual arguments in the call
             # take that as skip value
