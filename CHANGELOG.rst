@@ -1,5 +1,5 @@
-100.2.29-dev (Unreleased)
--------------------------
+100.2.29 (2026-08-12)
+---------------------
 * fix: save xls exports into a BytesIO so ReportekEngine/xls_export and Envelope/xls no longer fail on Python 3 with "TypeError: string argument expected, got 'bytes'"
 * test: cover the xls download returning a binary workbook with the Excel download headers
 
