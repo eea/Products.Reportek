@@ -28,7 +28,7 @@ import tempfile
 import xmlrpc.client
 from collections import OrderedDict
 from copy import copy, deepcopy
-from io import StringIO
+from io import BytesIO
 from operator import itemgetter
 from time import strftime, time
 from urllib.parse import urlparse
@@ -2361,7 +2361,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def download_xls(self, wb, filename):
         """Return an .xls file"""
-        xls = StringIO()
+        # xlwt writes the BIFF/OLE2 container as bytes, so this must be a
+        # BytesIO: on Python 3 a StringIO raises "string argument expected,
+        # got 'bytes'".
+        xls = BytesIO()
         wb.save(xls)
         xls.seek(0)
 
