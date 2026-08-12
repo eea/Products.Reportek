@@ -47,6 +47,14 @@ class EnvelopeHistoryView(BrowserView):
         user = self.request.AUTHENTICATED_USER
         if user.getUserName() == "Anonymous User":
             raise Unauthorized("You must be logged in to view envelope history.")
+        # ViewPageTemplateFile sets the response Content-Type as a side effect
+        # of rendering, so a RAM cache hit - which returns the stored markup
+        # without ever calling the template - would leave it unset and
+        # ZPublisher.HTTPResponse.setBody would fall back to text/plain,
+        # making the browser show the raw HTML.  Set it on both paths; the
+        # template only sets it when absent, so nothing changes on a miss and
+        # setBody still appends the response charset.
+        self.request.response.setHeader("Content-Type", "text/html")
         return self._cached_call()
 
     @ram.cache(history_cache_key)

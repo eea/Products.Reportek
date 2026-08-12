@@ -1,3 +1,12 @@
+100.2.28 (2026-08-12)
+---------------------
+* fix: rotate the CAS session id when a login is established and on logout, so a single logout no longer invalidates the user's next login for the lifetime of the revocation entry, and a fixated session id cannot survive authentication
+* fix: treat the default BASIC minimum authentication level as "no requirement" so EU Login levels that cannot be ranked (e.g. STRONG for eID) are logged instead of failing every login; MEDIUM and HIGH still reject missing or unrankable levels
+* fix: keep the PAS user name identical to the user id by defaulting the CAS displayIdentifier to the login identity, restoring the legacy anz.ecasclient behaviour that getUserName()/owner id comparisons rely on
+* fix: pin displayIdentifier back to the login identity in the eCas loginIdentifier fix script for already migrated instances
+* fix: set the envelope history Content-Type explicitly so RAM-cached responses are no longer returned as text/plain and rendered as raw HTML by the browser
+* test: cover CAS session rotation, re-login after single logout, authentication level enforcement, login/display identity parity, and the envelope history content type on a cache hit
+
 100.2.27 (2026-07-29)
 ---------------------
 * fix: remove unsafe FGAS reported gases FieldIndex in Python 3

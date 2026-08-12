@@ -10,7 +10,10 @@ Run from an already migrated Zope 5 BDR deployment, for example::
 This utility is intentionally small and not migration-tracked. It updates
 ``/acl_users/eCas`` so PAS continues authenticating users with the legacy EU
 Login moniker identity, while ``getEcasUserId()`` still exposes the stable ECAS
-id for the registry API.
+id for the registry API. It also pins ``displayIdentifier`` back to ``login``
+so the PAS user name equals the user id, as the legacy plugin guaranteed;
+otherwise ``getUserName()`` returns the email address and comparisons against
+stored owner/author ids (Comment, Feedback, envelopes) silently stop matching.
 
 It also deactivates stale legacy ``eionetCas`` PAS registrations. After the
 Zope 5 migration those objects may still be listed as active for extraction or
@@ -31,6 +34,10 @@ logger = logging.getLogger(__name__)
 
 APPLIES_TO = [DEPLOYMENT_BDR]
 LEGACY_LOGIN_IDENTIFIER = "moniker"
+# The legacy plugin authenticated as ``(login, login)``: PAS user id and user
+# name were the same value.  ``login`` keeps that invariant, which Reportek
+# code comparing getUserName() against stored ids depends on.
+LEGACY_DISPLAY_IDENTIFIER = "login"
 STALE_ECAS_PLUGIN_IDS = ("eionetCas",)
 STALE_ECAS_PLUGIN_INTERFACES = (
     "IExtractionPlugin",
@@ -105,18 +112,23 @@ def fix_ecas_login_identifier(app):
         )
         return False
 
-    current = getattr(plugin, "loginIdentifier", None)
-
-    if hasattr(plugin, "hasProperty") and plugin.hasProperty("loginIdentifier"):
-        plugin._updateProperty("loginIdentifier", LEGACY_LOGIN_IDENTIFIER)
-    else:
-        setattr(plugin, "loginIdentifier", LEGACY_LOGIN_IDENTIFIER)
+    for prop, value in (
+        ("loginIdentifier", LEGACY_LOGIN_IDENTIFIER),
+        ("displayIdentifier", LEGACY_DISPLAY_IDENTIFIER),
+    ):
+        current = getattr(plugin, prop, None)
+        if current == value:
+            log_msg("/acl_users/%s %s already %r" % (ECAS_ID, prop, value))
+            continue
+        if hasattr(plugin, "hasProperty") and plugin.hasProperty(prop):
+            plugin._updateProperty(prop, value)
+        else:
+            setattr(plugin, prop, value)
+        log_msg(
+            "Updated /acl_users/%s %s from %r to %r" % (ECAS_ID, prop, current, value)
+        )
 
     transaction.commit()
-    log_msg(
-        "Updated /acl_users/%s loginIdentifier from %r to %r"
-        % (ECAS_ID, current, LEGACY_LOGIN_IDENTIFIER)
-    )
     return True
 
 
