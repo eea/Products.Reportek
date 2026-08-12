@@ -57,6 +57,12 @@ from Products.Reportek.constants import ECAS_ID
 LOG = logging.getLogger("Products.Reportek.ReportekCASPlugin")
 CAS_CACHE_PREFIX = os.environ.get("CAS_CACHE_PREFIX", "reportek:cas")
 
+# Ranked EU Login authentication levels.  Only these can be compared against
+# ``minimumAuthenticationLevel``; EU Login also emits unranked values such as
+# ``STRONG`` for eID logins, which must not be treated as a failure unless a
+# minimum above BASIC is actually required.
+AUTHENTICATION_LEVELS = {"BASIC": 0, "MEDIUM": 1, "HIGH": 2}
+
 
 class _TimeoutSession(requests.Session):
     """Requests session that applies a default timeout to CAS calls."""
@@ -180,11 +186,18 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         "email",
         "moniker",
     )
-    displayIdentifier = "email"
+    displayIdentifier = "login"
     displayIdentifier_values = (
+        "login",
         "email",
         "ecas_id",
         "moniker",
+    )
+    displayIdentifierGuide = (
+        "'login' keeps the displayed user name identical to the PAS login id, "
+        "which is what the legacy anz.ecasclient plugin did and what Reportek "
+        "code comparing getUserName() with getId()/owner ids relies on. "
+        "Pick another value only if user names may safely differ from ids."
     )
     minimumAuthenticationLevel = "BASIC"
     minimumAuthenticationLevel_values = (
@@ -197,7 +210,10 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         "BASIC = single-factor or equivalent authentication, suitable for lower-risk access; "
         "MEDIUM = stronger/two-step style authentication for significant security requirements; "
         "HIGH = strongest multi-factor assurance for sensitive systems. "
-        "BDR default is BASIC."
+        "BDR default is BASIC, which enforces nothing: levels EU Login "
+        "reports but we cannot rank (e.g. STRONG for eID) are logged and "
+        "accepted. Selecting MEDIUM or HIGH enforces strictly, and a missing "
+        "or unrankable level is then rejected."
     )
     useSession = True
     renew = False
@@ -258,6 +274,12 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
             "select_variable": "displayIdentifier_values",
             "type": "selection",
             "mode": "w",
+        },
+        {
+            "id": "displayIdentifierGuide",
+            "label": "Displayed identifier guide",
+            "type": "text",
+            "mode": "r",
         },
         {
             "id": "minimumAuthenticationLevel",
@@ -468,6 +490,27 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
             return session.getId()
         return None
 
+    def _rotateSession(self, request, session):
+        """Give the browser a fresh session id for a newly established login.
+
+        ``session.clear()`` empties a Beaker session but keeps its id and
+        cookie, so without this the id survives both login (session fixation)
+        and single logout - and a session revoked by ``logoutCallback`` would
+        keep invalidating the user's next login until the revocation entry
+        expired.  Returns the session to carry on with.
+        """
+        invalidate = getattr(session, "invalidate", None)
+        if invalidate is None:
+            return session
+        try:
+            invalidate()
+        except Exception:
+            LOG.warning("Could not rotate CAS session id", exc_info=True)
+            return session
+        # Zope's session data manager hands out a new object on invalidation;
+        # the Beaker wrapper mutates in place and is still usable.
+        return self._getRequestSession(request, create=True) or session
+
     security.declarePrivate("extractCredentials")
 
     def extractCredentials(self, request):
@@ -495,9 +538,13 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
             if session is None:
                 session = self._getRequestSession(request, create=True)
             if session is not None:
+                session = self._rotateSession(request, session)
                 session_id = self._getSessionKey(session)
                 if session_id:
                     self._addSession(ticket, session_id)
+                    # The user just re-authenticated against CAS, so a stale
+                    # revocation must not follow them into the new session.
+                    self._clearRevocation(session_id)
                 if self.useSession:
                     session.set(self.CAS_ASSERTION, assertion)
             else:
@@ -530,6 +577,12 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return self._identifierFromPrincipal(principal, self.loginIdentifier)
 
     def _getDisplayNameFromPrincipal(self, principal):
+        # PAS uses the display name as the user *name* while the login is the
+        # user *id*.  Reportek compares getUserName() against stored ids in
+        # several places (envelope authors, comment owners), so the two must
+        # stay identical unless an operator explicitly opts out.
+        if self.displayIdentifier in ("login", "", None):
+            return self._getLoginFromPrincipal(principal)
         return self._identifierFromPrincipal(principal, self.displayIdentifier)
 
     security.declarePrivate("authenticateCredentials")
@@ -564,9 +617,11 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
     def resetCredentials(self, request, response):
         if not self._isBdrDeployment():
             return 0
-        session = getattr(request, "SESSION", None)
-        if session:
+        session = self._getRequestSession(request, create=False)
+        if session is not None:
             session.clear()
+            # Drop the id as well, so the logged-out cookie cannot be reused.
+            self._rotateSession(request, session)
         if self.casServerUrlPrefix:
             client = self._cas_client(service=self.getService(raw=True))
             response.redirect(
@@ -682,18 +737,40 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
         return data.get("user"), data, data.get("proxyGrantingTicket")
 
     def _validateAuthenticationLevel(self, attributes):
-        required = self.minimumAuthenticationLevel
-        if not required:
-            return
-        actual = attributes.get("authenticationLevel")
-        levels = {"BASIC": 0, "MEDIUM": 1, "HIGH": 2}
-        if actual not in levels:
-            raise ValueError(
-                "CAS authentication level missing or unsupported: %r" % actual
+        required_name = self.minimumAuthenticationLevel or "BASIC"
+        if required_name not in AUTHENTICATION_LEVELS:
+            LOG.warning(
+                "minimumAuthenticationLevel %r is not one of %s; "
+                "no authentication level requirement is enforced",
+                required_name,
+                sorted(AUTHENTICATION_LEVELS),
             )
-        if levels[actual] < levels.get(required, 0):
+        required = AUTHENTICATION_LEVELS.get(required_name, 0)
+        actual = attributes.get("authenticationLevel")
+
+        if required <= 0:
+            # BASIC is the default and means "no additional requirement".
+            # EU Login keeps adding level names (STRONG for eID, ...) that we
+            # cannot rank, and rejecting them here would lock out every user
+            # of that login method.  Record it and let the login through.
+            if actual not in AUTHENTICATION_LEVELS:
+                LOG.info(
+                    "CAS authenticationLevel %r is not ranked; not enforced "
+                    "because minimumAuthenticationLevel is %s",
+                    actual,
+                    required_name,
+                )
+            return
+
+        if actual not in AUTHENTICATION_LEVELS:
             raise ValueError(
-                "CAS authentication level %s is below required %s" % (actual, required)
+                "CAS authentication level missing or unsupported: %r "
+                "(minimum required: %s)" % (actual, required_name)
+            )
+        if AUTHENTICATION_LEVELS[actual] < required:
+            raise ValueError(
+                "CAS authentication level %s is below required %s"
+                % (actual, required_name)
             )
 
     def _principal_from_cas(self, user, attributes, pgt=None):
@@ -776,6 +853,9 @@ class ReportekCASPlugin(BasePlugin, Cacheable):
 
     def _revokeSession(self, session_id):
         self._cacheSet("revoked_sessions", session_id, "1", self.sessionMappingTimeout)
+
+    def _clearRevocation(self, session_id):
+        self._cacheDelete("revoked_sessions", session_id)
 
     def _isSessionRevoked(self, session):
         session_id = self._getSessionKey(session)

@@ -37,17 +37,38 @@ class DummyResponse:
 
 
 class DummySession(dict):
+    """Minimal stand-in for a Beaker session.
+
+    ``clear()`` keeps the id and ``invalidate()`` rotates it, matching
+    beaker.session.Session.
+    """
+
     cleared = False
+
+    def __init__(self, session_id="session-1"):
+        super().__init__()
+        self._id = session_id
+        self._rotations = 0
+
+    @property
+    def id(self):
+        # Beaker exposes the session id as ``.id``; the Zope wrapper reads it.
+        return self._id
 
     def set(self, key, value):
         self[key] = value
 
     def getId(self):
-        return "session-1"
+        return self._id
 
     def clear(self):
         self.cleared = True
         super().clear()
+
+    def invalidate(self):
+        self.clear()
+        self._rotations += 1
+        self._id = "%s-rotated-%d" % (self._id, self._rotations)
 
 
 class DummyCASClient:
@@ -172,7 +193,9 @@ class TestReportekCASPlugin(unittest.TestCase):
         credentials = self.plugin.extractCredentials(request)
 
         self.assertEqual(credentials["login"], "ecas-unique-id")
-        self.assertEqual(credentials["display_name"], "user.one@example.org")
+        # PAS uses the display name as the user *name*; it must match the
+        # login id unless an operator explicitly configures otherwise.
+        self.assertEqual(credentials["display_name"], "ecas-unique-id")
         stored = session.get(self.plugin.CAS_ASSERTION)
         self.assertIsInstance(stored, ReportekCASAssertion)
         pickle.dumps(dict(session.items()))
@@ -199,9 +222,21 @@ class TestReportekCASPlugin(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.plugin._validateAuthenticationLevel({"authenticationLevel": "MEDIUM"})
 
-    def test_minimum_authentication_level_rejects_missing_level(self):
+    def test_default_level_accepts_unrankable_and_missing_levels(self):
+        # EU Login emits levels we cannot rank (STRONG for eID logins) and the
+        # default BASIC means "no requirement": neither may fail the login.
+        self.plugin._validateAuthenticationLevel({"authenticationLevel": "STRONG"})
+        self.plugin._validateAuthenticationLevel({})
+
+    def test_enforced_level_rejects_missing_level(self):
+        self.plugin.minimumAuthenticationLevel = "MEDIUM"
         with self.assertRaises(ValueError):
             self.plugin._validateAuthenticationLevel({})
+
+    def test_enforced_level_rejects_unrankable_level(self):
+        self.plugin.minimumAuthenticationLevel = "HIGH"
+        with self.assertRaises(ValueError):
+            self.plugin._validateAuthenticationLevel({"authenticationLevel": "STRONG"})
 
     def test_login_identifier_defaults_to_ecas_unique_id(self):
         principal = ReportekCASPrincipal(
@@ -224,7 +259,25 @@ class TestReportekCASPlugin(unittest.TestCase):
             ("ecas-unique-id", "user.one@example.org"),
         )
 
-    def test_display_identifier_defaults_to_email(self):
+    def test_display_identifier_defaults_to_the_login_identity(self):
+        # The legacy plugin authenticated as (login, login). Reportek compares
+        # getUserName() against stored ids (Comment owners, Feedback authors),
+        # so user name and user id must not drift apart by default.
+        principal = ReportekCASPrincipal(
+            "user.one",
+            ecas_id="ecas-unique-id",
+            meta={"email": "user.one@example.org"},
+        )
+        self.assertEqual(self.plugin.displayIdentifier, "login")
+        for identifier in ("ecas_id", "moniker", "email"):
+            self.plugin.loginIdentifier = identifier
+            self.assertEqual(
+                self.plugin._getDisplayNameFromPrincipal(principal),
+                self.plugin._getLoginFromPrincipal(principal),
+            )
+
+    def test_display_identifier_can_use_email(self):
+        self.plugin.displayIdentifier = "email"
         principal = ReportekCASPrincipal(
             "user.one",
             ecas_id="ecas-unique-id",
@@ -235,6 +288,7 @@ class TestReportekCASPlugin(unittest.TestCase):
         )
 
     def test_display_identifier_uses_email_like_moniker_when_email_missing(self):
+        self.plugin.displayIdentifier = "email"
         principal = ReportekCASPrincipal(
             "user.one@example.org",
             ecas_id="ecas-unique-id",
@@ -321,6 +375,60 @@ class TestReportekCASPlugin(unittest.TestCase):
         self.assertEqual(self.plugin.logoutCallback(xml), "Logout success.")
         self.assertIsNone(self.plugin.getAssertion(session))
         self.assertTrue(session.cleared)
+
+    def _login(self, session, ticket):
+        """Drive extractCredentials through a successful ticket validation."""
+        assertion = ReportekCASAssertion(
+            ReportekCASPrincipal("user.one", ecas_id="ecas-unique-id", meta={})
+        )
+        self.plugin.validateServiceTicket = lambda service, t: assertion
+        self.plugin._isBdrDeployment = lambda: True
+        credentials = self.plugin.extractCredentials(
+            DummyRequest(session=session, ticket=ticket)
+        )
+        return credentials, assertion
+
+    def test_login_rotates_the_session_id(self):
+        # Beaker keeps the id across clear(), so without an explicit rotation
+        # an attacker-fixated session id would survive authentication.
+        self.plugin._redisClient = lambda: None
+        session = DummySession()
+        before = session.getId()
+
+        credentials, _ = self._login(session, "ST-1")
+
+        self.assertEqual(credentials["login"], "ecas-unique-id")
+        self.assertNotEqual(session.getId(), before)
+        # The ticket is mapped to the id the browser actually ends up with,
+        # otherwise single logout would revoke nothing.
+        self.assertEqual(self.plugin._getSessionId("ST-1"), session.getId())
+
+    def test_login_after_single_logout_is_not_revoked_again(self):
+        """A revoked session id must not follow the user into the next login.
+
+        Regression: the revocation entry outlives the logout by
+        sessionMappingTimeout, and clear() does not change the Beaker session
+        id, so the next login was invalidated on the very next request.
+        """
+        self.plugin._redisClient = lambda: None
+        session = DummySession()
+        self._login(session, "ST-1")
+        logged_out_id = session.getId()
+
+        xml = """
+        <samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
+          <samlp:SessionIndex>ST-1</samlp:SessionIndex>
+        </samlp:LogoutRequest>
+        """
+        self.assertEqual(self.plugin.logoutCallback(xml), "Logout success.")
+        self.assertIsNone(self.plugin.getAssertion(session))
+
+        # Same browser, same cookie: log in again with a fresh ticket.
+        self._login(session, "ST-2")
+
+        self.assertNotEqual(session.getId(), logged_out_id)
+        self.assertIsNotNone(self.plugin.getAssertion(session))
+        self.assertFalse(self.plugin._isSessionRevoked(session))
 
 
 class TestReportekCASImport(unittest.TestCase):
