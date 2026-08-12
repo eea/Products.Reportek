@@ -1,3 +1,6 @@
+100.2.29-dev (Unreleased)
+-------------------------
+
 100.2.28 (2026-08-12)
 ---------------------
 * fix: rotate the CAS session id when a login is established and on logout, so a single logout no longer invalidates the user's next login for the lifetime of the revocation entry, and a fixated session id cannot survive authentication
