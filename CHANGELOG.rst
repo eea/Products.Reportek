@@ -1,5 +1,5 @@
-100.2.28-dev (Unreleased)
--------------------------
+100.2.28 (2026-08-12)
+---------------------
 * fix: rotate the CAS session id when a login is established and on logout, so a single logout no longer invalidates the user's next login for the lifetime of the revocation entry, and a fixated session id cannot survive authentication
 * fix: treat the default BASIC minimum authentication level as "no requirement" so EU Login levels that cannot be ranked (e.g. STRONG for eID) are logged instead of failing every login; MEDIUM and HIGH still reject missing or unrankable levels
 * fix: keep the PAS user name identical to the user id by defaulting the CAS displayIdentifier to the login identity, restoring the legacy anz.ecasclient behaviour that getUserName()/owner id comparisons rely on
