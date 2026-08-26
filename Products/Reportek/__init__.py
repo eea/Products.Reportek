@@ -86,7 +86,11 @@ if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         manage_addReportekCASPlugin,
         manage_addReportekCASPluginForm,
     )
-from Products.Reportek.RepUtils import ThreadSafeKeyManagerProxy, getToolByName
+from Products.Reportek.RepUtils import (
+    ThreadSafeKeyManagerProxy,
+    ThreadSafeRegistryProxy,
+    getToolByName,
+)
 from Products.ZCTextIndex.ZCTextIndex import PLexicon, ZCTextIndex
 
 # workaround for BaseRequest assuming requests not GET, POST, PURGE as webdav
@@ -255,10 +259,15 @@ def create_reportek_objects(app):
         portal_registry = Registry(constants.REGISTRY, "Portal Registry")
         app._setObject(constants.REGISTRY, portal_registry)
 
-    # Register the named utility
+    # Register the named utility.
+    # Register a proxy rather than the persistent object itself: a ZODB object
+    # in the GSM stays bound to this startup connection, which freezes reads at
+    # startup and silently drops writes made while serving a request. See
+    # ThreadSafeRegistryProxy. The object is passed as the no-request fallback,
+    # so startup and the console scripts behave exactly as before.
     gsm = getGlobalSiteManager()
     # gsm.registerUtility(portal_registry, IRegistry, name=constants.REGISTRY)
-    gsm.registerUtility(portal_registry, IRegistry)
+    gsm.registerUtility(ThreadSafeRegistryProxy(portal_registry), IRegistry)
 
     registry = getUtility(IRegistry)
     # setup registry for caching purposes
