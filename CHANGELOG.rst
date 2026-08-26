@@ -1,3 +1,8 @@
+100.2.30 (2026-08-26)
+---------------------
+* fix: added missing xls export test
+* fix: prepend_authentication_path to fall back to the context path for ZMI static resources - refs #307559 (https://github.com/zopefoundation/Zope/issues/1195)
+
 100.2.29 (2026-08-12)
 ---------------------
 * fix: save xls exports into a BytesIO so ReportekEngine/xls_export and Envelope/xls no longer fail on Python 3 with "TypeError: string argument expected, got 'bytes'"
