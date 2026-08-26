@@ -1,5 +1,6 @@
 100.2.31-dev (Unreleased)
 -------------------------
+* fix: fixed prepend_authentication_path for non-folderish content
 
 100.2.30 (2026-08-26)
 ---------------------
