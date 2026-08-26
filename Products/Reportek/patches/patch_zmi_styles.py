@@ -77,9 +77,7 @@ def _resource_context_path(context, virtual_root):
                 allowed = False
             if allowed:
                 try:
-                    return _strip_virtual_root(
-                        node.getPhysicalPath(), virtual_root
-                    )
+                    return _strip_virtual_root(node.getPhysicalPath(), virtual_root)
                 except (AttributeError, TypeError):
                     return []
         node = aq_parent(aq_inner(node))
