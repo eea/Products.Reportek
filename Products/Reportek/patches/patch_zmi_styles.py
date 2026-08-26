@@ -30,6 +30,7 @@ keep getting 401 as Zope 5.9 intended.
 import itertools
 import logging
 
+from AccessControl.Permissions import view_management_screens
 from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_inner, aq_parent
 
@@ -50,11 +51,45 @@ def _strip_virtual_root(physical_path, virtual_root):
     return stripped
 
 
+def _resource_context_path(context, virtual_root):
+    """Path of the nearest ancestor able to serve ``++resource++zmi``.
+
+    Walking up matters: only folderish objects can be traversed *through*.
+    A Script (Python), File or Image swallows the trailing path segments --
+    PythonScript turns them into ``traverse_subpath`` and gets published
+    itself -- so pointing asset URLs at one yields the script's own output
+    instead of the stylesheet. We therefore skip to the nearest folderish
+    ancestor, and require that it actually grants the permission, so we never
+    emit a URL that would 401 anyway.
+
+    Returns an empty list when no suitable ancestor exists, which leaves the
+    upstream root-relative URL untouched.
+    """
+    security_manager = getSecurityManager()
+    node = aq_inner(context)
+    while node is not None:
+        if getattr(node, "isPrincipiaFolderish", False):
+            try:
+                allowed = security_manager.checkPermission(
+                    view_management_screens, node
+                )
+            except (AttributeError, TypeError):
+                allowed = False
+            if allowed:
+                try:
+                    return _strip_virtual_root(node.getPhysicalPath(), virtual_root)
+                except (AttributeError, TypeError):
+                    return []
+        node = aq_parent(aq_inner(node))
+    return []
+
+
 def patched_prepend_authentication_path(context, path):
     """Prepend a path in which the user may actually read ``++resource++zmi``.
 
     Preserves the upstream behaviour of using the user folder's path, and
-    falls back to the current object's path when that is empty.
+    falls back to the nearest folderish ancestor of the managed object when
+    that is empty.
     """
     request = getattr(context, "REQUEST", None)
     if request is None:
@@ -72,19 +107,20 @@ def patched_prepend_authentication_path(context, path):
 
     if not [part for part in authentication_path if part]:
         # The principal lives in the root acl_users, so there is no user
-        # folder path to prepend. Use the object being managed instead: a
-        # local role granting "View management screens" there is enough to
-        # read the resources through acquisition.
-        try:
-            context_path = aq_inner(context).getPhysicalPath()
-        except (AttributeError, TypeError):
+        # folder path to prepend. Use the nearest folderish ancestor of the
+        # object being managed instead: a local role granting "View
+        # management screens" there is enough to read the resources through
+        # acquisition.
+        authentication_path = _resource_context_path(context, virtual_root)
+        if not authentication_path:
             logger.debug(
-                "zmi.styles: no physical path for %r, leaving %s untouched",
+                "zmi.styles: no folderish context granting %r for %r; "
+                "leaving %s root relative",
+                view_management_screens,
                 context,
                 path,
             )
             return path
-        authentication_path = _strip_virtual_root(context_path, virtual_root)
 
     parts = [
         part for part in itertools.chain(authentication_path, path.split("/")) if part
