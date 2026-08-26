@@ -1,3 +1,6 @@
+100.2.31-dev (Unreleased)
+-------------------------
+
 100.2.30 (2026-08-26)
 ---------------------
 * fix: added missing xls export test
