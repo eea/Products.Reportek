@@ -87,9 +87,7 @@ def patched_prepend_authentication_path(context, path):
         authentication_path = _strip_virtual_root(context_path, virtual_root)
 
     parts = [
-        part
-        for part in itertools.chain(authentication_path, path.split("/"))
-        if part
+        part for part in itertools.chain(authentication_path, path.split("/")) if part
     ]
 
     return request.physicalPathToURL(parts, relative=True)
