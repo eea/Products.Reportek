@@ -1,5 +1,5 @@
-100.2.30-dev (Unreleased)
--------------------------
+100.2.30 (2026-08-26)
+---------------------
 * fix: added missing xls export test
 * fix: prepend_authentication_path to fall back to the context path for ZMI static resources - refs #307559 (https://github.com/zopefoundation/Zope/issues/1195)
 
