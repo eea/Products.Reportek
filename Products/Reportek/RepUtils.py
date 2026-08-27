@@ -50,6 +50,7 @@ from Acquisition import aq_get, aq_parent
 from Acquisition.interfaces import IAcquirer
 from DateTime import DateTime
 from plone.keyring.interfaces import IKeyManager
+from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.datetime import rfc1123_date
 from zope.interface import implementer
@@ -58,6 +59,7 @@ from zope.interface.interfaces import ComponentLookupError
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
 from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import REGISTRY
 from Products.Reportek.permissions import reportek_dataflow_admin
 
 security = ModuleSecurityInfo("Products.Reportek.RepUtils")
@@ -1137,3 +1139,90 @@ class ThreadSafeKeyManagerProxy(object):
 
     def secret(self, ring="_system"):
         return self._get_real_manager().secret(ring)
+
+
+@implementer(IRegistry)
+class ThreadSafeRegistryProxy:
+    """
+    A thread-safe proxy for the ZODB-persistent portal_registry.
+
+    Registering the persistent ``portal_registry`` directly in the GSM binds
+    it to the connection opened by ``Zope2.app()`` during startup, which is
+    never used to serve a request. That connection never advances its MVCC
+    snapshot, so reads are frozen at process start, and objects modified
+    through it join a transaction on the *startup* thread's transaction
+    manager, which nothing commits again -- so writes are silently discarded.
+
+    This is the same defect ``ThreadSafeKeyManagerProxy`` addresses for
+    ``IKeyManager``. It stayed unnoticed for ``IRegistry`` because nearly every
+    registry write happens during startup, where the arrangement works; the
+    visible symptom was the pas.plugins.ldap memcached setting appearing to
+    save in the ZMI, reverting to the startup value, and differing between
+    instances.
+
+    Unlike the KeyManager proxy, this one does *not* raise when there is no
+    request: ``IRegistry`` is legitimately used at startup and by the console
+    scripts (automatic_qa, auto_fallin, auto_cleanup, auto_env_cleanup,
+    zip_cache_cleanup). In those single-threaded contexts the original object
+    behaves correctly, so it is used as the fallback and behaviour there is
+    unchanged.
+    """
+
+    def __init__(self, fallback):
+        # The registry as seen from the startup connection. Used only when
+        # there is no request to resolve against.
+        self._fallback = fallback
+
+    def _get_real_registry(self):
+        """Resolve portal_registry on the current request's connection.
+
+        Acquisition reaches the root from any published object, so this holds
+        under virtual hosting too.
+        """
+        from zope.globalrequest import getRequest
+
+        request = getRequest()
+        if request is not None:
+            parents = request.get("PARENTS") or []
+            if parents:
+                registry = getattr(parents[0], REGISTRY, None)
+                if registry is not None:
+                    return registry
+        return self._fallback
+
+    # -- IRegistry ---------------------------------------------------------
+
+    @property
+    def records(self):
+        return self._get_real_registry().records
+
+    def __getitem__(self, key):
+        return self._get_real_registry()[key]
+
+    def __setitem__(self, key, value):
+        self._get_real_registry()[key] = value
+
+    def __contains__(self, key):
+        return key in self._get_real_registry()
+
+    def get(self, key, default=None):
+        return self._get_real_registry().get(key, default)
+
+    def forInterface(self, interface, check=True, omit=(), prefix=None):
+        return self._get_real_registry().forInterface(
+            interface, check=check, omit=omit, prefix=prefix
+        )
+
+    def registerInterface(self, interface, omit=(), prefix=None):
+        return self._get_real_registry().registerInterface(
+            interface, omit=omit, prefix=prefix
+        )
+
+    # -- anything else plone.registry exposes ------------------------------
+
+    def __getattr__(self, name):
+        # Only reached when normal lookup fails, so the members above win.
+        # Guard private names so a partially constructed proxy cannot recurse.
+        if name.startswith("_"):
+            raise AttributeError(name)
+        return getattr(self._get_real_registry(), name)
