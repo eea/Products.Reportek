@@ -1,3 +1,6 @@
+100.2.33-dev (Unreleased)
+-------------------------
+
 100.2.32 (2026-08-27)
 ---------------------
 * feat: added ThreadSafeRegistryProxy
