@@ -1,9 +1,9 @@
-100.2.32-dev (Unreleased)
--------------------------
+100.2.32 (2026-08-27)
+---------------------
 * feat: added ThreadSafeRegistryProxy
 * fix: fixed getCatalogTool when CATALOG_OPTIMIZATION_DISABLED is set to true
 
-100.2.31 (2026-08026)
+100.2.31 (2026-08-26)
 ---------------------
 * fix: fixed prepend_authentication_path patch for non-folderish content
 
