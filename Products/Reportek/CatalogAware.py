@@ -21,6 +21,7 @@ from ExtensionClass import Base
 from zope.component import queryUtility
 from zope.interface import implementer
 
+from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.interfaces import (
     IReportekCatalog,
     IReportekCatalogAware,
@@ -42,7 +43,34 @@ class CatalogAware(Base):
     # The following method can be overridden using inheritance so that it's
     # possible to specify another catalog tool for a given content type
     def _getCatalogTool(self):
-        """Get the catalog tool."""
+        """Get the catalog tool.
+
+        Traverse from the object rather than going through
+        ``queryUtility(IReportekCatalog)``. The utility is the persistent
+        catalog as seen from the connection opened during startup, which is
+        never used to serve a request; writing to it from a request either
+        raises a storage error from two connections joining one transaction
+        (see ``reindexObjectSecurity``) or silently discards the write.
+
+        Normally this does not bite, because ``indexObject`` and friends only
+        queue the operation and ``PortalCatalogProcessor`` already traverses
+        from the object when it does the real work. With
+        ``CATALOG_OPTIMIZATION_DISABLED`` set, however, the queue is bypassed
+        and the write lands on the utility directly -- an object edit then
+        commits while its catalog entry silently stays stale.
+
+        Falls back to the utility if traversal does not yield a catalog, so
+        unwrapped objects and catalog-less fixtures behave as before.
+        """
+        try:
+            candidate = self.unrestrictedTraverse(DEFAULT_CATALOG, None)
+        except (AttributeError, KeyError, TypeError):
+            candidate = None
+        # Traversal yields a webdav NullResource placeholder rather than None
+        # when the catalog is absent (e.g. in test fixtures), so check the
+        # interface rather than truthiness.
+        if IReportekCatalog.providedBy(candidate):
+            return candidate
         return queryUtility(IReportekCatalog)
 
     def indexObject(self):

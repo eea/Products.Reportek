@@ -1,6 +1,7 @@
 100.2.32-dev (Unreleased)
 -------------------------
 * feat: added ThreadSafeRegistryProxy
+* fix: fixed getCatalogTool when CATALOG_OPTIMIZATION_DISABLED is set to true
 
 100.2.31 (2026-08026)
 ---------------------
