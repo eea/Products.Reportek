@@ -1,3 +1,6 @@
+100.2.34-dev (Unreleased)
+-------------------------
+
 100.2.33 (2026-09-04)
 ---------------------
 * fix: fixed envelope overview for auditors
