@@ -19,7 +19,7 @@ class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
 
         anonymous_user = SpecialUser("Anonymous User", "", ("Anonymous",), [])
         self.assertIn(
-            b"This envelope is not yet available for public view.\n",
+            b"This envelope is not yet available for public view.",
             publish_view(self.envelope, user=anonymous_user).body,
         )
 
