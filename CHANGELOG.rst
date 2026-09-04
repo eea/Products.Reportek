@@ -1,3 +1,7 @@
+100.2.33 (2026-09-04)
+---------------------
+* fix: fixed envelope overview for auditors
+
 100.2.32 (2026-08-27)
 ---------------------
 * feat: added ThreadSafeRegistryProxy
