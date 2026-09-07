@@ -1,5 +1,6 @@
 100.2.34-dev (Unreleased)
 -------------------------
+* fix: removed lambda parantheses in workflowApplications - refs #308243
 
 100.2.33 (2026-09-04)
 ---------------------
