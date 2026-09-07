@@ -345,13 +345,31 @@ def utSortByAttr(p_obj_list, p_attr, p_sort_order=0):
     return [item[-1] for item in l_temp]
 
 
+def utSortKey(p_value):
+    """Sort key placing missing values last instead of raising"""
+    return (p_value is None, p_value)
+
+
 def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
     """Sort a list of objects by one of the attributes"""
-    l_temp = list(zip((p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list))
-    l_temp.sort()
-    if p_sort_order:
-        l_temp.reverse()
-    return [item[-1] for item in l_temp]
+    # sort on the attribute only; the items themselves (usually dicts) are
+    # not orderable, so they must never take part in the comparison
+    reverse = bool(p_sort_order)
+    try:
+        return sorted(
+            p_obj_list,
+            key=lambda p_obj_item: utSortKey(p_obj_item[p_attr]),
+            reverse=reverse,
+        )
+    except TypeError:
+        # values of mixed types are not orderable either
+        return sorted(
+            p_obj_list,
+            key=lambda p_obj_item: utSortKey(
+                None if p_obj_item[p_attr] is None else str(p_obj_item[p_attr])
+            ),
+            reverse=reverse,
+        )
 
 
 def utTruncString(s, p_size=50):

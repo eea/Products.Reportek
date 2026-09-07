@@ -262,6 +262,12 @@ input[type="submit"] {
   color: #fff;
   text-shadow: 0 -1px 0 #3065a6;
 }
+
+/* fixed zmi buttons for custom zmi pages. */
+.zmi input[type="submit"].btn.btn-primary {
+  border-color: #3065a6;
+  color: #fff;
+}
 .filters .actions {
   margin: 15px 0 0 102px;
 }

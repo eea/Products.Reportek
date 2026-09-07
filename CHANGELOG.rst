@@ -1,6 +1,8 @@
 100.2.34-dev (Unreleased)
 -------------------------
 * fix: removed lambda parantheses in workflowApplications - refs #308243
+* fix: avoid dict sorting in RepUtils and Toolz - refs #308246
+* fix: handle mapping deletion when no mapping is selected - refs #308246
 
 100.2.33 (2026-09-04)
 ---------------------
