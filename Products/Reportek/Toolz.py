@@ -117,9 +117,11 @@ class Toolz:
             getattr(self, constants.ENGINE_ID).dataflow_table(), key, desc
         ):
             r[item[key]].append(item)
+        # the items were already sorted on `key`, so the group keys are in
+        # that same order by insertion
         # unfortunetely, Zope framework seems not to handle just any
         # Python code (like defaultdict), so ulglify this a little
-        return sorted(list(r.keys()), reverse=desc), dict(r)
+        return list(r.keys()), dict(r)
 
     def partofyear_table(self):
         ordered_keys = [

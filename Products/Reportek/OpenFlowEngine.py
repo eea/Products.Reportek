@@ -27,6 +27,7 @@ import json
 import logging
 import re
 from collections import defaultdict
+from urllib.parse import urlencode
 
 import transaction
 
@@ -1035,15 +1036,26 @@ class OpenFlowEngine(Folder, Toolz):
                 return self.workflow_map_process(REQUEST)
             else:
                 processes = REQUEST.form.get("process")
-                if isinstance(processes, str):
-                    processes = [processes]
-                for p_id in processes:
-                    self.process_mappings.pop(p_id, None)
-                    self._p_changed = 1
-                REQUEST.RESPONSE.redirect(
-                    """workflow_map_processes?manage_tabs_message="""
-                    """Mapping deleted"""
-                )
+                if processes:
+                    if isinstance(processes, str):
+                        processes = [processes]
+                    for p_id in processes:
+                        self.process_mappings.pop(p_id, None)
+                        self._p_changed = 1
+                    REQUEST.RESPONSE.redirect(
+                        "workflow_map_processes?%s"
+                        % urlencode({"manage_tabs_message": "Mapping deleted"})
+                    )
+                else:
+                    REQUEST.RESPONSE.redirect(
+                        "workflow_map_processes?%s"
+                        % urlencode(
+                            {
+                                "manage_tabs_message": "No mapping selected",
+                                "manage_tabs_type": "danger",
+                            }
+                        )
+                    )
 
     security.declarePublic("getApplicationToActivitiesMapping")
 
