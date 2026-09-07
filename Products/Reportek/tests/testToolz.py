@@ -57,9 +57,7 @@ class DataflowTableGroupedTestCase(BaseUnitTest):
 
     def test_dataflow_table_grouped_on_other_key(self):
         """Dataflows can be grouped on another key than the default one."""
-        groups, items = ToolzStub(DATAFLOWS).dataflow_table_grouped(
-            key="PK_SOURCE_ID"
-        )
+        groups, items = ToolzStub(DATAFLOWS).dataflow_table_grouped(key="PK_SOURCE_ID")
         self.assertEqual(groups, ["10", "20", "30"])
         self.assertEqual([item["PK_RA_ID"] for item in items["10"]], ["2", "5"])
 
@@ -81,6 +79,4 @@ class DataflowTableGroupedTestCase(BaseUnitTest):
         for desc in (0, 1):
             groups, items = ToolzStub(DATAFLOWS).dataflow_table_grouped(desc=desc)
             self.assertEqual(list(items.keys()), groups)
-            self.assertEqual(
-                sum(len(items[group]) for group in groups), len(DATAFLOWS)
-            )
+            self.assertEqual(sum(len(items[group]) for group in groups), len(DATAFLOWS))
