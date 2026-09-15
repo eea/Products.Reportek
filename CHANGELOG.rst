@@ -1,5 +1,5 @@
-100.2.35-dev (Unreleased)
--------------------------
+100.2.35 (2026-09-15)
+---------------------
 * feat: add FME Flow REST API v4 support for RemoteFMEConversionApplication - refs #308485
 * fix: fixed file deletion for reporters only - refs #308537
 
