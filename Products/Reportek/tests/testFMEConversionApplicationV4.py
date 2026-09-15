@@ -7,7 +7,6 @@ from unittest.mock import Mock, patch
 
 from AccessControl import Unauthorized
 from AccessControl.SecurityManagement import newSecurityManager, noSecurityManager
-from AccessControl.SpecialUsers import nobody
 from AccessControl.users import SimpleUser
 from AccessControl.ZopeGuards import guarded_getattr
 from DateTime import DateTime
