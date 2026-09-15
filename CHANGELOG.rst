@@ -1,3 +1,8 @@
+100.2.35-dev (Unreleased)
+-------------------------
+* feat: add FME Flow REST API v4 support for RemoteFMEConversionApplication - refs #308485
+* fix: fixed file deletion for reporters only - refs #308537
+
 100.2.34 (2026-09-07)
 ---------------------
 * fix: removed lambda parantheses in workflowApplications - refs #308243

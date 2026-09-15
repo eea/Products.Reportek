@@ -12,7 +12,22 @@
         </td>
       </tr>
       <tr>
-        <th align="left" i18n:translate="">FME Upload endpoint</th>
+        <th align="left" i18n:translate="">FME REST API version</th>
+        <td colspan="2"><input type="text" name="FMEApiVersion"
+                   tal:attributes="value here/FMEApiVersion|nothing" size="80" disabled="disabled"/></td>
+      </tr>
+      <tr tal:condition="python: here.is_v4()">
+        <th align="left" i18n:translate="">FME API endpoint (v4 only)</th>
+        <td colspan="2"><input type="text" name="FMEApiEndpoint"
+                   tal:attributes="value here/FMEApiEndpoint|nothing" size="80" disabled="disabled"/></td>
+      </tr>
+      <tr tal:condition="python: here.is_v4()">
+        <th align="left" i18n:translate="">FME Resource connection (v4 only)</th>
+        <td colspan="2"><input type="text" name="FMEResourceConnection"
+                   tal:attributes="value here/FMEResourceConnection|nothing" size="80" disabled="disabled"/></td>
+      </tr>
+      <tr tal:condition="python: not here.is_v4()">
+        <th align="left" i18n:translate="">FME Upload endpoint (v3 only)</th>
         <td colspan="2"><input type="text" name="FMEUploadEndpoint"
                    tal:attributes="value here/FMEUploadEndpoint|nothing" size="80" disabled="disabled"/></td>
       </tr>
@@ -21,10 +36,15 @@
         <td colspan="2"><input type="text" name="FMEUploadDir"
                    tal:attributes="value here/FMEUploadDir|nothing" size="80" disabled="disabled"/></td>
       </tr>
-      <tr>
-        <th align="left" i18n:translate="">FME Transformation path</th>
+      <tr tal:condition="python: not here.is_v4()">
+        <th align="left" i18n:translate="">FME Transformation path (v3 only)</th>
         <td colspan="2"><input type="text" name="FMETransformation"
                    tal:attributes="value here/FMETransformation|nothing" size="80" disabled="disabled"/></td>
+      </tr>
+      <tr tal:condition="python: here.is_v4()">
+        <th align="left" i18n:translate="">FME Repository (v4 only)</th>
+        <td colspan="2"><input type="text" name="FMERepository"
+                   tal:attributes="value here/FMERepository|nothing" size="80" disabled="disabled"/></td>
       </tr>
       <tr>
         <th align="left" i18n:translate="">FME Workspace</th>
@@ -65,6 +85,16 @@
           <input type="checkbox" name="FMEConvCleanup" tal:attributes="checked here/FMEConvCleanup; value here/FMEConvCleanup" disabled="disabled"/>
         </td>
       </tr>
+        <tr>
+            <th align="left" i18n:translate="">FME connect timeout (seconds)</th>
+            <td colspan="2"><input type="text" name="FMEConnectTimeout"
+                       tal:attributes="value here/FMEConnectTimeout|nothing" size="5" disabled="disabled"/></td>
+        </tr>
+        <tr>
+            <th align="left" i18n:translate="">FME read timeout (seconds)</th>
+            <td colspan="2"><input type="text" name="FMEReadTimeout"
+                       tal:attributes="value here/FMEReadTimeout|nothing" size="5" disabled="disabled"/></td>
+        </tr>
         <tr>
             <th align="left" i18n:translate="">Activity ID</th>
         <td colspan="2"><input type="text" name="app_name"
