@@ -7,6 +7,19 @@
   To change property values, edit the values and click "Save Changes".
 </p>
 
+<tal:block define="problems here/validate_settings">
+  <div tal:condition="problems" class="form-help"
+       style="border-left: 4px solid #c00; padding: 0.5em 1em; margin: 1em 0;">
+    <strong i18n:translate="">This application will not convert as configured:</strong>
+    <ul>
+      <li tal:repeat="problem problems">
+        <strong tal:content="problem/level">level</strong>:
+        <span tal:content="problem/message">message</span>
+      </li>
+    </ul>
+  </div>
+</tal:block>
+
 <form action="manage_settings" method="post">
   <table>
     <tr>
@@ -20,16 +33,31 @@
      </td>
    </tr>
    <tr>
+    <th align="left" i18n:translate="">FME REST API version</th>
+    <td colspan="2">
+      <select name="FMEApiVersion" id="FMEApiVersion" style="width: 100%">
+        <option value="v3" i18n:translate="" tal:attributes="selected python: not here.is_v4()">v3 (fmerest/v3 - removed in FME 2026.1)</option>
+        <option value="v4" i18n:translate="" tal:attributes="selected python: here.is_v4()">v4 (FME Flow API v4)</option>
+      </select>
+    </td>
+   </tr>
+   <tr class="fme-v4-only">
+    <th align="left" i18n:translate="">FME API endpoint (v4 only)</th>
+    <td colspan="2"><input type="text" name="FMEApiEndpoint"
+     tal:attributes="value here/FMEApiEndpoint|nothing" size="80" />
+     <em i18n:translate="">Defaults to <strong>fmeapiv4</strong>.</em></td>
+   </tr>
+   <tr class="fme-v4-only">
+    <th align="left" i18n:translate="">FME Resource connection (v4 only)</th>
+    <td colspan="2"><input type="text" name="FMEResourceConnection"
+     tal:attributes="value here/FMEResourceConnection|nothing" size="80" />
+     <em i18n:translate="">Name of the resource connection, e.g. <strong>FME_SHAREDRESOURCE_TEMP</strong>. Replaces the v3 upload endpoint path.</em></td>
+   </tr>
+   <tr>
     <th align="left" i18n:translate="">FME Token Endpoint</th>
     <td colspan="2"><input type="text" name="FMETokenEndpoint"
      tal:attributes="value here/FMETokenEndpoint" size="80" /></td>
    </tr>
-   <tr>
-    <th align="left" i18n:translate="">FME Token (Overrides automatic generation)</th>
-    <td colspan="2">
-      <input type="text" name="FMEToken" size="80" tal:attributes="value here/FMEToken|nothing"/>
-    </td>
-  </tr>
   <tr>
     <th align="left" i18n:translate="">FME Username</th>
     <td colspan="2"><input type="text" name="FMEUser"
@@ -37,8 +65,21 @@
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Password</th>
-    <td colspan="2"><input type="password" name="FMEPassword"
-     tal:attributes="value here/FMEPassword" size="80" /></td>
+    <td colspan="2">
+      <strong tal:condition="python: here.has_secret('FMEPassword')" style="color: #060;"
+              i18n:translate="">&#10003; a password is stored</strong>
+      <strong tal:condition="python: not here.has_secret('FMEPassword')" style="color: #666;"
+              i18n:translate="">&#10007; no password stored</strong><br />
+      <input type="password" name="FMEPassword" size="80" autocomplete="new-password"
+             tal:attributes="placeholder python: 'leave empty to keep the stored password' if here.has_secret('FMEPassword') else 'no password stored'"/>
+      <label><input type="checkbox" name="FMEPasswordClear" value="1" /> <span i18n:translate="">clear</span></label>
+      <em tal:condition="python: here.has_secret('FMEPassword')" i18n:translate="">
+        A password is stored. Leave empty to keep it.
+      </em>
+      <em tal:condition="python: not here.has_secret('FMEPassword')" i18n:translate="">
+        No password stored.
+      </em>
+    </td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Token Expiration</th>
@@ -53,8 +94,26 @@
       </select>
     </td>
   </tr>
-  <tr>
-    <th align="left" i18n:translate="">FME Upload endpoint</th>
+   <tr>
+    <th align="left" i18n:translate="">FME Token (Overrides automatic generation)</th>
+    <td colspan="2">
+      <strong tal:condition="python: here.has_secret('FMEToken')" style="color: #060;"
+              i18n:translate="">&#10003; a token is stored</strong>
+      <strong tal:condition="python: not here.has_secret('FMEToken')" style="color: #666;"
+              i18n:translate="">&#10007; no token stored</strong><br />
+      <input type="password" name="FMEToken" size="80" autocomplete="new-password"
+             tal:attributes="placeholder python: 'leave empty to keep the stored token' if here.has_secret('FMEToken') else 'no token stored'"/>
+      <label><input type="checkbox" name="FMETokenClear" value="1" /> <span i18n:translate="">clear</span></label>
+      <em tal:condition="python: here.has_secret('FMEToken')" i18n:translate="">
+        A token is stored. Leave empty to keep it, or tick clear to fall back to automatic generation.
+      </em>
+      <em tal:condition="python: not here.has_secret('FMEToken')" i18n:translate="">
+        No token stored, one is generated from the username and password below.
+      </em>
+    </td>
+  </tr>
+  <tr class="fme-v3-only">
+    <th align="left" i18n:translate="">FME Upload endpoint (v3 only)</th>
     <td colspan="2"><input type="text" name="FMEUploadEndpoint"
      tal:attributes="value here/FMEUploadEndpoint|nothing" size="80" /></td>
    </tr>
@@ -63,10 +122,16 @@
     <td colspan="2"><input type="text" name="FMEUploadDir"
      tal:attributes="value here/FMEUploadDir|nothing" size="80" /></td>
    </tr>
-   <tr>
-    <th align="left" i18n:translate="">FME Transformation path</th>
+   <tr class="fme-v3-only">
+    <th align="left" i18n:translate="">FME Transformation path (v3 only)</th>
     <td colspan="2"><input type="text" name="FMETransformation"
      tal:attributes="value here/FMETransformation|nothing" size="80" /></td>
+   </tr>
+   <tr class="fme-v4-only">
+    <th align="left" i18n:translate="">FME Repository (v4 only)</th>
+    <td colspan="2"><input type="text" name="FMERepository"
+     tal:attributes="value here/FMERepository|nothing" size="80" />
+     <em i18n:translate="">Repository of the workspace to run. In v4 the repository is sent in the job payload, not in the url.</em></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Workspace</th>
@@ -89,6 +154,11 @@
         <li i18n:translate=""><strong>GET_ENV_OBLIGATION</strong> - The obligation number of the envelope (e.g. 780)</li>
         <li i18n:translate=""><strong>ENVPATHTOKENIZED</strong> - The tokenized path of the envelope (e.g. /ro/eu/envelope_id = ro_eu_envelope_id)</li>
       </ul>
+      <p i18n:translate="">
+        With the <strong>v4</strong> API, <strong>publishedParameters</strong> must be a JSON
+        object, e.g. <code>{"publishedParameters": {"inputfile": "{GET_FILE}"}}</code>,
+        instead of the v3 list of name/value pairs.
+      </p>
     </td>
   </tr>
   <tr>
@@ -133,9 +203,51 @@
     </td>
   </tr>
   <tr>
+    <th align="left" i18n:translate="">FME connect timeout (seconds)</th>
+    <td align="left">
+      <input type="text" name="FMEConnectTimeout" tal:attributes="value here/FMEConnectTimeout|nothing" size="5" />
+      <em i18n:translate="">Time to wait for FME to accept the connection. Empty or 0 waits forever.</em>
+    </td>
+  </tr>
+  <tr>
+    <th align="left" i18n:translate="">FME read timeout (seconds)</th>
+    <td align="left">
+      <input type="text" name="FMEReadTimeout" tal:attributes="value here/FMEReadTimeout|nothing" size="5" />
+      <em i18n:translate="">Time to wait between two chunks of an FME response. Empty or 0 waits forever.</em>
+    </td>
+  </tr>
+  <tr>
     <td></td>
     <td><input type="submit" value="Save Changes" i18n:attributes="value btn-save-changes" /></td>
   </tr>
 </table>
 </form>
+
+<script type="text/javascript">
+  (function () {
+    var select;
+
+    function toggleApiVersionRows() {
+      var isV4 = select.value === "v4";
+      var rows = document.querySelectorAll("tr.fme-v3-only, tr.fme-v4-only");
+      for (var i = 0; i < rows.length; i++) {
+        var v4Only = rows[i].className.indexOf("fme-v4-only") !== -1;
+        rows[i].style.display = (v4Only === isV4) ? "" : "none";
+      }
+    }
+
+    function init() {
+      select = document.getElementById("FMEApiVersion");
+      if (!select) { return; }
+      select.addEventListener("change", toggleApiVersionRows);
+      toggleApiVersionRows();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
 <tal:block tal:content="structure here/manage_page_footer"/>

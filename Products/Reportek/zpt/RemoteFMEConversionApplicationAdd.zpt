@@ -17,14 +17,25 @@
       <td colspan="2"><input type="text" name="FMEServer" size="40" /></td>
     </tr>
     <tr>
-      <th i18n:translate="">FME Token Endpoint</th>
-      <td colspan="2"><input type="text" name="FMETokenEndpoint" size="40" /></td>
+      <th i18n:translate="">FME REST API version</th>
+      <td colspan="2">
+        <select name="FMEApiVersion" id="FMEApiVersion" style="width: 100%">
+          <option value="v3" i18n:translate="">v3 (fmerest/v3 - removed in FME 2026.1)</option>
+          <option value="v4" i18n:translate="" selected="selected">v4 (FME Flow API v4)</option>
+        </select>
+      </td>
+    </tr>
+    <tr class="fme-v4-only">
+      <th i18n:translate="">FME API endpoint (v4 only)</th>
+      <td colspan="2"><input type="text" name="FMEApiEndpoint" value="fmeapiv4" size="40" /></td>
+    </tr>
+    <tr class="fme-v4-only">
+      <th i18n:translate="">FME Resource connection (v4 only)</th>
+      <td colspan="2"><input type="text" name="FMEResourceConnection" size="40" /></td>
     </tr>
     <tr>
-      <th i18n:translate="">FME Token (Overrides automatic generation)</th>
-      <td colspan="2">
-        <input type="text" name="FMEToken" size="40" />
-      </td>
+      <th i18n:translate="">FME Token Endpoint</th>
+      <td colspan="2"><input type="text" name="FMETokenEndpoint" size="40" /></td>
     </tr>
     <tr>
       <th i18n:translate="">FME Username</th>
@@ -47,16 +58,26 @@
       </td>
     </tr>
     <tr>
-      <th i18n:translate="">FME Upload endpoint</th>
+      <th i18n:translate="">FME Token (Overrides automatic generation)</th>
+      <td colspan="2">
+        <input type="text" name="FMEToken" size="40" />
+      </td>
+    </tr>
+    <tr class="fme-v3-only">
+      <th i18n:translate="">FME Upload endpoint (v3 only)</th>
       <td colspan="2"><input type="text" name="FMEUploadEndpoint" size="40" /></td>
     </tr>
     <tr>
       <th i18n:translate="">FME Upload directory (relative to FME Upload Endpoint)</th>
       <td colspan="2"><input type="text" name="FMEUploadDir" size="40" /></td>
     </tr>
-    <tr>
-      <th i18n:translate="">FME Transformation path</th>
+    <tr class="fme-v3-only">
+      <th i18n:translate="">FME Transformation path (v3 only)</th>
       <td colspan="2"><input type="text" name="FMETransformation" size="40" /></td>
+    </tr>
+    <tr class="fme-v4-only">
+      <th i18n:translate="">FME Repository (v4 only)</th>
+      <td colspan="2"><input type="text" name="FMERepository" size="40" /></td>
     </tr>
     <tr>
       <th i18n:translate="">FME Workspace</th>
@@ -96,6 +117,14 @@
       </td>
     </tr>
     <tr>
+      <th i18n:translate="">FME connect timeout (seconds)</th>
+      <td colspan="2"><input type="text" name="FMEConnectTimeout" value="10" size="40" /></td>
+    </tr>
+    <tr>
+      <th i18n:translate="">FME read timeout (seconds)</th>
+      <td colspan="2"><input type="text" name="FMEReadTimeout" value="300" size="40" /></td>
+    </tr>
+    <tr>
       <th i18n:translate="">Activity ID</th>
       <td colspan="2"><input type="text" name="app_name" size="40" /></td>
     </tr>
@@ -105,5 +134,33 @@
       </tr>
     </table>
     </form>
+
+<script type="text/javascript">
+  (function () {
+    var select;
+
+    function toggleApiVersionRows() {
+      var isV4 = select.value === "v4";
+      var rows = document.querySelectorAll("tr.fme-v3-only, tr.fme-v4-only");
+      for (var i = 0; i < rows.length; i++) {
+        var v4Only = rows[i].className.indexOf("fme-v4-only") !== -1;
+        rows[i].style.display = (v4Only === isV4) ? "" : "none";
+      }
+    }
+
+    function init() {
+      select = document.getElementById("FMEApiVersion");
+      if (!select) { return; }
+      select.addEventListener("change", toggleApiVersionRows);
+      toggleApiVersionRows();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>
   </metal:block>
 </metal:block>

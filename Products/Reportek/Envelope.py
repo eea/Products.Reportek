@@ -763,8 +763,30 @@ class Envelope(
 
         if getSecurityManager().checkPermission("View management screens", self):
             return self.manage_main_inh(*args, **kw)
-        else:
-            return self.index_html(*args, **kw)
+
+        # OFS management methods (manage_delObjects, manage_pasteObjects,
+        # manage_renameObjects, ...) report back using the ZMI calling
+        # convention ``self.manage_main(self, REQUEST, update_menu=1)``.
+        # index_html() only accepts REQUEST.
+        REQUEST = kw.get("REQUEST")
+        if REQUEST is None:
+            for arg in args:
+                if hasattr(arg, "RESPONSE"):
+                    REQUEST = arg
+                    break
+        if REQUEST is None:
+            REQUEST = getattr(self, "REQUEST", None)
+
+        if REQUEST is not None:
+            # We get here right after a write (file deleted, pasted,
+            # renamed), so keep plone.protect from replacing the response
+            # with its confirmation view, and send the browser back to the
+            # envelope rather than leaving it on .../manage_delObjects.
+            alsoProvides(REQUEST, IDisableCSRFProtection)
+            REQUEST.RESPONSE.redirect(self.absolute_url())
+            return ""
+
+        return self.index_html(REQUEST)
 
     security.declareProtected("View", "getDocuments")
 
