@@ -1,3 +1,6 @@
+100.2.36-dev (Unreleased)
+-------------------------
+
 100.2.35 (2026-09-15)
 ---------------------
 * feat: add FME Flow REST API v4 support for RemoteFMEConversionApplication - refs #308485
