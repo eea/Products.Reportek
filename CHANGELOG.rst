@@ -1,5 +1,5 @@
-100.2.36-dev (Unreleased)
--------------------------
+100.2.36 (2026-09-17)
+---------------------
 * fix: fixed referral meta_type query in collection's index template - refs #308505
 
 100.2.35 (2026-09-15)
