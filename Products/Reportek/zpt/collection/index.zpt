@@ -42,7 +42,7 @@
                          desc python: 0 if sort_on=='title' else 1;
                          colls python: here.get_children('Report Collection', sort_on, desc);
                          envs python: here.get_children('Report Envelope', 'reportingdate');
-                         refs python: here.get_children('Report Referral', 'title', 0);
+                         refs python: here.get_children('Repository Referral', 'title', 0);
                          bdr_has_envs python: isBdrDeployment and envs;
                          company_id python: getattr(here, 'company_id', '');
                          is_bdr_test_company python: 'Test' in here.title and 'organisation' in here.title and company_id;
