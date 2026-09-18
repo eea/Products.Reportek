@@ -1803,7 +1803,8 @@ class EnvelopeCustomDataflows(Toolz):
         for fxml in fxmls:
             self.manage_addDocument(
                 id=str(fxml.getId()),
-                file=str(fxml.data),
+                file=bytes(fxml.data),
+                content_type=fxml.content_type,
                 REQUEST=REQUEST,
                 deferred_compress=None,
             )

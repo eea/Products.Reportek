@@ -1,3 +1,7 @@
+100.2.37 (2026-09-18)
+---------------------
+* fix: fixed copy_prefil python3 migration regression - refs #308615
+
 100.2.36 (2026-09-17)
 ---------------------
 * fix: fixed referral meta_type query in collection's index template - refs #308505
