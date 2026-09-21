@@ -530,11 +530,26 @@ class FMEConversionApplicationSecurityTest(BaseUnitTest):
             roles = getattr(RemoteFMEConversionApplication, name + "__roles__", None)
             self.assertEqual(getattr(roles, "_p", None), permission, name)
 
-    def test_the_object_itself_is_protected(self):
-        # Use OpenFlow, not a management permission: the envelope traverses to
-        # the application as the reporter driving the workflow
-        roles = getattr(RemoteFMEConversionApplication, "__roles__", None)
-        self.assertEqual(getattr(roles, "_p", None), "_Use_OpenFlow_Permission")
+    def test_the_object_stays_reachable(self):
+        """The envelope traverses to the application as the reporter.
+
+        A reporter holds its role locally on its own collection, never on
+        /Applications, so protecting the object itself locks the workflow out
+        with "You are not allowed to access FMEConversionApplication".
+        """
+        self.assertEqual(
+            getattr(RemoteFMEConversionApplication, "__roles__", "ABSENT"), "ABSENT"
+        )
+
+    def test_a_plain_authenticated_user_can_traverse_to_it(self):
+        folder = Folder("f")
+        app = self._make_app()
+        folder._setObject("fme", app)
+        newSecurityManager(None, SimpleUser("rep", "", ["Authenticated"], []))
+        try:
+            guarded_getattr(folder, "fme")
+        finally:
+            noSecurityManager()
 
     def test_configuration_attributes_carry_no_permission(self):
         """Protecting a plain value denies everybody, Managers included.
@@ -543,145 +558,98 @@ class FMEConversionApplicationSecurityTest(BaseUnitTest):
         string has none, so `declareProtected` on a data attribute locks out
         every user whose account lives in a user folder.
         """
-        for name in (
-            "FMEServer",
-            "FMEUser",
-            "FMEPassword",
-            "FMEToken",
-            "FMEUploadDir",
-            "FMEWorkspaceParams",
-            "FMEApiVersion",
-            "FMEConnectTimeout",
-        ):
+        for name in RemoteFMEConversionApplication.PROTECTED_ATTRIBUTES:
             self.assertEqual(
                 getattr(RemoteFMEConversionApplication, name + "__roles__", "ABSENT"),
                 "ABSENT",
                 "%s is permission protected, which denies every real user" % name,
             )
 
-    def test_the_credentials_are_denied_to_restricted_code(self):
-        app = RemoteFMEConversionApplication(
-            "fme",
-            "",
-            "https://fme.example",
-            "",
-            "a-token",
-            "user",
-            "secret",
-            "",
-            "minute",
-            "up",
-            "dir",
-            "tr",
-            None,
-            "gml",
-            False,
-            "w.fmw",
-            None,
-            True,
-            300,
-            "fme_app",
-        )
-        for name in ("FMEPassword", "FMEToken"):
-            self.assertFalse(app.__allow_access_to_unprotected_subobjects__(name))
-        for name in ("FMEServer", "FMEUser", "FMEUploadDir"):
+    def test_the_configuration_is_denied_to_restricted_code(self):
+        app = self._make_app()
+        for name in RemoteFMEConversionApplication.PROTECTED_ATTRIBUTES:
+            self.assertFalse(
+                app.__allow_access_to_unprotected_subobjects__(name),
+                "%s is readable through the publisher" % name,
+            )
+        for name in ("title", "id", "meta_type"):
             self.assertTrue(app.__allow_access_to_unprotected_subobjects__(name))
 
-    def test_anonymous_cannot_reach_the_application(self):
+    def test_nobody_reads_the_configuration_off_the_object(self):
         folder = Folder("f")
-        app = RemoteFMEConversionApplication(
-            "fme",
-            "",
-            "https://fme.example",
-            "",
-            "a-token",
-            "user",
-            "secret",
-            "",
-            "minute",
-            "up",
-            "dir",
-            "tr",
-            None,
-            "gml",
-            False,
-            "w.fmw",
-            None,
-            True,
-            300,
-            "fme_app",
-        )
+        app = self._make_app()
         folder._setObject("fme", app)
-        newSecurityManager(None, SimpleUser("anon", "", ["Anonymous"], []))
-        try:
-            with self.assertRaises(Unauthorized):
-                guarded_getattr(folder, "fme")
-            for name in ("FMEPassword", "FMEToken") + tuple(self.PRIVATE):
-                with self.assertRaises(
-                    Unauthorized, msg="%s is anonymously readable" % name
-                ):
-                    guarded_getattr(folder.fme, name)
-        finally:
-            noSecurityManager()
+        for user in (
+            SimpleUser("anon", "", ["Anonymous"], []),
+            SimpleUser("rep", "", ["Authenticated"], []),
+            SimpleUser("boss", "", ["Manager"], []),
+        ):
+            newSecurityManager(None, user)
+            try:
+                for name in (
+                    "FMEPassword",
+                    "FMEToken",
+                    "FMEServer",
+                    "FMEWorkspaceParams",
+                ) + tuple(self.PRIVATE):
+                    with self.assertRaises(
+                        Unauthorized,
+                        msg="%s is readable by %s" % (name, user.getUserName()),
+                    ):
+                        guarded_getattr(folder.fme, name)
+            finally:
+                noSecurityManager()
 
-    def test_a_manager_can_read_what_the_templates_render(self):
+    def test_a_manager_reads_the_configuration_through_the_accessor(self):
         folder = Folder("f")
-        app = RemoteFMEConversionApplication(
-            "fme",
-            "",
-            "https://fme.example",
-            "",
-            "a-token",
-            "user",
-            "secret",
-            "",
-            "minute",
-            "up",
-            "dir",
-            "tr",
-            None,
-            "gml",
-            False,
-            "w.fmw",
-            None,
-            True,
-            300,
-            "fme_app",
-        )
+        app = self._make_app()
         folder._setObject("fme", app)
         newSecurityManager(None, SimpleUser("boss", "", ["Manager"], []))
         try:
-            for name in (
-                "title",
-                "FMEServer",
-                "FMEApiVersion",
-                "FMEApiEndpoint",
-                "FMEResourceConnection",
-                "FMERepository",
-                "FMETokenEndpoint",
-                "FMEUser",
-                "FMETokenExpiration",
-                "FMETokenTimeUnit",
-                "FMEUploadEndpoint",
-                "FMEUploadDir",
-                "FMETransformation",
-                "FMEWorkspace",
-                "FMEWorkspaceParams",
-                "FMEUploadParams",
-                "FMEFileTypes",
-                "FMEUploadAll",
-                "FMEConvCleanup",
-                "FMEConnectTimeout",
-                "FMEReadTimeout",
-                "app_name",
-                "nRetries",
-                "retryFrequency",
-                "is_v4",
-                "has_secret",
-            ):
+            for name in ("get_settings", "has_secret", "is_v4"):
                 guarded_getattr(folder.fme, name)
+            settings = folder.fme.get_settings()
         finally:
             noSecurityManager()
+
+        self.assertEqual(settings["FMEServer"], "https://fme.example")
+        for name in RemoteFMEConversionApplication.SENSITIVE_ATTRIBUTES:
+            self.assertNotIn(name, settings)
+
+    def test_a_reporter_cannot_use_the_accessor(self):
+        folder = Folder("f")
+        app = self._make_app()
+        folder._setObject("fme", app)
+        newSecurityManager(None, SimpleUser("rep", "", ["Authenticated"], []))
+        try:
+            with self.assertRaises(Unauthorized):
+                guarded_getattr(folder.fme, "get_settings")
+        finally:
+            noSecurityManager()
+
+    def _make_app(self):
+        return RemoteFMEConversionApplication(
+            "fme",
+            "",
+            "https://fme.example",
+            "",
+            "a-token",
+            "user",
+            "secret",
+            "",
+            "minute",
+            "up",
+            "dir",
+            "tr",
+            None,
+            "gml",
+            False,
+            "w.fmw",
+            None,
+            True,
+            300,
+            "fme_app",
+        )
 
 
 class FMEConversionApplicationTimeoutTest(BaseUnitTest):

@@ -20,6 +20,7 @@
   </div>
 </tal:block>
 
+<tal:block define="settings here/get_settings">
 <form action="manage_settings" method="post">
   <table>
     <tr>
@@ -29,7 +30,7 @@
     <tr>
       <th align="left" i18n:translate="">FME Server</th>
       <td colspan="2"><input type="text" name="FMEServer"
-       tal:attributes="value here/FMEServer" size="80" />
+       tal:attributes="value settings/FMEServer" size="80" />
      </td>
    </tr>
    <tr>
@@ -44,24 +45,24 @@
    <tr class="fme-v4-only">
     <th align="left" i18n:translate="">FME API endpoint (v4 only)</th>
     <td colspan="2"><input type="text" name="FMEApiEndpoint"
-     tal:attributes="value here/FMEApiEndpoint|nothing" size="80" />
+     tal:attributes="value settings/FMEApiEndpoint|nothing" size="80" />
      <em i18n:translate="">Defaults to <strong>fmeapiv4</strong>.</em></td>
    </tr>
    <tr class="fme-v4-only">
     <th align="left" i18n:translate="">FME Resource connection (v4 only)</th>
     <td colspan="2"><input type="text" name="FMEResourceConnection"
-     tal:attributes="value here/FMEResourceConnection|nothing" size="80" />
+     tal:attributes="value settings/FMEResourceConnection|nothing" size="80" />
      <em i18n:translate="">Name of the resource connection, e.g. <strong>FME_SHAREDRESOURCE_TEMP</strong>. Replaces the v3 upload endpoint path.</em></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Token Endpoint</th>
     <td colspan="2"><input type="text" name="FMETokenEndpoint"
-     tal:attributes="value here/FMETokenEndpoint" size="80" /></td>
+     tal:attributes="value settings/FMETokenEndpoint" size="80" /></td>
    </tr>
   <tr>
     <th align="left" i18n:translate="">FME Username</th>
     <td colspan="2"><input type="text" name="FMEUser"
-     tal:attributes="value here/FMEUser" size="80" /></td>
+     tal:attributes="value settings/FMEUser" size="80" /></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Password</th>
@@ -84,13 +85,13 @@
    <tr>
     <th align="left" i18n:translate="">FME Token Expiration</th>
     <td colspan="1"><input type="text" name="FMETokenExpiration"
-     tal:attributes="value here/FMETokenExpiration" style="width: 100%"/></td>
+     tal:attributes="value settings/FMETokenExpiration" style="width: 100%"/></td>
      <td colspan="1">
       <select name="FMETokenTimeUnit" style="width: 100%">
-        <option value="second" i18n:translate="" tal:attributes="selected python: here.FMETokenTimeUnit == 'second'">Second(s)</option>
-        <option value="minute" i18n:translate="" tal:attributes="selected python: here.FMETokenTimeUnit == 'minute'">Minute(s)</option>
-        <option value="hour" i18n:translate="" tal:attributes="selected python: here.FMETokenTimeUnit == 'hour'">Hour(s)</option>
-        <option value="day" i18n:translate="" tal:attributes="selected python: here.FMETokenTimeUnit == 'day'">Day(s)</option>
+        <option value="second" i18n:translate="" tal:attributes="selected python: settings['FMETokenTimeUnit'] == 'second'">Second(s)</option>
+        <option value="minute" i18n:translate="" tal:attributes="selected python: settings['FMETokenTimeUnit'] == 'minute'">Minute(s)</option>
+        <option value="hour" i18n:translate="" tal:attributes="selected python: settings['FMETokenTimeUnit'] == 'hour'">Hour(s)</option>
+        <option value="day" i18n:translate="" tal:attributes="selected python: settings['FMETokenTimeUnit'] == 'day'">Day(s)</option>
       </select>
     </td>
   </tr>
@@ -115,35 +116,35 @@
   <tr class="fme-v3-only">
     <th align="left" i18n:translate="">FME Upload endpoint (v3 only)</th>
     <td colspan="2"><input type="text" name="FMEUploadEndpoint"
-     tal:attributes="value here/FMEUploadEndpoint|nothing" size="80" /></td>
+     tal:attributes="value settings/FMEUploadEndpoint|nothing" size="80" /></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Upload directory (relative to FME Upload Endpoint)</th>
     <td colspan="2"><input type="text" name="FMEUploadDir"
-     tal:attributes="value here/FMEUploadDir|nothing" size="80" /></td>
+     tal:attributes="value settings/FMEUploadDir|nothing" size="80" /></td>
    </tr>
    <tr class="fme-v3-only">
     <th align="left" i18n:translate="">FME Transformation path (v3 only)</th>
     <td colspan="2"><input type="text" name="FMETransformation"
-     tal:attributes="value here/FMETransformation|nothing" size="80" /></td>
+     tal:attributes="value settings/FMETransformation|nothing" size="80" /></td>
    </tr>
    <tr class="fme-v4-only">
     <th align="left" i18n:translate="">FME Repository (v4 only)</th>
     <td colspan="2"><input type="text" name="FMERepository"
-     tal:attributes="value here/FMERepository|nothing" size="80" />
+     tal:attributes="value settings/FMERepository|nothing" size="80" />
      <em i18n:translate="">Repository of the workspace to run. In v4 the repository is sent in the job payload, not in the url.</em></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">FME Workspace</th>
     <td colspan="2"><input type="text" name="FMEWorkspace"
-     tal:attributes="value here/FMEWorkspace|nothing" size="80" /></td>
+     tal:attributes="value settings/FMEWorkspace|nothing" size="80" /></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">
       FME Workspace exec parameters (JSON template)
     </th>
     <td colspan="2">
-      <textarea name="FMEWorkspaceParams" rows="20" cols="80" size="80" tal:content="here/FMEWorkspaceParams|nothing"><!--  --></textarea>
+      <textarea name="FMEWorkspaceParams" rows="20" cols="80" size="80" tal:content="settings/FMEWorkspaceParams|nothing"><!--  --></textarea>
     </td>
     <td i18n:translate="">
       Available variables: 
@@ -165,54 +166,54 @@
     <th align="left" i18n:translate="">FME Upload Parameters (one per line)</th>
     <td colspan="2">
       <textarea name="FMEUploadParams"
-        tal:content="here/FMEUploadParams|nothing" rows="10" cols="80" size="80"></textarea>
+        tal:content="settings/FMEUploadParams|nothing" rows="10" cols="80" size="80"></textarea>
     </td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">FME Convert Filetypes (one per line)</th>
     <td colspan="2">
       <textarea name="FMEFileTypes"
-      tal:content="here/FMEFileTypes|nothing" rows="5" cols="80" size="80"></textarea>
+      tal:content="settings/FMEFileTypes|nothing" rows="5" cols="80" size="80"></textarea>
     </td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">FME Upload all files in the envelope</th>
     <td colspan="2">
-      <input type="checkbox" name="FMEUploadAll" tal:attributes="checked here/FMEUploadAll; value here/FMEUploadAll" />
+      <input type="checkbox" name="FMEUploadAll" tal:attributes="checked settings/FMEUploadAll; value settings/FMEUploadAll" />
     </td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">FME Post Conversion Cleanup</th>
     <td colspan="2">
-      <input type="checkbox" name="FMEConvCleanup" tal:attributes="checked here/FMEConvCleanup; value here/FMEConvCleanup"/>
+      <input type="checkbox" name="FMEConvCleanup" tal:attributes="checked settings/FMEConvCleanup; value settings/FMEConvCleanup"/>
     </td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">Activity ID</th>
     <td colspan="2"><input type="text" name="app_name"
-     tal:attributes="value here/app_name" size="80" /></td>
+     tal:attributes="value settings/app_name" size="80" /></td>
    </tr>
    <tr>
     <th align="left" i18n:translate="">Maximum number of retries</th>
-    <td colspan="2"><input type="text" name="nRetries" tal:attributes="value here/nRetries" size="5" /></td>
+    <td colspan="2"><input type="text" name="nRetries" tal:attributes="value settings/nRetries" size="5" /></td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">Frequency of retry (seconds)</th>
     <td align="left">
-      <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value here/retryFrequency" size="5" />
+      <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value settings/retryFrequency" size="5" />
     </td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">FME connect timeout (seconds)</th>
     <td align="left">
-      <input type="text" name="FMEConnectTimeout" tal:attributes="value here/FMEConnectTimeout|nothing" size="5" />
+      <input type="text" name="FMEConnectTimeout" tal:attributes="value settings/FMEConnectTimeout|nothing" size="5" />
       <em i18n:translate="">Time to wait for FME to accept the connection. Empty or 0 waits forever.</em>
     </td>
   </tr>
   <tr>
     <th align="left" i18n:translate="">FME read timeout (seconds)</th>
     <td align="left">
-      <input type="text" name="FMEReadTimeout" tal:attributes="value here/FMEReadTimeout|nothing" size="5" />
+      <input type="text" name="FMEReadTimeout" tal:attributes="value settings/FMEReadTimeout|nothing" size="5" />
       <em i18n:translate="">Time to wait between two chunks of an FME response. Empty or 0 waits forever.</em>
     </td>
   </tr>
@@ -222,6 +223,7 @@
   </tr>
 </table>
 </form>
+</tal:block>
 
 <script type="text/javascript">
   (function () {
