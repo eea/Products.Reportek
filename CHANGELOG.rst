@@ -1,3 +1,7 @@
+100.2.38 (2026-09-21)
+---------------------
+* fix: fixed regression in RemoteFMEConversionApplication permission checking - refs #308688
+
 100.2.37 (2026-09-18)
 ---------------------
 * fix: fixed copy_prefil python3 migration regression - refs #308615

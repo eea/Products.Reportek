@@ -112,11 +112,40 @@ def manage_addRemoteFMEConversionApplication(
 
 class RemoteFMEConversionApplication(SimpleItem):
     security = ClassSecurityInfo()
-    security.declareObjectProtected("Use OpenFlow")
     SENSITIVE_ATTRIBUTES = ("FMEPassword", "FMEToken")
+    # The whole configuration is denied to restricted code: it is published
+    # otherwise, and it holds the FME credentials. The object itself stays
+    # reachable, because the envelope traverses to it as the reporter driving
+    # the workflow, and a reporter only holds its role locally on its own
+    # collection, not on /Applications.
+    PROTECTED_ATTRIBUTES = SENSITIVE_ATTRIBUTES + (
+        "FMEServer",
+        "FMETokenEndpoint",
+        "FMEUser",
+        "FMETokenExpiration",
+        "FMETokenTimeUnit",
+        "FMEUploadEndpoint",
+        "FMEUploadDir",
+        "FMETransformation",
+        "FMEUploadParams",
+        "FMEFileTypes",
+        "FMEUploadAll",
+        "FMEWorkspace",
+        "FMEWorkspaceParams",
+        "FMEConvCleanup",
+        "FMEApiVersion",
+        "FMEApiEndpoint",
+        "FMEResourceConnection",
+        "FMERepository",
+        "FMEConnectTimeout",
+        "FMEReadTimeout",
+        "retryFrequency",
+        "nRetries",
+        "app_name",
+    )
 
     def __allow_access_to_unprotected_subobjects__(self, name, value=None):
-        return name not in self.SENSITIVE_ATTRIBUTES
+        return name not in self.PROTECTED_ATTRIBUTES
 
     meta_type = "Remote FME Application"
     manage_options = (
@@ -198,6 +227,7 @@ class RemoteFMEConversionApplication(SimpleItem):
     )
     security.declareProtected("Use OpenFlow", "__call__")
     security.declareProtected("View configuration", "is_v4")
+    security.declareProtected("View configuration", "get_settings")
     security.declareProtected(view_management_screens, "has_secret")
     security.declareProtected(view_management_screens, "validate_settings")
 
@@ -661,6 +691,19 @@ class RemoteFMEConversionApplication(SimpleItem):
                 }
             )
         return problems
+
+    def get_settings(self):
+        """Return the configuration for the management templates.
+
+        The attributes are denied to restricted code, so the templates read
+        them through this accessor; the credentials are never included, use
+        has_secret() to tell whether one is stored.
+        """
+        return {
+            name: getattr(self, name, "")
+            for name in self.PROTECTED_ATTRIBUTES
+            if name not in self.SENSITIVE_ATTRIBUTES
+        }
 
     def has_secret(self, name):
         """Return True when the named credential is stored.
