@@ -106,7 +106,7 @@
               <span style="color: red;" i18n:translate="">A workflow related error occured. Unable to determine the next task</span>
             </tal:block>
             <tal:block tal:condition="OFEngine">
-              <tal:block define="canPull python:OFEngine.canPullActivity(
+              <tal:block define="canPull python:not context.is_frozen() and OFEngine.canPullActivity(
                                             item.activity_id,
                                             request.AUTHENTICATED_USER.getRolesInContext(context),
                                             item.getInstanceProcessId())">

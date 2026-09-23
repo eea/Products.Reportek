@@ -12,15 +12,38 @@
                        isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';">
 
       <tal:block tal:define="hasTerminatedObligations python:here.num_terminated_dataflows()>=1;
+                             locks python:here.active_locks();
                              bdr_can_create python: (here.is_fgas() or here.is_ods()) and here.num_terminated_dataflows() != len(here.dataflow_uris);
-                             canCreateEnvelope python: here.allowed_envelopes() and (not hasTerminatedObligations or bdr_can_create);
+                             canCreateEnvelope python: here.allowed_envelopes() and not locks and (not hasTerminatedObligations or bdr_can_create);
                              engine here/getEngine;">
 
         <tal:block tal:condition="python:not canCreateEnvelope">
           <tal:block tal:condition="not: here/allowed_envelopes">
             <p i18n:translate="">You cannot create envelopes for invalid or other companies that failed our checks.</p>
           </tal:block>
-          <tal:block tal:condition="hasTerminatedObligations">
+          <tal:block tal:condition="locks">
+            <p tal:condition="python:[r for r in locks.values() if r.get('kind') == 'migrated']"
+               i18n:translate="">This obligation is now reported on another platform, so envelopes can no longer be created here:</p>
+            <p tal:condition="python:[r for r in locks.values() if r.get('kind') != 'migrated']"
+               i18n:translate="">Reporting for this obligation is closed, so envelopes can no longer be created here:</p>
+            <ul>
+              <tal:block tal:repeat="item locks">
+                <li tal:define="record python:locks[item];
+                                df python:engine.dataflow_lookup(item)">
+                  <a tal:attributes="href df/details_url" tal:content="df/TITLE" />
+                  <tal:block tal:condition="record/target_url">
+                    &mdash; <a tal:attributes="href record/target_url" tal:content="record/target_url" />
+                  </tal:block>
+                  <tal:block tal:condition="record/open_until">
+                    <tal:block i18n:translate="">&mdash; closed since</tal:block>
+                    <tal:block tal:content="python:record['open_until'].strftime('%Y-%m-%d')" />
+                  </tal:block>
+                  <p tal:condition="record/reason" tal:content="record/reason" />
+                </li>
+              </tal:block>
+            </ul>
+          </tal:block>
+          <tal:block tal:condition="python:hasTerminatedObligations and not locks">
             <p i18n:translate="">You cannot create envelopes for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:</p>
             <ul>
               <tal:block tal:repeat="item here/dataflow_uris">

@@ -46,6 +46,7 @@ from AccessControl.SecurityManagement import (
     setSecurityManager,
 )
 from App.Common import package_home
+from BTrees.OOBTree import OOBTree
 from DateTime import DateTime
 
 # Zope imports
@@ -156,6 +157,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         {"label": "Properties", "action": "manage_properties"},
         {"label": "UNS settings", "action": "uns_settings"},
         {"label": "Migrations", "action": "migration_table"},
+        {"label": "Obligation locks", "action": "obligation_locks_table"},
     ) + Folder.manage_options[3:]
 
     _properties = (
@@ -208,6 +210,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     er_fgas_obligations = []
     er_ods_obligations = []
     preliminary_obligations = []
+    _locks = None
     er_url = ""
     er_token = ""
     auth_middleware_recheck_interval = 300
@@ -347,6 +350,133 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             data = sorted(obligations, key=itemgetter(1))
 
         return data
+
+    @property
+    def locks(self):
+        """Obligations closed to reporting, as a mapping of uri -> record."""
+        return getattr(self, "_locks", None) or OOBTree()
+
+    @staticmethod
+    def lock_is_closed(record, now=None):
+        """Return True while the obligation is closed to reporting."""
+        open_from = record.get("open_from")
+        open_until = record.get("open_until")
+        if not open_from and not open_until:
+            return True
+        now = now or DateTime()
+        if open_from and now < open_from:
+            return True
+        return bool(open_until and now > open_until)
+
+    security.declarePublic("get_closed_locks")
+
+    def get_closed_locks(self, dataflow_uris):
+        """Return the {uri: record} of the locks closed right now."""
+        locks = self.locks
+        if not locks:
+            return {}
+        now = DateTime()
+        return {
+            uri: dict(locks[uri])
+            for uri in RepUtils.utConvertToList(dataflow_uris)
+            if uri in locks and self.lock_is_closed(locks[uri], now)
+        }
+
+    security.declarePublic("get_locks")
+
+    def get_locks(self, dataflow_uris, collection=None, for_creation=False):
+        """Return the {uri: record} of the locks closing these obligations."""
+        locks = self.locks
+        if not locks:
+            return {}
+        now = DateTime()
+        active = {}
+        for uri in RepUtils.utConvertToList(dataflow_uris):
+            record = locks.get(uri)
+            if record is None or not self.lock_is_closed(record, now):
+                continue
+            if not self._lock_lets_through(record, collection, for_creation):
+                active[uri] = dict(record)
+        return active
+
+    def _lock_lets_through(self, record, collection, for_creation=False):
+        """Return True if this collection escapes an otherwise closed lock"""
+        if collection is not None and self._is_exempt_path(record, collection):
+            return True
+        migrated = record.get("kind") == "migrated"
+        if not (migrated and for_creation) and getSecurityManager().checkPermission(
+            view_management_screens, self
+        ):
+            return True
+        if not migrated and record.get("strength") == "soft" and collection is not None:
+            return not collection.has_reported(
+                record.get("reporting_year"),
+                year_basis=record.get("year_basis"),
+            )
+        return False
+
+    @staticmethod
+    def _is_exempt_path(record, collection):
+        """Return True if the collection sits under one of the exempt paths"""
+        exempt = record.get("exempt_paths") or []
+        if not exempt:
+            return False
+        path = "/".join(collection.getPhysicalPath())
+        return any(
+            path == prefix or path.startswith(prefix.rstrip("/") + "/")
+            for prefix in exempt
+        )
+
+    security.declareProtected(view_management_screens, "set_lock")
+
+    def set_lock(self, dataflow_uri, **fields):
+        """Close an obligation to reporting.
+
+        Recognised fields: kind, strength, reason, target_url, open_from,
+        open_until, reporting_year, year_basis and exempt_paths.
+        """
+        if getattr(self, "_locks", None) is None:
+            self._locks = OOBTree()
+        record = PersistentMapping(
+            {
+                "kind": fields.get("kind") or "seasonal",
+                "strength": fields.get("strength") or "hard",
+                "reason": fields.get("reason") or "",
+                "target_url": fields.get("target_url") or "",
+                "open_from": fields.get("open_from"),
+                "open_until": fields.get("open_until"),
+                "reporting_year": fields.get("reporting_year"),
+                "year_basis": fields.get("year_basis") or "years",
+                "exempt_paths": PersistentList(fields.get("exempt_paths") or []),
+                "set_by": self.REQUEST.AUTHENTICATED_USER.getUserName(),
+                "set_on": DateTime(),
+            }
+        )
+        if record["kind"] == "migrated":
+            # A migration has no window and no one to let through.
+            record.update(
+                {
+                    "strength": "hard",
+                    "open_from": None,
+                    "open_until": None,
+                    "reporting_year": None,
+                }
+            )
+        self._locks[dataflow_uri] = record
+
+    security.declareProtected(view_management_screens, "unset_locks")
+
+    def unset_locks(self, dataflow_uris):
+        """Reopen the given obligations"""
+        locks = getattr(self, "_locks", None)
+        if locks is None:
+            return 0
+        removed = 0
+        for uri in RepUtils.utConvertToList(dataflow_uris):
+            if uri in locks:
+                del locks[uri]
+                removed += 1
+        return removed
 
     _manage_properties = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/engine/prop.zpt")
@@ -1669,6 +1799,228 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         todo_rows = sorted(todo_rows, key=lambda o: o.get("version"), reverse=True)
         return self._migration_table(
             todo_migrationRows=todo_rows, done_migrationRows=done_rows
+        )
+
+    _obligation_locks_table = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engine/obligation_locks.zpt")
+    )
+
+    def _get_processes_by_dataflow(self):
+        """Reverse the workflow engine's process mappings.
+
+        Returns (uri -> [process ids], catch-all process ids). Processes
+        mapped to '*' match every obligation, so they are reported apart
+        instead of being repeated on every row.
+        """
+        by_dataflow = {}
+        catch_all = []
+        workflow_engine = getattr(self, constants.WORKFLOW_ENGINE_ID, None)
+        if workflow_engine is None:
+            return by_dataflow, catch_all
+        mappings = workflow_engine.getProcessMappings()
+        for process_id, mapping in mappings.items():
+            dataflows = mapping.get("dataflows", [])
+            if dataflows == ["*"]:
+                catch_all.append(process_id)
+                continue
+            for uri in dataflows:
+                by_dataflow.setdefault(uri, []).append(process_id)
+        return by_dataflow, sorted(catch_all)
+
+    def _get_mapping_records_by_dataflow(self, dataflow_uris):
+        """Return uri -> [mapping record] in a single catalog query"""
+        by_dataflow = {}
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        if catalog is None:
+            return by_dataflow
+        brains = catalog.searchResults(
+            meta_type="Dataflow Mappings Record",
+            dataflow_uri=dataflow_uris,
+            path={
+                "query": "/{}".format(constants.DATAFLOW_MAPPINGS),
+                "depth": 1,
+            },
+        )
+        for brain in brains:
+            by_dataflow.setdefault(brain.dataflow_uri, []).append(
+                {
+                    "title": brain.title or brain.id,
+                    "url": brain.getURL(),
+                }
+            )
+        return by_dataflow
+
+    @staticmethod
+    def _get_obligation_id(uri, dataflow):
+        """Return the obligation number."""
+        oid = dataflow.get("PK_RA_ID")
+        if oid in (None, "", "0"):
+            oid = uri.rstrip("/").rsplit("/", 1)[-1]
+        return oid
+
+    @staticmethod
+    def _get_lock_state(record, now):
+        """Say where a lock sits relative to its window."""
+        if record.get("kind") == "migrated":
+            return "closed"
+        open_from = record.get("open_from")
+        open_until = record.get("open_until")
+        if not open_from and not open_until:
+            return "closed"
+        if open_from and now < open_from:
+            return "scheduled"
+        if open_until and now > open_until:
+            return "expired"
+        return "open"
+
+    def _get_lock_rows(self):
+        """Build the rows of the obligation locks table.
+
+        Returns (rows, catch-all process ids).
+        """
+        locks = self.locks
+        uris = list(locks.keys())
+        processes, catch_all = self._get_processes_by_dataflow()
+        if not uris:
+            return [], catch_all
+        records = self._get_mapping_records_by_dataflow(uris)
+        now = DateTime()
+        rows = []
+        for uri in uris:
+            record = locks[uri]
+            dataflow = self.dataflow_lookup(uri)
+            rows.append(
+                {
+                    "uri": uri,
+                    "oid": self._get_obligation_id(uri, dataflow),
+                    "title": dataflow.get("TITLE"),
+                    "details_url": dataflow.get("details_url"),
+                    "terminated": dataflow.get("terminated", "0") == "1",
+                    "kind": record.get("kind", "migrated"),
+                    "strength": record.get("strength", "hard"),
+                    "state": self._get_lock_state(record, now),
+                    "reason": record.get("reason"),
+                    "target_url": record.get("target_url"),
+                    "open_from": record.get("open_from"),
+                    "open_until": record.get("open_until"),
+                    "reporting_year": record.get("reporting_year"),
+                    "year_basis": record.get("year_basis"),
+                    "exempt_paths": list(record.get("exempt_paths") or []),
+                    "set_by": record.get("set_by"),
+                    "set_on": record.get("set_on"),
+                    "processes": sorted(processes.get(uri, [])),
+                    "records": records.get(uri, []),
+                }
+            )
+        rows = sorted(rows, key=lambda row: (row["title"] or "").lower())
+        return rows, catch_all
+
+    def _get_lock_choices(self):
+        """Return the obligations available for locking, grouped by source."""
+        locks = self.locks
+        grouped = {}
+        for obligation in self.dataflow_table():
+            uri = obligation.get("uri")
+            if uri in locks:
+                continue
+            source = obligation.get("SOURCE_TITLE") or "Unknown obligations"
+            grouped.setdefault(source, []).append(
+                {
+                    "oid": self._get_obligation_id(uri, obligation),
+                    "uri": uri,
+                    "title": obligation.get("TITLE") or "",
+                    "terminated": obligation.get("terminated", "0"),
+                }
+            )
+        for obligations in grouped.values():
+            obligations.sort(key=lambda o: (o["title"] or "").lower())
+        return grouped
+
+    @staticmethod
+    def _parse_lock_date(value):
+        """Read a YYYY/MM/DD or YYYY-MM-DD box, empty meaning unset"""
+        value = (value or "").strip()
+        if not value:
+            return None
+        try:
+            return DateTime(value.replace("-", "/"))
+        except Exception:
+            raise ValueError("'{}' is not a date".format(value))
+
+    def _add_lock_from_form(self, form, kind):
+        """Apply one of the two add forms, returning the message to show"""
+        uris = [
+            uri.strip()
+            for uri in RepUtils.utConvertToList(form.get("dataflow_uris", []))
+            if uri and uri.strip()
+        ]
+        if not uris:
+            return "Please select at least one obligation."
+        fields = {
+            "kind": kind,
+            "reason": form.get("reason", "").strip(),
+            "exempt_paths": [
+                path.strip()
+                for path in (form.get("exempt_paths", "") or "").splitlines()
+                if path.strip()
+            ],
+        }
+        if kind == "migrated":
+            fields["target_url"] = form.get("target_url", "").strip()
+        else:
+            try:
+                fields["open_from"] = self._parse_lock_date(form.get("open_from"))
+                fields["open_until"] = self._parse_lock_date(form.get("open_until"))
+            except ValueError as err:
+                return str(err)
+            if fields["open_from"] and fields["open_until"]:
+                if fields["open_from"] > fields["open_until"]:
+                    return "The window has to open before it closes."
+            fields["strength"] = "soft" if form.get("strength") == "soft" else "hard"
+            fields["year_basis"] = (
+                "reportingdate"
+                if form.get("year_basis") == "reportingdate"
+                else "years"
+            )
+            try:
+                fields["reporting_year"] = int(form.get("reporting_year") or 0) or None
+            except ValueError:
+                return "The reporting year has to be a number."
+            if fields["strength"] == "soft" and not fields["reporting_year"]:
+                return "A soft lock needs the reporting year it lets through."
+        for uri in uris:
+            self.set_lock(uri, **fields)
+        return "Locked {} obligation(s).".format(len(uris))
+
+    security.declareProtected("View management screens", "obligation_locks_table")
+
+    def obligation_locks_table(self):
+        """Manage the obligations closed to reporting"""
+        message = ""
+        if self.REQUEST["REQUEST_METHOD"] == "POST":
+            form = self.REQUEST.form
+            if form.get("add_migrated"):
+                message = self._add_lock_from_form(form, "migrated")
+            elif form.get("add_seasonal"):
+                message = self._add_lock_from_form(form, "seasonal")
+            elif form.get("remove"):
+                removed = self.unset_locks(form.get("uris", []))
+                message = (
+                    "Reopened {} obligation(s).".format(removed)
+                    if removed
+                    else "Please select the obligations to reopen."
+                )
+
+        rows, catch_all = self._get_lock_rows()
+        workflow_engine = getattr(self, constants.WORKFLOW_ENGINE_ID, None)
+        return self._obligation_locks_table(
+            rows=rows,
+            obligations=self._get_lock_choices(),
+            catch_all_processes=catch_all,
+            workflow_engine_url=(
+                workflow_engine.absolute_url() if workflow_engine else ""
+            ),
+            message_dialog=message,
         )
 
     security.declareProtected("View management screens", "manage_editUNSInterface")

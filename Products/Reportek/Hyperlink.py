@@ -30,6 +30,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import RepUtils
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.RepUtils import refuse_when_frozen
 
 __doc__ = """
       Hyperlink product module.
@@ -42,6 +43,7 @@ __doc__ = """
 manage_addHyperlinkForm = PageTemplateFile("zpt/hyperlink/add", globals())
 
 
+@refuse_when_frozen
 def manage_addHyperlink(self, id="", title="", hyperlinkurl="", REQUEST=None):
     """Add hyperlink as a file to a folder."""
     # generate id from the release date

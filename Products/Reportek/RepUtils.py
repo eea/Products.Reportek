@@ -27,6 +27,7 @@ import json
 import logging
 import operator
 import os
+from functools import wraps
 import re
 import string
 import sys
@@ -38,6 +39,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import FancyURLopener
 
+from AccessControl import Unauthorized
 from AccessControl.ImplPython import rolesForPermissionOn
 from AccessControl.SecurityInfo import ModuleSecurityInfo
 from AccessControl.SecurityManagement import (
@@ -742,6 +744,29 @@ def write_xls_data(data, sheet, header, row):
             if len(value) > 32000:
                 value = (value[:32000] + "..") if len(value) > 32000 else value
         sheet.write(row, header.get(key), value)
+
+
+FROZEN_MESSAGE = (
+    "This obligation is now reported on another platform, so this envelope"
+    " can no longer be changed here."
+)
+
+
+def refuse_when_frozen(method):
+    """Refuse the decorated action while the envelope is frozen.
+
+    Envelopes for an obligation flagged as migrated stay readable, but only
+    managers can still act on them.
+    """
+
+    @wraps(method)
+    def guarded(self, *args, **kwargs):
+        is_frozen = getattr(self, "is_frozen", None)
+        if is_frozen is not None and is_frozen():
+            raise Unauthorized(FROZEN_MESSAGE)
+        return method(self, *args, **kwargs)
+
+    return guarded
 
 
 def manage_as_owner(func):

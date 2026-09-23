@@ -36,6 +36,7 @@ import plone.protect.interfaces
 # Zope imports
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
+from Acquisition import aq_inner, aq_parent
 from DateTime import DateTime
 from OFS.Folder import Folder
 from zope.interface import alsoProvides
@@ -52,7 +53,7 @@ from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RemoteRabbitMQQAApplication import (
     RemoteRabbitMQQAApplication,
 )
-from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.RepUtils import getToolByName, refuse_when_frozen
 from Products.Reportek.workitem import workitem
 
 try:
@@ -424,6 +425,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "startInstance")
 
+    @refuse_when_frozen
     def startInstance(self, REQUEST=None):
         """Starts the flowing of the process instance inside the process
         definition
@@ -453,6 +455,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "assignWorkitem")
 
+    @refuse_when_frozen
     def assignWorkitem(self, workitem_id, actor, REQUEST=None):
         """Assign the specified workitem of the specified instance to the
         specified actor (string)
@@ -486,6 +489,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "unassignWorkitem")
 
+    @refuse_when_frozen
     def unassignWorkitem(self, workitem_id, REQUEST=None):
         """Unassign the specified workitem"""
         workitem = getattr(self, str(workitem_id))
@@ -499,6 +503,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     # workitem to a specific worker.
     security.declareProtected("Use OpenFlow", "activateWorkitem")
 
+    @refuse_when_frozen
     def activateWorkitem(self, workitem_id, actor=None, REQUEST=None):
         """declares the activation of the specified workitem of the given
         instance
@@ -531,6 +536,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "inactivateWorkitem")
 
+    @refuse_when_frozen
     def inactivateWorkitem(self, workitem_id, REQUEST=None):
         """declares the inactivation of the specified workitem of the given
         instance
@@ -553,6 +559,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "suspendWorkitem")
 
+    @refuse_when_frozen
     def suspendWorkitem(self, workitem_id, REQUEST=None):
         """declares the suspension of the specified workitem of the given
         instance
@@ -575,6 +582,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "resumeWorkitem")
 
+    @refuse_when_frozen
     def resumeWorkitem(self, workitem_id, REQUEST=None):
         """declares the resumption of the specified workitem of the given
         instance
@@ -595,6 +603,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "completeWorkitem")
 
+    @refuse_when_frozen
     def completeWorkitem(self, workitem_id, actor=None, REQUEST=None):
         """declares the completion of the specified workitem of the given
         instance
@@ -647,6 +656,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "forwardState")
 
+    @refuse_when_frozen
     def forwardState(self, REQUEST=None):
         """.."""
         # Disable CSRF protection
@@ -812,6 +822,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "forwardWorkitem")
 
+    @refuse_when_frozen
     def forwardWorkitem(self, workitem_id, path=None, REQUEST=None):
         """instructs openflow to forward the specified workitem"""
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
@@ -879,6 +890,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "changeWorkitem")
 
+    @refuse_when_frozen
     def changeWorkitem(
         self,
         workitem_id,
@@ -922,6 +934,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Use OpenFlow", "falloutWorkitem")
 
+    @refuse_when_frozen
     def falloutWorkitem(self, workitem_id, REQUEST=None):
         """drops the workitem in exceptional handling"""
         workitem = getattr(self, workitem_id)
@@ -1214,6 +1227,33 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if getattr(process, "restricted", False):
             return True
 
+    security.declarePublic("active_locks")
+
+    def active_locks(self):
+        """Return {uri: record} for the locks closing this envelope."""
+        engine = getattr(self, ENGINE_ID, None)
+        if engine is None:
+            return {}
+        collection = aq_parent(aq_inner(self))
+        if not hasattr(collection, "has_reported"):
+            collection = None
+        return engine.get_locks(self.dataflow_uris, collection=collection)
+
+    security.declarePublic("closed_locks")
+
+    def closed_locks(self):
+        """Return {uri: record} for the locks closed on this obligation."""
+        engine = getattr(self, ENGINE_ID, None)
+        if engine is None:
+            return {}
+        return engine.get_closed_locks(self.dataflow_uris)
+
+    security.declarePublic("is_frozen")
+
+    def is_frozen(self):
+        """Return True if this envelope is read only for the current user."""
+        return bool(self.active_locks())
+
     def delete_app_jobs(self, workitem_id):
         """Delete jobs associated with the mapped activity"""
         wk = getattr(self, workitem_id)
@@ -1240,6 +1280,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declareProtected("Reportek Cancel Activity", "cancel_activity")
 
+    @refuse_when_frozen
     def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
         """Cancel the current activity"""
         wk = getattr(self, workitem_id)
@@ -1285,8 +1326,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def is_cancellable(self, workitem_id):
         """Return True if activity is cancellable"""
         wk = getattr(self, workitem_id, None)
-        if wk and getSecurityManager().checkPermission(
-            "Reportek Cancel Activity", self
+        if (
+            wk
+            and not self.is_frozen()
+            and getSecurityManager().checkPermission("Reportek Cancel Activity", self)
         ):
             is_lr = wk.activity_id.startswith(("Automatic", "FMEConversion"))
             unfinished = wk.status != "complete" and len(self.getActiveWorkitems()) > 0

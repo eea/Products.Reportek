@@ -54,6 +54,52 @@
     >
       <div tal:replace="structure python:context.envelope_tabs(tab='overview')" />
 
+      <tal:block define="locks python:context.closed_locks()"
+                 condition="locks">
+        <div class="below-tabs">
+          <div class="important-msg" id="obligation-lock">
+            <strong tal:condition="python:[r for r in locks.values() if r.get('kind') == 'migrated']"
+                    i18n:translate="">Migrated obligation</strong>
+            <strong tal:condition="python:not [r for r in locks.values() if r.get('kind') == 'migrated']"
+                    i18n:translate="">Reporting closed</strong>
+            <p tal:condition="python:[r for r in locks.values() if r.get('kind') == 'migrated']"
+               i18n:translate="">
+              This obligation is now reported on another platform. The envelope
+              stays readable and downloadable here, but it accepts no further
+              manual work. Activities that run on their own still run.
+            </p>
+            <p tal:condition="python:not [r for r in locks.values() if r.get('kind') == 'migrated']"
+               i18n:translate="">
+              Reporting for this obligation is closed. The envelope stays
+              readable and downloadable here, but it accepts no further
+              manual work. Activities that run on their own still run.
+            </p>
+            <tal:block repeat="item locks">
+              <p tal:define="record python:locks[item];
+                             df python:context.ReportekEngine.dataflow_lookup(item)">
+                <a tal:attributes="href df/details_url" tal:content="df/TITLE" />
+                <tal:block condition="record/target_url">
+                  &mdash;
+                  <a tal:attributes="href record/target_url"
+                     tal:content="record/target_url" />
+                </tal:block>
+                <tal:block condition="record/open_until">
+                  <tal:block i18n:translate="">&mdash; closed since</tal:block>
+                  <tal:block content="python:record['open_until'].strftime('%Y-%m-%d')" />
+                </tal:block>
+                <tal:block condition="record/reason">
+                  <br /><tal:block content="record/reason" />
+                </tal:block>
+              </p>
+            </tal:block>
+            <p tal:condition="not:context/is_frozen" i18n:translate="">
+              Reporters can no longer act on it. It stays open to you, so that
+              a delivery already under way can be finished or terminated.
+            </p>
+          </div>
+        </div>
+      </tal:block>
+
       <div id="operations">
         <ul>
           <tal:block condition="python:context.canAddFeedback()">

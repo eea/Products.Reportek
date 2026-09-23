@@ -64,6 +64,7 @@ from Products.Reportek.RepUtils import (
     DFlowCatalogAware,
     getToolByName,
     parse_uri,
+    refuse_when_frozen,
 )
 from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
@@ -137,6 +138,7 @@ def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=N
     return ""
 
 
+@refuse_when_frozen
 def manage_addDocument(
     self,
     id="",
@@ -753,6 +755,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             converters=[local_converters, remote_converters],
         )
 
+    @refuse_when_frozen
     def manage_editDocument(
         self,
         title="",
@@ -820,6 +823,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         os.path.join(package_home(globals()), "zpt/document/upload.zpt")
     )
 
+    @refuse_when_frozen
     def manage_file_upload(
         self, file="", content_type="", REQUEST=None, preserve_mtime=False
     ):
