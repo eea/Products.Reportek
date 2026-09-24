@@ -90,6 +90,7 @@ from Products.Reportek.RepUtils import (
     DFlowCatalogAware,
     get_zip_cache,
     parse_uri,
+    refuse_when_frozen,
 )
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 
@@ -153,6 +154,21 @@ def manage_addEnvelope(
         actor = self.REQUEST.AUTHENTICATED_USER.getUserName()
     else:
         actor = REQUEST.AUTHENTICATED_USER.getUserName()
+    locks = self.active_locks()
+    if locks:
+        return error_response(
+            ValueError,
+            "Cannot create envelopes for obligations that are closed to"
+            " reporting: {}".format(
+                ", ".join(
+                    "{} ({})".format(uri, record["target_url"])
+                    if record.get("target_url")
+                    else uri
+                    for uri, record in locks.items()
+                )
+            ),
+            REQUEST,
+        )
     # finds the (a !) process suited for this envelope
     l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(
         self.get_dataflow_uris(), self.country
@@ -342,6 +358,13 @@ class Envelope(
         RoleManager.manage_options
         + OFS.SimpleItem.Item.manage_options
     )
+
+    # Left with the protection it inherits from OFS, only the frozen check
+    # is added: a frozen envelope keeps its documents and feedbacks.
+    @refuse_when_frozen
+    def manage_delObjects(self, ids=None, REQUEST=None):
+        """Delete the named objects, unless the envelope is frozen"""
+        return super().manage_delObjects(ids or [], REQUEST)
 
     security.declareProtected("Change Envelopes", "manage_cutObjects")
     security.declareProtected("Change Envelopes", "manage_copyObjects")
@@ -651,6 +674,7 @@ class Envelope(
 
     security.declareProtected("Change Envelopes", "manage_copyDelivery")
 
+    @refuse_when_frozen
     def manage_copyDelivery(self, previous_delivery, REQUEST=None):
         """Copies files from another envelope"""
         l_envelope = self.unrestrictedTraverse(previous_delivery)
@@ -986,6 +1010,7 @@ class Envelope(
         permission_manage_properties_envelopes, "manage_editEnvelope"
     )
 
+    @refuse_when_frozen
     def manage_editEnvelope(
         self,
         title,
@@ -1058,6 +1083,7 @@ class Envelope(
         permission_manage_properties_envelopes, "manage_changeEnvelope"
     )
 
+    @refuse_when_frozen
     def manage_changeEnvelope(
         self,
         title=None,
@@ -1210,6 +1236,7 @@ class Envelope(
 
     security.declareProtected("Change Envelopes", "restrict_editing_files")
 
+    @refuse_when_frozen
     def restrict_editing_files(self, REQUEST=None):
         """
         Restrict permission to change files' content.
@@ -1231,6 +1258,7 @@ class Envelope(
 
     security.declareProtected("Change Envelopes", "unrestrict_editing_files")
 
+    @refuse_when_frozen
     def unrestrict_editing_files(self, REQUEST=None):
         """
         Remove restriction to change files' content.
@@ -1307,7 +1335,11 @@ class Envelope(
         by the current user
         """
         hasThisPermission = getSecurityManager().checkPermission
-        return hasThisPermission("Change Envelopes", self) and not self.released
+        return (
+            hasThisPermission("Change Envelopes", self)
+            and not self.released
+            and not self.is_frozen()
+        )
 
     security.declarePublic("canAddFeedback")
 
@@ -1322,7 +1354,11 @@ class Envelope(
             if session:
                 can_add_fb = getattr(session, "can_add_feedback_before_release", False)
 
-        return hasThisPermission("Add Feedback", self) and (self.released or can_add_fb)
+        return (
+            hasThisPermission("Add Feedback", self)
+            and (self.released or can_add_fb)
+            and not self.is_frozen()
+        )
 
     security.declarePublic("canEditFeedback")
 
@@ -1331,7 +1367,11 @@ class Envelope(
         feedback
         """
         hasThisPermission = getSecurityManager().checkPermission
-        return hasThisPermission("Change Feedback", self) and self.released
+        return (
+            hasThisPermission("Change Feedback", self)
+            and self.released
+            and not self.is_frozen()
+        )
 
     security.declarePublic("canChangeEnvelope")
 
@@ -1340,7 +1380,7 @@ class Envelope(
         properties of the envelope
         """
         hasThisPermission = getSecurityManager().checkPermission
-        return hasThisPermission("Change Envelopes", self)
+        return hasThisPermission("Change Envelopes", self) and not self.is_frozen()
 
     ##################################################
     # Feedback operations
@@ -1429,6 +1469,7 @@ class Envelope(
 
     security.declareProtected("Add Feedback", "manage_deleteFeedback")
 
+    @refuse_when_frozen
     def manage_deleteFeedback(self, file_id="", REQUEST=None):
         """ """
         self.manage_delObjects(file_id)
@@ -1448,6 +1489,7 @@ class Envelope(
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
     security.declareProtected("Add Feedback", "manage_addFeedback")
 
+    @refuse_when_frozen
     def manage_addFeedback(
         self,
         id="",
@@ -1824,6 +1866,7 @@ class Envelope(
 
     security.declareProtected("Add Envelopes", "manage_addzipfile")
 
+    @refuse_when_frozen
     def manage_addzipfile(self, file="", content_type="", restricted="", REQUEST=None):
         """Expands a zipfile into a number of Documents.
         Goes through the zipfile and calls manageaddDocument

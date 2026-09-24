@@ -559,6 +559,59 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 amount += 1
         return amount
 
+    security.declarePublic("active_locks")
+
+    def active_locks(self, for_creation=True):
+        """Return {uri: record} for the locks closing this collection."""
+        return self.getEngine().get_locks(
+            self.get_dataflow_uris(), collection=self, for_creation=for_creation
+        )
+
+    security.declarePublic("has_reported")
+
+    def has_reported(self, reporting_year, year_basis="years"):
+        """Return True if a delivery for that year has been completed here.
+
+        Completed means released and completed its workflow.
+        """
+        if not reporting_year:
+            return False
+        cache_key = (self.getPhysicalPath(), reporting_year, year_basis)
+        cache = getattr(self.REQUEST, "_reportek_has_reported", None)
+        if cache is None:
+            cache = {}
+            try:
+                self.REQUEST._reportek_has_reported = cache
+            except AttributeError:
+                cache = None
+        if cache is not None and cache_key in cache:
+            return cache[cache_key]
+
+        catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
+        reported = False
+        if catalog is not None:
+            query = {
+                "meta_type": "Report Envelope",
+                "path": "/".join(self.getPhysicalPath()),
+                "released": 1,
+                "status": "complete",
+            }
+            if year_basis == "reportingdate":
+                year = int(reporting_year)
+                query["reportingdate"] = {
+                    "query": (
+                        DateTime("{}/01/01".format(year)),
+                        DateTime("{}/12/31 23:59:59".format(year)),
+                    ),
+                    "range": "min:max",
+                }
+            else:
+                query["years"] = int(reporting_year)
+            reported = bool(catalog.searchResults(**query))
+        if cache is not None:
+            cache[cache_key] = reported
+        return reported
+
     security.declareProtected(
         permission_manage_properties_collections, "manage_editCollection"
     )

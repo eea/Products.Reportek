@@ -1,3 +1,7 @@
+100.2.39 (2026-09-24)
+---------------------
+* feat: added obligation lock/freezing for migrated dataflows - refs #308507
+
 100.2.38 (2026-09-21)
 ---------------------
 * fix: fixed regression in RemoteFMEConversionApplication permission checking - refs #308688

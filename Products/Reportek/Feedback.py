@@ -55,7 +55,11 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.Comment import CommentsManager
 from Products.Reportek.interfaces import IFeedback, IFeedbackHistory
 from Products.Reportek.modification_date import set_reportek_modification_date
-from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.Reportek.RepUtils import (
+    DFlowCatalogAware,
+    parse_uri,
+    refuse_when_frozen,
+)
 
 __version__ = "$Rev$"[6:-2]
 ANNOTATION_KEY = "feedback.history"
@@ -334,6 +338,7 @@ class ReportFeedback(
 
     security.declareProtected("Change Feedback", "manage_editFeedback")
 
+    @refuse_when_frozen
     def manage_editFeedback(
         self,
         title="",
@@ -519,6 +524,7 @@ class ReportFeedback(
 
     security.declareProtected("Change Feedback", "manage_uploadFeedback")
 
+    @refuse_when_frozen
     def manage_uploadFeedback(self, file="", REQUEST=None, filename=None):
         """Upload an attachment to a feedback.
         FIXME: Misnamed method name
@@ -538,6 +544,7 @@ class ReportFeedback(
 
     security.declareProtected("Change Feedback", "manage_uploadAttFeedback")
 
+    @refuse_when_frozen
     def manage_uploadAttFeedback(self, file_id="", file="", REQUEST=None):
         """Replace the content of an existing attachment"""
         file_ob = self._getOb(file_id)
@@ -551,6 +558,7 @@ class ReportFeedback(
 
     security.declareProtected("Change Feedback", "manage_deleteAttFeedback")
 
+    @refuse_when_frozen
     def manage_deleteAttFeedback(self, file_id="", REQUEST=None):
         """Delete an attachment
         FIXME: Why is the 'go' parameter not an method argument?   !#&%!!

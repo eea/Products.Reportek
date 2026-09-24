@@ -22,6 +22,27 @@
   width: 100%;
 }
 
+/* The envelope tab strip floats, so anything right below it clears, and
+   clearance swallows that element's own top margin. Boxes that follow the
+   tabs get their breathing room from this wrapper instead. */
+.below-tabs {
+  clear: both;
+  padding-top: 1em;
+}
+
+/* On ZMI screens zmi_base.js adds Bootstrap's form-control to every select,
+   and select2 copies the original select's classes onto the container it
+   generates. Its fixed height and padding then leave select2's own chrome
+   overflowing the box, so undo it. */
+.select2-container.form-control {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
 .select-container .terminated-selected .select2-choice {
   background: #eeeeee;
   border-color: #cfcfcf;
