@@ -1,4 +1,8 @@
-/*global jQuery*/
+/*global $, jQuery*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
+/* jslint:disable */
 /* Paging, sorting and per column filtering for the engine's
    "Obligation locks" table. */
 "use strict";

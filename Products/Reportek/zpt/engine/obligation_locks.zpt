@@ -215,10 +215,12 @@
               <th><label for="open_from" i18n:translate="">Open from</label></th>
               <td>
                 <input type="text" size="12" class="narrow" id="open_from"
-                       name="open_from" placeholder="YYYY-MM-DD" value="" />
+                       name="open_from" placeholder="YYYY-MM-DD" value=""
+                       i18n:attributes="placeholder" />
                 <label for="open_until" i18n:translate="">to</label>
                 <input type="text" size="12" class="narrow" id="open_until"
-                       name="open_until" placeholder="YYYY-MM-DD" value="" />
+                       name="open_until" placeholder="YYYY-MM-DD" value=""
+                       i18n:attributes="placeholder" />
               </td>
             </tr>
             <tr>
