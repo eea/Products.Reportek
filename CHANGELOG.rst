@@ -1,3 +1,8 @@
+100.2.40 (2026-09-24)
+---------------------
+* fix: added missing i18n:attributes in obligation_locks.zpt - refs #308507
+* fix: added missing template and tests - refs #308507
+
 100.2.39 (2026-09-24)
 ---------------------
 * feat: added obligation lock/freezing for migrated dataflows - refs #308507
