@@ -1,0 +1,361 @@
+<span tal:replace="structure context/manage_page_header" />
+<span tal:replace="structure python:context.manage_tabs(management_view='Obligation locks')" />
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+<link href="++resource++static/datatables.min.css" rel="stylesheet"/>
+<link href="++resource++static/style.css" rel="stylesheet"/>
+<script type="text/javascript" charset="utf8"
+      src="++resource++static/datatables.min.js"></script>
+<script src="++resource++static/select2-3.5.0/select2.js"></script>
+<script src="++resource++static/reportek.js"></script>
+<script src="++resource++static/obligation_locks.js"></script>
+<style type="text/css">
+  .muted { color: #777; font-size: 90%; }
+  #locks-table thead tr.filters th { padding: 2px 4px; font-weight: normal; }
+  #locks-table thead tr.filters input,
+  #locks-table thead tr.filters select { width: 100%; box-sizing: border-box; }
+  .lock-actions { margin: 1.5em 0; }
+  .modal-body .select-container { width: 100%; }
+  #locks-table .nowrap { white-space: nowrap; }
+  /* the ZMI stretches every text input to the full width of its cell,
+     which is wrong for a date or a year sitting next to another field */
+  .modal-body .narrow { display: inline-block; width: auto; }
+</style>
+
+<h4 i18n:translate="">Obligation locks</h4>
+<p i18n:translate="">
+  Obligations closed to reporting. No new envelopes or referrals can be created
+  for a collection whose obligations are locked here, and envelopes already
+  open accept no further manual work. Automatic activities keep running.
+</p>
+
+<p class="form-help" tal:condition="options/message_dialog"
+   tal:content="options/message_dialog" />
+
+<form name="locks" action="obligation_locks_table" method="post">
+  <table class="table simple_table" id="locks-table" tal:condition="options/rows">
+    <thead>
+      <tr>
+        <th></th>
+        <th i18n:translate="">Id</th>
+        <th i18n:translate="">Obligation</th>
+        <th i18n:translate="">ROD status</th>
+        <th i18n:translate="">Kind</th>
+        <th i18n:translate="">Strength</th>
+        <th i18n:translate="">Window</th>
+        <th i18n:translate="">State</th>
+        <th i18n:translate="">Reason</th>
+        <th i18n:translate="">Workflow</th>
+        <th i18n:translate="">Dataflow mapping records</th>
+        <th i18n:translate="">Exempt paths</th>
+        <th i18n:translate="">Locked</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="row options/rows">
+        <td>
+          <input type="checkbox" name="uris:list" tal:attributes="value row/uri" />
+        </td>
+        <td tal:content="row/oid" />
+        <td>
+          <a tal:attributes="href row/details_url" tal:content="row/title" />
+        </td>
+        <td>
+          <span tal:condition="row/terminated" class="muted"
+                i18n:translate="">Terminated</span>
+          <span tal:condition="not:row/terminated" i18n:translate="">Active</span>
+        </td>
+        <td>
+          <span tal:condition="python:row['kind'] == 'migrated'"
+                i18n:translate="">Migrated</span>
+          <span tal:condition="python:row['kind'] != 'migrated'"
+                i18n:translate="">Seasonal</span>
+        </td>
+        <td>
+          <span tal:condition="python:row['kind'] == 'migrated'" class="muted"
+                i18n:translate="">Hard</span>
+          <tal:block tal:condition="python:row['kind'] != 'migrated'">
+            <span tal:condition="python:row['strength'] == 'soft'"
+                  i18n:translate="">Soft</span>
+            <span tal:condition="python:row['strength'] != 'soft'"
+                  i18n:translate="">Hard</span>
+          </tal:block>
+        </td>
+        <td tal:define="open_from row/open_from; open_until row/open_until">
+          <tal:block tal:condition="python:open_from or open_until">
+            <span class="nowrap">
+              <tal:block tal:content="python:open_from.strftime('%Y-%m-%d') if open_from else ''" />
+              &ndash;
+              <tal:block tal:content="python:open_until.strftime('%Y-%m-%d') if open_until else ''" />
+            </span>
+            <br />
+            <span class="muted" tal:condition="row/reporting_year"
+                  tal:content="string:for ${row/reporting_year} (${row/year_basis})" />
+          </tal:block>
+          <span tal:condition="python:not (open_from or open_until)" class="muted"
+                i18n:translate="">No window</span>
+        </td>
+        <td tal:content="row/state" />
+        <td>
+          <span tal:condition="row/reason" tal:content="row/reason" />
+          <span tal:condition="not:row/reason" class="muted"
+                i18n:translate="">None</span>
+          <tal:block tal:condition="row/target_url">
+            <br />
+            <a tal:attributes="href row/target_url" tal:content="row/target_url" />
+          </tal:block>
+        </td>
+        <td>
+          <tal:block tal:condition="row/processes">
+            <tal:block tal:repeat="process_id row/processes">
+              <a tal:attributes="href string:${options/workflow_engine_url}/${process_id}"
+                 tal:content="process_id" /><tal:block
+                 tal:condition="python:not path('repeat/process_id/end')">, </tal:block>
+            </tal:block>
+          </tal:block>
+          <span tal:condition="not:row/processes" class="muted"
+                i18n:translate="">Not mapped</span>
+        </td>
+        <td>
+          <tal:block tal:condition="row/records">
+            <tal:block tal:repeat="record row/records">
+              <a tal:attributes="href string:${record/url}/edit"
+                 tal:content="record/title" /><tal:block
+                 tal:condition="python:not path('repeat/record/end')">, </tal:block>
+            </tal:block>
+          </tal:block>
+          <span tal:condition="not:row/records" class="muted"
+                i18n:translate="">None</span>
+        </td>
+        <td class="muted">
+          <tal:block tal:condition="row/exempt_paths">
+            <tal:block tal:repeat="exempt_path row/exempt_paths">
+              <tal:block tal:content="exempt_path" /><tal:block
+                 tal:condition="python:not path('repeat/exempt_path/end')">, </tal:block>
+            </tal:block>
+          </tal:block>
+          <span tal:condition="not:row/exempt_paths" i18n:translate="">None</span>
+        </td>
+        <td class="muted">
+          <span class="nowrap"
+                tal:content="python:row['set_on'].strftime('%Y-%m-%d') if row['set_on'] else ''" />
+          <tal:block tal:condition="row/set_by" tal:content="string:by ${row/set_by}" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p tal:condition="options/rows">
+    <input type="submit" name="remove" value="Reopen selected"
+           i18n:attributes="value btn-reopen" />
+  </p>
+  <p tal:condition="not:options/rows" class="muted" i18n:translate="">
+    No obligation is locked.
+  </p>
+</form>
+
+<p tal:condition="options/catch_all_processes" class="muted">
+  <tal:block i18n:translate="">
+    Processes mapped to all obligations, which therefore also apply to the
+    obligations above:
+  </tal:block>
+  <tal:block tal:repeat="process_id options/catch_all_processes">
+    <a tal:attributes="href string:${options/workflow_engine_url}/${process_id}"
+       tal:content="process_id" /><tal:block
+       tal:condition="python:not path('repeat/process_id/end')">, </tal:block>
+  </tal:block>
+</p>
+
+<p class="lock-actions">
+  <button type="button" class="btn btn-primary" data-toggle="modal"
+          data-target="#seasonal-modal" i18n:translate="">Add reporting window</button>
+  <button type="button" class="btn btn-primary" data-toggle="modal"
+          data-target="#migrated-modal" i18n:translate="">Add migrated obligation</button>
+</p>
+
+<div class="modal fade" id="seasonal-modal" tabindex="-1" role="dialog"
+     aria-labelledby="seasonal-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <form name="add_seasonal" action="obligation_locks_table" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title" id="seasonal-modal-label"
+              i18n:translate="">Add reporting window</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="muted" i18n:translate="">
+            Reporting is open between the two dates and closed the rest of the
+            time. The dates are not renewed automatically: an expired window
+            stays closed until you set the next one.
+          </p>
+          <table class="table simple_table">
+            <tr>
+              <th><label for="seasonal-obligations" i18n:translate="">Obligations</label></th>
+              <td>
+          <div class="select-container"
+               tal:define="rod_data options/obligations">
+            <select id="seasonal-obligations" name="dataflow_uris:list" multiple="multiple"
+                    class="select2-enabled placeholder-enabled"
+                    data-placeholder="Type an obligation number or title"
+                    i18n:attributes="data-placeholder">
+              <tal:block tal:repeat="instrument python:sorted(rod_data)">
+                <optgroup tal:attributes="label instrument">
+                  <option tal:repeat="obligation python:rod_data[instrument]"
+                          tal:attributes="value obligation/uri;
+                                          class python:'terminated' if obligation['terminated'] == '1' else nothing"
+                          tal:content="string:[${obligation/oid}] ${obligation/title}" />
+                </optgroup>
+              </tal:block>
+            </select>
+          </div>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="open_from" i18n:translate="">Open from</label></th>
+              <td>
+                <input type="text" size="12" class="narrow" id="open_from"
+                       name="open_from" placeholder="YYYY-MM-DD" value="" />
+                <label for="open_until" i18n:translate="">to</label>
+                <input type="text" size="12" class="narrow" id="open_until"
+                       name="open_until" placeholder="YYYY-MM-DD" value="" />
+              </td>
+            </tr>
+            <tr>
+              <th><label for="strength" i18n:translate="">Strength</label></th>
+              <td>
+                <select name="strength" id="strength" class="narrow">
+                  <option value="hard" i18n:translate="">Hard &mdash; nobody reports while closed</option>
+                  <option value="soft" i18n:translate="">Soft &mdash; collections that have not reported yet still can</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="reporting_year" i18n:translate="">Reporting year</label></th>
+              <td>
+                <input type="text" size="6" class="narrow" id="reporting_year"
+                       name="reporting_year" maxlength="4" value="" />
+                <select name="year_basis" id="year_basis" class="narrow">
+                  <option value="years" i18n:translate="">by the envelope's year</option>
+                  <option value="reportingdate" i18n:translate="">by the delivery date</option>
+                </select>
+                <br />
+                <span class="muted" i18n:translate="">
+                  (which year a soft lock means by "has not reported yet")
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="seasonal-reason" i18n:translate="">Reason</label></th>
+              <td>
+                <textarea cols="60" rows="2" id="seasonal-reason" name="reason"></textarea>
+                <br />
+                <span class="muted" i18n:translate="">(shown to reporters while the window is closed)</span>
+              </td>
+            </tr>
+        <tr>
+          <th><label for="seasonal-exempt" i18n:translate="">Exempt paths</label></th>
+          <td>
+            <textarea cols="60" rows="3" id="seasonal-exempt" name="exempt_paths"></textarea>
+            <br />
+            <span class="muted" i18n:translate="">
+              (one collection path per line, e.g. /test; everything below a
+              path is exempt too)
+            </span>
+          </td>
+        </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                  i18n:translate="">Cancel</button>
+          <input type="submit" name="add_seasonal" value="Set window"
+                 class="btn btn-primary" i18n:attributes="value btn-set-window" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="migrated-modal" tabindex="-1" role="dialog"
+     aria-labelledby="migrated-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <form name="add_migrated" action="obligation_locks_table" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title" id="migrated-modal-label"
+              i18n:translate="">Add migrated obligation</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="muted" i18n:translate="">
+            For obligations that moved to another platform for good. No new
+            envelopes for anyone, managers included: a new delivery has nowhere
+            to go here. An envelope already open stays workable by managers, so
+            it can be finished or terminated.
+          </p>
+          <table class="table simple_table">
+            <tr>
+              <th><label for="migrated-obligations" i18n:translate="">Obligations</label></th>
+              <td>
+          <div class="select-container"
+               tal:define="rod_data options/obligations">
+            <select id="migrated-obligations" name="dataflow_uris:list" multiple="multiple"
+                    class="select2-enabled placeholder-enabled"
+                    data-placeholder="Type an obligation number or title"
+                    i18n:attributes="data-placeholder">
+              <tal:block tal:repeat="instrument python:sorted(rod_data)">
+                <optgroup tal:attributes="label instrument">
+                  <option tal:repeat="obligation python:rod_data[instrument]"
+                          tal:attributes="value obligation/uri;
+                                          class python:'terminated' if obligation['terminated'] == '1' else nothing"
+                          tal:content="string:[${obligation/oid}] ${obligation/title}" />
+                </optgroup>
+              </tal:block>
+            </select>
+          </div>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="target_url" i18n:translate="">Migrated to</label></th>
+              <td>
+                <input type="text" size="60" id="target_url" name="target_url" value="" />
+                <br />
+                <span class="muted" i18n:translate="">(URL of the platform now used)</span>
+              </td>
+            </tr>
+            <tr>
+              <th><label for="migrated-reason" i18n:translate="">Reason</label></th>
+              <td>
+                <textarea cols="60" rows="2" id="migrated-reason" name="reason"></textarea>
+                <br />
+                <span class="muted" i18n:translate="">(shown to reporters instead of the default wording)</span>
+              </td>
+            </tr>
+        <tr>
+          <th><label for="migrated-exempt" i18n:translate="">Exempt paths</label></th>
+          <td>
+            <textarea cols="60" rows="3" id="migrated-exempt" name="exempt_paths"></textarea>
+            <br />
+            <span class="muted" i18n:translate="">
+              (one collection path per line, e.g. /test; everything below a
+              path is exempt too)
+            </span>
+          </td>
+        </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                  i18n:translate="">Cancel</button>
+          <input type="submit" name="add_migrated" value="Flag as migrated"
+                 class="btn btn-primary" i18n:attributes="value btn-flag-migrated" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<span tal:replace="structure here/manage_page_footer" />
