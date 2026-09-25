@@ -15,17 +15,15 @@
                              locks python:here.active_locks();
                              bdr_can_create python: (here.is_fgas() or here.is_ods()) and here.num_terminated_dataflows() != len(here.dataflow_uris);
                              canCreateEnvelope python: here.allowed_envelopes() and not locks and (not hasTerminatedObligations or bdr_can_create);
-                             engine here/getEngine;">
+                             engine here/getEngine;
+                             audience python:here.getEngine().lock_audience(here);">
 
         <tal:block tal:condition="python:not canCreateEnvelope">
           <tal:block tal:condition="not: here/allowed_envelopes">
             <p i18n:translate="">You cannot create envelopes for invalid or other companies that failed our checks.</p>
           </tal:block>
           <tal:block tal:condition="locks">
-            <p tal:condition="python:[r for r in locks.values() if r.get('kind') == 'migrated']"
-               i18n:translate="">This obligation is now reported on another platform, so envelopes can no longer be created here:</p>
-            <p tal:condition="python:[r for r in locks.values() if r.get('kind') != 'migrated']"
-               i18n:translate="">Reporting for this obligation is closed, so envelopes can no longer be created here:</p>
+            <p i18n:translate="">Envelopes can no longer be created for this obligation:</p>
             <ul>
               <tal:block tal:repeat="item locks">
                 <li tal:define="record python:locks[item];
@@ -38,7 +36,15 @@
                     <tal:block i18n:translate="">&mdash; closed since</tal:block>
                     <tal:block tal:content="python:record['open_until'].strftime('%Y-%m-%d')" />
                   </tal:block>
-                  <p tal:condition="record/reason" tal:content="record/reason" />
+                  <br />
+                  <tal:block tal:define="body python:engine.lock_body(record, audience)">
+                    <tal:block tal:condition="body" tal:content="body" />
+                  </tal:block>
+                  <tal:block tal:condition="python:not engine.lock_body(record, audience)"
+                             define="lock_kind python:record.get('kind');
+                                     lock_audience audience">
+                    <metal:block use-macro="here/engineMacros/macros/lock-default-reason" />
+                  </tal:block>
                 </li>
               </tal:block>
             </ul>

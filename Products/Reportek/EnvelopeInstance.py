@@ -36,7 +36,9 @@ import plone.protect.interfaces
 # Zope imports
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
+from AccessControl.Permissions import view_management_screens
 from Acquisition import aq_inner, aq_parent
+from ZPublisher import zpublish
 from DateTime import DateTime
 from OFS.Folder import Folder
 from zope.interface import alsoProvides
@@ -1229,6 +1231,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declarePublic("active_locks")
 
+    @zpublish(False)
     def active_locks(self):
         """Return {uri: record} for the locks closing this envelope."""
         engine = getattr(self, ENGINE_ID, None)
@@ -1237,10 +1240,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         collection = aq_parent(aq_inner(self))
         if not hasattr(collection, "has_reported"):
             collection = None
-        return engine.get_locks(self.dataflow_uris, collection=collection)
+        return engine.get_locks(self.dataflow_uris, collection=collection, context=self)
 
     security.declarePublic("closed_locks")
 
+    @zpublish(False)
     def closed_locks(self):
         """Return {uri: record} for the locks closed on this obligation."""
         engine = getattr(self, ENGINE_ID, None)
@@ -1248,8 +1252,41 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             return {}
         return engine.get_closed_locks(self.dataflow_uris)
 
+    security.declarePublic("lock_body")
+
+    @zpublish(False)
+    def lock_body(self, record, audience):
+        """The message a lock shows to that audience, blank for the default."""
+        return getattr(self, ENGINE_ID).lock_body(record, audience)
+
+    security.declarePublic("lock_notice")
+
+    @zpublish(False)
+    def lock_notice(self):
+        """What to tell the viewer about the locks on this envelope.
+
+        Nothing, when there is nothing worth saying: no lock, or one this
+        viewer escapes on their own account, through an exempt path or a
+        soft lock they have not used up. Those readers are reporting
+        normally and should not be told reporting is closed.
+        """
+        locks = self.closed_locks()
+        if not locks:
+            return None
+        frozen = self.is_frozen()
+        manages = getSecurityManager().checkPermission(view_management_screens, self)
+        if not frozen and not manages:
+            return None
+        engine = getattr(self, ENGINE_ID)
+        return {
+            "locks": locks,
+            "frozen": frozen,
+            "audience": engine.lock_audience(self),
+        }
+
     security.declarePublic("is_frozen")
 
+    @zpublish(False)
     def is_frozen(self):
         """Return True if this envelope is read only for the current user."""
         return bool(self.active_locks())
