@@ -373,3 +373,23 @@
     </div>
   </tal:block>
 </metal:block>
+
+<!-- Lock wording, shared by the fallback and the form placeholders.
+     Expects lock_kind and lock_audience. -->
+<metal:block define-macro="lock-default-reason"
+  ><tal:block condition="python:lock_audience == 'manager'"
+    ><tal:block i18n:translate="">Closed to reporters; still open to you.</tal:block
+  ></tal:block
+  ><tal:block condition="python:lock_audience == 'anonymous'"
+    ><tal:block condition="python:lock_kind == 'migrated'"
+      i18n:translate="">Reporting for this obligation has moved to another platform.</tal:block
+    ><tal:block condition="python:lock_kind != 'migrated'"
+      i18n:translate="">Reporting for this obligation is currently closed.</tal:block
+  ></tal:block
+  ><tal:block condition="python:lock_audience not in ('manager', 'anonymous')"
+    ><tal:block condition="python:lock_kind == 'migrated'"
+      i18n:translate="">Reporting has moved to another platform. This envelope stays readable here.</tal:block
+    ><tal:block condition="python:lock_kind != 'migrated'"
+      i18n:translate="">Reporting is closed. This envelope stays readable here.</tal:block
+  ></tal:block
+></metal:block>

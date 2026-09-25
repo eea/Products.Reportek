@@ -58,6 +58,7 @@ from Products.Reportek.interfaces import ICollection
 from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
+from ZPublisher import zpublish
 
 # import constants
 from . import Envelope, Referral, RepUtils, constants
@@ -561,14 +562,19 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     security.declarePublic("active_locks")
 
+    @zpublish(False)
     def active_locks(self, for_creation=True):
         """Return {uri: record} for the locks closing this collection."""
         return self.getEngine().get_locks(
-            self.get_dataflow_uris(), collection=self, for_creation=for_creation
+            self.get_dataflow_uris(),
+            collection=self,
+            for_creation=for_creation,
+            context=self,
         )
 
     security.declarePublic("has_reported")
 
+    @zpublish(False)
     def has_reported(self, reporting_year, year_basis="years"):
         """Return True if a delivery for that year has been completed here.
 

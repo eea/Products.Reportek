@@ -35,6 +35,7 @@ from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import plone.protect.interfaces
+from plone.protect import CheckAuthenticator
 import requests
 import transaction
 import xlwt
@@ -52,6 +53,7 @@ from DateTime import DateTime
 # Zope imports
 from OFS.Folder import Folder
 from plone.memoize import ram
+from ZPublisher import zpublish
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
@@ -366,10 +368,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         now = now or DateTime()
         if open_from and now < open_from:
             return True
-        return bool(open_until and now > open_until)
+        # The closing date is a reporting day: it ends when the day does.
+        return bool(open_until and now > open_until.latestTime())
+
+    security.declarePublic("lock_audience")
+
+    @zpublish(False)
+    def lock_audience(self, context):
+        """Which of a lock's messages the current user should be shown."""
+        if getSecurityManager().checkPermission(view_management_screens, context):
+            return "manager"
+        if getSecurityManager().getUser().getUserName() == "Anonymous User":
+            return "anonymous"
+        return "reporter"
+
+    security.declarePublic("lock_body")
+
+    @staticmethod
+    @zpublish(False)
+    def lock_body(record, audience):
+        """The message a lock shows to that audience, blank for the default.
+
+        A manager's message never falls back to the reporter's: they are
+        told different things. The public falls back to the reporter's,
+        which is usually close enough to be worth reusing.
+        """
+        if audience == "manager":
+            return record.get("reason_manager") or ""
+        if audience == "anonymous":
+            return record.get("reason_anonymous") or record.get("reason") or ""
+        return record.get("reason") or ""
 
     security.declarePublic("get_closed_locks")
 
+    @zpublish(False)
     def get_closed_locks(self, dataflow_uris):
         """Return the {uri: record} of the locks closed right now."""
         locks = self.locks
@@ -384,8 +416,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declarePublic("get_locks")
 
-    def get_locks(self, dataflow_uris, collection=None, for_creation=False):
-        """Return the {uri: record} of the locks closing these obligations."""
+    @zpublish(False)
+    def get_locks(
+        self, dataflow_uris, collection=None, for_creation=False, context=None
+    ):
+        """Return the {uri: record} of the locks closing these obligations.
+
+        context is what the manager exemption is judged against, and
+        defaults to the collection. Permissions are local in Zope, so it
+        has to be the object being worked on: asking the engine would miss
+        a Manager role granted on one collection or envelope.
+        """
+        if context is None:
+            context = collection if collection is not None else self
         locks = self.locks
         if not locks:
             return {}
@@ -395,17 +438,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             record = locks.get(uri)
             if record is None or not self.lock_is_closed(record, now):
                 continue
-            if not self._lock_lets_through(record, collection, for_creation):
+            if not self._lock_lets_through(record, collection, for_creation, context):
                 active[uri] = dict(record)
         return active
 
-    def _lock_lets_through(self, record, collection, for_creation=False):
+    def _lock_lets_through(self, record, collection, for_creation=False, context=None):
         """Return True if this collection escapes an otherwise closed lock"""
         if collection is not None and self._is_exempt_path(record, collection):
             return True
         migrated = record.get("kind") == "migrated"
         if not (migrated and for_creation) and getSecurityManager().checkPermission(
-            view_management_screens, self
+            view_management_screens, context if context is not None else self
         ):
             return True
         if not migrated and record.get("strength") == "soft" and collection is not None:
@@ -425,7 +468,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return any(
             path == prefix or path.startswith(prefix.rstrip("/") + "/")
             for prefix in exempt
+            if prefix.strip("/")
         )
+
+    @staticmethod
+    def safe_target_url(value):
+        """Return the url only if it is one a browser may safely follow."""
+        value = (value or "").strip()
+        scheme = urlparse(value).scheme.lower()
+        return value if scheme in ("http", "https") else ""
 
     security.declareProtected(view_management_screens, "set_lock")
 
@@ -442,7 +493,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 "kind": fields.get("kind") or "seasonal",
                 "strength": fields.get("strength") or "hard",
                 "reason": fields.get("reason") or "",
-                "target_url": fields.get("target_url") or "",
+                "reason_manager": fields.get("reason_manager") or "",
+                "reason_anonymous": fields.get("reason_anonymous") or "",
+                "target_url": self.safe_target_url(fields.get("target_url")),
                 "open_from": fields.get("open_from"),
                 "open_until": fields.get("open_until"),
                 "reporting_year": fields.get("reporting_year"),
@@ -1869,7 +1922,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return "closed"
         if open_from and now < open_from:
             return "scheduled"
-        if open_until and now > open_until:
+        if open_until and now > open_until.latestTime():
             return "expired"
         return "open"
 
@@ -1900,6 +1953,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     "strength": record.get("strength", "hard"),
                     "state": self._get_lock_state(record, now),
                     "reason": record.get("reason"),
+                    "reason_manager": record.get("reason_manager"),
+                    "reason_anonymous": record.get("reason_anonymous"),
                     "target_url": record.get("target_url"),
                     "open_from": record.get("open_from"),
                     "open_until": record.get("open_until"),
@@ -1912,8 +1967,35 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     "records": records.get(uri, []),
                 }
             )
+        for row in rows:
+            row["payload"] = self._get_lock_payload(row)
         rows = sorted(rows, key=lambda row: (row["title"] or "").lower())
         return rows, catch_all
+
+    @staticmethod
+    def _get_lock_payload(row):
+        """Serialise a row for the edit dialog to read off the button"""
+
+        def as_date(value):
+            return value.strftime("%Y-%m-%d") if value else ""
+
+        return json.dumps(
+            {
+                "uri": row["uri"],
+                "label": "[{}] {}".format(row["oid"], row["title"] or ""),
+                "kind": row["kind"],
+                "strength": row["strength"],
+                "reason": row["reason"] or "",
+                "reason_manager": row["reason_manager"] or "",
+                "reason_anonymous": row["reason_anonymous"] or "",
+                "target_url": row["target_url"] or "",
+                "open_from": as_date(row["open_from"]),
+                "open_until": as_date(row["open_until"]),
+                "reporting_year": row["reporting_year"] or "",
+                "year_basis": row["year_basis"] or "years",
+                "exempt_paths": row["exempt_paths"],
+            }
+        )
 
     def _get_lock_choices(self):
         """Return the obligations available for locking, grouped by source."""
@@ -1948,31 +2030,49 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             raise ValueError("'{}' is not a date".format(value))
 
     def _add_lock_from_form(self, form, kind):
-        """Apply one of the two add forms, returning the message to show"""
-        uris = [
-            uri.strip()
-            for uri in RepUtils.utConvertToList(form.get("dataflow_uris", []))
-            if uri and uri.strip()
-        ]
+        """Apply one of the two lock forms, returning the message to show.
+
+        The same form adds and edits: editing carries the obligation in
+        edit_uri instead of the picker, and there is only ever one.
+        """
+        editing = (form.get("edit_uri") or "").strip()
+        if editing:
+            uris = [editing]
+        else:
+            uris = [
+                uri.strip()
+                for uri in RepUtils.utConvertToList(form.get("dataflow_uris", []))
+                if uri and uri.strip()
+            ]
         if not uris:
             return "Please select at least one obligation."
         fields = {
             "kind": kind,
             "reason": form.get("reason", "").strip(),
+            "reason_manager": form.get("reason_manager", "").strip(),
+            "reason_anonymous": form.get("reason_anonymous", "").strip(),
             "exempt_paths": [
                 path.strip()
                 for path in (form.get("exempt_paths", "") or "").splitlines()
-                if path.strip()
+                if path.strip().strip("/")
             ],
         }
         if kind == "migrated":
-            fields["target_url"] = form.get("target_url", "").strip()
+            target_url = form.get("target_url", "").strip()
+            if target_url and not self.safe_target_url(target_url):
+                return "The platform address has to start with http:// or https://."
+            fields["target_url"] = target_url
         else:
             try:
                 fields["open_from"] = self._parse_lock_date(form.get("open_from"))
                 fields["open_until"] = self._parse_lock_date(form.get("open_until"))
             except ValueError as err:
                 return str(err)
+            if not fields["open_from"] and not fields["open_until"]:
+                return (
+                    "A reporting window needs at least one date. To close an"
+                    " obligation for good, flag it as migrated instead."
+                )
             if fields["open_from"] and fields["open_until"]:
                 if fields["open_from"] > fields["open_until"]:
                     return "The window has to open before it closes."
@@ -1990,6 +2090,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 return "A soft lock needs the reporting year it lets through."
         for uri in uris:
             self.set_lock(uri, **fields)
+        if editing:
+            return "Lock updated."
         return "Locked {} obligation(s).".format(len(uris))
 
     security.declareProtected("View management screens", "obligation_locks_table")
@@ -1998,6 +2100,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """Manage the obligations closed to reporting"""
         message = ""
         if self.REQUEST["REQUEST_METHOD"] == "POST":
+            CheckAuthenticator(self.REQUEST)
             form = self.REQUEST.form
             if form.get("add_migrated"):
                 message = self._add_lock_from_form(form, "migrated")

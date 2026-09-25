@@ -26,6 +26,7 @@ import base64
 import json
 import logging
 import operator
+import inspect
 import os
 from functools import wraps
 import re
@@ -756,16 +757,27 @@ def refuse_when_frozen(method):
     """Refuse the decorated action while the envelope is frozen.
 
     Envelopes for an obligation flagged as migrated stay readable, but only
-    managers can still act on them.
+    managers can still act on them. Acquisition makes this usable on the
+    envelope's documents and feedbacks too: is_frozen() is then acquired
+    from the envelope containing them, and content with no envelope above
+    it is never frozen.
+
+    Code running under manage_as_owner is let through: that is an
+    Application acting as the envelope's owner rather than the owner
+    acting, and automatic work has to keep running on a locked envelope.
     """
 
     @wraps(method)
-    def guarded(self, *args, **kwargs):
+    def guarded(self, *args, **kwargs):  # noqa: D401
+        if getattr(getattr(self, "REQUEST", None), "_reportek_as_owner", False):
+            return method(self, *args, **kwargs)
         is_frozen = getattr(self, "is_frozen", None)
         if is_frozen is not None and is_frozen():
             raise Unauthorized(FROZEN_MESSAGE)
         return method(self, *args, **kwargs)
 
+    # The publisher maps request values by argument name; *args hides them.
+    guarded.__signature__ = inspect.signature(method)
     return guarded
 
 
@@ -775,15 +787,23 @@ def manage_as_owner(func):
     """
 
     def inner(*args, **kwargs):
-        user_id = args[0].REQUEST["AUTHENTICATED_USER"].getUserName()
+        request = args[0].REQUEST
+        user_id = request["AUTHENTICATED_USER"].getUserName()
         if user_id != "Anonymous User":
             smanager = getSecurityManager()
             owner = args[0].getOwner()
-            newSecurityManager(args[0].REQUEST, owner)
-            res = func(*args, **kwargs)
-            setSecurityManager(smanager)
-            return res
+            newSecurityManager(request, owner)
+            # Application code, not the owner acting: passes the frozen guard.
+            was_as_owner = getattr(request, "_reportek_as_owner", False)
+            request._reportek_as_owner = True
+            try:
+                return func(*args, **kwargs)
+            finally:
+                request._reportek_as_owner = was_as_owner
+                setSecurityManager(smanager)
 
+    # Do not add @wraps: copying __doc__ over would publish these to the web.
+    inner.__signature__ = inspect.signature(func)
     return inner
 
 

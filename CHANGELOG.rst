@@ -1,3 +1,15 @@
+100.2.41-dev (Unreleased)
+-------------------------
+* feat: made the locks editable - refs #308507
+* feat: the reporter, manager and anonymous wording of every lock is editable per
+       lock, with the translated defaults offered as placeholders - refs #308507
+* fix: reject platform addresses that are not http(s) on migrated locks - refs #308507
+* fix: keep argument names visible to the publisher in refuse_when_frozen - the
+       wrapper hid them, so activateWorkitem and the other guarded transitions failed
+       with a missing positional argument on every envelope - refs #308507
+* test: cover lock evaluation, freezing, exempt paths, the message defaults and the
+       management dialogs - refs #308507
+
 100.2.40 (2026-09-24)
 ---------------------
 * fix: added missing i18n:attributes in obligation_locks.zpt - refs #308507
