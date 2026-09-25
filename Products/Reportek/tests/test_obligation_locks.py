@@ -397,9 +397,7 @@ class MigratedObligationsTestCase(BaseTest):
 
     def test_a_dangerous_address_cannot_be_stored_programmatically(self):
         """set_lock is the choke point, not just the form"""
-        self.engine.set_lock(
-            BASEL, kind="migrated", target_url="javascript:alert(1)"
-        )
+        self.engine.set_lock(BASEL, kind="migrated", target_url="javascript:alert(1)")
         self.assertEqual(self.engine.locks[BASEL]["target_url"], "")
 
     def test_obligation_id_falls_back_to_the_uri(self):
