@@ -378,11 +378,12 @@ class MigratedObligationsTestCase(BaseTest):
         ):
             with self.subTest(url=bad):
                 self.engine.unset_locks([BASEL])
-                message = self.post(
+                html = self.post(
                     add_migrated="Flag as migrated",
                     dataflow_uris=[BASEL],
                     target_url=bad,
                 )
+                self.assertIn("has to start with http:// or https://", html)
                 self.assertEqual(dict(self.engine.locks), {})
                 self.assertEqual(self.engine.safe_target_url(bad), "")
 
