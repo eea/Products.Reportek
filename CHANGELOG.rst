@@ -1,5 +1,5 @@
-100.2.41-dev (Unreleased)
--------------------------
+100.2.41 (2026-09-25)
+---------------------
 * feat: made the locks editable - refs #308507
 * feat: the reporter, manager and anonymous wording of every lock is editable per
        lock, with the translated defaults offered as placeholders - refs #308507
