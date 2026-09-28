@@ -1,5 +1,6 @@
 100.2.42-dev (Unreleased)
 -------------------------
+* feat: captcha removed, zip envelope removed from anonymous - refs #308773
 
 100.2.41 (2026-09-25)
 ---------------------
