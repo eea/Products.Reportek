@@ -479,9 +479,7 @@ class MigratedObligationsTestCase(BaseTest):
             "Reporting has moved to another platform.",
             offered,
         )
-        self.assertIn(
-            "Reporting is closed.", offered
-        )
+        self.assertIn("Reporting is closed.", offered)
         self.assertIn("Closed to reporters; still open to you.", offered)
         self.assertIn(
             "Reporting for this obligation has moved to another platform.", offered
