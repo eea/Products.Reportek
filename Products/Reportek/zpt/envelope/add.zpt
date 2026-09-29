@@ -32,9 +32,10 @@
                   <tal:block tal:condition="record/target_url">
                     &mdash; <a tal:attributes="href record/target_url" tal:content="record/target_url" />
                   </tal:block>
-                  <tal:block tal:condition="record/open_until">
+                  <tal:block tal:define="closed_since python:engine.lock_closed_since(record)"
+                             tal:condition="closed_since">
                     <tal:block i18n:translate="">&mdash; closed since</tal:block>
-                    <tal:block tal:content="python:record['open_until'].strftime('%Y-%m-%d')" />
+                    <tal:block tal:content="closed_since" />
                   </tal:block>
                   <br />
                   <tal:block tal:define="body python:engine.lock_body(record, audience)">

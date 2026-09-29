@@ -36,7 +36,6 @@ import plone.protect.interfaces
 # Zope imports
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from AccessControl.Permissions import view_management_screens
 from Acquisition import aq_inner, aq_parent
 from ZPublisher import zpublish
 from DateTime import DateTime
@@ -1229,17 +1228,22 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if getattr(process, "restricted", False):
             return True
 
+    def _lock_context(self):
+        """The engine, and the collection a soft lock is judged against."""
+        engine = getattr(self, ENGINE_ID, None)
+        collection = aq_parent(aq_inner(self))
+        if not hasattr(collection, "has_reported"):
+            collection = None
+        return engine, collection
+
     security.declarePublic("active_locks")
 
     @zpublish(False)
     def active_locks(self):
         """Return {uri: record} for the locks closing this envelope."""
-        engine = getattr(self, ENGINE_ID, None)
+        engine, collection = self._lock_context()
         if engine is None:
             return {}
-        collection = aq_parent(aq_inner(self))
-        if not hasattr(collection, "has_reported"):
-            collection = None
         return engine.get_locks(self.dataflow_uris, collection=collection, context=self)
 
     security.declarePublic("closed_locks")
@@ -1263,26 +1267,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     @zpublish(False)
     def lock_notice(self):
-        """What to tell the viewer about the locks on this envelope.
-
-        Nothing, when there is nothing worth saying: no lock, or one this
-        viewer escapes on their own account, through an exempt path or a
-        soft lock they have not used up. Those readers are reporting
-        normally and should not be told reporting is closed.
-        """
-        locks = self.closed_locks()
-        if not locks:
+        """What to tell the viewer about the locks on this envelope."""
+        engine, collection = self._lock_context()
+        if engine is None:
             return None
-        frozen = self.is_frozen()
-        manages = getSecurityManager().checkPermission(view_management_screens, self)
-        if not frozen and not manages:
-            return None
-        engine = getattr(self, ENGINE_ID)
-        return {
-            "locks": locks,
-            "frozen": frozen,
-            "audience": engine.lock_audience(self),
-        }
+        return engine.get_lock_notice(
+            self.dataflow_uris, collection=collection, context=self
+        )
 
     security.declarePublic("is_frozen")
 

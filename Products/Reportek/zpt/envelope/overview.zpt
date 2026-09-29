@@ -4,6 +4,7 @@
     <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet" />
     <link href="++resource++static/style.css" rel="stylesheet" />
     <link href="++resource++static/envelope.css" rel="stylesheet" />
+    <link href="++resource++static/obligation_locks.css" rel="stylesheet" />
     <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet" />
     <script type="text/javascript" charset="utf8" src="++resource++static/jquery-3.5.1.min.js"></script>
     <script src="++resource++static/active_status.js"></script>
@@ -54,40 +55,9 @@
     >
       <div tal:replace="structure python:context.envelope_tabs(tab='overview')" />
 
-      <tal:block define="notice python:context.lock_notice();
-                         locks python:notice and notice['locks']"
+      <tal:block define="notice python:context.lock_notice()"
                  condition="notice">
-        <div class="below-tabs">
-          <div class="important-msg" id="obligation-lock">
-            <strong tal:condition="python:[r for r in locks.values() if r.get('kind') == 'migrated']"
-                    i18n:translate="">Migrated obligation</strong>
-            <strong tal:condition="python:not [r for r in locks.values() if r.get('kind') == 'migrated']"
-                    i18n:translate="">Reporting closed</strong>
-            <tal:block repeat="item locks">
-              <p tal:define="record python:locks[item];
-                             df python:context.ReportekEngine.dataflow_lookup(item);
-                             body python:context.lock_body(record, notice['audience'])">
-                <a tal:attributes="href df/details_url" tal:content="df/TITLE" />
-                <tal:block condition="record/target_url">
-                  &mdash;
-                  <a tal:attributes="href record/target_url"
-                     tal:content="record/target_url" />
-                </tal:block>
-                <tal:block condition="record/open_until">
-                  <tal:block i18n:translate="">&mdash; closed since</tal:block>
-                  <tal:block content="python:record['open_until'].strftime('%Y-%m-%d')" />
-                </tal:block>
-                <br />
-                <tal:block condition="body" content="body" />
-                <tal:block condition="not:body"
-                           define="lock_kind python:record.get('kind');
-                                   lock_audience notice/audience">
-                  <metal:block use-macro="here/engineMacros/macros/lock-default-reason" />
-                </tal:block>
-              </p>
-            </tal:block>
-          </div>
-        </div>
+        <metal:block use-macro="here/engineMacros/macros/lock-banner" />
       </tal:block>
 
       <div id="operations">
