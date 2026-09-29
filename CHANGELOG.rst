@@ -1,5 +1,5 @@
-100.2.43-dev (Unreleased)
--------------------------
+100.2.43 (2026-09-29)
+---------------------
 * feat: show the obligation lock banner on the collection listing, not only inside
         the envelope - refs #308507
 * fix: only date a lock's notice once its reporting window has ended - a window
