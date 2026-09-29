@@ -371,6 +371,24 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # The closing date is a reporting day: it ends when the day does.
         return bool(open_until and now > open_until.latestTime())
 
+    security.declarePublic("lock_closed_since")
+
+    @staticmethod
+    @zpublish(False)
+    def lock_closed_since(record, now=None):
+        """The day the window shut, blank unless it has actually ended."""
+        open_from = record.get("open_from")
+        open_until = record.get("open_until")
+        if not open_until:
+            return ""
+        now = now or DateTime()
+        # A window that has not opened yet is not closed *since* anything.
+        if open_from and now < open_from:
+            return ""
+        if now <= open_until.latestTime():
+            return ""
+        return open_until.strftime("%Y-%m-%d")
+
     security.declarePublic("lock_audience")
 
     @zpublish(False)
@@ -412,6 +430,46 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             uri: dict(locks[uri])
             for uri in RepUtils.utConvertToList(dataflow_uris)
             if uri in locks and self.lock_is_closed(locks[uri], now)
+        }
+
+    security.declarePublic("get_lock_notice")
+
+    @zpublish(False)
+    def get_lock_notice(
+        self, dataflow_uris, collection=None, for_creation=False, context=None
+    ):
+        """What to tell the viewer about these obligations, or None.
+
+        Nothing when no lock is closed, or when the viewer escapes every
+        one of them and cannot manage: they are reporting normally and
+        should not be told reporting is closed.
+        """
+        if context is None:
+            context = collection if collection is not None else self
+        locks = self.locks
+        if not locks:
+            return None
+        now = DateTime()
+        closed = {}
+        binding = False
+        for uri in RepUtils.utConvertToList(dataflow_uris):
+            record = locks.get(uri)
+            if record is None or not self.lock_is_closed(record, now):
+                continue
+            closed[uri] = record
+            if not binding and not self._lock_lets_through(
+                record, collection, for_creation, context
+            ):
+                binding = True
+        if not closed:
+            return None
+        audience = self.lock_audience(context)
+        if not binding and audience != "manager":
+            return None
+        # Copies: a PersistentMapping is not traversable from a template.
+        return {
+            "locks": {uri: dict(record) for uri, record in closed.items()},
+            "audience": audience,
         }
 
     security.declarePublic("get_locks")

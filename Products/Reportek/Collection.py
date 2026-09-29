@@ -572,6 +572,18 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             context=self,
         )
 
+    security.declarePublic("lock_notice")
+
+    @zpublish(False)
+    def lock_notice(self):
+        """What to tell the viewer about the locks on this collection."""
+        return self.getEngine().get_lock_notice(
+            self.get_dataflow_uris(),
+            collection=self,
+            for_creation=True,
+            context=self,
+        )
+
     security.declarePublic("has_reported")
 
     @zpublish(False)

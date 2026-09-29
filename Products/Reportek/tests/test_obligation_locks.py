@@ -476,11 +476,11 @@ class MigratedObligationsTestCase(BaseTest):
         # three audiences in each of the two dialogs
         self.assertEqual(len(offered), 6)
         self.assertIn(
-            "Reporting has moved to another platform. This envelope stays readable here.",
+            "Reporting has moved to another platform.",
             offered,
         )
         self.assertIn(
-            "Reporting is closed. This envelope stays readable here.", offered
+            "Reporting is closed.", offered
         )
         self.assertIn("Closed to reporters; still open to you.", offered)
         self.assertIn(
@@ -541,6 +541,35 @@ class MigratedObligationsTestCase(BaseTest):
         ):
             self.assertIn("Back in February.", html)
             self.assertNotIn("Reporting is closed.", html)
+
+    def test_the_refusal_pages_date_only_an_ended_window(self):
+        """A window renewed in advance must not read as closed since a future day"""
+        self.login()
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime() + 100,
+            open_until=DateTime() + 200,
+        )
+        for html in (
+            manage_addEnvelopeForm.__of__(self.col)(),
+            self.col.manage_addReferralForm(),
+        ):
+            self.assertNotIn("closed since", html)
+
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime() - 200,
+            open_until=DateTime() - 100,
+        )
+        ended = (DateTime() - 100).strftime("%Y-%m-%d")
+        for html in (
+            manage_addEnvelopeForm.__of__(self.col)(),
+            self.col.manage_addReferralForm(),
+        ):
+            self.assertIn("closed since", html)
+            self.assertIn(ended, html)
 
     def test_add_referral_form_explains_the_migration(self):
         self.login()
@@ -704,6 +733,45 @@ class FrozenEnvelopeTestCase(BaseTest):
         # a manager is told what a manager needs, not the reporters' text
         self.assertIn("still open to you", banner)
         self.assertNotIn("Moved.", banner)
+
+    def test_the_banner_heading_names_the_kind(self):
+        def heading():
+            html = self.env.overview()
+            return html.split('id="obligation-lock"')[1].split("</strong>")[0]
+
+        self.as_manager()
+        self.engine.set_lock(BASEL, kind="migrated")
+        self.assertIn("Migrated obligation", heading())
+
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime() - 20,
+            open_until=DateTime() - 10,
+        )
+        self.assertIn("Reporting closed", heading())
+        self.assertNotIn("Migrated obligation", heading())
+
+    def test_the_overview_dates_only_an_ended_window(self):
+        """A window renewed in advance must not read as closed since a future day"""
+        self.as_manager()
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime() + 100,
+            open_until=DateTime() + 200,
+        )
+        self.assertNotIn("closed since", self.env.overview())
+
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime() - 200,
+            open_until=DateTime() - 100,
+        )
+        html = self.env.overview()
+        self.assertIn("closed since", html)
+        self.assertIn((DateTime() - 100).strftime("%Y-%m-%d"), html)
 
     def test_each_audience_gets_its_own_message(self):
         self.engine.set_lock(
@@ -882,6 +950,65 @@ class SeasonalLockTestCase(BaseTest):
         # a prefix that stops mid segment is not a parent path
         self.assertEqual(list(self.col.active_locks()), [BASEL])
 
+    # --- what the collection listing tells the viewer
+
+    def banner(self):
+        """The lock banner on the collection listing, blank when there is none"""
+        html = self.col.index_html()
+        if 'id="obligation-lock"' not in html:
+            return ""
+        return html.split('id="obligation-lock"')[1].split("</div>")[0]
+
+    def test_the_collection_listing_carries_the_lock(self):
+        self.set_window(-20, -10, reason="Back in February.")
+        self.as_reporter()
+        notice = self.col.lock_notice()
+        self.assertEqual(list(notice["locks"]), [BASEL])
+        self.assertEqual(notice["audience"], "reporter")
+        self.assertTrue(self.col.active_locks())
+        banner = self.banner()
+        self.assertIn("Reporting closed", banner)
+        self.assertIn("Back in February.", banner)
+
+    def test_the_collection_listing_tells_a_manager_they_may_still_report(self):
+        self.set_window(-20, -10)
+        self.as_manager()
+        # the window does not close a manager out, but they are still told
+        self.assertEqual(self.col.active_locks(), {})
+        self.assertEqual(self.col.lock_notice()["audience"], "manager")
+        self.assertIn("still open to you", self.banner())
+
+    def test_an_open_collection_says_nothing(self):
+        self.set_window(-10, 10)
+        self.as_reporter()
+        self.assertIsNone(self.col.lock_notice())
+        self.assertEqual(self.banner(), "")
+
+    def test_an_unlocked_collection_says_nothing(self):
+        self.as_reporter()
+        self.assertIsNone(self.col.lock_notice())
+
+    def test_the_collection_listing_styles_the_banner(self):
+        """The wrapper clears the floated tabs, and only this sheet says so"""
+        self.set_window(-20, -10)
+        self.as_reporter()
+        html = self.col.index_html()
+        self.assertIn("below-tabs", html)
+        self.assertIn("static/obligation_locks.css", html)
+
+    def test_a_reporter_who_escapes_the_lock_is_told_nothing(self):
+        self.set_window(-20, -10, exempt_paths=["/collection"])
+        self.as_reporter()
+        self.assertIsNone(self.col.lock_notice())
+
+    def test_a_soft_lock_waits_until_the_amnesty_is_used_up(self):
+        self.set_window(-20, -10, strength="soft", reporting_year=2003)
+        self.as_reporter()
+        self.assertIsNone(self.col.lock_notice())
+        self.report(self.col)
+        self.as_reporter()
+        self.assertIsNotNone(self.col.lock_notice())
+
     # --- soft locks
 
     def test_soft_lock_lets_a_collection_that_has_not_reported_through(self):
@@ -986,6 +1113,30 @@ class SeasonalLockTestCase(BaseTest):
                     self.engine.lock_is_closed(record, DateTime(moment)), closed
                 )
 
+    def test_closed_since_only_once_the_window_has_ended(self):
+        """A window renewed in advance is shut, but not shut *since* a date"""
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime("2027/02/01"),
+            open_until=DateTime("2027/05/31"),
+        )
+        record = self.engine.locks[BASEL]
+        for moment, since in (
+            ("2027/01/31 23:59", ""),
+            ("2027/03/01 12:00", ""),
+            ("2027/05/31 23:59", ""),
+            ("2027/06/01 00:00", "2027-05-31"),
+        ):
+            with self.subTest(moment=moment):
+                self.assertEqual(
+                    self.engine.lock_closed_since(record, DateTime(moment)), since
+                )
+
+    def test_closed_since_is_blank_without_a_closing_date(self):
+        self.engine.set_lock(BASEL, kind="migrated")
+        self.assertEqual(self.engine.lock_closed_since(self.engine.locks[BASEL]), "")
+
     def test_a_window_with_no_dates_is_refused(self):
         from plone.protect.authenticator import createToken
 
@@ -1025,17 +1176,15 @@ class SeasonalLockTestCase(BaseTest):
         env = self.create_envelope(self.col)
         self.set_window(-20, -10)
         self.as_reporter()
-        notice = env.lock_notice()
-        self.assertTrue(notice["frozen"])
-        self.assertEqual(list(notice["locks"]), [BASEL])
+        self.assertTrue(env.is_frozen())
+        self.assertEqual(list(env.lock_notice()["locks"]), [BASEL])
 
     def test_a_manager_is_told_why_they_still_have_access(self):
         env = self.create_envelope(self.col)
         self.set_window(-20, -10)
         self.as_manager()
-        notice = env.lock_notice()
-        self.assertFalse(notice["frozen"])
-        self.assertEqual(list(notice["locks"]), [BASEL])
+        self.assertFalse(env.is_frozen())
+        self.assertEqual(list(env.lock_notice()["locks"]), [BASEL])
 
     def test_a_rejected_delivery_leaves_the_collection_free_to_retry(self):
         """The sequence a soft lock has to survive.
@@ -1253,6 +1402,7 @@ class NotPublishableTestCase(BaseTest):
     HELPERS = (
         ("Collection", "active_locks"),
         ("Collection", "has_reported"),
+        ("Collection", "lock_notice"),
         ("EnvelopeInstance", "active_locks"),
         ("EnvelopeInstance", "closed_locks"),
         ("EnvelopeInstance", "lock_notice"),
@@ -1260,6 +1410,8 @@ class NotPublishableTestCase(BaseTest):
         ("EnvelopeInstance", "is_frozen"),
         ("ReportekEngine", "get_locks"),
         ("ReportekEngine", "get_closed_locks"),
+        ("ReportekEngine", "get_lock_notice"),
+        ("ReportekEngine", "lock_closed_since"),
     )
 
     @staticmethod

@@ -374,6 +374,46 @@
   </tal:block>
 </metal:block>
 
+<!-- The lock banner, shared by the envelope and the collection it sits in.
+     Expects notice, as lock_notice() returns it. -->
+<metal:block define-macro="lock-banner"
+  tal:define="locks notice/locks; audience notice/audience;
+              engine here/ReportekEngine;
+              migrated python:[r for r in locks.values() if r.get('kind') == 'migrated']">
+  <div class="below-tabs">
+    <div class="important-msg" id="obligation-lock">
+      <strong tal:condition="migrated"
+              i18n:translate="">Migrated obligation</strong>
+      <strong tal:condition="not:migrated"
+              i18n:translate="">Reporting closed</strong>
+      <tal:block tal:repeat="item locks">
+        <p tal:define="record python:locks[item];
+                       df python:engine.dataflow_lookup(item);
+                       body python:engine.lock_body(record, audience)">
+          <a tal:attributes="href df/details_url" tal:content="df/TITLE" />
+          <tal:block tal:condition="record/target_url">
+            &mdash;
+            <a tal:attributes="href record/target_url"
+               tal:content="record/target_url" />
+          </tal:block>
+          <tal:block tal:define="closed_since python:engine.lock_closed_since(record)"
+                     tal:condition="closed_since">
+            <tal:block i18n:translate="">&mdash; closed since</tal:block>
+            <tal:block tal:content="closed_since" />
+          </tal:block>
+          <br />
+          <tal:block tal:condition="body" tal:content="body" />
+          <tal:block tal:condition="not:body"
+                     tal:define="lock_kind python:record.get('kind');
+                                 lock_audience audience">
+            <metal:block use-macro="here/engineMacros/macros/lock-default-reason" />
+          </tal:block>
+        </p>
+      </tal:block>
+    </div>
+  </div>
+</metal:block>
+
 <!-- Lock wording, shared by the fallback and the form placeholders.
      Expects lock_kind and lock_audience. -->
 <metal:block define-macro="lock-default-reason"
@@ -388,8 +428,8 @@
   ></tal:block
   ><tal:block condition="python:lock_audience not in ('manager', 'anonymous')"
     ><tal:block condition="python:lock_kind == 'migrated'"
-      i18n:translate="">Reporting has moved to another platform. This envelope stays readable here.</tal:block
+      i18n:translate="">Reporting has moved to another platform.</tal:block
     ><tal:block condition="python:lock_kind != 'migrated'"
-      i18n:translate="">Reporting is closed. This envelope stays readable here.</tal:block
+      i18n:translate="">Reporting is closed.</tal:block
   ></tal:block
 ></metal:block>

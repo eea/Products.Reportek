@@ -1,5 +1,13 @@
 100.2.43-dev (Unreleased)
 -------------------------
+* feat: show the obligation lock banner on the collection listing, not only inside
+        the envelope - refs #308507
+* fix: only date a lock's notice once its reporting window has ended - a window
+       renewed in advance read as "closed since" a future date - refs #308507
+* fix: moved the lock banner's clearance into its own stylesheet - the collection
+       listing loads no product CSS, so the banner overlapped the tab strip - refs #308507
+* fix: build the lock notice in one pass - it walked the obligations twice and
+       checked the manager permission twice on every page that shows it - refs #308507
 
 100.2.42 (2026-09-28)
 ---------------------

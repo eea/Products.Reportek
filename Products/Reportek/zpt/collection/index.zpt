@@ -1,7 +1,16 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
+  <metal:block fill-slot="head">
+    <link href="++resource++static/obligation_locks.css" rel="stylesheet"/>
+  </metal:block>
+
   <metal:block fill-slot="content">
     <span tal:replace="structure python:here.collection_tabs(tab='index_html')" />
+
+    <tal:block tal:define="notice python:here.lock_notice()"
+               tal:condition="notice">
+      <metal:block use-macro="here/engineMacros/macros/lock-banner" />
+    </tal:block>
 
     <tal:block tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                            is_manager python:SecurityManager.checkPermission('View management screens', template);
