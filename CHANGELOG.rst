@@ -1,5 +1,5 @@
-100.2.44-dev (Unreleased)
--------------------------
+100.2.44 (2026-09-30)
+---------------------
 * fix: raise Forbidden for locked envelopes instead of Unauthorized - refs #308507
 
 100.2.43 (2026-09-29)
