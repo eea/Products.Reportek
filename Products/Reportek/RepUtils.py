@@ -40,7 +40,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import FancyURLopener
 
-from AccessControl import Unauthorized
+from zExceptions import Forbidden
 from AccessControl.ImplPython import rolesForPermissionOn
 from AccessControl.SecurityInfo import ModuleSecurityInfo
 from AccessControl.SecurityManagement import (
@@ -747,17 +747,31 @@ def write_xls_data(data, sheet, header, row):
         sheet.write(row, header.get(key), value)
 
 
-FROZEN_MESSAGE = (
-    "This obligation is now reported on another platform, so this envelope"
-    " can no longer be changed here."
+MIGRATED_MESSAGE = (
+    "Reporting for this obligation has moved to another platform, so this"
+    " envelope can no longer be changed."
 )
+
+CLOSED_MESSAGE = (
+    "Reporting for this obligation is closed, so this envelope can no longer"
+    " be changed."
+)
+
+
+def frozen_message(context):
+    """Why the content is read only, in terms of the lock that closed it."""
+    active_locks = getattr(context, "active_locks", None)
+    records = active_locks() if active_locks is not None else {}
+    if any(record.get("kind") == "migrated" for record in records.values()):
+        return MIGRATED_MESSAGE
+    return CLOSED_MESSAGE
 
 
 def refuse_when_frozen(method):
     """Refuse the decorated action while the envelope is frozen.
 
-    Envelopes for an obligation flagged as migrated stay readable, but only
-    managers can still act on them. Acquisition makes this usable on the
+    Envelopes for a locked obligation stay readable, but only managers can
+    still act on them, and not even they on a migrated one. Acquisition makes this usable on the
     envelope's documents and feedbacks too: is_frozen() is then acquired
     from the envelope containing them, and content with no envelope above
     it is never frozen.
@@ -773,7 +787,10 @@ def refuse_when_frozen(method):
             return method(self, *args, **kwargs)
         is_frozen = getattr(self, "is_frozen", None)
         if is_frozen is not None and is_frozen():
-            raise Unauthorized(FROZEN_MESSAGE)
+            # Forbidden, not Unauthorized: the user is signed in, and a
+            # challenge would bounce them through the login form to the
+            # front page without ever showing why.
+            raise Forbidden(frozen_message(self))
         return method(self, *args, **kwargs)
 
     # The publisher maps request values by argument name; *args hides them.

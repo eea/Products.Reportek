@@ -29,11 +29,8 @@ Referrals are obsolete. It is better to use an Envelope with a hyperlink in it.
 
 $Id$"""
 
-from AccessControl import (
-    ClassSecurityInfo,
-    Unauthorized,
-    getSecurityManager,
-)
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from zExceptions import Forbidden
 from AccessControl.class_init import InitializeClass
 from OFS.role import RoleManager
 from OFS.SimpleItem import SimpleItem
@@ -66,7 +63,7 @@ def manage_addReferral(
     """Add a new Referral object with id *id*."""
     locks = self.active_locks()
     if locks:
-        raise Unauthorized(
+        raise Forbidden(
             "Cannot create referrals for obligations that are closed to"
             " reporting: {}".format(", ".join(sorted(locks)))
         )

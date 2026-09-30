@@ -1,3 +1,7 @@
+100.2.44 (2026-09-30)
+---------------------
+* fix: raise Forbidden for locked envelopes instead of Unauthorized - refs #308507
+
 100.2.43 (2026-09-29)
 ---------------------
 * feat: show the obligation lock banner on the collection listing, not only inside
