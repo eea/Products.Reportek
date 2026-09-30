@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """Tests for obligations manually flagged as migrated to another platform"""
 
-from AccessControl import SpecialUsers, Unauthorized, getSecurityManager
+from AccessControl import SpecialUsers, getSecurityManager
 from AccessControl.SecurityManagement import (
     newSecurityManager,
     noSecurityManager,
 )
 import json
+
+from zExceptions import Forbidden
 
 from DateTime import DateTime
 from Testing import ZopeTestCase
@@ -661,8 +663,40 @@ class FrozenEnvelopeTestCase(BaseTest):
         workitem_id = self.env.getListOfWorkitems()[0].getId()
         for name in self.TRANSITIONS:
             with self.subTest(transition=name):
-                with self.assertRaises(Unauthorized):
+                with self.assertRaises(Forbidden):
                     getattr(self.env, name)(workitem_id)
+
+    def test_the_refusal_names_the_kind_of_lock(self):
+        """A seasonal window is not a migration, and must not say it is"""
+        self.as_reporter()
+        workitem_id = self.env.getListOfWorkitems()[0].getId()
+
+        self.engine.set_lock(BASEL, kind="migrated")
+        with self.assertRaises(Forbidden) as caught:
+            self.env.completeWorkitem(workitem_id)
+        self.assertIn("moved to another platform", str(caught.exception))
+
+        self.engine.set_lock(
+            BASEL,
+            kind="seasonal",
+            open_from=DateTime() - 20,
+            open_until=DateTime() - 10,
+        )
+        with self.assertRaises(Forbidden) as caught:
+            self.env.completeWorkitem(workitem_id)
+        self.assertIn("is closed", str(caught.exception))
+        self.assertNotIn("another platform", str(caught.exception))
+
+    def test_the_refusal_does_not_challenge_a_signed_in_user(self):
+        """Unauthorized would send them round the login form to the front page"""
+        from AccessControl import Unauthorized
+
+        self.engine.set_lock(BASEL, kind="migrated")
+        self.as_reporter()
+        workitem_id = self.env.getListOfWorkitems()[0].getId()
+        with self.assertRaises(Forbidden) as caught:
+            self.env.completeWorkitem(workitem_id)
+        self.assertNotIsInstance(caught.exception, Unauthorized)
 
     def test_transitions_still_work_for_a_manager(self):
         self.engine.set_lock(BASEL, kind="migrated")
@@ -684,7 +718,7 @@ class FrozenEnvelopeTestCase(BaseTest):
             ("manage_copyDelivery", ("",)),
         ):
             with self.subTest(action=name):
-                with self.assertRaises(Unauthorized):
+                with self.assertRaises(Forbidden):
                     getattr(self.env, name)(*args)
 
     def test_reading_and_zipping_still_work_for_a_reporter(self):
@@ -1048,9 +1082,9 @@ class SeasonalLockTestCase(BaseTest):
         self.set_window(-20, -10)
         self.assertTrue(env.is_frozen())
         workitem_id = env.getListOfWorkitems()[0].getId()
-        with self.assertRaises(Unauthorized):
+        with self.assertRaises(Forbidden):
             env.activateWorkitem(workitem_id)
-        with self.assertRaises(Unauthorized):
+        with self.assertRaises(Forbidden):
             env.manage_addDocument()
 
         # and it thaws again when the window reopens
@@ -1060,7 +1094,7 @@ class SeasonalLockTestCase(BaseTest):
     def test_referral_creation_is_refused_server_side(self):
         self.set_window(-20, -10)
         self.as_reporter()
-        with self.assertRaises(Unauthorized) as caught:
+        with self.assertRaises(Forbidden) as caught:
             self.col.manage_addReferral(
                 "Title",
                 "",
@@ -1252,9 +1286,9 @@ class ApplicationsOnLockedEnvelopesTestCase(BaseTest):
 
         self.env._setObject("scratch", Folder("scratch"))
         self.assertTrue(self.env.is_frozen())
-        with self.assertRaises(Unauthorized):
+        with self.assertRaises(Forbidden):
             self.env.manage_delObjects(["scratch"])
-        with self.assertRaises(Unauthorized):
+        with self.assertRaises(Forbidden):
             self.env.manage_addFeedback()
         self.assertIn("scratch", self.env.objectIds())
 
@@ -1289,7 +1323,7 @@ class ApplicationsOnLockedEnvelopesTestCase(BaseTest):
             explode(self.env)
         # the old code left the owner's security manager in place here too
         self.assertFalse(getattr(self.app.REQUEST, "_reportek_as_owner", False))
-        with self.assertRaises(Unauthorized):
+        with self.assertRaises(Forbidden):
             self.env.manage_addFeedback()
 
     def test_a_reporter_cannot_raise_the_marker_from_the_web(self):
