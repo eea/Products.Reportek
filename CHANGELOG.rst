@@ -1,3 +1,8 @@
+100.2.45 (2026-10-01)
+---------------------
+* fix: explicitly added security declaration for envelope's manage_delObjects,
+       otherwise only Managers would be allowed to delete - refs #308365
+
 100.2.44 (2026-09-30)
 ---------------------
 * fix: raise Forbidden for locked envelopes instead of Unauthorized - refs #308507
