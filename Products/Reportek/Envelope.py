@@ -40,7 +40,7 @@ import transaction
 import xlwt
 from AccessControl import ClassSecurityInfo, Unauthorized
 from AccessControl.class_init import InitializeClass
-from AccessControl.Permissions import view_management_screens
+from AccessControl.Permissions import delete_objects, view_management_screens
 from AccessControl.SecurityManagement import getSecurityManager
 from App.Common import package_home
 from DateTime import DateTime
@@ -359,8 +359,11 @@ class Envelope(
         + OFS.SimpleItem.Item.manage_options
     )
 
-    # Left with the protection it inherits from OFS, only the frozen check
-    # is added: a frozen envelope keeps its documents and feedbacks.
+    # Declared explicitly: InitializeClass stamps any undeclared manage_*
+    # defined here with ('Manager',), which would shadow the permission
+    # ObjectManager protects the inherited method with and lock reporters out.
+    security.declareProtected(delete_objects, "manage_delObjects")
+
     @refuse_when_frozen
     def manage_delObjects(self, ids=None, REQUEST=None):
         """Delete the named objects, unless the envelope is frozen"""
