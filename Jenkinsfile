@@ -129,12 +129,12 @@ pipeline {
 
                     withEnv(["GIT_CMD=${git_cmd}", "CONTAINER_NAME=${env.BUILD_TAG}-base-z5-tests"]) {
                         sh '''
-                            docker pull eeacms/reportek-base-dr:z5-latest
+                            docker pull eeacms/reportek-base-dr:latest
                             docker run -i --name="${CONTAINER_NAME}" \
                                 -e GIT_NAME="${GIT_NAME}" \
                                 -e GIT_BRANCH="${BRANCH_NAME}" \
                                 -e GIT_CHANGE_ID="${CHANGE_ID}" \
-                                eeacms/reportek-base-dr:z5-latest \
+                                eeacms/reportek-base-dr:latest \
                                 sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh tests"
                         '''
                     }
@@ -155,12 +155,12 @@ pipeline {
 
                     withEnv(["GIT_CMD=${git_cmd}", "CONTAINER_NAME=${env.BUILD_TAG}-base-z5-coverage"]) {
                         sh '''
-                            docker pull eeacms/reportek-base-dr:z5-latest
+                            docker pull eeacms/reportek-base-dr:latest
                             docker run -i --name="${CONTAINER_NAME}" \
                                 -e GIT_NAME="${GIT_NAME}" \
                                 -e GIT_BRANCH="${BRANCH_NAME}" \
                                 -e GIT_CHANGE_ID="${CHANGE_ID}" \
-                                eeacms/reportek-base-dr:z5-latest \
+                                eeacms/reportek-base-dr:latest \
                                 sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && rm -rf /opt/zope/lib/python3.12/site-packages/Products/Reportek && /docker-entrypoint.sh coverage"
                             mkdir -p xunit-reports
                             docker cp "${CONTAINER_NAME}:/opt/zope/src/${GIT_NAME}/testreports/." xunit-reports/ || true
