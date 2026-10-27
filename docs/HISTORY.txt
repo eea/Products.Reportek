@@ -8,6 +8,322 @@ Changelog
 ---------------------------
 * Change: Use master as the release branch [olimpiurob]
 
+100.2.45 - (2026-10-01)
+--------------------------
+* fix: explicitly added security declaration for envelope's manage_delObjects,
+       otherwise only Managers would be allowed to delete - refs #308365
+
+100.2.44 - (2026-09-30)
+--------------------------
+* fix: raise Forbidden for locked envelopes instead of Unauthorized - refs #308507
+
+100.2.43 - (2026-09-29)
+--------------------------
+* feat: show the obligation lock banner on the collection listing, not only inside
+        the envelope - refs #308507
+* fix: only date a lock's notice once its reporting window has ended - a window
+       renewed in advance read as "closed since" a future date - refs #308507
+* fix: moved the lock banner's clearance into its own stylesheet - the collection
+       listing loads no product CSS, so the banner overlapped the tab strip - refs #308507
+* fix: build the lock notice in one pass - it walked the obligations twice and
+       checked the manager permission twice on every page that shows it - refs #308507
+
+100.2.42 - (2026-09-28)
+--------------------------
+* feat: captcha removed, zip envelope removed from anonymous - refs #308773
+
+100.2.41 - (2026-09-25)
+--------------------------
+* feat: made the locks editable - refs #308507
+* feat: the reporter, manager and anonymous wording of every lock is editable per
+       lock, with the translated defaults offered as placeholders - refs #308507
+* fix: reject platform addresses that are not http(s) on migrated locks - refs #308507
+* fix: keep argument names visible to the publisher in refuse_when_frozen - the
+       wrapper hid them, so activateWorkitem and the other guarded transitions failed
+       with a missing positional argument on every envelope - refs #308507
+* test: cover lock evaluation, freezing, exempt paths, the message defaults and the
+       management dialogs - refs #308507
+
+100.2.40 - (2026-09-24)
+--------------------------
+* fix: added missing i18n:attributes in obligation_locks.zpt - refs #308507
+* fix: added missing template and tests - refs #308507
+
+100.2.39 - (2026-09-24)
+--------------------------
+* feat: added obligation lock/freezing for migrated dataflows - refs #308507
+
+100.2.38 - (2026-09-21)
+--------------------------
+* fix: fixed regression in RemoteFMEConversionApplication permission checking - refs #308688
+
+100.2.37 - (2026-09-18)
+--------------------------
+* fix: fixed copy_prefil python3 migration regression - refs #308615
+
+100.2.36 - (2026-09-17)
+--------------------------
+* fix: fixed referral meta_type query in collection's index template - refs #308505
+
+100.2.35 - (2026-09-15)
+--------------------------
+* feat: add FME Flow REST API v4 support for RemoteFMEConversionApplication - refs #308485
+* fix: fixed file deletion for reporters only - refs #308537
+
+100.2.34 - (2026-09-07)
+--------------------------
+* fix: removed lambda parantheses in workflowApplications - refs #308243
+* fix: avoid dict sorting in RepUtils and Toolz - refs #308246
+* fix: handle mapping deletion when no mapping is selected - refs #308246
+
+100.2.33 - (2026-09-04)
+--------------------------
+* fix: fixed envelope overview for auditors
+
+100.2.32 - (2026-08-27)
+--------------------------
+* feat: added ThreadSafeRegistryProxy
+* fix: fixed getCatalogTool when CATALOG_OPTIMIZATION_DISABLED is set to true
+
+100.2.31 - (2026-08-26)
+--------------------------
+* fix: fixed prepend_authentication_path patch for non-folderish content
+
+100.2.30 - (2026-08-26)
+--------------------------
+* fix: added missing xls export test
+* fix: prepend_authentication_path to fall back to the context path for ZMI static resources - refs #307559 (https://github.com/zopefoundation/Zope/issues/1195)
+
+100.2.29 - (2026-08-12)
+--------------------------
+* fix: save xls exports into a BytesIO so ReportekEngine/xls_export and Envelope/xls no longer fail on Python 3 with "TypeError: string argument expected, got 'bytes'"
+* test: cover the xls download returning a binary workbook with the Excel download headers
+
+100.2.28 - (2026-08-12)
+--------------------------
+* fix: rotate the CAS session id when a login is established and on logout, so a single logout no longer invalidates the user's next login for the lifetime of the revocation entry, and a fixated session id cannot survive authentication
+* fix: treat the default BASIC minimum authentication level as "no requirement" so EU Login levels that cannot be ranked (e.g. STRONG for eID) are logged instead of failing every login; MEDIUM and HIGH still reject missing or unrankable levels
+* fix: keep the PAS user name identical to the user id by defaulting the CAS displayIdentifier to the login identity, restoring the legacy anz.ecasclient behaviour that getUserName()/owner id comparisons rely on
+* fix: pin displayIdentifier back to the login identity in the eCas loginIdentifier fix script for already migrated instances
+* fix: set the envelope history Content-Type explicitly so RAM-cached responses are no longer returned as text/plain and rendered as raw HTML by the browser
+* test: cover CAS session rotation, re-login after single logout, authentication level enforcement, login/display identity parity, and the envelope history content type on a cache hit
+
+100.2.27 - (2026-07-29)
+--------------------------
+* fix: remove unsafe FGAS reported gases FieldIndex in Python 3
+
+100.2.26 - (2026-07-29)
+--------------------------
+* fix: handle python 3 bound method permission check in ReportekPropertiedUser
+
+100.2.25 - (2026-07-29)
+--------------------------
+* fix: Use physical path instead of absolute_url(1) for middleware authorization path
+
+100.2.24 - (2026-07-29)
+--------------------------
+* fix: fixed CAS plugin loginidentifier
+* fix: fixed partials.zpt for registry
+
+100.2.23 - (2026-07-28)
+--------------------------
+* fix: strip hop by hop headers to fix AssertionError: Connection is a "hop-by-hop" header; it cannot be used by a WSGI application (see PEP 3333)
+
+100.2.22 - (2026-07-16)
+--------------------------
+* feat: add BDR-only Reportek CAS plugin for Zope 5 with ECAS laxValidate support, configurable PAS login/display identifiers and minimum authentication level, Beaker/Redis sessions, Redis-backed CAS runtime cache, and eID/STORK attribute preservation
+* fix: keep BDR CAS dependencies optional so CDR installs do not require python-cas or defusedxml
+* feat: configure Beaker session Secure, HttpOnly, and SameSite cookie attributes from environment
+* fix: avoid ZODB writes for CAS runtime state to prevent high-traffic conflict errors
+* fix: register Products.Reportek as a BDR Zope 5 product package so the Reportek CAS Plugin is available from the PAS/ZMI add menu
+* fix: rename the Reportek CAS plugin add template to reportekcasAdd.zpt and wire the ZMI form to manage_addReportekCASPlugin
+* test: cover Reportek CAS endpoint selection, ECAS/eID attribute parsing, Beaker pickle safety, BDR-only guards, Redis-safe runtime cache behavior, and legacy eCas import mapping
+* feat: add Zope 5 browser action views for ldap_group_roles ZMI role and mapping updates
+* fix: migrate LDAPUserFolder local _groups_store assignments to direct PAS role assignments
+* fix: auto-create missing ZODBRoleManager roles before assigning LDAP principal roles
+* test: cover ldap_group_roles mappings, direct principal assignments, migration helper, and browser actions
+
+100.2.21 - (2026-07-04)
+--------------------------
+* fix: fixed RemoteFMEConversionApplication
+* feat: added style.css link in workflowMapProcesses.zpt
+* feat: added line-through text decoration for terminated obligations in workflowMapProcesses
+
+100.2.20 - (2026-07-01)
+--------------------------
+* fix: fixed Zope5 incompatibility in scripts
+
+100.2.19 - (2026-07-01)
+--------------------------
+* fix: fixed scripts args processing for running with zconsole
+* fix: use Decimal in get_auditable_data_reports - refs #305282
+
+100.2.18 - (2026-06-25)
+--------------------------
+* feat: added highlights for terminated obligations in workflowMapProcesses and reportek.js
+* feat: removed unused load_from_dd and avoid write on get for xls_conversion property
+
+100.2.17 - (2026-06-22)
+--------------------------
+* fix: fixed regression when adding manual feedbacks
+
+100.2.16 - (2026-06-19)
+--------------------------
+* feat: decouple styles from eionet site
+
+100.2.15 - (2026-06-15)
+--------------------------
+* fix: include "dn" in ldap_utils
+
+100.2.14 - (2026-06-12)
+--------------------------
+* fix: fixed test_utilities
+* fix: migrated away from LDAPUserFolder calls
+* feat: added ldap_utils helpers
+* fix: changed ReportekPropertiedUser to not rely on old LDAPUserFolder
+* fix: updated the ldap migration script to set ldap.settings["users.memberOfSupport"] = False
+
+100.2.13 - (2026-06-10)
+--------------------------
+* fix: fixed ErrorView not working correctly in Zope 5
+
+100.2.12 - (2026-06-10)
+--------------------------
+* fix: added patch_node_ext_ldap to make ldap authenticate use the timeouts defined in ldap settings
+* feat: register SIGUSR1 handler when ZOPE_DEBUG_MODE and PYTHONFAULTHANDLER are set, used for stack dump
+* fix: fixed script_edit.zpt and script_add.zpt missing closing tags
+* fix: fixed templates paths for converters and company_details
+
+100.2.11 - (2026-06-04)
+--------------------------
+* feat: added script to fix broken python scripts
+* fix: normalize Remote Applications feedback handling and conversions
+* fix: bulletproofed Feedback's content
+
+100.2.10 - (2026-06-04)
+--------------------------
+* feat: batch Reportek modification-date reindexes per transaction
+
+100.2.9 - (2026-06-03)
+--------------------------
+* feat: improved ldap integration with pas.plugins.ldap
+* feat: added migrate_ldap script
+* feat: added ldap_group_roles plugin to manage groups and users role assignments
+* fix: include Products.PluggableAuthService in configure.zcml to fix AttributeError: @@csrf_token in some ZMI pages
+* feat: added reportek_modification_date to avoid relying on Zope's _p_mtime for bobobase_modification_time
+* fix: sonarqube fixes
+* fix: use max instead of sorting to get the max val
+* fix: fixed logic in some conditions checks
+* fix: replaced chained startswith with a single call with tuple arg
+* fix: removed unnecessary .keys() call
+* fix: removed duplicate assignment
+* fix: fixed logic in REQUEST check
+* fix: use logger.exception instead of logger.error in exception handling
+* fix: handle situations where name could be None
+* fix: fixed MRO conflict
+
+100.2.8 - (2026-05-25)
+--------------------------
+* chore: cosmetics switched var to snake case
+* chore: refactored Collection's get_children, added tests
+* chore: refactored to avoid querying for string literals in Envelope.py
+* chore: refactored assign_auditor and added tests for it
+* chore: refactored reindex_security_batched
+* chore: define AUDIT_DATE_FORMAT to avoid the same string literal
+
+100.2.7 - (2026-05-21)
+--------------------------
+* Fixed decoding issues in find_user
+* Added support for LDAP memcached backends
+
+100.2.6 - (2026-05-08)
+--------------------------
+* Added batched security reindex for BDR Collection role changes
+
+100.2.5 - (2026-05-05)
+--------------------------
+* Bulletproofed qa cache invalidation
+
+100.2.4 - (2026-04-28)
+--------------------------
+* engineMacros optimizations for bdr frontpage grouping
+* Use getListOfWorkitems instead of context.objectValues in operations
+* Added per request caching on workitems and invalidations
+* Added per request get_company_data caching
+* Fixed get_qa_scripts in Remote applications
+* Fixed bdr listing for envelopes without title in engineMacros
+
+100.2.3 - (2026-04-24)
+--------------------------
+* Removed RestrictionCapableEval in order to prep for Zope 6
+* Removed startZServer from tests/utils
+
+100.2.2 - (2026-04-22)
+--------------------------
+* Fixed bdr listing for envelopes without title in engineMacros
+* Fixed SSRF issue on run_conversion and run_remote_conversion
+* Performance improvements in templates
+* history_section requires explicit Authentication
+* Improvements in api/envelopes
+* Added ThreadSafeKeyManagerProxy to be registered as KeyManager utility instead of a persistent object
+* Added caching(1h) for history_section and disabled plone.transformchain for the section
+* Disabled CSRF on envelope index_html
+* Improved performance in history_section
+
+100.2.1 - (2026-04-06)
+--------------------------
+* Buttons instead of anchors for unassign in auditor_details and organisation_details
+  [olimpiurob refs #302173]
+* Normalize unassign warning message [olimpiurob refs #302173]
+* Added Unassign actions in auditor_listing and in org listing and also check for marker error in assign_auditor
+  [olimpiurob  refs #302173]
+* Handle idempotency issues in assign auditor in external API call where the transaction could be rolled back
+  [olimpiurob refs #302173]
+* Layout fixes in organisation_details_licences
+* Switched org details licences to aggregated multi year licences
+* Added conditional event notification in unassign_auditor
+
+100.2.0 (2026-03-24)
+____________________
+* rfc1123_date: Moved imports from App.Common to zope.datetime in Document.py, RepUtils.py, and testDocument.py.
+* PersistentDict: Migrated all usages to persistent.mapping.PersistentMapping in adapters.py and RemoteRabbitMQQAApplication.py.
+* AccessControl.User: Moved SpecialUser, User, and UnrestrictedUser imports to AccessControl.users in testWorkflow.py and authutils.py.
+* IObjectMovedEvent: Updated configure.zcml to use zope.lifecycleevent.interfaces.IObjectMovedEvent consistently and removed the conditional check for the deprecated zope.container location
+* Migrated from ``zipstream`` to ``zipstream-ng`` for ZIP generation
+* Implemented efficient ZIP streaming with ``CacheStreamIterator``
+* Improved first-byte latency for non-cached ZIP downloads
+* Updated test suite to support binary response streaming in Python 3
+* Fixed ``FutureWarning`` by specifying explicit modes for ``GzipFile``
+* Fixed numerous ``ResourceWarning``\ s by ensuring proper file handle closure
+* Implemented robust resource cleanup in ``CacheStreamIterator.close()``
+
+100.1.0 - (2026-03-23)
+--------------------------
+* Removed registerHelp from __init__
+* Improved Docker development environment with editable source mounts
+* Updated Jenkins pipeline with robust Pull Request support
+* Improved CI stability for tests and coverage stages
+* Shortened Docker container names in CI to stay within limits
+* Fixed Jenkins stash commands in coverage stage
+
+100.0.0 - (2026-03-20)
+--------------------------
+* Python 3.12 and Zope 5.x migration
+* Fixed ``apply()`` removal in Python 3
+* Fixed ``PageTemplateFile.macros`` access for Chameleon/Zope 5
+* Fixed ``icon`` attribute access in ZPT templates
+* Added job_id suffix in feedback naming for zipped feedbacks
+  [olimpiurob refs #123885]
+* Handle multiple zip feedbacks for envelope level checks
+  [olimpiurob refs #123885]
+* Log zip feedbacks file handling errors on workitem and mark the AQA
+  as failure [olimpiurob refs #123885]
+* Restrict cancellable activities to AutomaticQA and FMEConversion app
+  [olimpiurob refs #129250]
+* Display previous reporting folders in organisation details if there
+  is no active path [olimpiurob refs #130580]
+* Don't crash organisation_details if we have no path [olimpiurob refs #130580]
+
 14.6 - (2026-07-01)
 ---------------------------
 * Change: Develop
@@ -555,3 +871,465 @@ Changelog
 4.3 - (2022-01-10)
 ---------------------------
   "documentation_url": "https://docs.github.com/rest/reference/repos#get-repository-content"
+
+4.0.2 - (2021-03-24)
+--------------------------
+* Updated MANIFEST file to include missing CHANGELOG.rst and docs
+
+4.0.1 - (2021-03-24)
+--------------------------
+* Updated Manifest file
+
+4.0.0 - (2021-03-23)
+--------------------------
+* Back to egg releases
+* Bug fix: Properly retrieve company meta in searchdsearchdataflow [olimpiurob #100356]
+* Feature: Added auto_cleanup console script
+* Feature: Enabled huge_tree support for xml parser [olimpiurob refs #92438]
+* Feature: Added methods to allow remote conversion that doesn't write directly to RESPONSE [batradav refs #91145]
+* Feature: Added crashme view [olimpiurob refs #89420]
+* Feature: Added ODS support in fgases registry [olimpiurob refs #85847]
+* Bug fix: Catch KeyError exception when attempting to zip an envelope that has had it's workflow removed [olimpiurob refs #89581]
+* Feature: Refactored Document's manage template to acquire available
+  - conversions and qa_scripts with ajax calls [olimpiurob refs #89320]
+* Feature: Enabled the stuck envelopes utility for BDR deployments [robaaoli refs #88393]
+* Bug fix: Bullet proof the checking for activation_log value in stuck envelopes [robaaoli refs #88393]
+* Bug fix: Fixed condition test in EnvelopeInstance's traceActivity method
+  [olimpiurob refs #86937]
+* Feature: Added possibility of uploading \*.shp.xml metadata files that have no
+  - schema [olimpiurob refs #88302]
+* Feature: Added possibility of setting the XLS->XML conversion type (split/no-split)
+  - when uploading, in the DataflowMapping Record [olimpiurob refs #87436]
+* Bug fix: Made sure the uploaded XML are well-formed [olimpiurob refs #88004]
+* Bug fix: Properly check for feedback's document_id attribute when exporting to rdf
+  - and changed the document_id default value to None in manage_editFeedback
+  [olimpiurob refs #85370]
+* Feature: Added dcat:byteSize to the envelope's rdf export [olimpiurob refs #87836]
+* Bug fix: Treat cases where the envelope to be cr pinged, no longer exists in zope [olimpiurob refs #87250]
+* Feature: Added automatic_qa and zip_cache_cleanup console scripts [olimpiurob refs #87250]
+* Bug fix: Fixed regression from previous commit caused when trying to convert to unicode a filename that's already unicode [olimpiurob refs #87497]
+* Bug fix: Ignore unicode encode/decode errors for filenames in zipfiles for JSON API [olimpiurob refs #87497]
+* Feature: Added description to ReportekEngine's sendNotificationToUNS method [olimpiurob refs #87399]
+* Bug fix: Added 'Add Envelopes' permission check in the collection's index template [olimpiurob refs #84330]
+* Feature: Added part of year related inputs in ReportekUtilites's collections.build view [olimpiurob refs #84330]
+* Feature: Added referrals checkbox in ReportekUtilites's collections.build view [olimpiurob refs #84330]
+* Feature: Added Added envelopes.stuck page in ReportekUtilities [olimpiurob refs #73720]
+* Feature: Added isRestricted attribute to the JSON API [olimpiurob refs #83074]
+* Feature: Improved envelope zip file export [olimpiurob refs #85996]
+* Feature: Added ApplicationException exception to be easier to track application
+* errors [olimpiurob refs #73709]
+* Bug fix: Fixed error when attempting to rename with no file selected in the
+  envelope's files section
+  [olimpiurob refs #83450]
+
+* Bug fix: Unauthorized message in accessing the webforms
+  -  used zope2.Public permission instead of zope2.View
+  for engineMacros
+  [chiridra refs #83453]
+
+* Bug fix #77346 - Fixed remote converters section in Converters view not loading [olimpiurob]
+
+* Bug fix #79389 - Display script title in case of missing feedback message
+  in data_quality tab for non-envelope tests [olimpiurob]
+
+* Task #80011 - Refactored python eval function calls [olimpiurob]
+
+* Bug fix #81672 - Fixed regression from refs #73710 which caused
+  - ReportekUtilities/@@collections.build to create collections with no
+  - obligations. [olimpiurob]
+
+* Feature #79288 - Added manage_addManualQAFeedback to be used by Managers only
+                   [olimpiurob]
+* Feature #73710 - Unified obligations select input across views [olimpiurob]
+
+* Bug fix #80692 - Fixed select option values in envelope's properties template [olimpiurob]
+
+* Bug fix #79314 - Display postingdate instead of releasedate in Document's manage template feedback section [olimpiurob]
+
+* Bug fix: Products.Reportek - FGases registry - Notifications settings form
+  - fixed form submit and HTML cleanup
+  [chiridra refs #80563]
+
+* Feature: Fgas companies that are just manufacturers don't need to report
+
+  - valid companies of type FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS are unable
+    to report
+
+  [chiridra refs #77591]
+
+* Feature: Add the message attribute to manage_addFeedback
+
+  - added message parameter to manage_addFeedback constructor
+
+  [chiridra refs #79288]
+
+* Bug fix: strange BDR's FGases registry behaviour
+
+  - fixed fix_json_from_id method and related calls: use deepcopy
+    to alter the given dictionary parameter which is MUTABLE!
+
+  [chiridra refs #81127]
+
+3.8.6 - (09-01-2017)
+--------------------------
+* Delete organisation matching from the Fgas Cache Registry
+  - removed references to candidates
+  - removed references to oldcompany_id field
+  - removed auto_matching
+  [chiridra refs #78691]
+
+* Feature #27205 - Added view for DataflowMappings [olimpiurob]
+* Feature #23931
+    - Added support for assigning local roles to LDAP groups [olimpiurob]
+
+* Bug fix #26311
+    - Fixed content_type guessing for zip archived files [olimpiurob]
+* Feature #18887
+   - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
+   - Improved get_user_type ajax calls, it will now create a user mapping
+     to avoid multiple calls for the same user [olimpiurob]
+   - Fixed Back to utilities link not including the arrow icon for some views [olimpiurob]
+   - Fixed jslint errors on utils.js [olimpiurob]
+   - Improved user type detection [olimpiurob]
+   - Get user type on get_users_by_path view with ajax calls on datatable.draw
+     [olimpiurob]
+   - Added ReportekUtilities specifics for BDR [olimpiurob]
+   - Added back button to ReportekUtilities [olimpiurob]
+   - Added support for info messages in ReportekUtilities [olimpiurob]
+   - Added info message for assign_roles and revoke roles for ecas users [olimpiurob]
+   - Hiding results from our internal user: "bdr_folder_agent" in get_users and get_users_path
+     [olimpiurob]
+   - Skip loading results when accesing the page without pressing the search button in get_users and get_users_path
+     [olimpiurob]
+   - Added possibility of styling the result table based on deployment type and customize the bdr table layout in get_users and get_users_path
+     [olimpiurob]
+   - Added placeholder for the datatable search input box in get_users and get_users_path
+     [olimpiurob]
+   - Added an "All" placeholder to all inputs in the filters form [olimpiurob]
+   - Improved ECAS user mapping system [olimpiurob]
+   - Added support for ECAS users in ReportekUtilities assign_roles and revoke_roles
+     [olimpiurob]
+
+* Bug fix #78107 - Python code injection in bdr-uat.eionet.europa.eu
+   - Removed eval blocks since we can use *getattr* to invoke xmlrpc methods
+   - Added check to make sure that p_file_url is valid Zope file
+
+3.8.5 - (22-06-2015)
+--------------------------
+* Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
+* Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
+* Bug fix #25904
+   - Reindex object for manage_setLocalRoles, manage_delLocalRoles
+     and manage_addLocalRoles only when we have a Request object. This is to
+     avoid uncatalog errors when adding a new collection because
+     manage_setLocalRoles is called before manage_afterAdd [olimpiurob]
+   - Added migration script for local_defined_roles metadata [olimpiurob]
+   - Added overrides for manage_setLocalRoles, manage_delLocalRoles and
+     manage_addLocalRoles in order to reindex the collection after changes
+     are made [olimpiurob]
+   - Removed 'local_defined_roles' FieldIndex and add it as metadata column
+     [olimpiurob]
+* Task #24661 - Added company id to search results table [vitaliemaldur]
+
+3.8.4 - (09-04-2015)
+--------------------------
+* Task #21032 - Added referrals migration extension script [olimpiurob]
+* Task #21032 - Include Repository Referrals in obligation search on CDR [olimpiurob]
+
+3.8.3 - (06-04-2015)
+--------------------------
+* Task #24025 - Drop fuzzy search and use exact_match for ldap_user_folder.findUser [olimpiurob]
+* Task #23435 - Display the envelope's id if there's no title in searchdsearchdataflow results [olimpiurob]
+* Task #23434 - Url quote reportingdate_start and reportingdate_end in engineMacros template [olimpiurob]
+* Task #20536 - Treat case when an envelope's workflow does not exist anymore [olimpiurob]
+
+3.8.2 - (27-03-2015)
+--------------------------
+* Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
+* Task #22820 - Added an explanatory text [malduvit]
+
+3.8.1 - (11-03-2015)
+--------------------------
+* move getCountryName and getCountryCode to Reportek Collection
+* Refs #23650 show comapny id in collections ZMI->settings [baragdan]
+* Refs #21879 - improve threaded localQA [baragdan]
+
+3.8.0 - (27-02-2015)
+--------------------------
+* proper production egg
+
+3.7.2-dev16 - (26-02-2015)
+--------------------------
+* Task #23412 - Conversion of XML file to XLS gives an error
+* Task #23463 - overridden PropertiedUser.getRolesInContext() to check middleware too
+
+3.7.2-dev15 - (26-02-2015)
+--------------------------
+* Task #23451 - AttributeError company_id
+* Task #22656 - use script title in feedback id
+* Task #22974 - minor fix
+
+3.7.2-dev14 - (20-02-2015)
+--------------------------
+
+3.7.2-dev13 - (19-02-2015)
+--------------------------
+* Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
+* Task #22974 - Search dataflow functionality in ReportekUtilities [malduvit]
+* Task #23217 - nicely inform user that no company was found when no company was found [baragdan]
+* Task #23215 - keep GET query arguments when login redirects [baragdan]
+
+3.7.2-dev12 - (13-02-2015)
+--------------------------
+* Task #22993 - Add a tab to ReportekEngine management where we can see migrations
+* Task #23236 - Fix organisation_details link to reporting folder for non-ue types
+
+3.7.2-dev11 - (10-02-2015)
+--------------------------
+
+3.7.2-dev10 - (10-02-2015)
+--------------------------
+* Task #22993 - add migration to migration tracking support. Create migration decorator [baragdan] (needs migration)
+* Task #22445 - Lockdown: unmatch companies case + sending emails [baragdan]
+* Task #22989 - Fix datatable error on IE [malduvit]
+
+3.7.2-dev8 - (05-02-2015)
+--------------------------
+* Task #22904 - Add missing functionality to Envelope [baragdan]
+* Task #22820 - Notification settings [malduvit]
+* Task #22817 - Fix url for fgas portal [malduvit]
+* Task #22819 - Ajax loading for companies table [malduvit]
+* Task #22874 - Ajax loading for pending companies [malduvit]
+* Task #22445 - implement Lockdown (TODO: send mails) [baragdan]
+* Task #22664 - Run local QA on "Run Full QA" [baragdan]
+* Task #21874 - bugfix: invalid json [nituacor]
+
+3.7.2-dev7 - (23-01-2015)
+--------------------------
+* Task #22646 - fix original size of value 0
+
+3.7.2-dev6 - (23-01-2015)
+--------------------------
+* Minor interface changes
+
+3.7.2-dev5 - (23-01-2015)
+--------------------------
+* Task #20076 - Translate fgas portal country codes to bdr country folders
+* Imporve BDR messages content on pages involving Fgas Portal
+
+3.7.2-dev4 - (22-01-2015)
+--------------------------
+* Refs #21874 - ReportekAPI with get all released envelopes and other methods
+
+3.7.2-dev3 - (22-01-2015)
+--------------------------
+* Task #20076 - Fgas Portal integration [baragdan] (BDR only) {setup it in Data.fs}
+* Task #20006 - Add support for CAS/eCAS auth for whoever needs it [baragdan] (BDR) {needs setup of Data.fs objects OR benign if unconfigured}
+* Task #22376 - Moved build collections form from ReporekEngine to ReportekUtilities [malduvit]
+
+
+3.7.2-dev2 - (14-01-2015)
+--------------------------
+* Task #22404 - Workaround zope's inabillity to detect mime type while utf8 BOM present [baragdan]
+* Task #22436 - Fix seek(0) on raw zip handler when normal, non raw read is used [baragdan]
+
+3.7.2-dev1 - (06-01-2015)
+--------------------------
+* Task #22312
+    - Add more categories to ReportekUtilities
+
+3.7.2-dev - (05-01-2015)
+--------------------------
+* Task 19360 - add 'deferred mode' to the compression of Report Documents [baragdan]
+* better separation of deployments [baragdan]
+* fixes for ReportekUtilities [malduvit]
+
+
+3.7.1 - (10-12-2014)
+--------------------------
+* Task 3324
+    - Fixed file upload in envelope [vitaliemaldur]
+    - Fixed the id generation for the file [vitaliemaldur]
+* Task 21521 - Simplified process of attaching multiple files to a feedback [olimpiurob]
+* Task 20358:
+    - Added the possiblity of changing the properties of the ReportekEngine
+      xmlrpc methods from manage_properties view [olimpiurob]
+    - Removed inheritance DataflowsManager and CountriesManager inheritance in
+      the Collection class. The xmlrpc methods will be called from ReportekEngine [olimpiurob]
+    - Fixed tests after migration [olimpiurob]
+    - Minor changes to ReportekUtilities. [olimpiurob]
+    - Added statistics and envelopes.autocomplete browser pages in
+      views.zcml. [olimpiurob]
+    - Changed assign_role functionality to add the new role instead of
+      overwriting existing ones. [olimpiurob]
+    - Changed revoke_roles functionality to add the possibility of individually
+      select which roles to revoke. [olimpiurob]
+    - Added functional tests for ReportekUtilities [olimpiurob]
+* Task 20730 - Make zip upload much more faster by transplanting zipped content from zip container to gzip blob file [baragdan]
+
+3.7.0 - (16-10-2014)
+--------------------------
+* Task 20730 - Add migration script to fix blob file sizes (requires migration) [baragdan]
+* Task 21228 - Make CR ping robust towards concurrent pings for the same envelope and durable in case of zope restart [baragdan]
+* Task 21377 - Make script for exporting all feedback urls that are manual and include email addresss [baragdan]
+* Task 20730 - Fixed getZipInfo method not to crash when fed non-zip file [baragdan]
+* Task 20561 - Fix the display of content_type for old, compression unaware Documents [baragdan]
+* Task 20537 - Prevent empty obligation from showing in enevelopes obligations [baragdan]
+* Task 19360 - Get rid of unreliable fs_path. Blobs can be  moved by zope so always compute the path (requires migration) [baragdan]
+* Task 20500 - fix pingCR for local roles [nituacor]
+* Task 19360 - Avoid decompressing and recompressing [baragdan]
+* Task 19323 - Eliminate the unreleased gap between the envelope release and CR ping [baragdan]
+
+3.6.17 - (23-06-2014)
+--------------------------
+* Task 19962 - Implemented functionality for allow to set the maximum size for QA script. [mironovi]
+
+3.6.16 - (19-06-2014)
+--------------------------
+* Task 5992 - export only apps referenced by procs; also do path compare and report for apps [baragdan]
+* Task 3312 - Fixed rebuild_catlog to include the dataflow mapping records [baragdan]
+
+3.6.15 - (18-06-2014)
+--------------------------
+* Task 5992 - Fix and improve Import/Export of open dataflow processes [baragdan]
+* Task 19856 - Fix Obligation list under envelope properties [baragdan]
+* Task 3279 - Broaden the detection of xml mime type [baragdan]
+* Task 17226 - Reject ambiguous schema locations [baragdan]
+
+3.6.14 - (2014-05-20)
+--------------------------
+* Task 3312 - Refactor DataflowMappings [baragdan]
+* Task 17579 - Envelope activities history show missing activities in red [baragdan]
+* Task 19418 - RDF output has links url quoted [baragdan]
+* Task 18960 - Reportek to split xmlSchema on space in RDF output [baragdan]
+* Task 19323 - Implement ping/delete to the Content Registry [baragdan]
+* Task 17109 - Implement a ping to the content registry (also pings subitems) [baragdan]
+
+3.6.13 - (2014-04-22)
+--------------------------
+* Task 19353 - fix searchdataflow displaying search regardless of permissions
+* Task 19310 - fix displaying of multiyear obligation in envelope overview [baragdan]
+
+3.6.12 - (2014-04-11)
+--------------------------
+* Task 18707 - Fix receiving of remote conversion service results [baragdan]
+* Task 17612 - Build_collections: improve error messages
+* Task 17109 - Implement ping on enevlope release but not yet on revoke [baragdan]
+
+3.6.11 - (2014-03-13)
+--------------------------
+* Task 17922 - Write size of uploaded file to event log [nituacor]
+
+3.6.10 - (2014-03-10)
+--------------------------
+* Task 17979 - Fix yet another kind of blob path.
+
+3.6.9 - (2014-03-10)
+--------------------------
+* Task 17247 - Rerender feedback htmls. Update script to readd missing html. Prevent reportek.convertes/safe_html from removing i18n
+* Task 17979 - Fix blob path when uploading new file
+
+3.6.8 - (2014-03-03)
+--------------------------
+* Task 18701 - Add url filed back to search form
+
+3.6.7 - (2014-02-28)
+--------------------------
+* Task 18521 - Fixed the expiration message on the envelope note page
+
+3.6.6 - (2014-02-26)
+--------------------------
+* Some fixes to DTML -> ZPT conversion. Fix the envelope overview automatic refresh.
+* Task 18609 - Fix radio button labels on search form.
+
+3.6.5 - (2014-02-26)
+--------------------------
+* Task 17979 - Fix blob path computation
+
+3.6.4 - (2014-02-25)
+--------------------------
+* Task 18472 - Refactor search.
+* Task 17979 - Add blob path in filesystem to manage document view
+* adapted locales/update.sh script for buzzardNT staging deployment
+
+3.6.3 - (2014-01-27)
+--------------------------
+* Various fixes for a fresh, clean and up-to-date buildout
+* Unified products BDR and CDR (based on buildout REPORTEK_DEPLOYMENT env var)
+* Add multilanguage to Reportek
+
+3.4 - (2013-09-09)
+--------------------------
+* Remote converters use RESTful API
+* Local QA script assignable to mime-type
+* Remote REST Application (Art. 17)
+
+3.3 - (2013-06-17)
+--------------------------
+* Add globally_restricted_site flag in ReportekEngine (for BDR) [dincamih]
+* Display mapping related messages when handling application files [dincamih]
+* Implement Envelope.has_blocker_feedback REST API [dincamih]
+* SVG workflow graph [dincamih]
+* Add interface to retrieve feedback details [dincamih]
+* Reimplement SHP converter [dincamih]
+* Use REST API for remote conversions [dincamih]
+* View for displaying local roles for user id [dincamih]
+* Other minor fixes [dincamih]
+
+3.2 - (2013-02-01)
+--------------------------
+* Session-based mechanism to set and display system messages [moregale]
+* Fix handling of large files (XML sniffing, zip download) [moregale]
+* Fetch dataflow schema mappings from DD; edit and save the table in a single object [moregale]
+* Replace TinyMCE with CKEditor [dincamih]
+* Clean feedbacks and comments before saving [dincamih]
+* Add description note for local conversion service [dincamih]
+
+3.1.2 - (2012-12-17)
+--------------------------
+* Add creator to the rdf response [dincamih]
+* Add Build_collections (bulk creation of collections) [dincamih]
+* Fix converters with extraparams [dincamih]
+* Fix gml without background converters [dincamih]
+* Bring back convertDocument for external calls compat. [dincamih]
+
+3.1.1 - (2012-11-23)
+--------------------------
+* Add apps migration deploy script [dincamih]
+* Add UNS settings to ReportekEngine._properties [dincamih]
+* Remove ReportekEngine.__setstate__ [dincamih]
+
+3.1 - (2012-11-21)
+--------------------------
+* Move envelope applications from '/' [dincamih]
+* Local conversion service [dincamih]
+* Convert using ApacheTika [dincamih]
+* Require buildout flag to send UNS notifications [moregale]
+
+3.0 - (2012-08-31)
+--------------------------
+* Remove support for HTTP Range requests [moregale]
+* Clean API for accessing a document's file content [moregale]
+* For local scripts that need access to documents we create temporary
+  files instead of providing paths to the original data store [moregale]
+* Document storage reimplemented using ZODB BLOBs [moregale]
+* Zip cache moved to ``${CLIENT_HOME}/zip_cache`` [moregale]
+* New object type `File (Blob)` similar to OFS.Image.File [moregale]
+* Feedback files stored as `File (Blob)` objects [moregale]
+* Move search pages to disk [dincamih]
+
+2.3 - (2012-06-13)
+--------------------------
+* included update_catalog_indexes script in extras [nitaucor]
+* included update_auth package in extras, see docstring of init [simiamih]
+* Switch to distutils package structure. [moregale]
+* Documentation generated with Sphinx. [roug, moregale]
+* Remove Article 17 reporting from 2007. [bulanmir]
+* Rewrite XML Schema sniffer, drop dependency on PyXML. [moregale]
+* Change imports (CatalogAware; OFS events) to work on Zope 2.13. [moregale]
+* Send email for errors caught by `error_log`. [moregale]
+
+2.2
+--------------------------
+* Last version to be installed in Zope2 Products folder; compatible with
+  Zope 2.9

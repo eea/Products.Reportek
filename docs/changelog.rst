@@ -1,4 +1,5 @@
 Changelog
 =========
 
-.. include:: ../CHANGELOG.rst
+.. include:: HISTORY.txt
+   :start-line: 3
