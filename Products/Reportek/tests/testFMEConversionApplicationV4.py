@@ -253,7 +253,9 @@ class FMEConversionApplicationV4Test(BaseUnitTest):
 
         post.assert_not_called()
         fmw_exec = getattr(workitem, "fme_app")["fmw_exec"]
-        self.assertEqual(fmw_exec["status"], "retry")
+        # a configuration error, retrying won't fix it
+        self.assertEqual(fmw_exec["status"], "failed")
+        self.assertEqual(fmw_exec["retries_left"], 0)
         self.assertIn("publishedParameters", fmw_exec["last_error"])
 
     # ------------------------------------------------------------- polling
@@ -1006,3 +1008,306 @@ class FMEConversionApplicationValidationTest(BaseUnitTest):
             "problem(s) found",
             app.manage_settings_html.call_args[1]["manage_tabs_message"],
         )
+
+
+class FMEConversionApplicationFailureFeedbackTest(BaseUnitTest):
+    """A failed step is reported once, by name, without error details"""
+
+    _make_app = FMEConversionApplicationV4Test._make_app
+
+    # the private helpers, as seen through name mangling
+    POST = "_RemoteFMEConversionApplication__post_feedback"
+    FINISH = "_RemoteFMEConversionApplication__finish"
+
+    def _call(self, app):
+        with patch.object(app, self.POST) as post, patch.object(
+            app, self.FINISH
+        ) as finish:
+            app.callApplication("workitem", None)
+        return post, finish
+
+    def _exhaust(self, workitem, step, err="HTTP: 500: secret details"):
+        storage = getattr(workitem, "fme_app")[step]
+        storage["retries_left"] = 0
+        storage["last_error"] = err
+
+    def test_an_exhausted_upload_posts_one_feedback_naming_the_step(self):
+        app, workitem, _env = self._make_app()
+        getattr(workitem, "fme_app")["upload"]["status"] = "failed"
+        self._exhaust(workitem, "upload")
+
+        post, finish = self._call(app)
+
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(post.call_args[0][1], "upload")
+        message = post.call_args[0][2]
+        self.assertIn("File upload to FME", message)
+        self.assertNotIn("500", message)
+        self.assertNotIn("secret", message)
+        self.assertTrue(workitem.failure)
+        self.assertEqual(finish.call_count, 1)
+
+    def test_an_exhausted_upload_keeps_the_details_out_of_the_events(self):
+        app, workitem, _env = self._make_app()
+        getattr(workitem, "fme_app")["upload"]["status"] = "failed"
+        self._exhaust(workitem, "upload")
+
+        with patch("Products.Reportek.RemoteFMEConversionApplication.logger") as logger:
+            self._call(app)
+
+        self.assertIn("secret details", str(logger.error.call_args))
+        self.assertFalse(any("secret" in e or "500" in e for e in workitem.events))
+
+    def test_an_exhausted_workspace_execution_names_its_step(self):
+        app, workitem, _env = self._make_app()
+        getattr(workitem, "fme_app")["upload"]["status"] = "completed"
+        getattr(workitem, "fme_app")["fmw_exec"]["status"] = "retry"
+        self._exhaust(workitem, "fmw_exec")
+
+        post, finish = self._call(app)
+
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(post.call_args[0][1], "fmw_exec")
+        self.assertIn("FME workspace execution", post.call_args[0][2])
+        self.assertNotIn("500", post.call_args[0][2])
+        self.assertEqual(finish.call_count, 1)
+
+    def test_exhausted_result_polling_names_its_step(self):
+        app, workitem, _env = self._make_app()
+        storage = getattr(workitem, "fme_app")
+        storage["upload"]["status"] = "completed"
+        storage["fmw_exec"]["status"] = "completed"
+        storage["results"] = {
+            1: {
+                "retries_left": 0,
+                "last_error": "FME Status: RUNNING",
+                "next_run": DateTime(),
+                "status": "retry",
+            }
+        }
+        app.handle_cleanup = Mock()
+
+        post, finish = self._call(app)
+
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(post.call_args[0][1], "results")
+        self.assertIn("Retrieval of FME results", post.call_args[0][2])
+        self.assertNotIn("RUNNING", post.call_args[0][2])
+
+    def test_a_second_failure_does_not_post_another_feedback(self):
+        app, workitem, _env = self._make_app()
+        getattr(workitem, "fme_app")["upload"]["status"] = "failed"
+        self._exhaust(workitem, "upload")
+
+        post, _finish = self._call(app)
+        self.assertEqual(post.call_count, 1)
+
+        # e.g. a job failing in the same run
+        getattr(workitem, "fme_app")["results"][2] = {
+            "retries_left": 3,
+            "last_error": None,
+            "next_run": DateTime(),
+            "status": "retry",
+        }
+        with patch.object(app, self.POST) as post:
+            app.handle_res_zip_download = Mock(return_value=(1, "ok"))
+            app.handle_job_failure("workitem", 2, "FME_FAILURE")
+        self.assertEqual(post.call_count, 0)
+        self.assertTrue(getattr(workitem, "fme_app")["failure_reported"])
+
+    def test_a_failed_job_posts_a_single_feedback(self):
+        app, workitem, _env = self._make_app()
+        getattr(workitem, "fme_app")["results"] = {
+            1: {
+                "retries_left": 3,
+                "last_error": None,
+                "next_run": DateTime(),
+                "status": "retry",
+            },
+            2: {
+                "retries_left": 3,
+                "last_error": None,
+                "next_run": DateTime(),
+                "status": "retry",
+            },
+        }
+        app.handle_res_zip_download = Mock(return_value=(1, "ok"))
+
+        with patch.object(app, self.POST) as post:
+            app.handle_job_failure("workitem", 1, "FME_FAILURE")
+            app.handle_job_failure("workitem", 2, "FME_FAILURE")
+
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(
+            post.call_args[0][2], "Conversion failed at step: FME workspace run."
+        )
+        self.assertNotIn("FME_FAILURE", post.call_args[0][2])
+
+    def test_missing_convertible_files_fail_without_retrying(self):
+        app, workitem, _env = self._make_app()
+        app.get_files = Mock(side_effect=ValueError("No convertible files found"))
+
+        with patch(
+            "Products.Reportek.RemoteFMEConversionApplication.requests.post"
+        ) as post:
+            app.upload_to_fme("workitem")
+
+        upload = getattr(workitem, "fme_app")["upload"]
+        self.assertFalse(post.called)
+        self.assertEqual(upload["status"], "failed")
+        self.assertEqual(upload["retries_left"], 0)
+        self.assertIn("No convertible files", upload["last_error"])
+
+    def test_each_failed_attempt_is_logged_not_shown(self):
+        app, workitem, _env = self._make_app()
+        doc = Mock()
+        doc.title_or_id.return_value = "file.gml"
+        doc.data_file.open.return_value = BytesIO(b"gml")
+        app.get_files = Mock(return_value=[doc])
+
+        with patch("Products.Reportek.RemoteFMEConversionApplication.logger") as logger:
+            with patch(
+                "Products.Reportek.RemoteFMEConversionApplication.requests.post",
+                return_value=Mock(status_code=503, content=b"down"),
+            ):
+                app.upload_to_fme("workitem")
+
+        self.assertEqual(getattr(workitem, "fme_app")["upload"]["retries_left"], 4)
+        self.assertIn("503", str(logger.warning.call_args))
+        self.assertEqual(workitem.events, [])
+
+    def test_a_new_run_removes_the_failure_feedback_of_the_previous_one(self):
+        app, workitem, env = self._make_app()
+        stale = Mock(fme_failure_app="fme_app")
+        stale.getId.return_value = "fme_app_upload_old"
+        other_app = Mock(fme_failure_app="other_app")
+        other_app.getId.return_value = "other_app_upload_old"
+        qa = Mock(spec=["getId"])
+        qa.getId.return_value = "qa_feedback"
+        env.objectValues.return_value = [stale, other_app, qa]
+        app.aq_parent = env
+        app._RemoteFMEConversionApplication__initialize = Mock()
+        app.upload_to_fme = Mock()
+
+        app("workitem")
+
+        env.manage_delObjects.assert_called_once_with(["fme_app_upload_old"])
+
+    def test_failure_feedback_is_marked_for_the_next_run(self):
+        app, workitem, env = self._make_app()
+        app.aq_parent = env
+        env.objectIds.return_value = []
+        feedback = Mock()
+        env.fme_app_upload_workitem = feedback
+
+        app._RemoteFMEConversionApplication__post_feedback(
+            workitem, "upload", "Conversion failed at step: x.", failure=True
+        )
+
+        self.assertEqual(feedback.fme_failure_app, "fme_app")
+
+    def test_unmarked_failure_feedback_from_older_runs_is_removed_too(self):
+        app, workitem, env = self._make_app()
+
+        def feedback(fb_id, title, text, **kwargs):
+            fb = Mock(spec=["getId", "title", "feedbacktext"] + list(kwargs))
+            fb.getId.return_value = fb_id
+            fb.title = title
+            fb.feedbacktext = text
+            return fb
+
+        old_upload = feedback("a", "fme_app results", "File upload failed! Aborting.")
+        old_exec = feedback(
+            "b", "fme_app results", "FME Workspace execution failed! Aborting."
+        )
+        success = feedback("c", "fme_app results", "Conversion successful. 3 files")
+        other = feedback("d", "other results", "File upload failed! Aborting.")
+        env.objectValues.return_value = [old_upload, old_exec, success, other]
+        app.aq_parent = env
+        app._RemoteFMEConversionApplication__initialize = Mock()
+        app.upload_to_fme = Mock()
+
+        app("workitem")
+
+        env.manage_delObjects.assert_called_once_with(["a", "b"])
+
+    def test_a_forbidden_upload_is_not_retried(self):
+        app, workitem, _env = self._make_app()
+        doc = Mock()
+        doc.title_or_id.return_value = "file.gml"
+        doc.data_file.open.return_value = BytesIO(b"gml")
+        app.get_files = Mock(return_value=[doc])
+
+        with patch(
+            "Products.Reportek.RemoteFMEConversionApplication.requests.post",
+            return_value=Mock(status_code=403, content=b"nope"),
+        ):
+            app.upload_to_fme("workitem")
+
+        self.assertEqual(getattr(workitem, "fme_app")["upload"]["retries_left"], 0)
+
+    def test_a_server_error_upload_is_still_retried(self):
+        app, workitem, _env = self._make_app()
+        doc = Mock()
+        doc.title_or_id.return_value = "file.gml"
+        doc.data_file.open.return_value = BytesIO(b"gml")
+        app.get_files = Mock(return_value=[doc])
+
+        with patch(
+            "Products.Reportek.RemoteFMEConversionApplication.requests.post",
+            return_value=Mock(status_code=503, content=b"down"),
+        ):
+            app.upload_to_fme("workitem")
+
+        self.assertEqual(getattr(workitem, "fme_app")["upload"]["retries_left"], 4)
+
+    def test_a_forbidden_workspace_execution_is_not_retried(self):
+        app, workitem, _env = self._make_app()
+        app.get_job_request = Mock(return_value=("https://fme.example/x", {}, "f"))
+
+        with patch(
+            "Products.Reportek.RemoteFMEConversionApplication.requests.post",
+            return_value=Mock(status_code=401, content=b"nope"),
+        ):
+            app.execute_workspace("workitem")
+
+        self.assertEqual(getattr(workitem, "fme_app")["fmw_exec"]["retries_left"], 0)
+
+    def test_a_bad_workspace_configuration_is_not_retried(self):
+        app, workitem, _env = self._make_app()
+        app.get_job_request = Mock(side_effect=ValueError("bad workspace params"))
+
+        with patch(
+            "Products.Reportek.RemoteFMEConversionApplication.requests.post"
+        ) as post:
+            app.execute_workspace("workitem")
+
+        fmw_exec = getattr(workitem, "fme_app")["fmw_exec"]
+        self.assertFalse(post.called)
+        self.assertEqual(fmw_exec["retries_left"], 0)
+        self.assertIn("bad workspace params", fmw_exec["last_error"])
+
+    def test_a_failing_cleanup_does_not_stop_the_run(self):
+        app, workitem, env = self._make_app()
+        env.objectValues.side_effect = RuntimeError("boom")
+        app.aq_parent = env
+        app._RemoteFMEConversionApplication__initialize = Mock()
+        app.upload_to_fme = Mock()
+
+        app("workitem")
+
+        self.assertTrue(app.upload_to_fme.called)
+
+    def test_a_failed_posting_does_not_flag_the_failure_as_reported(self):
+        app, workitem, _env = self._make_app()
+        getattr(workitem, "fme_app")["upload"]["status"] = "failed"
+        self._exhaust(workitem, "upload")
+
+        with patch.object(app, self.POST, side_effect=RuntimeError("boom")):
+            with patch.object(app, self.FINISH):
+                with self.assertRaises(RuntimeError):
+                    app.callApplication("workitem", None)
+        self.assertFalse(getattr(workitem, "fme_app").get("failure_reported"))
+
+        post, _finish = self._call(app)
+        self.assertEqual(post.call_count, 1)
