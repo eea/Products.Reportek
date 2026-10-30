@@ -183,7 +183,11 @@ pipeline {
     stage('Report to SonarQube') {
       when {
         not { buildingTag() }
-        not { environment name: 'CHANGE_ID', value: '' }
+        anyOf {
+          branch 'master'
+          branch 'develop'
+          changeRequest()
+        }
       }
       steps {
         node(label: 'docker') {
