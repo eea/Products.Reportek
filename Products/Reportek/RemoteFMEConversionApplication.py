@@ -937,8 +937,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     )
                     return
                 files = [
-                    ("files", (f.title_or_id(), f.data_file.open("rb")))
-                    for f in files
+                    ("files", (f.title_or_id(), f.data_file.open("rb"))) for f in files
                 ]
                 if self.is_v4():
                     url = self.get_resource_url(self.V4_UP_METHOD)
