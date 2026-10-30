@@ -12,7 +12,7 @@ Changelog
 * fix: FME Conversion Application: HTTP 401/403/404 responses, missing
        convertible files and invalid workspace configuration are not retried
 
-100.5-dev0 (2026-10-30)
+100.5 (2026-10-30)
 -----------------------
 * fix: register the Products.Reportek package (five:registerPackage) in
        configure.zcml instead of views.bdr.zcml, so that Reportek content
