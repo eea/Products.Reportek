@@ -1052,12 +1052,10 @@ class FMEConversionApplicationFailureFeedbackTest(BaseUnitTest):
         getattr(workitem, "fme_app")["upload"]["status"] = "failed"
         self._exhaust(workitem, "upload")
 
-        with self.assertLogs(
-            "Products.Reportek.RemoteFMEConversionApplication.FME", "ERROR"
-        ) as logs:
+        with patch("Products.Reportek.RemoteFMEConversionApplication.logger") as logger:
             self._call(app)
 
-        self.assertTrue(any("secret details" in line for line in logs.output))
+        self.assertIn("secret details", str(logger.error.call_args))
         self.assertFalse(any("secret" in e or "500" in e for e in workitem.events))
 
     def test_an_exhausted_workspace_execution_names_its_step(self):
@@ -1167,9 +1165,7 @@ class FMEConversionApplicationFailureFeedbackTest(BaseUnitTest):
         doc.data_file.open.return_value = BytesIO(b"gml")
         app.get_files = Mock(return_value=[doc])
 
-        with self.assertLogs(
-            "Products.Reportek.RemoteFMEConversionApplication.FME", "WARNING"
-        ) as logs:
+        with patch("Products.Reportek.RemoteFMEConversionApplication.logger") as logger:
             with patch(
                 "Products.Reportek.RemoteFMEConversionApplication.requests.post",
                 return_value=Mock(status_code=503, content=b"down"),
@@ -1177,7 +1173,7 @@ class FMEConversionApplicationFailureFeedbackTest(BaseUnitTest):
                 app.upload_to_fme("workitem")
 
         self.assertEqual(getattr(workitem, "fme_app")["upload"]["retries_left"], 4)
-        self.assertTrue(any("503" in line for line in logs.output))
+        self.assertIn("503", str(logger.warning.call_args))
         self.assertEqual(workitem.events, [])
 
     def test_a_new_run_removes_the_failure_feedback_of_the_previous_one(self):
