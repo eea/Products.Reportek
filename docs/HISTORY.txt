@@ -1,6 +1,9 @@
 Changelog
 =========
 
+100.7-dev0 - (unreleased)
+---------------------------
+
 100.6 - (2026-10-30)
 --------------------
 * fix: FME Conversion Application: always tell the user, via envelope feedback,
