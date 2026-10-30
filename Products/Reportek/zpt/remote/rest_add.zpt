@@ -1,5 +1,6 @@
-<metal:block use-macro="container/standard_template.pt/macros/page">
-  <metal:block fill-slot="content">
+<tal:block tal:replace="structure context/manage_page_header"/>
+<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Remote REST Application', help_product='Reportek', help_topic='')"/>
+
     <h1 i18n:translate="">Add Remote REST Application</h1>
 
     <form action="manage_addRemoteRESTApplication" method="post" enctype="multipart/form-data" name="form">
@@ -30,5 +31,5 @@
       </tr>
     </table>
     </form>
-  </metal:block>
-</metal:block>
+
+<tal:block tal:replace="structure context/manage_page_footer"/>

@@ -3,6 +3,12 @@ Changelog
 
 100.5-dev0 - (unreleased)
 ---------------------------
+* fix: register the Products.Reportek package (five:registerPackage) in
+       configure.zcml instead of views.bdr.zcml, so that Reportek content
+       types (e.g. Remote FME Application) show up in the ZMI add list on CDR
+* fix: Remote FME Application and Remote REST Application add forms returned
+       "Page not found" in the ZMI; use the ZMI header/footer instead of
+       container/standard_template.pt
 
 100.4 - (2026-10-27)
 --------------------

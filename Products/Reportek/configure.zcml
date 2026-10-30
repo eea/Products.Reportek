@@ -16,6 +16,8 @@
     <include package="Products.GenericSetup" file="meta.zcml" />
     <include package="Products.PluggableAuthService" />
 
+    <five:registerPackage package="." initialize=".initialize" />
+
     <subscriber
         for="zope.processlifetime.IDatabaseOpenedWithRoot"
         handler=".startup"

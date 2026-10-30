@@ -5,8 +5,6 @@
   xmlns:meta="http://namespaces.zope.org/meta"
   xmlns:zcml="http://namespaces.zope.org/zcml">
 
-  <five:registerPackage package="." initialize=".initialize" />
-
   <include file="api/views.bdr.zcml" />
 
   <browser:page
