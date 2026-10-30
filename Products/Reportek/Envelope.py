@@ -1675,7 +1675,7 @@ class Envelope(
             )
 
         except Exception as e:
-            logger.error("Error preparing ZIP for %s: %s", envelope_path, str(e))
+            logger.exception("Error preparing ZIP for %s: %s", envelope_path, e)
             raise ValueError(
                 "An error occurred while preparing the zip file. {}".format(str(e))
             )

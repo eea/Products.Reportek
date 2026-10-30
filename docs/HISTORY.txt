@@ -3,6 +3,13 @@ Changelog
 
 100.8-dev0 - (unreleased)
 ---------------------------
+* fix: validate the server certificate when querying remote applications and
+       the countries service (SonarQube: python:S4830)
+* fix: FME Conversion Application: don't fail on a conversion log without a
+       feedback summary; ContentRegistryPingger: guard missing html/xml
+       elements; log tracebacks with logger.exception; fix two CSS typos
+* fix: workitem: drop the redundant object base class that created an MRO
+       conflict flagged by SonarQube (python:S8511); no change in behaviour
 
 100.7 - (2026-10-30)
 --------------------
