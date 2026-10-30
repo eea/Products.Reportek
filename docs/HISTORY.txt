@@ -1,6 +1,9 @@
 Changelog
 =========
 
+100.6-dev0 - (unreleased)
+---------------------------
+
 100.5-dev0 (2026-10-30)
 -----------------------
 * fix: register the Products.Reportek package (five:registerPackage) in
