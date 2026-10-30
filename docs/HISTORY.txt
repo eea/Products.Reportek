@@ -1,8 +1,8 @@
 Changelog
 =========
 
-100.6-dev0 - (unreleased)
----------------------------
+100.6 - (2026-10-30)
+--------------------
 * fix: FME Conversion Application: always tell the user, via envelope feedback,
        which step (upload, workspace execution, results retrieval) failed;
        error details go to the log only
