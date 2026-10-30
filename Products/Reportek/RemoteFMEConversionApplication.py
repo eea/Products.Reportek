@@ -38,6 +38,15 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 logger = logging.getLogger(__name__ + ".FME")
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
+# Failure feedback texts posted before the failure feedback was marked
+# HTTP statuses that retrying won't fix (credentials, permissions, wrong path)
+NON_RETRYABLE_STATUSES = (401, 403, 404)
+LEGACY_FAILURE_FEEDBACK = (
+    "File upload failed! Aborting.",
+    "FME Workspace execution failed! Aborting.",
+    "FME Result polling max retries exhausted! Aborting.",
+    "Conversion failed, aborting",
+)
 
 manage_addRemoteFMEConversionApplicationForm = PageTemplateFile(
     "zpt/RemoteFMEConversionApplicationAdd", globals()
@@ -912,11 +921,25 @@ class RemoteFMEConversionApplication(SimpleItem):
         if upload_storage.get("retries_left") and upload_storage.get(
             "next_run"
         ).lessThanEqualTo(DateTime()):
-            files = self.get_files(workitem_id)
-            files = [
-                ("files", (f.title_or_id(), f.data_file.open("rb"))) for f in files
-            ]
+            files = []
             try:
+                try:
+                    files = self.get_files(workitem_id)
+                except ValueError as e:
+                    # Retrying won't help, e.g. no convertible files
+                    self.__update_storage(
+                        workitem,
+                        "upload",
+                        status="failed",
+                        err=str(e),
+                        dec_retry=True,
+                        no_retry=True,
+                    )
+                    return
+                files = [
+                    ("files", (f.title_or_id(), f.data_file.open("rb")))
+                    for f in files
+                ]
                 if self.is_v4():
                     url = self.get_resource_url(self.V4_UP_METHOD)
                     params = {
@@ -969,7 +992,13 @@ class RemoteFMEConversionApplication(SimpleItem):
 
                 else:
                     err = "HTTP: {}: {}".format(res.status_code, res.content)
-                    self.__update_storage(workitem, "upload", err=err, dec_retry=True)
+                    self.__update_storage(
+                        workitem,
+                        "upload",
+                        err=err,
+                        dec_retry=True,
+                        no_retry=res.status_code in NON_RETRYABLE_STATUSES,
+                    )
             except Exception as e:
                 self.__update_storage(
                     workitem,
@@ -1103,7 +1132,19 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem = getattr(self, workitem_id)
         results = getattr(workitem, self.app_name, {}).get("results")
         try:
-            url, payload, inputfile = self.get_job_request(workitem_id)
+            try:
+                url, payload, inputfile = self.get_job_request(workitem_id)
+            except ValueError as e:
+                # Retrying won't fix the workspace configuration
+                self.__update_storage(
+                    workitem,
+                    "fmw_exec",
+                    status="failed",
+                    err=str(e),
+                    dec_retry=True,
+                    no_retry=True,
+                )
+                return
             # params should be passed in the body of the request
             res = requests.post(
                 url,
@@ -1134,6 +1175,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     status="retry",
                     err=err,
                     dec_retry=True,
+                    no_retry=res.status_code in NON_RETRYABLE_STATUSES,
                 )
         except Exception as e:
             self.__update_storage(
@@ -1206,7 +1248,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         if dl_res[0] != 1:
             msg = "{}: {}".format(dl_res[0], dl_res[1])
             workitem.addEvent(msg)
-            self.__post_feedback(
+            self.__post_failure_feedback(
                 workitem,
                 job_id,
                 msg,
@@ -1256,10 +1298,10 @@ class RemoteFMEConversionApplication(SimpleItem):
         )
         workitem.addEvent(err)
         workitem.failure = True
-        self.__post_feedback(
+        self.__post_failure_feedback(
             workitem,
             job_id,
-            "Conversion failed, aborting",
+            "Conversion failed at step: FME workspace run.",
             inputfile=inputfile,
         )
 
@@ -1311,6 +1353,12 @@ class RemoteFMEConversionApplication(SimpleItem):
 
         # Initialize the workitem FME Conversion specific extra properties
         self.__initialize(workitem_id)
+        try:
+            self.__remove_stale_failure_feedback()
+        except Exception:
+            logger.exception(
+                "Could not remove the stale FME failure feedback of %s", workitem_id
+            )
         self.upload_to_fme(workitem_id)
         upload_storage = getattr(workitem, self.app_name, {}).get("upload")
         if upload_storage.get("status") == "completed":
@@ -1331,10 +1379,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         elif upload_storage.get("status") != "completed" and not upload_storage.get(
             "retries_left"
         ):
-            err = "File upload failed! Aborting."
-            workitem.addEvent(err)
-            workitem.failure = True
-            self.__post_feedback(workitem, "upload", err)
+            self.__fail_step(workitem, "upload", "File upload to FME")
             self.__finish(workitem_id)
         if upload_storage.get("status") == "completed":
             if (
@@ -1346,10 +1391,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             elif fmw_exec.get("status") != "completed" and not fmw_exec.get(
                 "retries_left"
             ):
-                err = "FME Workspace execution failed! Aborting."
-                workitem.addEvent(err)
-                workitem.failure = True
-                self.__post_feedback(workitem, "fmw_exec", err)
+                self.__fail_step(workitem, "fmw_exec", "FME workspace execution")
                 self.__finish(workitem_id)
         if results:
             poll = [
@@ -1370,10 +1412,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     and results[j].get("retries_left") == 0
                 ]
                 if exhausted:
-                    err = "FME Result polling max retries exhausted! Aborting."
-                    workitem.addEvent(err)
-                    workitem.failure = True
-                    self.__post_feedback(workitem, "results", err)
+                    self.__fail_step(workitem, "results", "Retrieval of FME results")
                 self.handle_cleanup(workitem_id)
                 workitem.addEvent("FME Cleanup completed.")
                 self.__finish(workitem_id)
@@ -1424,6 +1463,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         status=None,
         err=None,
         dec_retry=False,
+        no_retry=False,
     ):
         if jobid and step == "results":
             storage = getattr(workitem, self.app_name)[step][jobid]
@@ -1433,8 +1473,17 @@ class RemoteFMEConversionApplication(SimpleItem):
             storage["paths"] = paths
         if dec_retry:
             storage["retries_left"] -= 1
+        if no_retry:
+            storage["retries_left"] = 0
         if err:
             storage["last_error"] = str(err)
+            logger.warning(
+                "FME %s step failed for workitem %s (%s retries left): %s",
+                step,
+                workitem.id,
+                storage["retries_left"],
+                err,
+            )
         if status:
             storage["status"] = status
         storage["next_run"] = DateTime(
@@ -1450,6 +1499,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         inputfile=None,
         attach=None,
         content_type="text/plain",
+        failure=False,
     ):
         envelope = self.aq_parent
         feedback_id = "{}_{}_{}".format(self.app_name, jobid, workitem.id)
@@ -1466,6 +1516,9 @@ class RemoteFMEConversionApplication(SimpleItem):
         )
         feedback_ob = getattr(envelope, feedback_id)
         feedback_ob.content_type = content_type
+        if failure:
+            # lets the next run find (and remove) the stale failure feedback
+            feedback_ob.fme_failure_app = self.app_name
         conv_res_id = "conversion_log_{}".format(jobid)
         for doc_id in envelope.objectIds("Report Document"):
             if conv_res_id in doc_id:
@@ -1561,6 +1614,66 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem.addEvent("FME Cleanup completed.")
 
         self.__finish(workitem_id)
+
+    def __fail_step(self, workitem, step, label):
+        """Flag the workitem as failed and tell the user which step failed.
+
+        Neither the feedback nor the workitem events (which users see) carry
+        error details; those are only logged (see __update_storage).
+        """
+        storage = getattr(workitem, self.app_name, {}).get(step) or {}
+        logger.error(
+            "FME %s step aborted for workitem %s. Last error: %s",
+            step,
+            workitem.id,
+            storage.get("last_error"),
+        )
+        workitem.addEvent("{} failed, aborting.".format(label))
+        workitem.failure = True
+        self.__post_failure_feedback(
+            workitem, step, "Conversion failed at step: {}.".format(label)
+        )
+
+    def __remove_stale_failure_feedback(self):
+        """Remove the failure feedback left by a previous run, so that the
+        envelope only ever carries the failure of the latest run."""
+        envelope = self.aq_parent
+        stale = [
+            fb.getId()
+            for fb in envelope.objectValues("Report Feedback")
+            if self.__is_failure_feedback(fb)
+        ]
+        if stale:
+            envelope.manage_delObjects(stale)
+
+    def __is_failure_feedback(self, feedback):
+        """Whether the feedback is a failure posted by this application,
+        including those posted before they were marked."""
+        if getattr(feedback, "fme_failure_app", None) == self.app_name:
+            return True
+        text = getattr(feedback, "feedbacktext", None)
+        if getattr(feedback, "title", None) != "%s results" % self.app_name:
+            return False
+        if not isinstance(text, str):
+            return False
+        text = text.strip()
+        return text in LEGACY_FAILURE_FEEDBACK or text.startswith(
+            "Conversion failed at step:"
+        )
+
+    def __post_failure_feedback(self, workitem, jobid, messages, **kwargs):
+        """Post the failure feedback unless the run already has one.
+
+        At most one error feedback is posted per conversion run. The run is
+        only flagged once the feedback was posted, so that an error while
+        posting doesn't swallow the failure report.
+        """
+        storage = getattr(workitem, self.app_name)
+        if storage.get("failure_reported"):
+            return
+        self.__post_feedback(workitem, jobid, messages, failure=True, **kwargs)
+        storage["failure_reported"] = True
+        workitem._p_changed = 1
 
     def __finish(self, workitem_id, REQUEST=None):
         """Completes the workitem and forwards it"""

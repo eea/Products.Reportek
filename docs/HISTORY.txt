@@ -3,6 +3,14 @@ Changelog
 
 100.6-dev0 - (unreleased)
 ---------------------------
+* fix: FME Conversion Application: always tell the user, via envelope feedback,
+       which step (upload, workspace execution, results retrieval) failed;
+       error details go to the log only
+* fix: FME Conversion Application: at most one failure feedback is posted per
+       run, and the one left by a previous run is removed when the
+       application starts again
+* fix: FME Conversion Application: HTTP 401/403/404 responses, missing
+       convertible files and invalid workspace configuration are not retried
 
 100.5-dev0 (2026-10-30)
 -----------------------
