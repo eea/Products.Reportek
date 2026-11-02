@@ -1,6 +1,23 @@
 Changelog
 =========
 
+100.8 - (2026-11-02)
+--------------------
+* fix: validate the server certificate when querying remote applications and
+       the countries service (SonarQube: python:S4830)
+* fix: FME Conversion Application: don't fail on a conversion log without a
+       feedback summary; ContentRegistryPingger: guard missing html/xml
+       elements; log tracebacks with logger.exception; fix two CSS typos
+* fix: workitem: drop the redundant object base class that created an MRO
+       conflict flagged by SonarQube (python:S8511); no change in behaviour
+* fix: tests: SeasonalLockTestCase now publishes the test user on the request,
+       so the collection listing templates render instead of raising
+       Unauthorized on getRolesInContext
+* fix: Jenkinsfile: run the tests for both the CDR and BDR deployments
+       (REPORTEK_DEPLOYMENT) and merge their coverage into a single
+       coverage.xml (extras/coverage-all.sh); fail the build when any test
+       fails, as the entrypoint never reports test failures itself
+
 100.7 - (2026-10-30)
 --------------------
 * fix: Jenkinsfile fixes

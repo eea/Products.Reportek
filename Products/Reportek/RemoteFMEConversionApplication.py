@@ -1521,45 +1521,56 @@ class RemoteFMEConversionApplication(SimpleItem):
         conv_res_id = "conversion_log_{}".format(jobid)
         for doc_id in envelope.objectIds("Report Document"):
             if conv_res_id in doc_id:
-                doc = getattr(envelope, doc_id)
-                fb_status = None
-                fb_message = None
-                with doc.data_file.open() as f:
-                    content = f.read()
-                    text_content = self.ensure_text(content)
-                    if doc.content_type == "text/html":
-                        soup = bs(text_content, features="html.parser")
-                        log_sum = soup.find("span", attrs={"id": "feedbackStatus"})
-                        fb_status = log_sum.get("class", ["UNKNOWN"])
-                        if isinstance(fb_status, list):
-                            fb_status = fb_status[0] if fb_status else "UNKNOWN"
-                        fb_message = log_sum.text
-                    if len(content) > FEEDBACKTEXT_LIMIT:
-                        f.seek(0)
-                        feedback_ob.manage_uploadFeedback(f, filename="qa-output")
-                        feedback_attach = feedback_ob.objectValues()[0]
-                        feedback_attach.data_file.content_type = doc.content_type
-                        feedback_ob.feedbacktext = "{}</br>{}".format(
-                            feedback_ob.feedbacktext,
-                            (
-                                "Feedback too large for inline display; "
-                                '<a href="qa-output/view">see attachment</a>.'
-                            ),
-                        )
-                        feedback_ob.content_type = "text/html"
-                    else:
-                        feedback_ob.feedbacktext = text_content
-                        feedback_ob.content_type = doc.content_type
-                if fb_status and fb_message:
-                    if fb_status == "BLOCKER":
-                        workitem.blocker = True
-                    feedback_ob.message = fb_message
-                    feedback_ob.feedback_status = fb_status
-                    feedback_ob._p_changed = 1
-                    feedback_ob.reindexObject()
+                self.__attach_conversion_log(
+                    envelope, workitem, feedback_ob, getattr(envelope, doc_id)
+                )
 
-                envelope.manage_delObjects([doc.getId()])
-                # Get the file, post if as attachment and delete it afterwards
+    def __parse_log_summary(self, text_content):
+        """Return the (status, message) of an HTML conversion log, or
+        (None, None) when it carries no feedback summary."""
+        soup = bs(text_content, features="html.parser")
+        log_sum = soup.find("span", attrs={"id": "feedbackStatus"})
+        if log_sum is None:
+            return None, None
+        fb_status = log_sum.get("class", ["UNKNOWN"])
+        if isinstance(fb_status, list):
+            fb_status = fb_status[0] if fb_status else "UNKNOWN"
+        return fb_status, log_sum.text
+
+    def __attach_conversion_log(self, envelope, workitem, feedback_ob, doc):
+        """Move the conversion log document into the feedback"""
+        fb_status = None
+        fb_message = None
+        with doc.data_file.open() as f:
+            content = f.read()
+            text_content = self.ensure_text(content)
+            if doc.content_type == "text/html":
+                fb_status, fb_message = self.__parse_log_summary(text_content)
+            if len(content) > FEEDBACKTEXT_LIMIT:
+                f.seek(0)
+                feedback_ob.manage_uploadFeedback(f, filename="qa-output")
+                feedback_attach = feedback_ob.objectValues()[0]
+                feedback_attach.data_file.content_type = doc.content_type
+                feedback_ob.feedbacktext = "{}</br>{}".format(
+                    feedback_ob.feedbacktext,
+                    (
+                        "Feedback too large for inline display; "
+                        '<a href="qa-output/view">see attachment</a>.'
+                    ),
+                )
+                feedback_ob.content_type = "text/html"
+            else:
+                feedback_ob.feedbacktext = text_content
+                feedback_ob.content_type = doc.content_type
+        if fb_status and fb_message:
+            if fb_status == "BLOCKER":
+                workitem.blocker = True
+            feedback_ob.message = fb_message
+            feedback_ob.feedback_status = fb_status
+            feedback_ob._p_changed = 1
+            feedback_ob.reindexObject()
+
+        envelope.manage_delObjects([doc.getId()])
 
     def cancel_job(self, job_id, workitem_id):
         """Cancel a queued or running job, return the last response"""

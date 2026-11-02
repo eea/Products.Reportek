@@ -1311,3 +1311,33 @@ class FMEConversionApplicationFailureFeedbackTest(BaseUnitTest):
 
         post, _finish = self._call(app)
         self.assertEqual(post.call_count, 1)
+
+    def test_a_log_without_a_feedback_summary_is_still_attached(self):
+        app, workitem, env = self._make_app()
+        app.aq_parent = env
+        env.objectIds.return_value = ["conversion_log_1"]
+        doc = Mock(content_type="text/html")
+        doc.getId.return_value = "conversion_log_1"
+        doc.data_file.open.return_value.__enter__ = Mock(
+            return_value=BytesIO(b"<html><body>no summary</body></html>")
+        )
+        doc.data_file.open.return_value.__exit__ = Mock(return_value=False)
+        env.conversion_log_1 = doc
+        feedback = Mock()
+        feedback.feedbacktext = ""
+        env.fme_app_1_workitem = feedback
+
+        app._RemoteFMEConversionApplication__post_feedback(workitem, 1, "msg")
+
+        env.manage_delObjects.assert_called_once_with(["conversion_log_1"])
+        self.assertIn("no summary", feedback.feedbacktext)
+
+    def test_the_summary_of_a_conversion_log_sets_the_feedback_status(self):
+        app, _workitem, _env = self._make_app()
+        parse = app._RemoteFMEConversionApplication__parse_log_summary
+
+        self.assertEqual(
+            parse('<span id="feedbackStatus" class="BLOCKER">Bad</span>'),
+            ("BLOCKER", "Bad"),
+        )
+        self.assertEqual(parse("<p>nothing</p>"), (None, None))

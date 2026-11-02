@@ -212,7 +212,7 @@ class BaseRemoteApplication(SimpleItem):
                 url,
                 allow_redirects=True,
                 headers={"Authorization": self.token},
-                verify=False,
+                verify=True,
             )
             result["status_code"] = r.status_code
             result["url"] = url
