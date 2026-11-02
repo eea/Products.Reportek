@@ -15,7 +15,8 @@ Changelog
        Unauthorized on getRolesInContext
 * fix: Jenkinsfile: run the tests for both the CDR and BDR deployments
        (REPORTEK_DEPLOYMENT) and merge their coverage into a single
-       coverage.xml (extras/coverage-all.sh)
+       coverage.xml (extras/coverage-all.sh); fail the build when any test
+       fails, as the entrypoint never reports test failures itself
 
 100.7 - (2026-10-30)
 --------------------

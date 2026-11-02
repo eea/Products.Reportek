@@ -17,7 +17,7 @@ def runTests(String deployment) {
                 -e GIT_CHANGE_ID="${CHANGE_ID}" \
                 -e REPORTEK_DEPLOYMENT="${DEPLOYMENT}" \
                 eeacms/reportek-base-dr:latest \
-                sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && /docker-entrypoint.sh tests"
+                sh -c "mkdir -p /opt/zope/src && ${GIT_CMD} && /opt/zope/bin/python -m ensurepip && /opt/zope/bin/python -m pip install --no-deps -e /opt/zope/src/Products.Reportek && rm -rf /opt/zope/lib/python3.12/site-packages/Products/Reportek && /docker-entrypoint.sh tests"
         '''
       }
     } finally {
@@ -183,7 +183,11 @@ pipeline {
                 } finally {
                     sh """docker rm -v ${env.BUILD_TAG}-base-z5-coverage || true"""
                 }
-                junit 'xunit-reports/**/*.xml'
+                // the entrypoint never fails on test failures, so fail the build here
+                def results = junit 'xunit-reports/**/*.xml'
+                if (results.failCount > 0) {
+                    error "${results.failCount} of ${results.totalCount} tests failed (CDR + BDR runs)"
+                }
               }
             }
           }
