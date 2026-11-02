@@ -1,6 +1,9 @@
 Changelog
 =========
 
+100.9-dev0 - (unreleased)
+---------------------------
+
 100.8 - (2026-11-02)
 --------------------
 * fix: validate the server certificate when querying remote applications and
