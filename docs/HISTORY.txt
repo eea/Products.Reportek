@@ -1,8 +1,8 @@
 Changelog
 =========
 
-100.8-dev0 - (unreleased)
----------------------------
+100.8 - (2026-11-02)
+--------------------
 * fix: validate the server certificate when querying remote applications and
        the countries service (SonarQube: python:S4830)
 * fix: FME Conversion Application: don't fail on a conversion log without a
