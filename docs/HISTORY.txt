@@ -13,6 +13,9 @@ Changelog
 * fix: tests: SeasonalLockTestCase now publishes the test user on the request,
        so the collection listing templates render instead of raising
        Unauthorized on getRolesInContext
+* fix: Jenkinsfile: run the tests for both the CDR and BDR deployments
+       (REPORTEK_DEPLOYMENT) and merge their coverage into a single
+       coverage.xml (extras/coverage-all.sh)
 
 100.7 - (2026-10-30)
 --------------------
