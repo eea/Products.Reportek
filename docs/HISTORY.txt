@@ -10,6 +10,9 @@ Changelog
        elements; log tracebacks with logger.exception; fix two CSS typos
 * fix: workitem: drop the redundant object base class that created an MRO
        conflict flagged by SonarQube (python:S8511); no change in behaviour
+* fix: tests: SeasonalLockTestCase now publishes the test user on the request,
+       so the collection listing templates render instead of raising
+       Unauthorized on getRolesInContext
 
 100.7 - (2026-10-30)
 --------------------

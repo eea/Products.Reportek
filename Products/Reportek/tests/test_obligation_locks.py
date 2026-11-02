@@ -878,10 +878,16 @@ class SeasonalLockTestCase(BaseTest):
 
     def as_reporter(self):
         self.login()
+        self.publish_as(getSecurityManager().getUser())
 
     def as_manager(self):
         newSecurityManager(None, SpecialUsers.system)
         self.addCleanup(noSecurityManager)
+        self.publish_as(SpecialUsers.system)
+
+    def publish_as(self, user):
+        """Templates read the user off the request, not the security manager"""
+        self.app.REQUEST.AUTHENTICATED_USER = user
 
     def set_window(self, days_from, days_to, **fields):
         """Open the window relative to today, in days"""
