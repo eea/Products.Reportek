@@ -576,9 +576,7 @@ class ZZipFile(ZipFile):
             self.should_close = False
             ZipFile.close(self)
 
-    def setcurrentfile(
-        self, filename, pwd=None
-    ):  # betterleaks:allow (parameter, not a secret)
+    def setcurrentfile(self, filename, pwd=None):
         self.bytesRead = 0
         self.currentFilename = filename
         self.pwd = pwd  # betterleaks:allow (parameter, not a secret)
@@ -588,9 +586,7 @@ class ZZipFile(ZipFile):
         # no need to close, every open just seeks in the same opened file.
         # see (the bloody) zipfile.py
         # zipfile always opens
-        self.zef_file = self.open(
-            self.currentFilename, pwd=self.pwd
-        )  # betterleaks:allow (parameter, not a secret)
+        self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
         if not self._filePassed:
             self.should_close = True
 
@@ -608,9 +604,7 @@ class ZZipFile(ZipFile):
         if pos != 0:
             raise ValueError("(Z)ZipFile can only seek for start.")
         self.zef_file.close()
-        self.zef_file = self.open(
-            self.currentFilename, pwd=self.pwd
-        )  # betterleaks:allow (parameter, not a secret)
+        self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
 
     def tell(self):
         return self.getinfo(self.currentFilename).file_size
@@ -653,9 +647,7 @@ class ZZipFileRaw(ZZipFile):
         ZZipFile.__del__(self)
 
     # setcurrentfile should be always called in advance
-    def setcurrentfile(
-        self, filename, pwd=None
-    ):  # betterleaks:allow (parameter, not a secret)
+    def setcurrentfile(self, filename, pwd=None):
         ZZipFile.setcurrentfile(self, filename, pwd)
         self.zinfo = self.getinfo(self.currentFilename)
         self.allowRaw = True

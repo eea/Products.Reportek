@@ -115,9 +115,7 @@ class RabbitMQConnector(object):
 RABBITMQ_HOST = str(os.environ.get("RABBITMQ_HOST", "") or "localhost")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "") or "5672")
 RABBITMQ_USER = str(os.environ.get("RABBITMQ_USER", ""))
-RABBITMQ_PASS = str(
-    os.environ.get("RABBITMQ_PASS", "")
-)  # betterleaks:allow (reads the environment)
+RABBITMQ_PASS = str(os.environ.get("RABBITMQ_PASS", ""))
 
 
 def get_rabbitmq_client_settings():
