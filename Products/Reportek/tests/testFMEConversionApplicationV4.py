@@ -855,7 +855,9 @@ class FMEConversionApplicationCredentialsTest(BaseUnitTest):
     def test_a_new_value_replaces_the_credential(self):
         app = self._app()
 
-        app.manage_settings(self._request({"title": "t", "FMEPassword": "new-pw"}))  # betterleaks:allow (test fixture)
+        app.manage_settings(
+            self._request({"title": "t", "FMEPassword": "new-pw"})
+        )  # betterleaks:allow (test fixture)
 
         self.assertEqual(app.FMEPassword, "new-pw")
         self.assertEqual(app.FMEToken, "stored-token")
