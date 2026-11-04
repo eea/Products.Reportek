@@ -93,7 +93,7 @@ def migrate(app):
     uri = " ".join(uris)
 
     bind_dn = luf._binduid
-    bind_pwd = luf._bindpwd
+    bind_pwd = luf._bindpwd  # betterleaks:allow (reads the LDAP plugin setting)
     users_base = luf.users_base
     users_scope = luf.users_scope  # 2 = SUBTREE
     groups_base = luf.groups_base

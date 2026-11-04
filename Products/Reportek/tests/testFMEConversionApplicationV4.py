@@ -451,7 +451,7 @@ class FMEConversionApplicationV4Test(BaseUnitTest):
         app, _workitem, _env = self._make_app()
         app.FMEToken = None
         app.FMEUser = "user"
-        app.FMEPassword = "pass"
+        app.FMEPassword = "pass"  # betterleaks:allow (test fixture)
         app.FMETokenExpiration = "60"
         response = Mock(ok=True, content=b'{"serviceResponse": {"token": "tok"}}')
         response.json.return_value = {"serviceResponse": {"token": "tok"}}
@@ -855,7 +855,7 @@ class FMEConversionApplicationCredentialsTest(BaseUnitTest):
     def test_a_new_value_replaces_the_credential(self):
         app = self._app()
 
-        app.manage_settings(self._request({"title": "t", "FMEPassword": "new-pw"}))
+        app.manage_settings(self._request({"title": "t", "FMEPassword": "new-pw"}))  # betterleaks:allow (test fixture)
 
         self.assertEqual(app.FMEPassword, "new-pw")
         self.assertEqual(app.FMEToken, "stored-token")

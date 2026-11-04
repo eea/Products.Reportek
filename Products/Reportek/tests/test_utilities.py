@@ -42,7 +42,7 @@ zcml.load_config("meta.zcml", Products.GenericSetup)
 zcml.load_config("configure.zcml", Products.GenericSetup)
 
 user_name = ztc.user_name
-user_password = ztc.user_password
+user_password = ztc.user_password  # betterleaks:allow (test fixture)
 
 
 class MockedLDAPPlugin(Folder):

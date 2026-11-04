@@ -1,0 +1,15 @@
+title = "Products.Reportek Betterleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Vendored CKEditor (minified third-party code)"
+paths = ['''(^|/)www/static/ckeditor/''']
+
+[[allowlists]]
+description = "ZMI login form template: the 'Password:' label"
+condition = "AND"
+paths = ['''(^|/)extras/zodb_scripts/acl_users/cookie_auth/login_form\.zpt$''']
+regexTarget = "match"
+regexes = ['''Password:''']

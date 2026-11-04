@@ -2206,7 +2206,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return 0
         self.UNS_server = UNS_server
         self.UNS_username = UNS_username
-        self.UNS_password = UNS_password
+        self.UNS_password = UNS_password  # betterleaks:allow (attribute assignment)
         self.UNS_channel_id = UNS_channel_id
         self.UNS_notification_types = [x for x in UNS_notification_types if x != ""]
         if REQUEST is not None:

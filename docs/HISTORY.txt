@@ -3,6 +3,9 @@ Changelog
 
 100.9-dev0 - (unreleased)
 ---------------------------
+* chore: add the shared EEA Betterleaks secret scan (GitHub workflow) with a
+         repository .gitleaks.toml; the findings were reviewed (no real
+         secrets) and are allowed inline or by path; no change in behaviour
 
 100.8 - (2026-11-02)
 --------------------
