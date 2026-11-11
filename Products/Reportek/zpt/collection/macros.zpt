@@ -108,10 +108,12 @@
                     <span i18n:translate="" tal:content="python: {1: 'Released', 0: 'Not released'}.get(item.released)"/>
                 </td>
                 <td class="tcenter additional-env-info">
-                    <span tal:condition="isBdrDeployment" i18n:translate=""
-                        tal:define="ok_acceptable python: item.is_acceptable() and item.successful_qa;
-                                    unknown python: item.has_unknown_qa_result and ok_acceptable;"
-                        tal:content="python: 'N/A' if unknown else {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(ok_acceptable, '')" />
+                    <tal:block tal:condition="isBdrDeployment">
+                        <span i18n:translate=""
+                            tal:define="ok_acceptable python: item.is_acceptable() and item.successful_qa;
+                                        unknown python: item.has_unknown_qa_result and ok_acceptable;"
+                            tal:content="python: 'N/A' if unknown else {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(ok_acceptable, '')" />
+                    </tal:block>
                     <tal:block tal:condition="not: isBdrDeployment">
                         <tal:def tal:define="fb_ta python: item.get('feedbackTA');
                                              fb_cor python: item.get('feedbackCoR');
@@ -143,4 +145,21 @@
             <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
         </tr>
     </tbody>
+</tal:block>
+
+<tal:block metal:define-macro="env-pager">
+    <tal:block tal:define="page_size here/get_envelopes_listing_page_size"
+               tal:condition="python: page_size and len(all_envs) > page_size">
+        <tal:block tal:condition="env_pager"
+                   tal:define="records_pagination nocall:here/ReportekEngine/records_pagination;
+                               page_url string:${here/absolute_url}/?show=paged">
+            <tal:block tal:replace="structure python: records_pagination(documents=env_pager, page_url=page_url)" />
+            <p class="showall">
+                <a tal:attributes="href string:${here/absolute_url}/?show=all"><tal:block i18n:translate="">Show all</tal:block> <span tal:replace="python: len(all_envs)" /> <tal:block i18n:translate="">envelopes</tal:block></a>
+            </p>
+        </tal:block>
+        <p class="showall" tal:condition="not: env_pager">
+            <a tal:attributes="href string:${here/absolute_url}/?show=paged" i18n:translate="">Show the envelopes in pages</a>
+        </p>
+    </tal:block>
 </tal:block>

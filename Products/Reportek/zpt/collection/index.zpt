@@ -50,7 +50,9 @@
     <tal:def tal:define="sort_on python: 'bobobase_modification_time' if here.allow_envelopes==1 else 'title';
                          desc python: 0 if sort_on=='title' else 1;
                          colls python: here.get_children('Report Collection', sort_on, desc);
-                         envs python: here.get_children('Report Envelope', 'reportingdate');
+                         all_envs python: here.get_children('Report Envelope', 'reportingdate');
+                         env_pager python: here.get_envelopes_pager(all_envs, request);
+                         envs python: env_pager.object_list if env_pager else all_envs;
                          refs python: here.get_children('Repository Referral', 'title', 0);
                          bdr_has_envs python: isBdrDeployment and envs;
                          company_id python: getattr(here, 'company_id', '');
@@ -71,6 +73,8 @@
             <metal:block use-macro="here/macros/table-body">
             </metal:block>
           </table>
+          <metal:block use-macro="here/macros/env-pager">
+          </metal:block>
           <tal:block tal:condition="permission_chgcoll">
             <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value; title" />
             <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value; title" />

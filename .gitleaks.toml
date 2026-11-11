@@ -1,0 +1,36 @@
+title = "Products.Reportek Betterleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Vendored CKEditor (minified third-party code)"
+paths = ['''(^|/)www/static/ckeditor/''']
+
+[[allowlists]]
+description = "ZMI login form template: the 'Password:' label"
+condition = "AND"
+paths = ['''(^|/)extras/zodb_scripts/acl_users/cookie_auth/login_form\.zpt$''']
+regexTarget = "match"
+regexes = ['''Password:''']
+
+[[allowlists]]
+description = "ZZipFile: pwd is the zip password parameter name"
+condition = "AND"
+paths = ['''(^|/)Products/Reportek/zip_content\.py$''']
+regexTarget = "match"
+regexes = ['''\bpwd\b''']
+
+[[allowlists]]
+description = "RabbitMQ password is read from the environment"
+condition = "AND"
+paths = ['''(^|/)Products/Reportek/rabbitmq\.py$''']
+regexTarget = "match"
+regexes = ['''RABBITMQ_PASS''']
+
+[[allowlists]]
+description = "Test fixture: FME password in the settings test"
+condition = "AND"
+paths = ['''(^|/)Products/Reportek/tests/testFMEConversionApplicationV4\.py$''']
+regexTarget = "match"
+regexes = ['''new-pw''']

@@ -1,6 +1,33 @@
 Changelog
 =========
 
+100.9 - (2026-11-11)
+--------------------
+* perf: collection listing: collections with more than 100 envelopes list
+        them in pages of 100 (ENVELOPES_LISTING_PAGE_SIZE, at least 25, 0 to
+        list them all), instead of rendering every envelope; "Show all"
+        (show=all) lists every envelope as before; add tests
+* fix: do not publish getBatchSearchResults on the web; it is only used by
+       the recent uploads and recent released pages; add a test
+* perf: recent uploads, recent released and global worklist pages: when sorted
+        by reporting date (the default), the catalog only sorts the rows up to
+        the end of the shown page instead of every match; the rows and the
+        number of pages are the same, rows with the same reporting date are
+        ordered by their record id so that pages stay consistent; add tests
+* perf: BDR front page: look up the Auditor and Client collections of the user
+        with the local_defined_users index instead of loading every collection
+        that has any BDR local role and filtering by username in Python; only
+        narrows the candidates, the role checks and the resulting collections
+        are unchanged; add tests for the collections offered to a user
+* perf: collection listing: on CDR, don't evaluate the BDR-only QA status
+        (is_acceptable, successful_qa, has_unknown_qa_result) for every
+        envelope row; its tal:define ran before the isBdrDeployment condition
+        and loaded all workitems and feedbacks of every envelope; the rendered
+        output is unchanged
+* chore: add the shared EEA Betterleaks secret scan (GitHub workflow) with a
+         repository .gitleaks.toml; the findings were reviewed (no real
+         secrets) and are allowed inline or by path; no change in behaviour
+
 100.8 - (2026-11-02)
 --------------------
 * fix: validate the server certificate when querying remote applications and

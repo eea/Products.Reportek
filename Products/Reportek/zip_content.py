@@ -579,7 +579,7 @@ class ZZipFile(ZipFile):
     def setcurrentfile(self, filename, pwd=None):
         self.bytesRead = 0
         self.currentFilename = filename
-        self.pwd = pwd
+        self.pwd = pwd  # betterleaks:allow (parameter, not a secret)
         # ZipFile does the open at read.
         # Since we always expect setcurent file to be called prior to any
         # other operation we call open/seek here

@@ -285,7 +285,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         self.FMETokenEndpoint = FMETokenEndpoint
         self.FMEToken = FMEToken
         self.FMEUser = FMEUser
-        self.FMEPassword = FMEPassword
+        self.FMEPassword = FMEPassword  # betterleaks:allow (attribute assignment)
         self.FMETokenExpiration = FMETokenExpiration
         self.FMETokenTimeUnit = FMETokenTimeUnit
         self.FMEUploadEndpoint = FMEUploadEndpoint

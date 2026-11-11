@@ -26,6 +26,7 @@ __all__ = [
     "LOCAL_CONVERTERS_PORT",
     "LOCAL_CONVERTERS_HOST",
     "LOCAL_CONVERTERS_SCHEME",
+    "ENVELOPES_LISTING_PAGE_SIZE",
     "XLS_HEADINGS",
     "BDR_XLS_HEADINGS",
     "CDR_XLS_HEADINGS",
@@ -68,6 +69,27 @@ LOCAL_CONVERTERS_PORT = os.environ.get("LOCAL_CONVERTERS_PORT", "5000")
 LOCAL_CONVERTERS_HOST = os.environ.get("LOCAL_CONVERTERS_HOST", "localhost")
 LOCAL_CONVERTERS_SCHEME = os.environ.get("LOCAL_CONVERTERS_SCHEME", "http")
 ZIP_CACHE_THRESHOLD = int(os.environ.get("ZIP_CACHE_THRESHOLD", 100000000))
+
+
+def _int_from_env(name, default):
+    try:
+        return int(os.environ.get(name, default))
+    except ValueError:
+        return default
+
+
+def _listing_page_size(value):
+    """The pager of the listing is only shown for more than 25 envelopes, so
+    the pages cannot be smaller than that; 0 lists all the envelopes."""
+    if value <= 0:
+        return 0
+    return max(value, 25)
+
+
+# Number of envelopes per page in the listing of a collection
+ENVELOPES_LISTING_PAGE_SIZE = _listing_page_size(
+    _int_from_env("ENVELOPES_LISTING_PAGE_SIZE", 100)
+)
 ZIP_CACHE_ENABLED = os.environ.get("ZIP_CACHE_ENABLED", "True").lower() in (
     "true",
     "yes",

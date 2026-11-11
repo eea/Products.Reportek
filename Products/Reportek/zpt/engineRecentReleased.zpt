@@ -5,7 +5,8 @@
     <div tal:define="query_start python:request.get('query_start') or 0;
                      sort_on python:request.get('sort_on','reportingdate');
                      sort_order python:request.get('sort_order', 'reverse');
-                     results python:context.getSearchResults(meta_type='Report Envelope',
+                     results python:context.getBatchSearchResults(int(query_start), 25, 1,
+                                                             meta_type='Report Envelope',
                                                              sort_on=sort_on,
                                                              sort_order=sort_order,
                                                              released=1);

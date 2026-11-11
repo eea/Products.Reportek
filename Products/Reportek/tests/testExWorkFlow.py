@@ -149,14 +149,14 @@ class zopeEnvTestCase(BaseTest, ConfigureReportek):
         uf = self.app.acl_users
         uf._addUser(
             name="auser",
-            password="apass",
+            password="apass",  # betterleaks:allow (test fixture)
             confirm="apass",
             roles=["aRole"],
             domains="",
         )
         uf._addUser(
             name="otheruser",
-            password="apass",
+            password="apass",  # betterleaks:allow (test fixture)
             confirm="apass",
             roles=["Manager"],
             domains="",

@@ -16,7 +16,7 @@ testing, you can call add_PAS directly:
 
 >>> from Products.Reportek.auth import add_PAS
 >>> pas = add_PAS(app)
->>> pas['users'].addUser(user_id='admin', login_name='admin', password='admin')
+>>> pas['users'].addUser(user_id='admin', login_name='admin', password='admin')  # betterleaks:allow (doc example / variable)
 >>> pas['roles'].assignRoleToPrincipal(role_id='Manager', principal_id='admin')
 >>> import transaction; transaction.commit()
 
@@ -72,7 +72,7 @@ def update_authentication(app):
     pas = add_PAS(app, cookie_auth=False)
     for user_id in local_users:
         user = local_users[user_id]
-        pas["users"].addUser(user_id=user_id, login_name=user_id, password=user["pass"])
+        pas["users"].addUser(user_id=user_id, login_name=user_id, password=user["pass"])  # betterleaks:allow (doc example / variable)
         pas["roles"].assignRoleToPrincipal(role_id=user["role"], principal_id=user_id)
 
     lmp = add_ldap_plugin(pas)

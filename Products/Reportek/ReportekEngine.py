@@ -99,6 +99,92 @@ BDR_ROLE_AUDITOR = "Auditor"
 BDR_CLIENT_ROLES = ("ClientFG", "ClientODS", "ClientCARS", "ClientHDV")
 BDR_LOCAL_ROLES = (BDR_ROLE_AUDITOR,) + BDR_CLIENT_ROLES
 
+# Only these sorts are limited to the requested window. The catalog orders the
+# tied values of the sorts with few distinct values (released, country, actor)
+# differently when limited, so they keep the full sort.
+WINDOWED_SORT_KEYS = ("reportingdate",)
+# Beyond this many rows building the window costs more than the catalog's own
+# sort (measured: faster up to about 7000 rows), so deeper pages keep the full
+# sort.
+WINDOW_MAX_ROWS = 5000
+
+
+class _OutsideWindow:
+    """Stands for a row that is not in the sorted window; it has no attributes,
+    so that using it fails instead of returning a wrong row."""
+
+    __slots__ = ()
+
+    def __repr__(self):
+        return "<row outside of the sorted window>"
+
+
+OUTSIDE_WINDOW = _OutsideWindow()
+
+
+class SortedWindow:
+    """The first rows of a sorted catalog result.
+
+    It is as long as the number of matching rows, so that batches and
+    paginators know how many pages there are and how many rows the next ones
+    have. A Batch also looks at rows after its own, to know where the rows end.
+    Those, and the other rows after the sorted window, are OUTSIDE_WINDOW.
+    """
+
+    # the rows are catalog brains, as in the lazy results of the catalog
+    __allow_access_to_unprotected_subobjects__ = 1
+
+    def __init__(self, rows, length):
+        self._rows = rows
+        self._length = length
+
+    def __len__(self):
+        return self._length
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return [self[i] for i in range(*index.indices(self._length))]
+        if index < 0:
+            index += self._length
+        if not 0 <= index < self._length:
+            raise IndexError(index)
+        if index < len(self._rows):
+            return self._rows[index]
+        return OUTSIDE_WINDOW
+
+
+def windowed_search(catalog, window, **query):
+    """Search sorted on a key of WINDOWED_SORT_KEYS, sorting only `window` rows.
+
+    The catalog may order the rows sharing a sort value differently depending
+    on the limit, so the window is extended to not end inside such a group and
+    its rows are ordered by sort value and then by record id. Every window is
+    then the start of the same order, and the pages of a listing are
+    consistent.
+    """
+    keys = catalog._catalog.getIndex(query["sort_on"]).documentToKeyMap()
+    reverse = query.get("sort_order") in ("reverse", "descending")
+    size = max(window, 1)
+    while True:
+        # one row more than the window to see if its value is shared
+        results = catalog.searchResults(sort_limit=size + 1, **query)
+        length = getattr(results, "actual_result_count", None)
+        rows = list(results)
+        length = len(rows) if length is None else length
+        if len(rows) <= size or keys.get(rows[size].getRID()) != keys.get(
+            rows[size - 1].getRID()
+        ):
+            break
+        size += max(size, 25)
+    rows = rows[:size]
+    try:
+        rows.sort(key=lambda brain: brain.getRID())
+        rows.sort(key=lambda brain: keys.get(brain.getRID()), reverse=reverse)
+    except TypeError:
+        # rows without a sort value cannot be compared; keep the catalog order
+        pass
+    return SortedWindow(rows, length)
+
 
 def _group_ecr_content_data(user_ct):
     """Pre-group/sort ECR content for the ecr-collections macro."""
@@ -1189,6 +1275,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected("Audit Envelopes", "lookup_last_delivery")
         security.declareProtected("Audit Envelopes", "getEnvelopesInfo")
         security.declareProtected("Audit Envelopes", "getSearchResults")
+        security.declareProtected("Audit Envelopes", "getBatchSearchResults")
         security.declareProtected("Audit Envelopes", "getUniqueValuesFor")
     else:
         security.declareProtected("View", "globalworklist")
@@ -1203,6 +1290,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected("View", "lookup_last_delivery")
         security.declareProtected("View", "getEnvelopesInfo")
         security.declareProtected("View", "getSearchResults")
+        security.declareProtected("View", "getBatchSearchResults")
         security.declareProtected("View", "getUniqueValuesFor")
 
     globalworklist = PageTemplateFile(
@@ -1580,22 +1668,37 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if how == "desc":
             query["sort_order"] = "reverse"
 
-        workitems = catalog.searchResults(**query)
-
         if REQUEST is None:
+            workitems = catalog.searchResults(**query)
             return [ob.getObject() for ob in workitems]
 
         else:
-            paginator = DiggPaginator(workitems, 20, body=5, padding=2, orphans=5)
-
+            per_page, orphans = 20, 5
             try:
                 page = int(REQUEST.get("page", "1"))
             except ValueError:
                 page = 1
 
+            window = page * per_page + orphans
+            if sortby in WINDOWED_SORT_KEYS and 0 < page and window <= WINDOW_MAX_ROWS:
+                workitems = windowed_search(catalog, window, **query)
+            else:
+                workitems = catalog.searchResults(**query)
+            paginator = DiggPaginator(
+                workitems, per_page, body=5, padding=2, orphans=orphans
+            )
+
             try:
                 workitems = paginator.page(page)
             except (EmptyPage, InvalidPage):
+                # the last page is outside of the sorted window
+                paginator = DiggPaginator(
+                    catalog.searchResults(**query),
+                    per_page,
+                    body=5,
+                    padding=2,
+                    orphans=orphans,
+                )
                 workitems = paginator.page(paginator.num_pages)
 
             workitems.object_list = [ob.getObject() for ob in workitems.object_list]
@@ -2206,7 +2309,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return 0
         self.UNS_server = UNS_server
         self.UNS_username = UNS_username
-        self.UNS_password = UNS_password
+        self.UNS_password = UNS_password  # betterleaks:allow (attribute assignment)
         self.UNS_channel_id = UNS_channel_id
         self.UNS_notification_types = [x for x in UNS_notification_types if x != ""]
         if REQUEST is not None:
@@ -2528,6 +2631,24 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**kwargs)
 
+    @zpublish(False)
+    def getBatchSearchResults(self, b_start, b_size, orphan=0, **kwargs):
+        """Same as getSearchResults, for listings showing one batch of rows.
+
+        When sorting on reportingdate only the rows up to the end of the batch
+        are sorted, which is much cheaper than sorting every match. The number
+        of rows is the same as with getSearchResults, and rows sharing a date
+        are ordered by their record id.
+        """
+        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        if kwargs.get("sort_on") in WINDOWED_SORT_KEYS:
+            # a Batch looks at the row after its last row and its orphans
+            window = max(int(b_start), 0) + int(b_size) + int(orphan) + 1
+            if window <= WINDOW_MAX_ROWS:
+                return windowed_search(catalog, window, **kwargs)
+        return catalog.searchResults(**kwargs)
+
     def getUniqueValuesFor(self, value):
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.uniqueValuesFor(value)
@@ -2774,10 +2895,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declarePrivate("_get_local_role_collection_brains")
 
         def _get_local_role_collection_brains(self, username, catalog):
-            """Get collection brain objects where the user has local roles."""
+            """Get collection brain objects where the user has local roles.
+
+            The candidates are limited to the collections listing the user in
+            their local roles. This only narrows the candidates: callers still
+            check the user's roles on every brain, and a user is only ever
+            listed in a collection's local_defined_users when they have an
+            entry in its local roles.
+            """
             query = {
                 "meta_type": "Report Collection",
                 "local_unique_roles": list(BDR_LOCAL_ROLES),
+                "local_defined_users": [username],
             }
             return catalog.searchResults(**query)
 
