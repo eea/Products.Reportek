@@ -2631,6 +2631,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**kwargs)
 
+    @zpublish(False)
     def getBatchSearchResults(self, b_start, b_size, orphan=0, **kwargs):
         """Same as getSearchResults, for listings showing one batch of rows.
 

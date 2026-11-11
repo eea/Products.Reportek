@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from DateTime import DateTime
+from ZPublisher import zpublish_mark
 from ZTUtils import Batch
 
 from Products.Reportek.ReportekEngine import (
@@ -83,6 +84,11 @@ TIED_KEYS = []
 for _group, _size in enumerate([1, 3, 7, 2, 5, 4, 1, 6] * 5):
     TIED_KEYS.extend([_group] * _size)
 TIED_KEYS = TIED_KEYS[:130]
+
+
+class PublishingTest(BaseUnitTest):
+    def test_the_batch_search_cannot_be_called_from_the_web(self):
+        self.assertIs(zpublish_mark(ReportekEngine.getBatchSearchResults), False)
 
 
 class SortedWindowTest(BaseUnitTest):

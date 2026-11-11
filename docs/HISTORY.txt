@@ -3,6 +3,8 @@ Changelog
 
 100.9-dev0 - (unreleased)
 ---------------------------
+* fix: do not publish getBatchSearchResults on the web; it is only used by
+       the recent uploads and recent released pages; add a test
 * perf: recent uploads, recent released and global worklist pages: when sorted
         by reporting date (the default), the catalog only sorts the rows up to
         the end of the shown page instead of every match; the rows and the
