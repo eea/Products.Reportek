@@ -60,7 +60,9 @@ class LocalRoleCollectionsTest(BaseTest, ConfigureReportek):
         engine = self.engine
         brains = engine._get_local_role_collection_brains(username, self.catalog)
         return (
-            sorted(c.getId() for c in engine._get_auditor_collections(username, brains)),
+            sorted(
+                c.getId() for c in engine._get_auditor_collections(username, brains)
+            ),
             sorted(c.getId() for c in engine._get_client_collections(username, brains)),
         )
 
@@ -103,7 +105,9 @@ class LocalRoleCollectionsTest(BaseTest, ConfigureReportek):
         _grant(self.co1, "alice", ["ClientFG"])
         _grant(self.co2, "bob", ["ClientFG"])
         brains = self.engine._get_local_role_collection_brains("alice", self.catalog)
-        self.assertEqual(sorted(b.getPath().rsplit("/", 1)[-1] for b in brains), ["co1"])
+        self.assertEqual(
+            sorted(b.getPath().rsplit("/", 1)[-1] for b in brains), ["co1"]
+        )
 
     def test_query_is_scoped_to_the_user_in_the_catalog(self):
         _grant(self.co1, "alice", ["ClientFG"])
