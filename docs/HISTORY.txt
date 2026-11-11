@@ -3,6 +3,11 @@ Changelog
 
 100.9-dev0 - (unreleased)
 ---------------------------
+* perf: recent uploads, recent released and global worklist pages: when sorted
+        by reporting date (the default), the catalog only sorts the rows up to
+        the end of the shown page instead of every match; the rows and the
+        number of pages are the same, rows with the same reporting date are
+        ordered by their record id so that pages stay consistent; add tests
 * perf: BDR front page: look up the Auditor and Client collections of the user
         with the local_defined_users index instead of loading every collection
         that has any BDR local role and filtering by username in Python; only
