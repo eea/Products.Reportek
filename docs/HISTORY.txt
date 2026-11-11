@@ -1,8 +1,8 @@
 Changelog
 =========
 
-100.9-dev0 - (unreleased)
----------------------------
+100.9 - (2026-11-11)
+--------------------
 * perf: collection listing: collections with more than 100 envelopes list
         them in pages of 100 (ENVELOPES_LISTING_PAGE_SIZE, at least 25, 0 to
         list them all), instead of rendering every envelope; "Show all"
