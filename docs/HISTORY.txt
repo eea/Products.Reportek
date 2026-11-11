@@ -3,6 +3,11 @@ Changelog
 
 100.9-dev0 - (unreleased)
 ---------------------------
+* perf: BDR front page: look up the Auditor and Client collections of the user
+        with the local_defined_users index instead of loading every collection
+        that has any BDR local role and filtering by username in Python; only
+        narrows the candidates, the role checks and the resulting collections
+        are unchanged; add tests for the collections offered to a user
 * perf: collection listing: on CDR, don't evaluate the BDR-only QA status
         (is_acceptable, successful_qa, has_unknown_qa_result) for every
         envelope row; its tal:define ran before the isBdrDeployment condition

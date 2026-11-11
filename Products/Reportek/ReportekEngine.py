@@ -2774,10 +2774,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declarePrivate("_get_local_role_collection_brains")
 
         def _get_local_role_collection_brains(self, username, catalog):
-            """Get collection brain objects where the user has local roles."""
+            """Get collection brain objects where the user has local roles.
+
+            The candidates are limited to the collections listing the user in
+            their local roles. This only narrows the candidates: callers still
+            check the user's roles on every brain, and a user is only ever
+            listed in a collection's local_defined_users when they have an
+            entry in its local roles.
+            """
             query = {
                 "meta_type": "Report Collection",
                 "local_unique_roles": list(BDR_LOCAL_ROLES),
+                "local_defined_users": [username],
             }
             return catalog.searchResults(**query)
 
