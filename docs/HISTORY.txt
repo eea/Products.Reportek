@@ -3,6 +3,11 @@ Changelog
 
 100.9-dev0 - (unreleased)
 ---------------------------
+* perf: collection listing: on CDR, don't evaluate the BDR-only QA status
+        (is_acceptable, successful_qa, has_unknown_qa_result) for every
+        envelope row; its tal:define ran before the isBdrDeployment condition
+        and loaded all workitems and feedbacks of every envelope; the rendered
+        output is unchanged
 * chore: add the shared EEA Betterleaks secret scan (GitHub workflow) with a
          repository .gitleaks.toml; the findings were reviewed (no real
          secrets) and are allowed inline or by path; no change in behaviour
