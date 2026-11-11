@@ -47,6 +47,7 @@ from ZPublisher.BaseRequest import BaseRequest
 import Products
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek import config
 from Products.Reportek.config import (
     DEPLOYMENT_BDR,
     REPORTEK_DEPLOYMENT,
@@ -56,6 +57,7 @@ from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.events import LocalRolesChangedEvent
 from Products.Reportek.interfaces import ICollection
 from Products.Reportek.modification_date import set_reportek_modification_date
+from Products.Reportek.paginator import DiggPaginator, EmptyPage, InvalidPage
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
 from ZPublisher import zpublish
@@ -1489,6 +1491,40 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             return (typ, norm, _tie_breaker(ob))
 
         return sorted(objs, key=key_for, reverse=bool(desc))
+
+    security.declareProtected("View", "get_envelopes_listing_page_size")
+
+    @zpublish(False)
+    def get_envelopes_listing_page_size(self):
+        """Return the number of envelopes per page of the listing, or 0 if all
+        of them are listed."""
+        return config.ENVELOPES_LISTING_PAGE_SIZE
+
+    security.declareProtected("View", "get_envelopes_pager")
+
+    @zpublish(False)
+    def get_envelopes_pager(self, envelopes, REQUEST=None):
+        """Return the page of `envelopes` to list, or None to list them all.
+
+        A collection with more envelopes than ENVELOPES_LISTING_PAGE_SIZE is
+        listed in pages (the `page` request parameter), unless all of them are
+        asked for with `show=all`.
+        """
+        size = self.get_envelopes_listing_page_size()
+        if not size or len(envelopes) <= size:
+            return None
+        request = REQUEST if REQUEST is not None else getattr(self, "REQUEST", {})
+        if request.get("show") == "all":
+            return None
+        paginator = DiggPaginator(envelopes, size, body=5, padding=2)
+        try:
+            page = int(request.get("page", "1"))
+        except (TypeError, ValueError):
+            page = 1
+        try:
+            return paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            return paginator.page(paginator.num_pages)
 
     def get_catalog_children(self, m_types, sort_on, sort_order="reverse"):
         path = "/".join(self.getPhysicalPath())

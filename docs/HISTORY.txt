@@ -3,6 +3,10 @@ Changelog
 
 100.9-dev0 - (unreleased)
 ---------------------------
+* perf: collection listing: collections with more than 100 envelopes list
+        them in pages of 100 (ENVELOPES_LISTING_PAGE_SIZE, at least 25, 0 to
+        list them all), instead of rendering every envelope; "Show all"
+        (show=all) lists every envelope as before; add tests
 * fix: do not publish getBatchSearchResults on the web; it is only used by
        the recent uploads and recent released pages; add a test
 * perf: recent uploads, recent released and global worklist pages: when sorted

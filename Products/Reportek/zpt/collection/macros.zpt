@@ -146,3 +146,20 @@
         </tr>
     </tbody>
 </tal:block>
+
+<tal:block metal:define-macro="env-pager">
+    <tal:block tal:define="page_size here/get_envelopes_listing_page_size"
+               tal:condition="python: page_size and len(all_envs) > page_size">
+        <tal:block tal:condition="env_pager"
+                   tal:define="records_pagination nocall:here/ReportekEngine/records_pagination;
+                               page_url string:${here/absolute_url}/?show=paged">
+            <tal:block tal:replace="structure python: records_pagination(documents=env_pager, page_url=page_url)" />
+            <p class="showall">
+                <a tal:attributes="href string:${here/absolute_url}/?show=all"><tal:block i18n:translate="">Show all</tal:block> <span tal:replace="python: len(all_envs)" /> <tal:block i18n:translate="">envelopes</tal:block></a>
+            </p>
+        </tal:block>
+        <p class="showall" tal:condition="not: env_pager">
+            <a tal:attributes="href string:${here/absolute_url}/?show=paged" i18n:translate="">Show the envelopes in pages</a>
+        </p>
+    </tal:block>
+</tal:block>
