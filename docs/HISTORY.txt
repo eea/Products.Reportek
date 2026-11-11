@@ -1,6 +1,9 @@
 Changelog
 =========
 
+101.0-dev0 - (unreleased)
+---------------------------
+
 100.9 - (2026-11-11)
 --------------------
 * perf: collection listing: collections with more than 100 envelopes list
