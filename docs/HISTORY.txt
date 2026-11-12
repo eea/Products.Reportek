@@ -1,6 +1,21 @@
 Changelog
 =========
 
+101.0 - (2026-11-12)
+--------------------
+* fix: improved security for CDR/BDR api/envelopes; add tests
+* perf: envelopes API: the workitems and the feedbacks that the status,
+        activity, creator, ... properties and the history need are looked up
+        with one catalog query for all the envelopes, instead of two queries
+        for each envelope; asking for the status of 1750 envelopes takes about
+        2 seconds instead of 38; the response is the same; add tests
+* perf: envelopes API: the status, activity, creator, ... properties, which
+        need two catalog queries and loading the last workitem of each
+        envelope, are only computed when a requested field or a filter uses
+        them; they were also computed for the files, feedbacks, history and
+        company fields and for the date range filters, where they are not
+        used; the response is the same; add tests
+
 100.9 - (2026-11-11)
 --------------------
 * perf: collection listing: collections with more than 100 envelopes list

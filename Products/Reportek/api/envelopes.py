@@ -1,18 +1,30 @@
 import datetime
 import json
+import logging
 
+from AccessControl import getSecurityManager
+from Acquisition import aq_base
 from DateTime import DateTime
 from ZODB.blob import POSKeyError
 
 from Products.Five import BrowserView
 from Products.Reportek.blob import StorageError
+from Products.Reportek.catalog import listAllowedAdminRolesAndUsers
+from Products.Reportek.config import (
+    DEPLOYMENT_BDR,
+    DEPLOYMENT_CDR,
+    REPORTEK_DEPLOYMENT,
+)
 from Products.Reportek.constants import (
     DEFAULT_CATALOG,
     DF_URL_PREFIX,
+    ECAS_ID,
     ENGINE_ID,
 )
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
+
+logger = logging.getLogger("Reportek")
 
 
 class BytesEncoder(json.JSONEncoder):
@@ -28,6 +40,26 @@ class EnvelopesAPI(BrowserView):
     """Envelopes API"""
 
     MAX_RESULTS = 5000
+    # Properties derived from the workitems of the envelope, see
+    # get_additional_props. They need catalog queries and loading the last
+    # workitem of each envelope, so they are only computed when a requested
+    # field or a filter uses them.
+    WORKFLOW_PROPS = (
+        "isBlockedByQCError",
+        "status",
+        "activity",
+        "statusDate",
+        "activityDate",
+        "activityStatus",
+        "creator",
+        "hasUnknownQC",
+    )
+    WORKFLOW_FILTERS = WORKFLOW_PROPS + (
+        "statusDateStart",
+        "statusDateEnd",
+        "activityDateStart",
+        "activityDateEnd",
+    )
     AVAILABLE_FILTERS = {
         "url": {
             "catalog_mapping": "path",
@@ -329,6 +361,89 @@ class EnvelopesAPI(BrowserView):
 
         return query
 
+    def get_security_query(self):
+        """Return the query that limits the envelopes to the ones that the user
+        is allowed to view, which is empty for the deployments that are not
+        limited.
+
+        The allowedRolesAndUsers index has the roles that can view an object
+        and the users that hold a local role, which are also groups, so the
+        groups of the user are needed besides its roles and its id, otherwise
+        the users that are allowed through a group would not get the envelopes
+        of the restricted collections.
+
+        The index does not have the users that are allowed through the dynamic
+        Owner role, or through the registry middleware on BDR, see
+        get_middleware_access. Only the users with the roles that give access
+        to the API, which are not the ones of the companies, call this.
+        """
+        if REPORTEK_DEPLOYMENT not in (DEPLOYMENT_CDR, DEPLOYMENT_BDR):
+            return {}
+        user = getSecurityManager().getUser()
+        allowed = listAllowedAdminRolesAndUsers(user)
+        if hasattr(aq_base(user), "getGroups"):
+            allowed.extend("user:%s" % group for group in user.getGroups())
+        return {"allowedRolesAndUsers": allowed}
+
+    def get_middleware_access(self, user):
+        """Return what is needed to ask the registry middleware if the user is
+        allowed to view a path, or None if the registry gives no paths to the
+        user. BDR only: the permission check also asks it, and the index has
+        not got what it grants.
+
+        If the registry cannot be asked, the user gets what the roles allow.
+        """
+        if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+            return None
+        try:
+            engine = getattr(self.context, ENGINE_ID)
+            middleware = getattr(engine, "authMiddleware", None)
+            ecas = engine.unrestrictedTraverse("/acl_users/" + ECAS_ID, None)
+            if not middleware or ecas is None:
+                return None
+            username = user.getUserName()
+            ecas_user_id = ecas.getEcasUserId(username)
+            if not ecas_user_id:
+                return None
+            userdata = {"username": username, "ecas_id": ecas_user_id}
+            paths = middleware.getUserCollectionPaths(
+                ecas_user_id,
+                userdata=userdata,
+                recheck_interval=middleware.recheck_interval,
+            )
+            if not any(
+                paths.get(kind) for kind in ("paths", "prev_paths", "audit_paths")
+            ):
+                return None
+            return middleware, ecas_user_id, userdata
+        except Exception:
+            logger.warning(
+                "Cannot ask the registry middleware for the access of the user",
+                exc_info=True,
+            )
+            return None
+
+    def search_envelopes(self, catalog, query):
+        """Return the brains of the envelopes that the user is allowed to view."""
+        security = self.get_security_query()
+        brains = list(catalog.searchResults(**dict(query, **security)))
+        if not security:
+            return brains
+        access = self.get_middleware_access(getSecurityManager().getUser())
+        if access is None:
+            return brains
+        middleware, ecas_user_id, userdata = access
+        allowed = {brain.getRID() for brain in brains}
+        # same path as in the permission check, which has no leading slash
+        return [
+            brain
+            for brain in catalog.searchResults(**query)
+            if brain.getRID() in allowed
+            or middleware.authorizedUser(
+                ecas_user_id, brain.getPath().lstrip("/"), userdata=userdata
+            )
+        ]
+
     def get_env_children(self, path, children_type):
         """Return envelope's children of type children_type as brains."""
         cache = getattr(self, "_children_cache", None)
@@ -343,16 +458,47 @@ class EnvelopesAPI(BrowserView):
             "meta_type": children_type,
         }
 
-        def getbID(b):
-            return int(b.id)
-
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         brains = list(catalog.searchResults(**query))
 
         if children_type == "Workitem":
-            brains.sort(key=getbID)
+            brains.sort(key=self.get_brain_id)
         cache[cache_key] = brains
         return brains
+
+    @staticmethod
+    def get_brain_id(brain):
+        return int(brain.id)
+
+    def prefetch_env_children(self, paths, children_type):
+        """Cache the children of type children_type of the envelopes at paths.
+
+        The workitems and the feedbacks of an envelope are its children, so
+        one catalog query for all the envelopes gives the same brains as one
+        query per envelope, which cost much more for many envelopes.
+        """
+        if not paths:
+            return
+        cache = getattr(self, "_children_cache", None)
+        if cache is None:
+            self._children_cache = cache = {}
+        paths = [path for path in paths if (path, children_type) not in cache]
+        if not paths:
+            return
+        children = {path: [] for path in paths}
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+        query = {
+            "path": {"query": paths, "depth": 1},
+            "meta_type": children_type,
+        }
+        for brain in catalog.searchResults(**query):
+            parent = brain.getPath().rsplit("/", 1)[0]
+            if parent in children:
+                children[parent].append(brain)
+        for path, brains in children.items():
+            if children_type == "Workitem":
+                brains.sort(key=self.get_brain_id)
+            cache[(path, children_type)] = brains
 
     def is_env_blocked(self, wk_brains):
         """Return 1 if envelope is blocked, otherwise 0."""
@@ -586,7 +732,7 @@ class EnvelopesAPI(BrowserView):
             errors.append({"title": "Error processing request.", "description": error})
         if query:
             catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-            brains = list(catalog.searchResults(**query))
+            brains = self.search_envelopes(catalog, query)
 
             if len(brains) > self.MAX_RESULTS:
                 error = (
@@ -600,19 +746,21 @@ class EnvelopesAPI(BrowserView):
                     for k in list(self.AVAILABLE_FILTERS.keys())
                     if k not in valid_catalog_filters
                 ]
+                needs_workflow_props = any(
+                    field in self.WORKFLOW_PROPS for field in fields or []
+                ) or any(param in self.WORKFLOW_FILTERS for param in fed_params)
+                if needs_workflow_props or "history" in (fields or []):
+                    paths = [brain.getPath() for brain in brains]
+                    self.prefetch_env_children(paths, "Workitem")
+                    if needs_workflow_props:
+                        self.prefetch_env_children(paths, "Report Feedback")
                 for brain in brains:
                     default_props = self.get_default_props(brain)
                     envelope_data = {}
                     if not fields:
                         fields = list(default_props.keys())
-                    additional_p_fields = [
-                        param for param in fields if param not in default_props
-                    ]
-                    additional_p_filters = [
-                        p for p in list(fed_params.keys()) if p not in default_props
-                    ]
 
-                    if additional_p_fields or additional_p_filters:
+                    if needs_workflow_props:
                         additional_props = self.get_additional_props(brain)
                         default_props.update(additional_props)
 
