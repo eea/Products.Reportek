@@ -662,9 +662,7 @@ class SecurityQueryTest(BaseUnitTest):
             FakeUser("someone", ["Authenticated", "RoleB"], []),
             FakeUser("admin", ["Manager"], []),
         ):
-            self.assertEqual(
-                len(self.titles(user, fields="title")), 4, user.getId()
-            )
+            self.assertEqual(len(self.titles(user, fields="title")), 4, user.getId())
 
     def test_the_envelopes_keep_their_order(self):
         user = FakeUser("admin", ["Manager"], [])
@@ -689,7 +687,9 @@ class FakeMiddleware:
         self.asked = []
         self.checked = []
 
-    def getUserCollectionPaths(self, ecas_user_id, userdata=None, recheck_interval=None):
+    def getUserCollectionPaths(
+        self, ecas_user_id, userdata=None, recheck_interval=None
+    ):
         self.asked.append((ecas_user_id, userdata, recheck_interval))
         if self.error:
             raise self.error
