@@ -1,8 +1,8 @@
 Changelog
 =========
 
-101.0-dev0 - (unreleased)
----------------------------
+101.0 - (2026-11-12)
+--------------------
 * fix: improved security for CDR/BDR api/envelopes; add tests
 * perf: envelopes API: the workitems and the feedbacks that the status,
         activity, creator, ... properties and the history need are looked up
