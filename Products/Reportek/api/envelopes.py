@@ -28,6 +28,26 @@ class EnvelopesAPI(BrowserView):
     """Envelopes API"""
 
     MAX_RESULTS = 5000
+    # Properties derived from the workitems of the envelope, see
+    # get_additional_props. They need catalog queries and loading the last
+    # workitem of each envelope, so they are only computed when a requested
+    # field or a filter uses them.
+    WORKFLOW_PROPS = (
+        "isBlockedByQCError",
+        "status",
+        "activity",
+        "statusDate",
+        "activityDate",
+        "activityStatus",
+        "creator",
+        "hasUnknownQC",
+    )
+    WORKFLOW_FILTERS = WORKFLOW_PROPS + (
+        "statusDateStart",
+        "statusDateEnd",
+        "activityDateStart",
+        "activityDateEnd",
+    )
     AVAILABLE_FILTERS = {
         "url": {
             "catalog_mapping": "path",
@@ -600,19 +620,16 @@ class EnvelopesAPI(BrowserView):
                     for k in list(self.AVAILABLE_FILTERS.keys())
                     if k not in valid_catalog_filters
                 ]
+                needs_workflow_props = any(
+                    field in self.WORKFLOW_PROPS for field in fields or []
+                ) or any(param in self.WORKFLOW_FILTERS for param in fed_params)
                 for brain in brains:
                     default_props = self.get_default_props(brain)
                     envelope_data = {}
                     if not fields:
                         fields = list(default_props.keys())
-                    additional_p_fields = [
-                        param for param in fields if param not in default_props
-                    ]
-                    additional_p_filters = [
-                        p for p in list(fed_params.keys()) if p not in default_props
-                    ]
 
-                    if additional_p_fields or additional_p_filters:
+                    if needs_workflow_props:
                         additional_props = self.get_additional_props(brain)
                         default_props.update(additional_props)
 

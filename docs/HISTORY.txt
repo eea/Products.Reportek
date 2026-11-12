@@ -3,6 +3,12 @@ Changelog
 
 101.0-dev0 - (unreleased)
 ---------------------------
+* perf: envelopes API: the status, activity, creator, ... properties, which
+        need two catalog queries and loading the last workitem of each
+        envelope, are only computed when a requested field or a filter uses
+        them; they were also computed for the files, feedbacks, history and
+        company fields and for the date range filters, where they are not
+        used; the response is the same; add tests
 
 100.9 - (2026-11-11)
 --------------------
