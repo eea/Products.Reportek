@@ -74,9 +74,7 @@ class BDRRegistryTest(CacheTest):
         self.assertEqual(get.call_count, 1)
 
     @patch(REGISTRY_GET)
-    def test_company_details_changed_by_a_caller_are_not_changed_for_others(
-        self, get
-    ):
+    def test_company_details_changed_by_a_caller_are_not_changed_for_others(self, get):
         get.return_value = answer(200, {"name": "c", "address": {"city": "x"}})
         first = self.api.get_company_details("1", domain="ODS")
         first["registry"] = "changed"
