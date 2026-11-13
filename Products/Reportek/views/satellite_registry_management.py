@@ -6,7 +6,7 @@ import xmltodict
 from .base_admin import BaseAdmin
 from plone.memoize.ram import global_cache
 
-from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.constants import CONTENT_TYPE_JSON, ENGINE_ID
 from Products.Reportek.RepUtils import fix_json_from_id, replace_keys
 
 logger = logging.getLogger("Reportek")
@@ -142,7 +142,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
             companies = api.get_registry_companies(domain=domain, detailed=True)
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(companies, indent=2)
 
     def get_auditors(self):
@@ -150,7 +150,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         auditors = api.get_auditors()
-        self.request.response.setHeader("Content-Type", "application/json")
+        self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(auditors, indent=2)
 
     def get_companies_api(self):
@@ -166,11 +166,11 @@ class SatelliteRegistryManagement(BaseAdmin):
                         params[param] = self.request.get(param)
 
             api = self.get_api()
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(api.existsCompany(params, domain=domain), indent=2)
 
     def get_company_json(self):
-        self.request.response.setHeader("Content-Type", "application/json")
+        self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
         api = self.get_api()
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
@@ -319,7 +319,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
             candidates = api.getCandidates(domain=domain)
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(candidates, indent=2)
 
     def get_matching_log(self):
@@ -329,7 +329,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
             m_logs = api.getMatchingLog(domain=domain)
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             for log in m_logs:
                 log["locked"] = self.lockedCompany(
                     log.get("company_id"),
@@ -346,7 +346,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
             sync_logs = api.getDataSyncLog(domain=domain)
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(sync_logs, indent=2)
 
     def unverify(self):
@@ -387,7 +387,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         params = dict(self.request.form) or None
         my_licences = api.get_multi_year_licences(params)
-        self.request.response.setHeader("Content-Type", "application/json")
+        self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(my_licences, indent=2)
 
     def get_stocks(self):
@@ -395,7 +395,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         stocks = api.get_stocks()
-        self.request.response.setHeader("Content-Type", "application/json")
+        self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(stocks, indent=2)
 
     def stocks_json_dummy(self):
@@ -403,7 +403,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         json_dummy = api.get_stocks_dummy()
-        self.request.response.setHeader("Content-Type", "application/json")
+        self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(json_dummy, indent=2)
 
     def stock_export(self):
@@ -441,7 +441,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                     replace_keys({"vat": "eori_number"}, company_fixed)
                 companies.append(company_fixed)
 
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(companies, indent=2)
 
     def get_users_excel(self):
@@ -512,7 +512,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         country_code = self.request.form.get("country_code")
         domain = self.request.form.get("domain", "FGAS")
         if self.is_permitted(domain):
-            self.request.response.setHeader("Content-Type", "application/json")
+            self.request.response.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(
                 self.lockedCompany(company_id, old_collection_id, country_code, domain)
             )

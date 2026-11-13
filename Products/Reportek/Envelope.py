@@ -74,7 +74,7 @@ from Products.Reportek.config import (
     ZIP_CACHE_THRESHOLD,
     permission_manage_properties_envelopes,
 )
-from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.constants import CONTENT_TYPE_JSON, DF_URL_PREFIX
 from Products.Reportek.EnvelopeCustomDataflows import EnvelopeCustomDataflows
 from Products.Reportek.EnvelopeInstance import EnvelopeInstance
 from Products.Reportek.EnvelopeRemoteServicesManager import (
@@ -93,6 +93,14 @@ from Products.Reportek.RepUtils import (
     refuse_when_frozen,
 )
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
+from Products.Reportek.permissions import (
+    add_envelopes,
+    add_feedback as add_feedback_permission,
+    audit_envelopes,
+    change_envelopes,
+    change_feedback,
+    release_envelopes,
+)
 
 from .constants import (
     ENGINE_ID,
@@ -118,8 +126,8 @@ def error_response(exc, message, REQUEST):
     """Return an error"""
     if REQUEST is not None:
         accept = REQUEST.environ.get("HTTP_ACCEPT")
-        if accept == "application/json":
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        if accept == CONTENT_TYPE_JSON:
+            REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             if hasattr(exc, "__name__"):
                 error_type = exc.__name__
             else:
@@ -265,8 +273,8 @@ def manage_addEnvelope(
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
-        if REQUEST.environ.get("HTTP_ACCEPT") == "application/json":
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        if REQUEST.environ.get("HTTP_ACCEPT") == CONTENT_TYPE_JSON:
+            REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             REQUEST.RESPONSE.setStatus(201)
             obls = [obl.split(DF_URL_PREFIX)[-1] for obl in ob.dataflow_uris]
             env = {
@@ -341,7 +349,7 @@ class Envelope(
 
     security = ClassSecurityInfo()
 
-    security.setPermissionDefault("Audit Envelopes", ("Manager", "Owner"))
+    security.setPermissionDefault(audit_envelopes, ("Manager", "Owner"))
 
     manage_options = (
         (OFS.ObjectManager.ObjectManager.manage_options[0],)
@@ -374,12 +382,12 @@ class Envelope(
         """Delete the named objects, unless the envelope is frozen"""
         return super().manage_delObjects(ids or [], REQUEST)
 
-    security.declareProtected("Change Envelopes", "manage_cutObjects")
-    security.declareProtected("Change Envelopes", "manage_copyObjects")
-    security.declareProtected("Change Envelopes", "manage_pasteObjects")
-    security.declareProtected("Change Envelopes", "manage_renameForm")
-    security.declareProtected("Change Envelopes", "manage_renameObject")
-    security.declareProtected("Change Envelopes", "manage_renameObjects")
+    security.declareProtected(change_envelopes, "manage_cutObjects")
+    security.declareProtected(change_envelopes, "manage_copyObjects")
+    security.declareProtected(change_envelopes, "manage_pasteObjects")
+    security.declareProtected(change_envelopes, "manage_renameForm")
+    security.declareProtected(change_envelopes, "manage_renameObject")
+    security.declareProtected(change_envelopes, "manage_renameObjects")
 
     def __init__(
         self,
@@ -628,23 +636,23 @@ class Envelope(
             {
                 "name": DOCUMENT_META_TYPE,
                 "action": "manage_addDocumentForm",
-                "permission": "Add Envelopes",
+                "permission": add_envelopes,
             },
             {
                 "name": HYPERLINK_META_TYPE,
                 "action": "manage_addHyperlinkForm",
-                "permission": "Add Envelopes",
+                "permission": add_envelopes,
             },
             {
                 "name": FEEDBACK_META_TYPE,
                 "action": "manage_addFeedbackForm",
-                "permission": "Add Feedback",
+                "permission": add_feedback_permission,
             },
         ]
         return y
 
     # This next lines are bogus but needed for Zope to register the permission
-    security.declareProtected("Audit Envelopes", "bogus_function")
+    security.declareProtected(audit_envelopes, "bogus_function")
 
     def bogus_function(self):
         return
@@ -680,7 +688,7 @@ class Envelope(
         """ """
         return self.getOwner()
 
-    security.declareProtected("Change Envelopes", "manage_copyDelivery")
+    security.declareProtected(change_envelopes, "manage_copyDelivery")
 
     @refuse_when_frozen
     def manage_copyDelivery(self, previous_delivery, REQUEST=None):
@@ -741,7 +749,7 @@ class Envelope(
                 and w.actor != "openflow_engine"
                 and (
                     w.actor == l_current_actor
-                    or getSecurityManager().checkPermission("Change Envelopes", self)
+                    or getSecurityManager().checkPermission(change_envelopes, self)
                 )
             ):
                 l_application_url = self.getApplicationUrl(w.id)
@@ -782,7 +790,7 @@ class Envelope(
                 REQUEST.SESSION.set("status_extra", status_extra)
         return self.overview(REQUEST)
 
-    security.declareProtected("View management screens", "manage_main_inh")
+    security.declareProtected(view_management_screens, "manage_main_inh")
 
     def manage_main_inh(self, *args, **kw):
         """Inherited manage_main from EnvelopeInstance."""
@@ -793,7 +801,7 @@ class Envelope(
     def manage_main(self, *args, **kw):
         """Define manage main to be context aware"""
 
-        if getSecurityManager().checkPermission("View management screens", self):
+        if getSecurityManager().checkPermission(view_management_screens, self):
             return self.manage_main_inh(*args, **kw)
 
         # OFS management methods (manage_delObjects, manage_pasteObjects,
@@ -864,10 +872,10 @@ class Envelope(
     security.declareProtected("View", "envelope_tabs")
     envelope_tabs = PageTemplateFile("zpt/envelope/tabs.zpt", globals())
 
-    security.declareProtected("Change Envelopes", "manage_prop")
+    security.declareProtected(change_envelopes, "manage_prop")
     manage_prop = PageTemplateFile("zpt/envelope/properties.zpt", globals())
 
-    security.declareProtected("Change Envelopes", "envelope_previous")
+    security.declareProtected(change_envelopes, "envelope_previous")
     envelope_previous = PageTemplateFile("zpt/envelope/earlierreleases.zpt", globals())
 
     security.declareProtected("View", "data_quality")
@@ -881,11 +889,11 @@ class Envelope(
         if wks:
             return self.handle_wk_response(wks[-1])
         if getattr(self, "REQUEST"):
-            if self.REQUEST.environ.get("HTTP_ACCEPT") == "application/json":
-                self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+            if self.REQUEST.environ.get("HTTP_ACCEPT") == CONTENT_TYPE_JSON:
+                self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps({})
 
-    security.declareProtected("Release Envelopes", "content_registry_ping")
+    security.declareProtected(release_envelopes, "content_registry_ping")
 
     def content_registry_ping(self, delete=False, _async=False, wk=None, silent=True):
         """Instruct ReportekEngine to ping CR.
@@ -946,7 +954,7 @@ class Envelope(
         """
         return self.release_envelope()
 
-    security.declareProtected("Release Envelopes", "release_envelope")
+    security.declareProtected(release_envelopes, "release_envelope")
     ##################################################
     # Releases an envelope to the public
     # Must also set the "View" permission on the object?
@@ -976,7 +984,7 @@ class Envelope(
         """
         return self.unrelease_envelope()
 
-    security.declareProtected("Release Envelopes", "unrelease_envelope")
+    security.declareProtected(release_envelopes, "unrelease_envelope")
     ##################################################
     # Unreleases an envelope to the public
     # Must also remove the "View" permission on the object?
@@ -1140,7 +1148,7 @@ class Envelope(
     # have View access.
     ##################################################
 
-    security.declareProtected("Change Envelopes", "manage_restrict")
+    security.declareProtected(change_envelopes, "manage_restrict")
 
     def manage_restrict(self, ids=None, REQUEST=None):
         """
@@ -1171,7 +1179,7 @@ class Envelope(
             ids, roles=vr, acquire=acquire, permission="View", REQUEST=REQUEST
         )
 
-    security.declareProtected("Change Envelopes", "apply_restrictions")
+    security.declareProtected(change_envelopes, "apply_restrictions")
 
     def apply_restrictions(self):
         """Apply restrictions to envelope's contents"""
@@ -1181,7 +1189,7 @@ class Envelope(
         self.manage_restrict(ids)
         self.reindexObject()
 
-    security.declareProtected("Change Envelopes", "manage_unrestrict")
+    security.declareProtected(change_envelopes, "manage_unrestrict")
 
     def manage_unrestrict(self, ids=None, REQUEST=None):
         """
@@ -1213,7 +1221,7 @@ class Envelope(
             )
 
         if process.restricted and not getSecurityManager().checkPermission(
-            "View management screens", self
+            view_management_screens, self
         ):
             for oid in l_ids:
                 obj = self.unrestrictedTraverse(oid)
@@ -1242,7 +1250,7 @@ class Envelope(
             l_ids, roles=[], acquire=1, permission="View", REQUEST=REQUEST
         )
 
-    security.declareProtected("Change Envelopes", "restrict_editing_files")
+    security.declareProtected(change_envelopes, "restrict_editing_files")
 
     @refuse_when_frozen
     def restrict_editing_files(self, REQUEST=None):
@@ -1264,7 +1272,7 @@ class Envelope(
             REQUEST=REQUEST,
         )
 
-    security.declareProtected("Change Envelopes", "unrestrict_editing_files")
+    security.declareProtected(change_envelopes, "unrestrict_editing_files")
 
     @refuse_when_frozen
     def unrestrict_editing_files(self, REQUEST=None):
@@ -1329,10 +1337,10 @@ class Envelope(
         """
         hasThisPermission = getSecurityManager().checkPermission
         return (
-            hasThisPermission("Change Envelopes", self)
-            or hasThisPermission("Release Envelopes", self)
-            or hasThisPermission("Audit Envelopes", self)
-            or hasThisPermission("Add Feedback", self)
+            hasThisPermission(change_envelopes, self)
+            or hasThisPermission(release_envelopes, self)
+            or hasThisPermission(audit_envelopes, self)
+            or hasThisPermission(add_feedback_permission, self)
             or self.released
         )
 
@@ -1344,7 +1352,7 @@ class Envelope(
         """
         hasThisPermission = getSecurityManager().checkPermission
         return (
-            hasThisPermission("Change Envelopes", self)
+            hasThisPermission(change_envelopes, self)
             and not self.released
             and not self.is_frozen()
         )
@@ -1369,7 +1377,7 @@ class Envelope(
                 can_add_fb = getattr(session, "can_add_feedback_before_release", False)
 
         return (
-            hasThisPermission("Add Feedback", self)
+            hasThisPermission(add_feedback_permission, self)
             and (self.released or can_add_fb)
             and not self.is_frozen()
         )
@@ -1382,7 +1390,7 @@ class Envelope(
         """
         hasThisPermission = getSecurityManager().checkPermission
         return (
-            hasThisPermission("Change Feedback", self)
+            hasThisPermission(change_feedback, self)
             and self.released
             and not self.is_frozen()
         )
@@ -1394,7 +1402,7 @@ class Envelope(
         properties of the envelope
         """
         hasThisPermission = getSecurityManager().checkPermission
-        return hasThisPermission("Change Envelopes", self) and not self.is_frozen()
+        return hasThisPermission(change_envelopes, self) and not self.is_frozen()
 
     ##################################################
     # Feedback operations
@@ -1481,7 +1489,7 @@ class Envelope(
                 bResult = 1
         return bResult
 
-    security.declareProtected("Add Feedback", "manage_deleteFeedback")
+    security.declareProtected(add_feedback_permission, "manage_deleteFeedback")
 
     @refuse_when_frozen
     def manage_deleteFeedback(self, file_id="", REQUEST=None):
@@ -1499,9 +1507,9 @@ class Envelope(
         # Add feedback. To be called by Applications.
         self.manage_addFeedback(**kwargs)
 
-    security.declareProtected("Add Feedback", "manage_addFeedbackForm")
+    security.declareProtected(add_feedback_permission, "manage_addFeedbackForm")
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
-    security.declareProtected("Add Feedback", "manage_addFeedback")
+    security.declareProtected(add_feedback_permission, "manage_addFeedback")
 
     @refuse_when_frozen
     def manage_addFeedback(
@@ -1537,26 +1545,26 @@ class Envelope(
         finally:
             self._invalidate_qa_cache()
 
-    security.declareProtected("View management screens", "manage_addManualQAFeedback")
+    security.declareProtected(view_management_screens, "manage_addManualQAFeedback")
     manage_addManualQAFeedback = Feedback.manage_addManualQAFeedback
-    security.declareProtected("Add Feedback", "manage_deleteFeedbackForm")
+    security.declareProtected(add_feedback_permission, "manage_deleteFeedbackForm")
     manage_deleteFeedbackForm = PageTemplateFile("zpt/feedback/delete.zpt", globals())
 
-    security.declareProtected("Change Envelopes", "manage_addDocumentForm")
+    security.declareProtected(change_envelopes, "manage_addDocumentForm")
     manage_addDocumentForm = Document.manage_addDocumentForm
-    security.declareProtected("Change Envelopes", "manage_addDocument")
+    security.declareProtected(change_envelopes, "manage_addDocument")
     manage_addDocument = Document.manage_addDocument
 
-    security.declareProtected("Add Envelopes", "manage_addHyperlinkForm")
+    security.declareProtected(add_envelopes, "manage_addHyperlinkForm")
     manage_addHyperlinkForm = Hyperlink.manage_addHyperlinkForm
-    security.declareProtected("Add Envelopes", "manage_addHyperlink")
+    security.declareProtected(add_envelopes, "manage_addHyperlink")
     manage_addHyperlink = Hyperlink.manage_addHyperlink
 
     ##################################################
     # Zip/unzip functions
     ##################################################
 
-    security.declareProtected("Add Envelopes", "manage_addzipfileform")
+    security.declareProtected(add_envelopes, "manage_addzipfileform")
     manage_addzipfileform = PageTemplateFile("zpt/envelope/add_zip.zpt", globals())
 
     security.declareProtected("View", "envelope_zip")
@@ -1768,7 +1776,7 @@ class Envelope(
         )
         return id
 
-    security.declareProtected("Add Envelopes", "manage_addzipfile")
+    security.declareProtected(add_envelopes, "manage_addzipfile")
 
     @refuse_when_frozen
     def manage_addzipfile(self, file="", content_type="", restricted="", REQUEST=None):
@@ -2204,13 +2212,13 @@ class Envelope(
     # documents accepted status functions
     ##################################################
 
-    security.declareProtected("Change Feedback", "envelope_status")
+    security.declareProtected(change_feedback, "envelope_status")
     envelope_status = PageTemplateFile("zpt/envelope/statuses_section.zpt", globals())
 
-    security.declareProtected("Change Feedback", "envelope_status_bulk")
+    security.declareProtected(change_feedback, "envelope_status_bulk")
     envelope_status_bulk = PageTemplateFile("zpt/envelope/statusesbulk.zpt", globals())
 
-    security.declareProtected("Change Feedback", "getEnvelopeDocuments")
+    security.declareProtected(change_feedback, "getEnvelopeDocuments")
 
     def getEnvelopeDocuments(self, sortby="id", how="desc", start=1, howmany=10):
         """ """
@@ -2248,7 +2256,7 @@ class Envelope(
             "result": pg.object_list,
         }
 
-    security.declareProtected("Change Feedback", "setAcceptTime")
+    security.declareProtected(change_feedback, "setAcceptTime")
 
     def setAcceptTime(
         self, ids="", sortby="id", how="desc", qs=1, size=20, REQUEST=None

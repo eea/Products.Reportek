@@ -14,6 +14,8 @@ from zope.interface import implementer
 import Products
 from functools import reduce
 
+LOCKDOWN_EMAILS_NOT_SENT = "Lockdown notification emails of %s not sent"
+
 logger = logging.getLogger("Reportek")
 
 
@@ -589,7 +591,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 if not response:
                     email_sending_failed = True
                 if email_sending_failed:
-                    logger.warning("Lockdown notification emails of %s not sent" % path)
+                    logger.warning(LOCKDOWN_EMAILS_NOT_SENT % path)
 
                 return unverifyResponse
 
@@ -681,7 +683,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if not response:
             email_sending_failed = True
         if email_sending_failed:
-            logger.warning("Lockdown notification emails of %s not sent" % path)
+            logger.warning(LOCKDOWN_EMAILS_NOT_SENT % path)
 
     def _unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
         path = self.buildCollectionPath(
@@ -709,7 +711,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             email_sending_failed = True
 
         if email_sending_failed:
-            logger.warning("Lockdown notification emails of %s not sent" % path)
+            logger.warning(LOCKDOWN_EMAILS_NOT_SENT % path)
 
     def lockedCompany(self, company_id, old_collection_id, country_code, domain):
         path = self.buildCollectionPath(

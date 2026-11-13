@@ -45,7 +45,12 @@ from ZPublisher.BaseRequest import BaseRequest
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.constants import DEFAULT_CATALOG, ENGINE_ID, METATYPE_WORKITEM
+from Products.Reportek.constants import (
+    CONTENT_TYPE_JSON,
+    DEFAULT_CATALOG,
+    ENGINE_ID,
+    METATYPE_WORKITEM,
+)
 from Products.Reportek.exceptions import ApplicationException
 
 # Product specific imports
@@ -56,6 +61,7 @@ from Products.Reportek.RemoteRabbitMQQAApplication import (
 )
 from Products.Reportek.RepUtils import getToolByName, refuse_when_frozen
 from Products.Reportek.workitem import workitem
+from Products.Reportek.permissions import manage_openflow, use_openflow
 
 try:
     # do you have CMF?
@@ -108,10 +114,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         )
 
     # History of the envelope for administrators
-    security.declareProtected("Manage OpenFlow", "manage_history_html")
+    security.declareProtected(manage_openflow, "manage_history_html")
     manage_history_html = PageTemplateFile("zpt/envelope/manage_history", globals())
 
-    security.declareProtected("Manage OpenFlow", "chooseFallin")
+    security.declareProtected(manage_openflow, "chooseFallin")
     chooseFallin = PageTemplateFile("zpt/envelope/choose_fallin", globals())
 
     security.declarePublic("activity_operations")
@@ -152,7 +158,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         process = self.unrestrictedTraverse(self.process_path, None)
         return getattr(process, activity_id, None)
 
-    security.declareProtected("Use OpenFlow", "getApplicationUrl")
+    security.declareProtected(use_openflow, "getApplicationUrl")
 
     def getApplicationUrl(self, workitem_id):
         """Return application definition URL relative to instance and
@@ -305,7 +311,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 return True
         return False
 
-    security.declareProtected("Use OpenFlow", "getActiveWorkitems")
+    security.declareProtected(use_openflow, "getActiveWorkitems")
 
     def getActiveWorkitems(self):
         """returns all active workitems"""
@@ -350,7 +356,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def isActiveOrRunning(self):
         return self.status in ("active", "running")
 
-    security.declareProtected("Manage OpenFlow", "suspendInstance")
+    security.declareProtected(manage_openflow, "suspendInstance")
 
     def suspendInstance(self, REQUEST=None):
         """suspend a specified instance"""
@@ -367,7 +373,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
-    security.declareProtected("Manage OpenFlow", "resumeInstance")
+    security.declareProtected(manage_openflow, "resumeInstance")
 
     def resumeInstance(self, REQUEST=None):
         """resume a specified instance"""
@@ -384,7 +390,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
-    security.declareProtected("Manage OpenFlow", "handle_wk_response")
+    security.declareProtected(manage_openflow, "handle_wk_response")
 
     def handle_wk_response(self, workitem):
         # Handle responses for wk actions
@@ -399,8 +405,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             }
         }
         if getattr(self, "REQUEST"):
-            if self.REQUEST.environ.get("HTTP_ACCEPT") == "application/json":
-                self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+            if self.REQUEST.environ.get("HTTP_ACCEPT") == CONTENT_TYPE_JSON:
+                self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
                 return json.dumps(data, indent=4)
             if "DestinationURL" in self.REQUEST:
                 self.REQUEST.RESPONSE.redirect(self.REQUEST["DestinationURL"])
@@ -408,7 +414,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.REQUEST.RESPONSE.redirect(self.REQUEST["HTTP_REFERER"])
         return json.dumps(data, indent=4)
 
-    security.declareProtected("Manage OpenFlow", "terminateInstance")
+    security.declareProtected(manage_openflow, "terminateInstance")
 
     def terminateInstance(self, REQUEST=None):
         """terminate a specified instance"""
@@ -424,7 +430,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
-    security.declareProtected("Use OpenFlow", "startInstance")
+    security.declareProtected(use_openflow, "startInstance")
 
     @refuse_when_frozen
     def startInstance(self, REQUEST=None):
@@ -454,7 +460,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             w.setGraphLevel(workitem_from.graph_level + 1)
         self._invalidate_qa_cache()
 
-    security.declareProtected("Use OpenFlow", "assignWorkitem")
+    security.declareProtected(use_openflow, "assignWorkitem")
 
     @refuse_when_frozen
     def assignWorkitem(self, workitem_id, actor, REQUEST=None):
@@ -488,7 +494,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             workitem.assignTo(actor)
         return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "unassignWorkitem")
+    security.declareProtected(use_openflow, "unassignWorkitem")
 
     @refuse_when_frozen
     def unassignWorkitem(self, workitem_id, REQUEST=None):
@@ -502,7 +508,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     # unless you have given it as an argument. This seems strange given
     # that activateWorkitem (at least for Reportek) serves to 'reserve' the
     # workitem to a specific worker.
-    security.declareProtected("Use OpenFlow", "activateWorkitem")
+    security.declareProtected(use_openflow, "activateWorkitem")
 
     @refuse_when_frozen
     def activateWorkitem(self, workitem_id, actor=None, REQUEST=None):
@@ -535,7 +541,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self._invalidate_qa_cache()
         return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "inactivateWorkitem")
+    security.declareProtected(use_openflow, "inactivateWorkitem")
 
     @refuse_when_frozen
     def inactivateWorkitem(self, workitem_id, REQUEST=None):
@@ -558,7 +564,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.setStatus(status="running", actor=actor)
         return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "suspendWorkitem")
+    security.declareProtected(use_openflow, "suspendWorkitem")
 
     @refuse_when_frozen
     def suspendWorkitem(self, workitem_id, REQUEST=None):
@@ -581,7 +587,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.setStatus(status="running", actor=actor)
         return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "resumeWorkitem")
+    security.declareProtected(use_openflow, "resumeWorkitem")
 
     @refuse_when_frozen
     def resumeWorkitem(self, workitem_id, REQUEST=None):
@@ -602,7 +608,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self._invalidate_qa_cache()
         return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "completeWorkitem")
+    security.declareProtected(use_openflow, "completeWorkitem")
 
     @refuse_when_frozen
     def completeWorkitem(self, workitem_id, actor=None, REQUEST=None):
@@ -655,7 +661,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.forwardWorkitem(workitem_id)
             return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "forwardState")
+    security.declareProtected(use_openflow, "forwardState")
 
     @refuse_when_frozen
     def forwardState(self, REQUEST=None):
@@ -704,7 +710,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         process = self.restrictedTraverse(self.process_path)
         return process.end == activity_id
 
-    security.declareProtected("Use OpenFlow", "getNextTransitions")
+    security.declareProtected(use_openflow, "getNextTransitions")
 
     def getNextTransitions(self, workitem_id):
         """Returns the list of transition that the given workitem (of the
@@ -821,7 +827,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         else:
             self.forwardWorkitem(workitem_id)
 
-    security.declareProtected("Use OpenFlow", "forwardWorkitem")
+    security.declareProtected(use_openflow, "forwardWorkitem")
 
     @refuse_when_frozen
     def forwardWorkitem(self, workitem_id, path=None, REQUEST=None):
@@ -889,7 +895,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         else:
             return ""
 
-    security.declareProtected("Use OpenFlow", "changeWorkitem")
+    security.declareProtected(use_openflow, "changeWorkitem")
 
     @refuse_when_frozen
     def changeWorkitem(
@@ -933,7 +939,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             workitem._p_changed = 1
         return self.handle_wk_response(workitem)
 
-    security.declareProtected("Use OpenFlow", "falloutWorkitem")
+    security.declareProtected(use_openflow, "falloutWorkitem")
 
     @refuse_when_frozen
     def falloutWorkitem(self, workitem_id, REQUEST=None):
@@ -957,7 +963,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         ):
             self.falloutWorkitem(wi.id)
 
-    security.declareProtected("Manage OpenFlow", "fallinWorkitem")
+    security.declareProtected(manage_openflow, "fallinWorkitem")
 
     def fallinWorkitem(self, workitem_id, activity_id, coming_from=None, REQUEST=None):
         """the exceptional specified workitem (of the specified instance)
@@ -997,7 +1003,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             else:
                 REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
-    security.declareProtected("Manage OpenFlow", "endFallinWorkitem")
+    security.declareProtected(manage_openflow, "endFallinWorkitem")
 
     def endFallinWorkitem(self, workitem_id, REQUEST=None):
         """Ends the exceptional state of the given workitem"""
@@ -1027,7 +1033,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     #   Activities and applications
     ###########################################
 
-    security.declareProtected("Use OpenFlow", "manageDummyActivity")
+    security.declareProtected(use_openflow, "manageDummyActivity")
 
     def manageDummyActivity(self, workitem_id):
         """ """
@@ -1036,7 +1042,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if not self.isEnd(self.getActivity(workitem_id).id):
             self.forwardWorkitem(workitem_id)
 
-    security.declareProtected("Use OpenFlow", "startAutomaticApplication")
+    security.declareProtected(use_openflow, "startAutomaticApplication")
 
     def startAutomaticApplication(self, workitem_id, REQUEST=None):
         """ """
@@ -1364,11 +1370,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if is_lr and unfinished:
                 return True
 
-    security.declareProtected("Use OpenFlow", "get_wk_metadata")
+    security.declareProtected(use_openflow, "get_wk_metadata")
 
     def get_wk_metadata(self, workitem_id, REQUEST=None):
         """Used to get the last history entry"""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         wk = getattr(self, workitem_id, None)
 
         result = {}

@@ -1,6 +1,11 @@
 from .base_admin import BaseAdmin
 from operator import itemgetter
-from Products.Reportek.constants import ENGINE_ID, ECAS_ID, DEFAULT_CATALOG
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    ECAS_ID,
+    ENGINE_ID,
+    REPORTER_OWNER_ROLE,
+)
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.rabbitmq import queue_msg
@@ -48,7 +53,7 @@ class ManageRoles(BaseAdmin):
         role = self.request.get("role", "")
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if role == "Reporter (Owner)":
+            if role == REPORTER_OWNER_ROLE:
                 role = "Owner"
 
         search_type = self.request.get("search_type")
@@ -126,7 +131,7 @@ class ManageRoles(BaseAdmin):
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             sync_transfers = True
-            if role == "Reporter (Owner)":
+            if role == REPORTER_OWNER_ROLE:
                 role = "Owner"
 
         if search_type == "groups":
@@ -147,7 +152,7 @@ class ManageRoles(BaseAdmin):
                 revoke_roles = [revoke_roles]
             roles = set(obj.get_local_roles_for_userid(entity))
             for r in revoke_roles:
-                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and r == "Reporter (Owner)":
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and r == REPORTER_OWNER_ROLE:
                     roles.remove("Owner")
                 else:
                     roles.remove(r)

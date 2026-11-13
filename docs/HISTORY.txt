@@ -3,6 +3,17 @@ Changelog
 
 101.1-dev0 - (unreleased)
 ---------------------------
+* refactor: the names of the permissions (Change Envelopes, Manage OpenFlow,
+        Add Feedback, ...) are constants in permissions.py, and config.py
+        uses them, the content types (text/html, text/xml, application/json)
+        and the path of the user folder are constants in constants.py, and
+        the label of the role of the owner is a constant too, and the
+        strings that are repeated in a module (the messages of
+        RemoteApplication, Feedback and RegistryManagement, the dates of
+        BaseDelivery and envelope_utils, the names in OpenFlowEngine,
+        RemoteFMEConversionApplication, session, ...) are constants of
+        their modules; the values are the same, and so are the permissions
+        of every method; add tests
 * refactor: the meta_type of the content classes (Report Document, Report
         Envelope, Report Collection, Report Feedback, Workitem, ...) is a
         constant in constants.py, which the classes and the code that looks

@@ -43,6 +43,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
 from Products.Reportek.rabbitmq import queue_msg
+from Products.Reportek.constants import CONTENT_TYPE_HTML
 
 from .Document import Document
 
@@ -294,7 +295,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     r_files = [r_files]
                 for r_file in r_files:
                     c_type = job_result.get("feedbackContentType")
-                    c_type = c_type if c_type else "text/html"
+                    c_type = c_type if c_type else CONTENT_TYPE_HTML
                     fb_status = job_result.get("feedbackStatus")
                     fb_status = fb_status if fb_status else "UNKNOWN"
                     e_data = {
@@ -335,7 +336,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 content = content if content else "N/A"
                 content_type = job_result.get("feedbackContentType")
                 if not content_type:
-                    content_type = "text/html"
+                    content_type = CONTENT_TYPE_HTML
 
                 self.store_feedback_content(
                     feedback_ob,
@@ -529,7 +530,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             res = self.makeHTTPRequest(url, method="POST", data=data)
             if res.status_code == 200:
                 result = res.json()
-                c_type = result.get("feedbackContentType", "text/html")
+                c_type = result.get("feedbackContentType", CONTENT_TYPE_HTML)
                 # Creating a class here to preserve backwards compatibility
 
                 class ODQA(object):

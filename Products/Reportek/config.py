@@ -15,6 +15,7 @@
 import os
 
 from App.config import getConfiguration
+from Products.Reportek.permissions import change_collections, change_envelopes
 
 __all__ = [
     "REPORTEK_DEPLOYMENT",
@@ -104,8 +105,8 @@ if not ZIP_CACHE_PATH:
         ZIP_CACHE_PATH = CLIENT_HOME  # noqa
 
 if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
-    permission_manage_properties_collections = "Change Collections"
-    permission_manage_properties_envelopes = "Change Envelopes"
+    permission_manage_properties_collections = change_collections
+    permission_manage_properties_envelopes = change_envelopes
 
 elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     permission_manage_properties_collections = "Manage properties"

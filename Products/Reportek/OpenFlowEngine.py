@@ -44,6 +44,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.constants import METATYPE_PROCESS, METATYPE_WORKITEM
+from Products.Reportek.permissions import manage_openflow
 
 from . import RepUtils, process
 
@@ -53,6 +54,8 @@ from .exceptions import CannotPickProcess, NoProcessAvailable
 # from webdav.WriteLockInterface import WriteLockInterface
 # product imports
 from .Toolz import Toolz
+
+INVALID_RID = "Invalid rid"
 
 logger = logging.getLogger("Reportek")
 
@@ -138,7 +141,7 @@ class OpenFlowEngine(Folder, Toolz):
             {
                 "name": METATYPE_PROCESS,
                 "action": "manage_addProcessForm",
-                "permission": "Manage OpenFlow",
+                "permission": manage_openflow,
             }
         ]
 
@@ -147,43 +150,43 @@ class OpenFlowEngine(Folder, Toolz):
                 y.append(x)
         return y
 
-    security.declareProtected("Manage OpenFlow", "manage_addProcess")
+    security.declareProtected(manage_openflow, "manage_addProcess")
     manage_addProcess = process.manage_addProcess
 
-    security.declareProtected("Manage OpenFlow", "manage_addProcessForm")
+    security.declareProtected(manage_openflow, "manage_addProcessForm")
     manage_addProcessForm = process.manage_addProcessForm
 
-    security.declareProtected("Manage OpenFlow", "manage_addApplicationForm")
+    security.declareProtected(manage_openflow, "manage_addApplicationForm")
     manage_addApplicationForm = PageTemplateFile(
         "zpt/Workflow/application_add", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "manage_editApplicationForm")
+    security.declareProtected(manage_openflow, "manage_editApplicationForm")
     manage_editApplicationForm = PageTemplateFile(
         "zpt/Workflow/application_edit", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "manage_editActivitiesPushableOnRole")
+    security.declareProtected(manage_openflow, "manage_editActivitiesPushableOnRole")
     manage_editActivitiesPushableOnRole = PageTemplateFile(
         "zpt/Workflow/manage_editActivitiesPushableOnRole", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "manage_editActivitiesPullableOnRole")
+    security.declareProtected(manage_openflow, "manage_editActivitiesPullableOnRole")
     manage_editActivitiesPullableOnRole = PageTemplateFile(
         "zpt/Workflow/manage_editActivitiesPullableOnRole", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "Roles")
+    security.declareProtected(manage_openflow, "Roles")
     Roles = PageTemplateFile("zpt/Workflow/workflowRoles", globals())
 
-    security.declareProtected("Manage OpenFlow", "Applications")
+    security.declareProtected(manage_openflow, "Applications")
     Applications = PageTemplateFile("zpt/Workflow/workflowApplications", globals())
 
     ##################################################
     # Openflow specific functions                    #
     ##################################################
 
-    security.declareProtected("Manage OpenFlow", "editActivitiesPushableOnRole")
+    security.declareProtected(manage_openflow, "editActivitiesPushableOnRole")
 
     def editActivitiesPushableOnRole(
         self, role, process, activities=None, REQUEST=None
@@ -238,14 +241,14 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             REQUEST.RESPONSE.redirect("Roles")
 
-    security.declareProtected("Manage OpenFlow", "getActivitiesPushableOnRole")
+    security.declareProtected(manage_openflow, "getActivitiesPushableOnRole")
 
     def getActivitiesPushableOnRole(self):
         """ """
         return self._activitiesPushableOnRole
 
     security.declareProtected(
-        "Manage OpenFlow", "deleteProcessWithActivitiesPushableOnRole"
+        manage_openflow, "deleteProcessWithActivitiesPushableOnRole"
     )
 
     def deleteProcessWithActivitiesPushableOnRole(self, role, process):
@@ -257,7 +260,7 @@ class OpenFlowEngine(Folder, Toolz):
                     self.deleteRoleWithActivitiesPushable(role)
         self._p_changed = 1
 
-    security.declareProtected("Manage OpenFlow", "deleteRoleWithActivitiesPushable")
+    security.declareProtected(manage_openflow, "deleteRoleWithActivitiesPushable")
 
     def deleteRoleWithActivitiesPushable(self, role):
         """Delete a role"""
@@ -265,14 +268,14 @@ class OpenFlowEngine(Folder, Toolz):
             del self._activitiesPushableOnRole[role]
         self._p_changed = 1
 
-    security.declareProtected("Manage OpenFlow", "addRoleWithActivitiesPushable")
+    security.declareProtected(manage_openflow, "addRoleWithActivitiesPushable")
 
     def addRoleWithActivitiesPushable(self, role, process):
         """Add a role"""
         self._activitiesPushableOnRole[role] = {}
         self._p_changed = 1
 
-    security.declareProtected("Manage OpenFlow", "editActivitiesPullableOnRole")
+    security.declareProtected(manage_openflow, "editActivitiesPullableOnRole")
 
     def editActivitiesPullableOnRole(
         self, role, process, activities=None, REQUEST=None
@@ -327,19 +330,19 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             REQUEST.RESPONSE.redirect("Roles")
 
-    security.declareProtected("Manage OpenFlow", "getActivitiesPullableOnRole")
+    security.declareProtected(manage_openflow, "getActivitiesPullableOnRole")
 
     def getActivitiesPullableOnRole(self):
         """ """
         return self._activitiesPullableOnRole
 
-    security.declareProtected("Manage OpenFlow", "getRestrictionsOnRole")
+    security.declareProtected(manage_openflow, "getRestrictionsOnRole")
 
     def getRestrictionsOnRole(self):
         """ """
         return getattr(self, "_restrictionsOnRole", PersistentMapping())
 
-    security.declareProtected("Manage OpenFlow", "setRestrictionsOnRole")
+    security.declareProtected(manage_openflow, "setRestrictionsOnRole")
 
     def setRestrictionsOnRole(
         self, process, permission, roles, acquire=0, REQUEST=None
@@ -353,7 +356,7 @@ class OpenFlowEngine(Folder, Toolz):
         self._restrictionsOnRole = restrictions
 
     security.declareProtected(
-        "Manage OpenFlow", "deleteProcessWithActivitiesPullableOnRole"
+        manage_openflow, "deleteProcessWithActivitiesPullableOnRole"
     )
 
     def deleteProcessWithActivitiesPullableOnRole(self, role, process):
@@ -365,7 +368,7 @@ class OpenFlowEngine(Folder, Toolz):
                     self.deleteRoleWithActivitiesPullable(role)
         self._p_changed = 1
 
-    security.declareProtected("Manage OpenFlow", "deleteRoleWithActivitiesPullable")
+    security.declareProtected(manage_openflow, "deleteRoleWithActivitiesPullable")
 
     def deleteRoleWithActivitiesPullable(self, role):
         """Delete a role"""
@@ -373,7 +376,7 @@ class OpenFlowEngine(Folder, Toolz):
             del self._activitiesPullableOnRole[role]
         self._p_changed = 1
 
-    security.declareProtected("Manage OpenFlow", "addRoleWithActivitiesPullable")
+    security.declareProtected(manage_openflow, "addRoleWithActivitiesPullable")
 
     def addRoleWithActivitiesPullable(self, role, process):
         """Add a role"""
@@ -417,7 +420,7 @@ class OpenFlowEngine(Folder, Toolz):
                     return 1
         return 0
 
-    security.declareProtected("Manage OpenFlow", "deleteProcess")
+    security.declareProtected(manage_openflow, "deleteProcess")
 
     def deleteProcess(self, proc_ids=None, REQUEST=None):
         """removes specified process"""
@@ -463,7 +466,7 @@ class OpenFlowEngine(Folder, Toolz):
     # Applications stuff                             #
     ##################################################
 
-    security.declareProtected("Manage OpenFlow", "addApplication")
+    security.declareProtected(manage_openflow, "addApplication")
 
     def addApplication(self, name, link, REQUEST=None):
         """adds an application declaration"""
@@ -478,7 +481,7 @@ class OpenFlowEngine(Folder, Toolz):
                 return True
         return False
 
-    security.declareProtected("Manage OpenFlow", "deleteApplication")
+    security.declareProtected(manage_openflow, "deleteApplication")
 
     def deleteApplication(self, app_ids=None, REQUEST=None):
         """removes an application"""
@@ -488,7 +491,7 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
-    security.declareProtected("Manage OpenFlow", "editApplication")
+    security.declareProtected(manage_openflow, "editApplication")
 
     def editApplication(self, name, link, REQUEST=None):
         """edits an application declaration"""
@@ -652,7 +655,7 @@ class OpenFlowEngine(Folder, Toolz):
                 checkValidId(self, pr_id)
             except Exception as e:
                 raise OpenFlowEngineImportError(
-                    "Invalid rid", pr.get("rid", None), e.args
+                    INVALID_RID, pr.get("rid", None), e.args
                 )
 
             self.manage_addProcess(
@@ -674,7 +677,7 @@ class OpenFlowEngine(Folder, Toolz):
                     checkAsciiId(act_id)
                     checkValidId(process, act_id)
                 except Exception:
-                    raise OpenFlowEngineImportError("Invalid rid", act.get("rid", None))
+                    raise OpenFlowEngineImportError(INVALID_RID, act.get("rid", None))
                 process.addActivity(
                     act_id,
                     act["split_mode"],
@@ -711,9 +714,7 @@ class OpenFlowEngine(Folder, Toolz):
                     checkAsciiId(trans_id)
                     checkValidId(process, trans_id)
                 except Exception:
-                    raise OpenFlowEngineImportError(
-                        "Invalid rid", trans.get("rid", None)
-                    )
+                    raise OpenFlowEngineImportError(INVALID_RID, trans.get("rid", None))
                 process.addTransition(
                     trans_id,
                     str(trans["from"]),
@@ -741,7 +742,7 @@ class OpenFlowEngine(Folder, Toolz):
 
         return applications
 
-    security.declareProtected("Manage OpenFlow", "importFromJson")
+    security.declareProtected(manage_openflow, "importFromJson")
 
     def importFromJson(self, file, REQUEST=None):
         """Reconstructs the workflow from a .json file"""
@@ -791,7 +792,7 @@ class OpenFlowEngine(Folder, Toolz):
                  Reason: %s"
                 % str(e.args)
             )  # noqa: F821
-            if "Invalid rid" in e.args[0]:
+            if INVALID_RID in e.args[0]:
                 message = (
                     "Failed to import. Id %s is invalid or\
                             already exists."
@@ -840,7 +841,7 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             return self.workflow_impex(self, REQUEST, manage_tabs_message=message)
 
-    security.declareProtected("Manage OpenFlow", "workflow_impex")
+    security.declareProtected(manage_openflow, "workflow_impex")
     workflow_impex = PageTemplateFile("zpt/Workflow/workflowImpEx", globals())
 
     ##################################################
@@ -876,7 +877,7 @@ class OpenFlowEngine(Folder, Toolz):
                 l_return_dict[l_process_id] = self.process_mappings[l_process_id]
         return l_return_dict
 
-    security.declareProtected("Manage OpenFlow", "setProcessMappings")
+    security.declareProtected(manage_openflow, "setProcessMappings")
 
     def setProcessMappings(
         self,
@@ -904,7 +905,7 @@ class OpenFlowEngine(Folder, Toolz):
                 "workflow_map_processes?manage_tabs_message=Properties changed"
             )
 
-    security.declareProtected("Manage OpenFlow", "get_process_colls")
+    security.declareProtected(manage_openflow, "get_process_colls")
 
     def get_process_colls(self, process_id):
         """Return the collections with the dataflow_uris mapped to this
@@ -1010,17 +1011,17 @@ class OpenFlowEngine(Folder, Toolz):
         """countries table is aquired from root of ZODB"""
         return getattr(self, constants.ENGINE_ID).localities_table()
 
-    security.declareProtected("Manage OpenFlow", "workflow_map_processes")
+    security.declareProtected(manage_openflow, "workflow_map_processes")
     workflow_map_processes = PageTemplateFile(
         "zpt/Workflow/workflowMapProcesses", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "workflow_map_process")
+    security.declareProtected(manage_openflow, "workflow_map_process")
     workflow_map_process = PageTemplateFile(
         "zpt/Workflow/workflowMapProcess", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "handle_workflow_map_processes")
+    security.declareProtected(manage_openflow, "handle_workflow_map_processes")
 
     def handle_workflow_map_processes(self, REQUEST=None):
         """Handler for workflow_map_processes form"""

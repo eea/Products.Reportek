@@ -21,6 +21,7 @@ from Products.Reportek.constants import (
     METATYPE_PROCESS,
     METATYPE_TRANSITION,
 )
+from Products.Reportek.permissions import manage_openflow
 
 # Product imports
 from .activity import activity
@@ -145,20 +146,20 @@ class process(CatalogAware, Folder):
     def restricted(self, value):
         self._restricted = value
 
-    security.declareProtected("Manage OpenFlow", "manage_addActivityForm")
+    security.declareProtected(manage_openflow, "manage_addActivityForm")
     manage_addActivityForm = PageTemplateFile(
         "zpt/Workflow/activity_add.zpt", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "manage_addTransitionForm")
+    security.declareProtected(manage_openflow, "manage_addTransitionForm")
     manage_addTransitionForm = PageTemplateFile(
         "zpt/Workflow/transition_add.zpt", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "index_html")
+    security.declareProtected(manage_openflow, "index_html")
     index_html = PageTemplateFile("zpt/Workflow/process_map.zpt", globals())
 
-    security.declareProtected("Manage OpenFlow", "jsIeSupport")
+    security.declareProtected(manage_openflow, "jsIeSupport")
 
     def jsIeSupport(self):
         return """<!--[if IE]>
@@ -169,12 +170,12 @@ class process(CatalogAware, Folder):
     </script>
 <![endif]-->""" % self.absolute_url()
 
-    security.declareProtected("Manage OpenFlow", "manage_process_restrictions")
+    security.declareProtected(manage_openflow, "manage_process_restrictions")
     manage_process_restrictions = PageTemplateFile(
         "zpt/Workflow/process_restrictions.zpt", globals()
     )
 
-    security.declareProtected("Manage OpenFlow", "manage_role_table")
+    security.declareProtected(manage_openflow, "manage_role_table")
     manage_role_table = PageTemplateFile(
         "zpt/Workflow/manage_role_table.zpt", globals()
     )
@@ -199,7 +200,7 @@ class process(CatalogAware, Folder):
         p_restrictions = self.get_process_restrictions()
         return p_restrictions.get("Acquire", False)
 
-    security.declareProtected("Manage OpenFlow", "manage_restrictions_table_submit")
+    security.declareProtected(manage_openflow, "manage_restrictions_table_submit")
 
     def manage_restrictions_table_submit(self):
         """Modify View permission role assignment for collections with
@@ -313,7 +314,7 @@ class process(CatalogAware, Folder):
             froms.append(t.From)
         return self._topsort(transpairs)
 
-    security.declareProtected("Manage OpenFlow", "addActivity")
+    security.declareProtected(manage_openflow, "addActivity")
 
     def addActivity(
         self,
@@ -356,7 +357,7 @@ class process(CatalogAware, Folder):
         if REQUEST:
             REQUEST.RESPONSE.redirect("index_html")
 
-    security.declareProtected("Manage OpenFlow", "addTransition")
+    security.declareProtected(manage_openflow, "addTransition")
 
     def addTransition(self, id, From, To, condition=None, description="", REQUEST=None):
         """adds a transition"""
@@ -365,7 +366,7 @@ class process(CatalogAware, Folder):
         if REQUEST:
             REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
-    security.declareProtected("Manage OpenFlow", "manage_delObjects")
+    security.declareProtected(manage_openflow, "manage_delObjects")
 
     def manage_delObjects(self, ids=[], REQUEST=None):
         """override default method to handle better the redirection"""

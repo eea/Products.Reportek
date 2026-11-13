@@ -70,6 +70,7 @@ from Products.Reportek.BdrAuthorizationMiddleware import (
 )
 from Products.Reportek.clamav import AVService
 from Products.Reportek.constants import (
+    CONTENT_TYPE_JSON,
     DEFAULT_CATALOG,
     ECAS_ID,
     METATYPE_COLLECTION,
@@ -82,6 +83,7 @@ from Products.Reportek.RegistryManagement import (
     FGASRegistryAPI,
 )
 from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.permissions import audit_envelopes
 
 # product imports
 from . import RepUtils, constants
@@ -1206,7 +1208,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return
 
         response = self.REQUEST.RESPONSE
-        response.setHeader("Content-Type", "application/json")
+        response.setHeader("Content-Type", CONTENT_TYPE_JSON)
 
         def create_error_response(message, status_code=404):
             response.setStatus(status_code)
@@ -1279,20 +1281,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return create_success_response(success_msg)
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        security.declareProtected("Audit Envelopes", "globalworklist")
-        security.declareProtected("Audit Envelopes", "searchfeedbacks")
-        security.declareProtected("Audit Envelopes", "resultsfeedbacks")
-        security.declareProtected("Audit Envelopes", "recent")
-        security.declareProtected("Audit Envelopes", "recent_released")
-        security.declareProtected("Audit Envelopes", "searchxml")
-        security.declareProtected("Audit Envelopes", "resultsxml")
-        security.declareProtected("Audit Envelopes", "search_dataflow")
-        security.declareProtected("Audit Envelopes", "search_dataflow_url")
-        security.declareProtected("Audit Envelopes", "lookup_last_delivery")
-        security.declareProtected("Audit Envelopes", "getEnvelopesInfo")
-        security.declareProtected("Audit Envelopes", "getSearchResults")
-        security.declareProtected("Audit Envelopes", "getBatchSearchResults")
-        security.declareProtected("Audit Envelopes", "getUniqueValuesFor")
+        security.declareProtected(audit_envelopes, "globalworklist")
+        security.declareProtected(audit_envelopes, "searchfeedbacks")
+        security.declareProtected(audit_envelopes, "resultsfeedbacks")
+        security.declareProtected(audit_envelopes, "recent")
+        security.declareProtected(audit_envelopes, "recent_released")
+        security.declareProtected(audit_envelopes, "searchxml")
+        security.declareProtected(audit_envelopes, "resultsxml")
+        security.declareProtected(audit_envelopes, "search_dataflow")
+        security.declareProtected(audit_envelopes, "search_dataflow_url")
+        security.declareProtected(audit_envelopes, "lookup_last_delivery")
+        security.declareProtected(audit_envelopes, "getEnvelopesInfo")
+        security.declareProtected(audit_envelopes, "getSearchResults")
+        security.declareProtected(audit_envelopes, "getBatchSearchResults")
+        security.declareProtected(audit_envelopes, "getUniqueValuesFor")
     else:
         security.declareProtected("View", "globalworklist")
         security.declareProtected("View", "searchfeedbacks")
@@ -1561,7 +1563,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 import json
             except ImportError:
                 return resp
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+            REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(resp, indent=4)
         return None
 
@@ -1980,7 +1982,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         os.path.join(package_home(globals()), "zpt/engine/migration_table.zpt")
     )
 
-    security.declareProtected("View management screens", "migration_table")
+    security.declareProtected(view_management_screens, "migration_table")
 
     def migration_table(self):
         """List all migrations applied to this deployment and their details"""
@@ -2274,7 +2276,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return "Lock updated."
         return "Locked {} obligation(s).".format(len(uris))
 
-    security.declareProtected("View management screens", "obligation_locks_table")
+    security.declareProtected(view_management_screens, "obligation_locks_table")
 
     def obligation_locks_table(self):
         """Manage the obligations closed to reporting"""
@@ -2306,7 +2308,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             message_dialog=message,
         )
 
-    security.declareProtected("View management screens", "manage_editUNSInterface")
+    security.declareProtected(view_management_screens, "manage_editUNSInterface")
 
     def manage_editUNSInterface(
         self,
@@ -2639,7 +2641,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             <rel_uri>/%s</rel_uri>
         </envelope>""" % file_obj.getMySelf().absolute_url(1)
 
-    security.declareProtected("View management screens", "manage_raise_exception")
+    security.declareProtected(view_management_screens, "manage_raise_exception")
 
     def manage_raise_exception(self):
         """Generate exception to check that it's handled properly"""
@@ -3038,7 +3040,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return xls.read()
 
-    security.declareProtected("View management screens", "zip_cache_cleanup")
+    security.declareProtected(view_management_screens, "zip_cache_cleanup")
 
     def zip_cache_cleanup(self, days=7):
         """Deletes files older than days."""
@@ -3048,10 +3050,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def jsonify(self, value, ensure_ascii=False):
         """Return the value as JSON"""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(value, indent=4, ensure_ascii=ensure_ascii)
 
-    security.declareProtected("View management screens", "get_left_menu_tmpl")
+    security.declareProtected(view_management_screens, "get_left_menu_tmpl")
 
     def get_left_menu_tmpl(self, username=None):
         """Get the left menu template for username."""
@@ -3118,7 +3120,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return result
 
-    security.declareProtected("View management screens", "sync_collection")
+    security.declareProtected(view_management_screens, "sync_collection")
 
     def sync_collection(self):
         """Sync local collection from remote collection"""
@@ -3145,7 +3147,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 }
                 try:
                     url = "/".join([remote_depl, collection, "metadata"])
-                    headers = {"Accept": "application/json"}
+                    headers = {"Accept": CONTENT_TYPE_JSON}
                     depl = self.REQUEST.SERVER_URL.split("://")[-1].split(".")[0]
                     data = {"deployment": depl}
                     res = requests.post(url, auth=auth, headers=headers, data=data)

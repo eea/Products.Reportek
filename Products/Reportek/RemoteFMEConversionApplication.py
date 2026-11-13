@@ -35,7 +35,10 @@ from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.constants import METATYPE_DOCUMENT
+from Products.Reportek.constants import CONTENT_TYPE_HTML, METATYPE_DOCUMENT
+from Products.Reportek.permissions import view_configuration
+
+RESOURCES_ZIP_NAME = "resources.zip"
 
 logger = logging.getLogger(__name__ + ".FME")
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
@@ -236,8 +239,8 @@ class RemoteFMEConversionApplication(SimpleItem):
         "delete_job",
     )
     security.declareProtected("Use OpenFlow", "__call__")
-    security.declareProtected("View configuration", "is_v4")
-    security.declareProtected("View configuration", "get_settings")
+    security.declareProtected(view_configuration, "is_v4")
+    security.declareProtected(view_configuration, "get_settings")
     security.declareProtected(view_management_screens, "has_secret")
     security.declareProtected(view_management_screens, "validate_settings")
 
@@ -246,7 +249,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         "zpt/RemoteFMEConversionApplicationSettings", globals()
     )
 
-    security.declareProtected("View configuration", "index_html")
+    security.declareProtected(view_configuration, "index_html")
     index_html = PageTemplateFile("zpt/RemoteFMEConversionApplicationView", globals())
 
     def __init__(
@@ -878,7 +881,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             payload = {
                 "path": path,
                 "items": items,
-                "zipFileName": "resources.zip",
+                "zipFileName": RESOURCES_ZIP_NAME,
             }
             res = requests.post(
                 url,
@@ -897,7 +900,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     "output",
                 ]
             )
-            params = {"zipFileName": "resources.zip", "fileNames": "."}
+            params = {"zipFileName": RESOURCES_ZIP_NAME, "fileNames": "."}
             headers["Content-Type"] = "application/x-www-form-urlencoded"
             res = requests.post(
                 url,
@@ -907,7 +910,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             )
         if res.status_code == 200:
             z = BytesIO(res.content)
-            z.filename = "resources.zip"
+            z.filename = RESOURCES_ZIP_NAME
             return env.manage_addDDzipfile(file=z, verbose=True)
         else:
             return (
@@ -1253,7 +1256,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 job_id,
                 msg,
                 inputfile=inputfile,
-                content_type="text/html",
+                content_type=CONTENT_TYPE_HTML,
             )
             self.__update_storage(
                 workitem,
@@ -1271,7 +1274,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 job_id,
                 msg,
                 inputfile=inputfile,
-                content_type="text/html",
+                content_type=CONTENT_TYPE_HTML,
             )
             self.__update_storage(
                 workitem,
@@ -1545,7 +1548,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         with doc.data_file.open() as f:
             content = f.read()
             text_content = self.ensure_text(content)
-            if doc.content_type == "text/html":
+            if doc.content_type == CONTENT_TYPE_HTML:
                 fb_status, fb_message = self.__parse_log_summary(text_content)
             if len(content) > FEEDBACKTEXT_LIMIT:
                 f.seek(0)
@@ -1559,7 +1562,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         '<a href="qa-output/view">see attachment</a>.'
                     ),
                 )
-                feedback_ob.content_type = "text/html"
+                feedback_ob.content_type = CONTENT_TYPE_HTML
             else:
                 feedback_ob.feedbacktext = text_content
                 feedback_ob.content_type = doc.content_type

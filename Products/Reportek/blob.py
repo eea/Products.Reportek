@@ -19,7 +19,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import RepUtils
 from Products.Reportek.gzipraw import GzipFileRaw
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
-from Products.Reportek.constants import METATYPE_BLOB_FILE
+from Products.Reportek.constants import CONTENT_TYPE_HTML, METATYPE_BLOB_FILE
 
 logger = logging.getLogger("Reportek")
 
@@ -48,7 +48,7 @@ class FileContainer(Persistent):
             "text/xml",
             "application/rdf+xml",
             "text/plain",
-            "text/html",
+            CONTENT_TYPE_HTML,
             "text/richtext",
             "application/vnd.ms-excel",
             "application/vnd.ms-powerpoint",
@@ -319,11 +319,11 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
 
     def view(self, REQUEST, RESPONSE):
         """View the content in a web page"""
-        if self.data_file.content_type.startswith("text/html"):
+        if self.data_file.content_type.startswith(CONTENT_TYPE_HTML):
             separator = "HEADER-FOOTER-SPLIT"
             html = self._view_tmpl(content=separator)
             header, footer = html.split(separator)
-            RESPONSE.setHeader("Content-Type", "text/html")
+            RESPONSE.setHeader("Content-Type", CONTENT_TYPE_HTML)
             data_file_handle = self.data_file.open()
 
             def chunks():

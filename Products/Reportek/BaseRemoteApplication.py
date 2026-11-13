@@ -5,7 +5,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
 from Products.Reportek.exceptions import LocalConversionException
 from ZODB.POSException import ConflictError
-from Products.Reportek.constants import FEEDBACKTEXT_LIMIT
+from Products.Reportek.constants import CONTENT_TYPE_HTML, FEEDBACKTEXT_LIMIT
 
 try:
     from cBytesIO import BytesIO
@@ -42,7 +42,7 @@ class BaseRemoteApplication(SimpleItem):
             return value.encode(encoding)
         return str(value).encode(encoding)
 
-    def normalize_content_type(self, content_type, default="text/html"):
+    def normalize_content_type(self, content_type, default=CONTENT_TYPE_HTML):
         content_type = self.ensure_text(content_type).strip()
         return content_type or default
 
@@ -50,7 +50,7 @@ class BaseRemoteApplication(SimpleItem):
         self,
         feedback_ob,
         content,
-        content_type="text/html",
+        content_type=CONTENT_TYPE_HTML,
         filename="qa-output",
         limit=None,
     ):
@@ -86,7 +86,7 @@ class BaseRemoteApplication(SimpleItem):
                 "Feedback too large for inline display; "
                 '<a href="{}/view">see attachment</a>.'.format(filename)
             )
-            feedback_ob.content_type = "text/html"
+            feedback_ob.content_type = CONTENT_TYPE_HTML
         else:
             text = self.ensure_text(content)
             feedback_ob.feedbacktext = text
@@ -146,7 +146,7 @@ class BaseRemoteApplication(SimpleItem):
                     preview = self.store_feedback_content(
                         feedback_ob,
                         content,
-                        "text/html",
+                        CONTENT_TYPE_HTML,
                         limit=FEEDBACKTEXT_LIMIT,
                     )
                     fb_status, fb_message = self.extract_metadata(
@@ -182,7 +182,7 @@ class BaseRemoteApplication(SimpleItem):
         )
         feedback_ob = envelope[feedback_id]
         content_type = l_ret.get("feedbackContentType")
-        content_type = content_type if content_type else "text/html"
+        content_type = content_type if content_type else CONTENT_TYPE_HTML
 
         content = rfile.read()
         self.store_feedback_content(
@@ -217,7 +217,7 @@ class BaseRemoteApplication(SimpleItem):
             result["status_code"] = r.status_code
             result["url"] = url
             ctype = l_ret.get("feedbackContentType", r.headers.get("Content-Type", ""))
-            ctype = ctype if ctype else "text/html"
+            ctype = ctype if ctype else CONTENT_TYPE_HTML
             result["content_type"] = ctype
             result["content_lenght"] = len(r.content)
 
@@ -237,7 +237,7 @@ class BaseRemoteApplication(SimpleItem):
                             job_id,
                             restricted=restricted,
                         )
-                elif "text/html" in result["content_type"]:
+                elif CONTENT_TYPE_HTML in result["content_type"]:
                     with closing(r), file_h as rfile:
                         self.add_html_feedback(
                             rfile,

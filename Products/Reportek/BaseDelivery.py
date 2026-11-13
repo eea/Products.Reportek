@@ -8,6 +8,9 @@ from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.reportekcontent import ReportekContent
 from Products.Reportek.RepUtils import parse_uri, xmlEncode
 
+END_OF_JUNE = "06/30"
+END_OF_DECEMBER = "12/31"
+
 
 @implementer(IBaseDelivery)
 class BaseDelivery(ReportekContent):
@@ -84,25 +87,25 @@ class BaseDelivery(ReportekContent):
     def getEndDate(self):
         endmonths = {
             "": "12-31",
-            "WHOLE_YEAR": "12/31",
-            "FIRST_HALF": "06/30",
-            "SECOND_HALF": "12/31",
+            "WHOLE_YEAR": END_OF_DECEMBER,
+            "FIRST_HALF": END_OF_JUNE,
+            "SECOND_HALF": END_OF_DECEMBER,
             "FIRST_QUARTER": "03/31",
-            "SECOND_QUARTER": "06/30",
+            "SECOND_QUARTER": END_OF_JUNE,
             "THIRD_QUARTER": "09/30",
-            "FOURTH_QUARTER": "12/31",
+            "FOURTH_QUARTER": END_OF_DECEMBER,
             "JANUARY": "01/31",
             "FEBRUARY": "02/28",  # Fix leap year?
             "MARCH": "03/31",
             "APRIL": "04/30",
             "MAY": "05/31",
-            "JUNE": "06/30",
+            "JUNE": END_OF_JUNE,
             "JULY": "07/31",
             "AUGUST": "08/31",
             "SEPTEMBER": "09/30",
             "OCTOBER": "10/31",
             "NOVEMBER": "11/30",
-            "DECEMBER": "12/31",
+            "DECEMBER": END_OF_DECEMBER,
         }
         if self.endyear != "":
             try:
@@ -113,7 +116,8 @@ class BaseDelivery(ReportekContent):
         if self.year != "":
             startDT = self.getStartDate()  # returns DateTime
             return DateTime(
-                startDT.strftime("%Y/") + endmonths.get(self.partofyear, "12/31")
+                startDT.strftime("%Y/")
+                + endmonths.get(self.partofyear, END_OF_DECEMBER)
             )
         return None
 

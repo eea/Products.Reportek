@@ -13,6 +13,8 @@ from Products.Reportek.constants import (
 from Products.Reportek.rabbitmq import send_message
 from Products.Reportek.RepUtils import getToolByName
 
+DATETIME_FORMAT = "%d/%m/%Y %H:%M:%S"
+
 
 class EnvelopeUtils(BaseAdmin):
     def __call__(self, *args, **kwargs):
@@ -240,7 +242,7 @@ class EnvelopeUtils(BaseAdmin):
                                 "title": activity_title,
                             },
                             "s_date": DateTime(obj.event_log[-1].get("time")).strftime(
-                                "%d/%m/%Y %H:%M:%S"
+                                DATETIME_FORMAT
                             ),
                         }
                     )
@@ -287,7 +289,7 @@ class EnvelopeUtils(BaseAdmin):
                                 "title": activity.title_or_id(),
                             },
                             "s_date": DateTime(wk.event_log[-1].get("time")).strftime(
-                                "%d/%m/%Y %H:%M:%S"
+                                DATETIME_FORMAT
                             ),
                         }
                     )
@@ -361,7 +363,7 @@ class EnvelopeUtils(BaseAdmin):
                     "process": {"url": process_url, "title": process_title},
                     "activity": {"url": activity_url, "title": activity_title},
                     "s_date": DateTime(last_wk.event_log[-1].get("time")).strftime(
-                        "%d/%m/%Y %H:%M:%S"
+                        DATETIME_FORMAT
                     ),
                 }
             )
