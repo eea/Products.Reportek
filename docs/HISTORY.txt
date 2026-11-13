@@ -3,6 +3,14 @@ Changelog
 
 101.1-dev0 - (unreleased)
 ---------------------------
+* fix: security (path traversal reported by SonarQube): the scripts that get
+        paths on the command line, updates/import_ecas_plugin.py and
+        locales/page-based-po.py, resolve them and only read an existing
+        file of the kind they expect: the eCas export has to be a .json file
+        in the instance, the current directory or ECAS_EXPORT_DIR, and a
+        link that leads out of the directory is not followed; the id of the
+        plugin is checked; page-based-po.py also does not use the Python 2
+        encoding calls that made it fail; add tests
 * refactor: the names of the permissions (Change Envelopes, Manage OpenFlow,
         Add Feedback, ...) are constants in permissions.py, and config.py
         uses them, the content types (text/html, text/xml, application/json)

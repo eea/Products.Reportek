@@ -21,6 +21,7 @@ Expected workflow:
 import argparse
 import json
 import os
+import re
 
 import transaction
 from persistent.mapping import PersistentMapping
@@ -58,15 +59,49 @@ def _interface_map():
     )
 
 
+PLUGIN_ID_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
+
+
+def _allowed_export_dirs():
+    """The directories that an export file can be read from: the instance,
+    the current directory and the ones of ECAS_EXPORT_DIR (separated by :)."""
+    dirs = ["/opt/zope", os.getcwd()]
+    try:
+        from App.config import getConfiguration
+
+        dirs.append(getattr(getConfiguration(), "instancehome", None) or "")
+    except Exception:
+        pass
+    dirs.extend(os.environ.get("ECAS_EXPORT_DIR", "").split(os.pathsep))
+    return [os.path.realpath(d) for d in dirs if d]
+
+
+def _checked_export_path(path):
+    """The real path of an export file, that has to be an existing .json file
+    inside one of the allowed directories: a path that is given by the user
+    can lead anywhere with .. or with a link."""
+    real = os.path.realpath(path)
+    if not real.endswith(".json") or not os.path.isfile(real):
+        raise ValueError("The eCas export is not an existing .json file: %s" % path)
+    if not any(
+        os.path.commonpath([root, real]) == root for root in _allowed_export_dirs()
+    ):
+        raise ValueError(
+            "The eCas export has to be in the instance, the current directory "
+            "or a directory of ECAS_EXPORT_DIR: %s" % path
+        )
+    return real
+
+
 def _find_export_path(export_path=None):
     if export_path:
-        return export_path
+        return _checked_export_path(export_path)
     env_path = os.environ.get("ECAS_EXPORT_PATH")
     if env_path:
-        return env_path
+        return _checked_export_path(env_path)
     for path in DEFAULT_EXPORT_PATHS:
         if os.path.exists(path):
-            return path
+            return _checked_export_path(path)
     raise RuntimeError(
         "No eCas export file found. Pass export_path=... or set ECAS_EXPORT_PATH."
     )
@@ -213,6 +248,8 @@ def update(
 
     acl_users = app.unrestrictedTraverse("/acl_users")
     plugin_id = plugin_id or export_data.get("plugin_id") or ECAS_ID
+    if not PLUGIN_ID_PATTERN.match(plugin_id):
+        raise ValueError("Not a valid id for the plugin: %r" % plugin_id)
 
     trans = transaction.begin()
     try:
