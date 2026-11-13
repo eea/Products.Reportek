@@ -3,6 +3,9 @@ Changelog
 
 101.2-dev0 - (unreleased)
 ---------------------------
+* fix: the types of Reportek were listed twice in the ZMI add list when the
+        package is installed (not editable): initialize() is called by the
+        Products scan and by five:registerPackage, now it runs once; add test
 
 101.1 - (2026-11-13)
 --------------------
