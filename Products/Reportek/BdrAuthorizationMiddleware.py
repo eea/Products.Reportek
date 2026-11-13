@@ -8,6 +8,7 @@ from ZODB.PersistentMapping import PersistentMapping
 from Products.Reportek.RegistryManagement import (
     RegistryUnavailable,
     failed_in_this_request,
+    is_cold,
     remember_failure_in_this_request,
 )
 
@@ -20,6 +21,9 @@ def _paths_key(fun, self, username, userdata=None, recheck_interval=300):
     """The paths depend on what is asked: userdata is part of the key."""
     asked = tuple(sorted((userdata or {}).items()))
     return (username, asked, time() // recheck_interval)
+
+
+PATHS = (__name__, "_cachedUserCollectionPaths")
 
 
 class BdrAuthorizationMiddleware(SimpleItem):
@@ -52,6 +56,13 @@ class BdrAuthorizationMiddleware(SimpleItem):
         except RegistryUnavailable:
             remember_failure_in_this_request(failed)
             return {"paths": [], "prev_paths": [], "audit_paths": []}
+
+    def paths_request(self, username, userdata=None, recheck_interval=300):
+        """The (url, kwargs) that the paths of the user need, when not kept."""
+        key = _paths_key(None, self, username, userdata, recheck_interval)
+        if failed_in_this_request(("paths",) + key) or not is_cold(PATHS, key):
+            return None
+        return self.FGASRegistryAPI.paths_request(username, userdata=userdata)
 
     @ram.cache(_paths_key)
     def _cachedUserCollectionPaths(

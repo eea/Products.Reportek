@@ -6,6 +6,7 @@ collections of a user until the cache expires, even if the registry is back.
 The files and the answers are dummy.
 """
 
+import threading
 import unittest
 from unittest.mock import Mock, patch
 
@@ -14,6 +15,7 @@ from ZODB.POSException import ConflictError
 import requests
 from plone.memoize import ram
 
+from Products.Reportek import RegistryManagement
 from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
 from Products.Reportek.CountriesManager import CountriesManager
 from Products.Reportek.DataflowsManager import (
@@ -21,10 +23,12 @@ from Products.Reportek.DataflowsManager import (
     ServiceTemporarilyUnavailableException,
 )
 from Products.Reportek.RegistryManagement import (
+    PREFETCHED,
     BaseRegistryAPI,
     BDRRegistryAPI,
     FGASRegistryAPI,
     RegistryUnavailable,
+    prefetch_requests,
 )
 
 REGISTRY_GET = "Products.Reportek.RegistryManagement.requests.get"
@@ -477,3 +481,200 @@ class CountriesTest(CacheTest):
     def test_the_table_is_empty_when_rod_does_not_answer(self, get):
         get.side_effect = DOWN
         self.assertEqual(self.rod.localities_table(), [])
+
+
+class PrefetchTest(CacheTest):
+    """The requests that both miss are sent at the same time."""
+
+    def setUp(self):
+        super().setUp()
+        self.middleware = BdrAuthorizationMiddleware("http://middleware")
+        self.middleware.FGASRegistryAPI = FGASRegistryAPI(
+            "FGAS", "http://registry", "token"
+        )
+        self.bdr = BDRRegistryAPI("BDR", "http://bdr")
+        self.bdr.bdr_registry_token = "token"
+        self.userdata = {"username": "a", "ecas_id": "e1"}
+        self.fgas = [
+            {
+                "company_id": 1,
+                "country": "RO",
+                "domain": "FGAS",
+                "collection_id": "fgas30001",
+            }
+        ]
+        self.request = FakeRequest()
+
+    def wait_for_the_requests(self):
+        for future in list(self.request.other.get(PREFETCHED, {}).values()):
+            future.result(timeout=5)
+
+    def requests(self):
+        return [
+            self.middleware.paths_request("e1", userdata=self.userdata),
+            self.bdr.user_details_request("a"),
+        ]
+
+    def lookups(self):
+        paths = self.middleware.getUserCollectionPaths(
+            "e1", userdata=self.userdata, recheck_interval=300
+        )
+        return paths, self.bdr.get_user_details("a")
+
+    def test_both_requests_are_in_flight_together(self):
+        both_started = threading.Barrier(2, timeout=5)
+
+        def get(url, **kwargs):
+            both_started.wait()  # a sequential lookup would never get past here
+            if "/user/companies/v2/" in url:
+                return answer(200, self.fgas)
+            return answer(200, [{"has_reporting_folder": True}])
+
+        with (
+            in_request(self.request),
+            patch(REGISTRY_GET, side_effect=get) as mock,
+        ):
+            prefetch_requests(self.requests())
+            paths, details = self.lookups()
+        self.assertEqual(mock.call_count, 2)
+        self.assertTrue(paths["paths"])
+        self.assertEqual(details, [{"has_reporting_folder": True}])
+
+    def test_the_lookups_are_cached_as_always(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.side_effect = lambda url, **kw: (
+                answer(200, self.fgas) if "v2" in url else answer(200, [])
+            )
+            prefetch_requests(self.requests())
+            self.lookups()
+            self.lookups()
+            self.assertEqual(get.call_count, 2)
+            self.assertEqual(self.requests(), [None, None])
+
+    def test_nothing_is_sent_when_one_of_them_is_kept(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.return_value = answer(200, [])
+            self.bdr.get_user_details("a")
+            self.assertEqual(get.call_count, 1)
+            pending = self.requests()
+            self.assertIsNone(pending[1])
+            self.assertIsNotNone(pending[0])
+            prefetch_requests([r for r in pending if r])
+            self.assertEqual(self.request.other.get(PREFETCHED, {}), {})
+            self.assertEqual(get.call_count, 1)
+
+    def test_nothing_is_sent_without_a_request(self):
+        with in_request(None), patch(REGISTRY_GET) as get:
+            prefetch_requests(self.requests())
+            self.assertEqual(get.call_count, 0)
+
+    def test_a_registry_that_does_not_answer_gives_no_access_and_is_not_kept(
+        self,
+    ):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.side_effect = DOWN
+            prefetch_requests(self.requests())
+            paths, details = self.lookups()
+            self.assertEqual(paths, {"paths": [], "prev_paths": [], "audit_paths": []})
+            self.assertEqual(details, [])
+        # the next request asks again
+        with in_request(FakeRequest()), patch(REGISTRY_GET) as get:
+            get.side_effect = lambda url, **kw: (
+                answer(200, self.fgas) if "v2" in url else answer(200, [])
+            )
+            paths, _ = self.lookups()
+            self.assertTrue(paths["paths"])
+
+    def test_the_request_waits_at_most_as_the_lookup_does(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.return_value = answer(200, [])
+            prefetch_requests(self.requests())
+            self.wait_for_the_requests()
+            self.assertEqual(get.call_count, 2)
+            for kwargs in (c.kwargs for c in get.call_args_list):
+                self.assertEqual(kwargs["timeout"], (5, 30))
+
+    def test_a_lookup_does_not_take_the_answer_of_another_request(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.return_value = answer(200, [])
+            prefetch_requests(self.requests())
+            self.wait_for_the_requests()
+            self.bdr.get_user_details("other")
+            self.assertEqual(get.call_count, 3)
+
+    def test_without_threads_available_the_lookups_send_their_requests(self):
+        with patch.object(
+            RegistryManagement._prefetching, "acquire", return_value=False
+        ):
+            with in_request(self.request), patch(REGISTRY_GET) as get:
+                get.side_effect = lambda url, **kw: (
+                    answer(200, self.fgas) if "v2" in url else answer(200, [])
+                )
+                prefetch_requests(self.requests())
+                self.assertEqual(get.call_count, 0)
+                paths, _ = self.lookups()
+                self.assertTrue(paths["paths"])
+                self.assertEqual(get.call_count, 2)
+
+    def test_a_registry_that_is_down_is_not_prefetched_again_in_the_request(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.side_effect = DOWN
+            prefetch_requests(self.requests())
+            self.lookups()
+            self.assertEqual(get.call_count, 2)
+            # the lookups failed: a later check of the same request does not ask
+            self.assertEqual(self.requests(), [None, None])
+            prefetch_requests([r for r in self.requests() if r])
+            self.assertEqual(get.call_count, 2)
+
+    def test_a_thread_that_cannot_be_started_leaves_the_lookups_as_they_were(self):
+        permits = RegistryManagement._prefetching
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.side_effect = lambda url, **kw: (
+                answer(200, self.fgas) if "v2" in url else answer(200, [])
+            )
+            with patch.object(threading.Thread, "start", side_effect=RuntimeError):
+                for _ in range(20):
+                    prefetch_requests(self.requests())
+            self.assertEqual(self.request.other.get(PREFETCHED, {}), {})
+            paths, _ = self.lookups()
+            self.assertTrue(paths["paths"])
+        # every permit is back
+        taken = [permits.acquire(blocking=False) for _ in range(16)]
+        self.assertTrue(all(taken))
+        for _ in taken:
+            permits.release()
+
+    def one_registry_is_down(self, down):
+        def get(url, **kwargs):
+            fgas = "v2" in url
+            if (down == "fgas") == fgas:
+                raise DOWN
+            return answer(200, self.fgas if fgas else [{"has_reporting_folder": True}])
+
+        return get
+
+    def test_the_fgas_registry_is_down_the_bdr_one_answers(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.side_effect = self.one_registry_is_down("fgas")
+            prefetch_requests(self.requests())
+            paths, details = self.lookups()
+            self.assertEqual(paths, {"paths": [], "prev_paths": [], "audit_paths": []})
+            self.assertEqual(details, [{"has_reporting_folder": True}])
+            self.assertEqual(get.call_count, 2)
+        # the answer of the one that worked is kept, the failure is not
+        pending = self.requests()
+        self.assertIsNotNone(pending[0])
+        self.assertIsNone(pending[1])
+
+    def test_the_bdr_registry_is_down_the_fgas_one_answers(self):
+        with in_request(self.request), patch(REGISTRY_GET) as get:
+            get.side_effect = self.one_registry_is_down("bdr")
+            prefetch_requests(self.requests())
+            paths, details = self.lookups()
+            self.assertTrue(paths["paths"])
+            self.assertEqual(details, [])
+            self.assertEqual(get.call_count, 2)
+        pending = self.requests()
+        self.assertIsNone(pending[0])
+        self.assertIsNotNone(pending[1])

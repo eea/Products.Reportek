@@ -20,6 +20,11 @@ Changelog
         caller that changes them does not change them for the others; the
         lookup of the paths that raises is not published from the web; add
         tests
+* perf: the first page of a user whose registry answers are not kept sends the
+        request for the paths of the user and the request for the details of the
+        user to the BDR registry at the same time, and not one after the other;
+        each answer is used by its own lookup, with its cache and its handling of
+        a registry that does not answer; add tests
 * perf: the calls to the registry connect with a timeout of 5 seconds (it was
         120 for the connection and the answer), and the lookups that decide
         what a user can access wait 30 seconds for the answer
