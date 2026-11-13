@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 from time import time
@@ -9,6 +10,7 @@ from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
 from requests.exceptions import HTTPError
+from zope.globalrequest import getRequest
 from zope.interface import implementer
 
 import Products
@@ -17,6 +19,36 @@ from functools import reduce
 LOCKDOWN_EMAILS_NOT_SENT = "Lockdown notification emails of %s not sent"
 
 logger = logging.getLogger("Reportek")
+
+
+FAILED_LOOKUPS = "_reportek_registry_failed_lookups"
+# answers that say that the registry cannot answer now, besides the 5xx
+RETRY_LATER_STATUS = (408, 429)
+
+
+def failed_in_this_request(key):
+    """Did the lookup fail already in the current request?
+
+    A page asks for the same lookup many times (a check for every envelope of a
+    list), and a registry that is down must not be asked again for each. Only
+    the current request remembers it: the next request asks the registry again.
+    """
+    request = getRequest()
+    return request is not None and key in request.other.get(FAILED_LOOKUPS, ())
+
+
+def remember_failure_in_this_request(key):
+    request = getRequest()
+    if request is not None:
+        request.other.setdefault(FAILED_LOOKUPS, set()).add(key)
+
+
+class RegistryUnavailable(Exception):
+    """The registry did not answer, or answered with a server error.
+
+    Raised by the lookups whose result is cached, so a failure is not stored:
+    the next request asks the registry again.
+    """
 
 
 @implementer(IRegistryManagement)
@@ -33,7 +65,12 @@ class RegistryManagement(Folder):
 
 
 class BaseRegistryAPI(SimpleItem):
+    # seconds to connect to the registry
+    CONNECT_TIMEOUT = 5
+    # seconds to wait for the answer of an administration call
     TIMEOUT = 120
+    # seconds to wait for the answer of the lookups that decide what a user can access
+    LOOKUP_TIMEOUT = 30
 
     def __init__(self, registry_name, url, token=None):
         self.registry_name = registry_name
@@ -62,6 +99,8 @@ class BaseRegistryAPI(SimpleItem):
 
         if not timeout:
             timeout = self.TIMEOUT
+        if isinstance(timeout, (int, float)):
+            timeout = (self.CONNECT_TIMEOUT, timeout)
 
         try:
             response = api_req(
@@ -86,6 +125,21 @@ class BaseRegistryAPI(SimpleItem):
                 return response
             return None
 
+        return response
+
+    def _lookup(self, url, **kwargs):
+        """Request for a lookup whose result is cached or decides access.
+
+        A registry that cannot be reached, or that answers with a server error,
+        raises RegistryUnavailable. Other answers are returned, the caller checks
+        the status.
+        """
+        kwargs.setdefault("timeout", self.LOOKUP_TIMEOUT)
+        response = self.do_api_request(url, raw=True, **kwargs)
+        if response is None or (
+            response.status_code >= 500 or response.status_code in RETRY_LATER_STATUS
+        ):
+            raise RegistryUnavailable(url)
         return response
 
 
@@ -402,17 +456,30 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCollectionPaths(self, username, userdata=None):
         """Get all collection paths for a username or userdata.
+
+        A registry that cannot be reached gives no paths: nobody gets access
+        that the registry did not confirm.
+        """
+        try:
+            return self._fetchCollectionPaths(username, userdata=userdata)
+        except RegistryUnavailable:
+            return {"paths": [], "prev_paths": [], "audit_paths": []}
+
+    def _fetchCollectionPaths(self, username, userdata=None):
+        """Get all collection paths for a username or userdata.
         The username request is in the process of being deprecated.
         The userdata request is the preferred method which should match
-        either the ecas_id or the username(e-mail) in the ecr."""
+        either the ecas_id or the username(e-mail) in the ecr.
+
+        Raises RegistryUnavailable when the registry does not answer."""
         # <ecr_host>/user/companies/v2/?username=<username>&ecas_id=<ecas_id>
         url = "{}/user/companies/v2/".format(self.baseUrl)
         headers = {"Authorization": self.token}
         if userdata:
-            response = self.do_api_request(url, params=userdata, headers=headers)
+            response = self._lookup(url, params=userdata, headers=headers)
         else:
             url = self.baseUrl + "/user/" + username + "/companies"
-            response = self.do_api_request(url, headers=headers)
+            response = self._lookup(url, headers=headers)
         rep_paths = {}
         paths = []
         prev_paths = []
@@ -437,7 +504,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
             return path
 
-        if response:
+        if response.status_code == requests.codes.ok:
             data = response.json()
             if isinstance(data, list):
                 data = {"reporter": data, "auditor": []}
@@ -755,30 +822,60 @@ class BDRRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id, domain=None):
         """Get company details from Registry"""
+        failed = ("company_details", self.baseUrl, company_id, domain)
+        if failed_in_this_request(failed):
+            return None
+        try:
+            # a copy: the cached details are shared, a caller may change them
+            return copy.deepcopy(self._get_company_details(company_id, domain))
+        except RegistryUnavailable:
+            remember_failure_in_this_request(failed)
+            return None
+
+    # A failure is not cached: the exception leaves nothing in the cache.
+    @ram.cache(
+        lambda fun, self, company_id, domain=None: (
+            company_id,
+            domain,
+            time() // (60 * 60),
+        )
+    )
+    def _get_company_details(self, company_id, domain=None):
         url = self.baseUrl + "/management/companies/account/{0}/{1}".format(
             company_id, domain
         )
-        response = self.do_api_request(
-            url, headers={"Authorization": self.bdr_registry_token}
+        # not a lookup that decides access: it keeps the long timeout
+        response = self._lookup(
+            url,
+            headers={"Authorization": self.bdr_registry_token},
+            timeout=self.TIMEOUT,
         )
-
-        if response:
+        if response.status_code == requests.codes.ok:
             return response.json()
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (10 * 60)))
     def get_user_details(self, username):
         """Get details for username"""
+        failed = ("user_details", self.baseUrl, username)
+        if failed_in_this_request(failed):
+            return []
+        try:
+            return self._get_user_details(username)
+        except RegistryUnavailable:
+            remember_failure_in_this_request(failed)
+            return []
+
+    # A failure is not cached: the exception leaves nothing in the cache.
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (10 * 60)))
+    def _get_user_details(self, username):
         url = self.baseUrl + "/management/username/companies/"
-        params = {"username": username}
-        response = self.do_api_request(
+        response = self._lookup(
             url,
-            params=params,
+            params={"username": username},
             headers={"Authorization": self.bdr_registry_token},
         )
-        if response and response.status_code == requests.codes.ok:
+        if response.status_code == requests.codes.ok:
             return response.json()
         return []
 

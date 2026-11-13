@@ -47,6 +47,23 @@ class ServiceTemporarilyUnavailableException(Exception):
     pass
 
 
+# seconds to connect, and to wait for the answer, when no timeout is configured
+ROD_TIMEOUT = (5, 30)
+
+
+class RODUnavailable(Exception):
+    """ROD answered with an error status. Raised so that the answer is not cached."""
+
+
+class OnlyCustomDataflows(list):
+    """The dataflows when ROD gave none, to know that they must not be kept."""
+
+
+ROD_UNAVAILABLE_MESSAGE = (
+    "Reporting Obligations Database is temporarily unavailable, please try again later"
+)
+
+
 class DataflowsManager:
     """Module that handles the dataflows(obligations) information:
     dataflow_table
@@ -107,9 +124,19 @@ class DataflowsManager:
             result = custom_dfs()
         return result
 
-    @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def dataflow_rod(self):
-        """ """
+        """The dataflows of ROD and the custom ones.
+
+        ROD answering with an error status gives only the custom dataflows,
+        and that is not cached for 12 hours: the next call asks ROD again.
+        """
+        try:
+            return self._dataflow_rod()
+        except RODUnavailable:
+            return OnlyCustomDataflows(self.get_custom_dataflows())
+
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))
+    def _dataflow_rod(self):
         if self.dfm_type == "dfm_rest":
             dflows = self.get_dataflows_rest()
         else:
@@ -117,7 +144,11 @@ class DataflowsManager:
         return dflows + self.get_custom_dataflows()
 
     def get_dataflows_rest(self):
-        res = requests.get(self.dfm_rest_url, timeout=self.dfm_timeout, verify=False)
+        res = requests.get(
+            self.dfm_rest_url, timeout=self.dfm_timeout or ROD_TIMEOUT, verify=False
+        )
+        if res.status_code != 200:
+            raise RODUnavailable(self.dfm_rest_url)
         dflows = []
         if res.status_code == 200:
             prefix = "{}/obligations".format(self.dfm_obl_url_prefix)
@@ -142,19 +173,27 @@ class DataflowsManager:
         try:
             return [inline_replace(x) for x in self.dataflow_rod()]
         except Exception:
-            msg = (
-                """Reporting Obligations Database is temporarily"""
-                """unavailable, please try again later"""
-            )
-            raise ServiceTemporarilyUnavailableException(msg)
+            raise ServiceTemporarilyUnavailableException(ROD_UNAVAILABLE_MESSAGE)
 
-    @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def dataflow_dict(self):
         """Converts the dataflow table into a dictionary"""
-        l_dfdict = {}
-        for l_item in self.dataflow_table():
-            l_dfdict[l_item["uri"]] = l_item
-        return l_dfdict
+        try:
+            return self._dataflow_dict()
+        except RODUnavailable:
+            # ROD gave no dataflows: the custom ones, and not kept for 12 hours
+            custom = [inline_replace(x) for x in self.get_custom_dataflows()]
+            return {item["uri"]: item for item in custom}
+
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))
+    def _dataflow_dict(self):
+        try:
+            dataflows = self.dataflow_rod()
+            rows = [inline_replace(x) for x in dataflows]
+        except Exception:
+            raise ServiceTemporarilyUnavailableException(ROD_UNAVAILABLE_MESSAGE)
+        if isinstance(dataflows, OnlyCustomDataflows):
+            raise RODUnavailable("no dataflows from ROD")
+        return {item["uri"]: item for item in rows}
 
     def dataflow_lookup(self, uri):
         """Lookup a dataflow on URI and return a dictionary of info"""

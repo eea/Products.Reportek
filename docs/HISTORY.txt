@@ -3,6 +3,26 @@ Changelog
 
 101.2-dev0 - (unreleased)
 ---------------------------
+* fix: a call to the registry or to ROD that failed was kept in the cache: the
+        collections of a user were hidden for 5-10 minutes after the registry
+        was unreachable for a moment (the registry answers of the user, the
+        company details and the paths of the middleware), and the dataflows
+        and countries of ROD for 12 hours after an error status. A failure is
+        not kept now, the next request asks again, but only once in a request
+        (a list of checks does not ask a registry that is down for each item);
+        the user still has no access while the registry does not answer; 408
+        and 429 answers count as not answering; ROD calls without a configured
+        timeout wait 5 seconds to connect and 30 for the answer; add tests
+* fix: the cache of the paths of a user is keyed also by what is asked to the
+        registry (the username and the ecas id), and the cache of the company
+        details by the domain: a later question with other values got the
+        answer of the first one; the company details are returned as a copy, a
+        caller that changes them does not change them for the others; the
+        lookup of the paths that raises is not published from the web; add
+        tests
+* perf: the calls to the registry connect with a timeout of 5 seconds (it was
+        120 for the connection and the answer), and the lookups that decide
+        what a user can access wait 30 seconds for the answer
 * fix: the types of Reportek were listed twice in the ZMI add list when the
         package is installed (not editable): initialize() is called by the
         Products scan and by five:registerPackage, now it runs once; add test

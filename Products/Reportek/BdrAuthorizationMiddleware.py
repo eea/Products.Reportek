@@ -5,9 +5,21 @@ from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
 from ZODB.PersistentMapping import PersistentMapping
 
+from Products.Reportek.RegistryManagement import (
+    RegistryUnavailable,
+    failed_in_this_request,
+    remember_failure_in_this_request,
+)
+
 logger = logging.getLogger("Reportek")
 
 __all__ = ["BdrAuthorizationMiddleware"]
+
+
+def _paths_key(fun, self, username, userdata=None, recheck_interval=300):
+    """The paths depend on what is asked: userdata is part of the key."""
+    asked = tuple(sorted((userdata or {}).items()))
+    return (username, asked, time() // recheck_interval)
 
 
 class BdrAuthorizationMiddleware(SimpleItem):
@@ -20,17 +32,33 @@ class BdrAuthorizationMiddleware(SimpleItem):
     def setServiceRecheckInterval(self, seconds):
         self.recheck_interval = seconds
 
-    @ram.cache(
-        lambda *args, **kwargs: args[2] + str(time() // kwargs["recheck_interval"])
-    )
     def getUserCollectionPaths(
         self, username, userdata=None, recheck_interval=recheck_interval
     ):
-        logger.debug("Get companies from middleware for ecas user: %s" % username)
-        accessiblePaths = self.FGASRegistryAPI.getCollectionPaths(
-            username, userdata=userdata
+        """The paths the registry gives the user, kept for recheck_interval.
+
+        When the registry cannot be reached the user gets no paths. That is not
+        kept: the rest of the request does not ask again, the next request does.
+        """
+        failed = ("paths",) + _paths_key(
+            None, self, username, userdata, recheck_interval
         )
-        return accessiblePaths
+        if failed_in_this_request(failed):
+            return {"paths": [], "prev_paths": [], "audit_paths": []}
+        try:
+            return self._cachedUserCollectionPaths(
+                username, userdata=userdata, recheck_interval=recheck_interval
+            )
+        except RegistryUnavailable:
+            remember_failure_in_this_request(failed)
+            return {"paths": [], "prev_paths": [], "audit_paths": []}
+
+    @ram.cache(_paths_key)
+    def _cachedUserCollectionPaths(
+        self, username, userdata=None, recheck_interval=recheck_interval
+    ):
+        logger.debug("Get companies from middleware for ecas user: %s" % username)
+        return self.FGASRegistryAPI._fetchCollectionPaths(username, userdata=userdata)
 
     def authorizedUser(self, username, path, userdata=None):
         if self.lockedCollection(path):

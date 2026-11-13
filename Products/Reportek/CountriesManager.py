@@ -29,8 +29,15 @@ from time import time
 
 import requests
 from plone.memoize import ram
+from ZODB.POSException import ConflictError
+
+from .DataflowsManager import ROD_TIMEOUT, RODUnavailable
 from .RepUtils import inline_replace
 from .XMLRPCMethod import XMLRPCMethod
+
+
+class NoCountries(list):
+    """The countries when ROD gave none, to know that they must not be kept."""
 
 
 class CountriesManager:
@@ -69,7 +76,11 @@ class CountriesManager:
             return getattr(xmlrpc_localities, "timeout", None)
 
     def get_countries_rest(self):
-        res = requests.get(self.cm_rest_url, timeout=self.cm_timeout, verify=True)
+        res = requests.get(
+            self.cm_rest_url, timeout=self.cm_timeout or ROD_TIMEOUT, verify=True
+        )
+        if res.status_code != 200:
+            raise RODUnavailable(self.cm_rest_url)
         if res.status_code == 200:
             prefix = "http://{}/spatial".format(
                 self.cm_rest_url.split("://")[-1].split("/")[0]
@@ -96,9 +107,18 @@ class CountriesManager:
     def cm_rest_timeout(self):
         return getattr(self, "_cm_rest_timeout", None)
 
-    @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def localities_rod(self):
-        """ """
+        """The countries of ROD, none when ROD answers with an error status.
+
+        That answer is not cached for 12 hours: the next call asks ROD again.
+        """
+        try:
+            return self._localities_rod()
+        except RODUnavailable:
+            return NoCountries()
+
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))
+    def _localities_rod(self):
         if self.cm_type == "cm_rest":
             countries = self.get_countries_rest()
         else:
@@ -113,13 +133,27 @@ class CountriesManager:
         except Exception:
             return []
 
-    @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def localities_dict(self, country=None):
         """Converts the localities table into a dictionary"""
+        try:
+            countries = self._localities_dict()
+        except ConflictError:
+            raise
+        except Exception:
+            # ROD gave no countries: nothing is kept for 12 hours
+            countries = {}
+        return self._lookup_locality(countries, country)
+
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))
+    def _localities_dict(self):
+        countries = self.localities_rod()
+        if isinstance(countries, NoCountries):
+            raise RODUnavailable("no countries from ROD")
+        return {item["uri"]: item for item in [inline_replace(x) for x in countries]}
+
+    @staticmethod
+    def _lookup_locality(l_ldict, country):
         dummy = {"uri": "", "name": "Unknown", "iso": "XX"}
-        l_ldict = {}
-        for l_item in self.localities_table():
-            l_ldict[l_item["uri"]] = l_item
         if country:
             return l_ldict.get(country, dummy)
         return l_ldict
