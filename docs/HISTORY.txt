@@ -1,8 +1,8 @@
 Changelog
 =========
 
-101.1-dev0 - (unreleased)
----------------------------
+101.1 - (2026-11-13)
+--------------------
 * refactor: SonarQube: the if statements of the role of the owner in
         manage_roles and list_users are merged, Document.isGML uses endswith,
         the list() calls on the headers of the converters are not needed
