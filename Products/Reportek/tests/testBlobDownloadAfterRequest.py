@@ -207,28 +207,26 @@ class BlobDownloadAfterRequestMixin:
         manager = transaction.TransactionManager()
         connection = self.db.open(transaction_manager=manager)
         doc = connection.root()["doc"]
-        with (
-            doc._blob.open("r") as blob_file,
-            doc.open(skip_decompress=True) as handle,
-        ):
-            self.assertEqual(handle.name, blob_file.name)
-            self.assertEqual(handle.mode, blob_file.mode)
-            for method in ("seekable", "readable", "writable", "isatty"):
-                self.assertEqual(
-                    getattr(handle, method)(), getattr(blob_file, method)()
-                )
-            self.assertEqual(handle.fileno() >= 0, blob_file.fileno() >= 0)
-            self.assertEqual(handle.readline(), blob_file.readline())
-            self.assertEqual(handle.tell(), blob_file.tell())
-            handle.seek(100)
-            blob_file.seek(100)
-            self.assertEqual(handle.read(50), blob_file.read(50))
-            self.assertEqual(list(handle), list(blob_file))
-            buffer, other = bytearray(64), bytearray(64)
-            handle.seek(0)
-            blob_file.seek(0)
-            self.assertEqual(handle.readinto(buffer), blob_file.readinto(other))
-            self.assertEqual(buffer, other)
+        with doc._blob.open("r") as blob_file:
+            with doc.open(skip_decompress=True) as handle:
+                self.assertEqual(handle.name, blob_file.name)
+                self.assertEqual(handle.mode, blob_file.mode)
+                for method in ("seekable", "readable", "writable", "isatty"):
+                    self.assertEqual(
+                        getattr(handle, method)(), getattr(blob_file, method)()
+                    )
+                self.assertEqual(handle.fileno() >= 0, blob_file.fileno() >= 0)
+                self.assertEqual(handle.readline(), blob_file.readline())
+                self.assertEqual(handle.tell(), blob_file.tell())
+                handle.seek(100)
+                blob_file.seek(100)
+                self.assertEqual(handle.read(50), blob_file.read(50))
+                self.assertEqual(list(handle), list(blob_file))
+                buffer, other = bytearray(64), bytearray(64)
+                handle.seek(0)
+                blob_file.seek(0)
+                self.assertEqual(handle.readinto(buffer), blob_file.readinto(other))
+                self.assertEqual(buffer, other)
         manager.abort()
         connection.close()
 

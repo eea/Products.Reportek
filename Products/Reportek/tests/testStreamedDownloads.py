@@ -455,11 +455,9 @@ class ZipEnvelopesStreamTest(BaseUnitTest):
             self.tmpfiles.append(tmpfile)
             return tmpfile
 
-        with (
-            patch("Products.Reportek.ReportekEngine.getSecurityManager"),
-            patch("tempfile.TemporaryFile", spy),
-        ):
-            body = self.engine.zipEnvelopes(paths, Mock(), response)
+        with patch("Products.Reportek.ReportekEngine.getSecurityManager"):
+            with patch("tempfile.TemporaryFile", spy):
+                body = self.engine.zipEnvelopes(paths, Mock(), response)
         return body, response
 
     def test_the_zip_is_streamed(self):
@@ -555,13 +553,11 @@ class ZipEnvelopesStreamTest(BaseUnitTest):
 
     def test_the_file_of_the_zip_is_closed_when_it_cannot_be_built(self):
         self.envelope()
-        with (
-            patch(
-                "Products.Reportek.zip_content.get_metadata_content",
-                side_effect=ValueError("no metadata"),
-            ),
-            self.assertRaises(ValueError),
+        with patch(
+            "Products.Reportek.zip_content.get_metadata_content",
+            side_effect=ValueError("no metadata"),
         ):
-            self.zip_envelopes(["/envelope"])
+            with self.assertRaises(ValueError):
+                self.zip_envelopes(["/envelope"])
         self.assertEqual(len(self.tmpfiles), 1)
         self.assertTrue(self.tmpfiles[0].closed)
