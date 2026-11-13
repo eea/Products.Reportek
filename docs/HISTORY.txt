@@ -1,6 +1,9 @@
 Changelog
 =========
 
+101.2-dev0 - (unreleased)
+---------------------------
+
 101.1 - (2026-11-13)
 --------------------
 * refactor: SonarQube: the if statements of the role of the owner in
