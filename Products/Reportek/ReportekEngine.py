@@ -30,9 +30,9 @@ from collections import OrderedDict
 from copy import copy, deepcopy
 from io import BytesIO
 from operator import itemgetter
-from time import strftime, time
+from time import localtime, strftime, time
 from urllib.parse import urlparse
-from zipfile import ZIP_DEFLATED, ZipFile
+from zipfile import ZIP64_LIMIT, ZIP_DEFLATED, ZipFile, ZipInfo
 
 import plone.protect.interfaces
 from plone.protect import CheckAuthenticator
@@ -229,6 +229,16 @@ def _group_ecr_content_data(user_ct):
         ),
         "fgas_by_company": fgas_by_company,
     }
+
+
+def _zip_info(name):
+    """The entry of a zip like ZipFile.write() makes it, with the current time
+    and the mode of a file, as ZipFile.open() sets the time to 1980-01-01.
+    """
+    info = ZipInfo(name, date_time=localtime()[:6])
+    info.compress_type = ZIP_DEFLATED
+    info.external_attr = 0o100600 << 16
+    return info
 
 
 @implementer(IReportekEngine, II18nAware)
@@ -1710,60 +1720,63 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         envelopes = RepUtils.utConvertToList(envelopes)
 
-        temp_dir = RepUtils.get_zip_cache()
-        tmpfile = tempfile.mktemp(".temp", dir=str(temp_dir))
-
         if len(envelopes) == 0:
             return
 
         # get envelopes
         env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
 
-        outzd = ZipFile(tmpfile, "w", ZIP_DEFLATED)
+        # The zip is built in a file that is removed when it is closed, with
+        # the documents added as they are read. The file is the body of the
+        # response: the server sends it, without a thread waiting for the
+        # client, and closes it.
+        temp_dir = RepUtils.get_zip_cache()
+        tmpfile = tempfile.TemporaryFile(dir=str(temp_dir))
+        try:
+            with ZipFile(tmpfile, "w", ZIP_DEFLATED) as outzd:
+                for env_ob in env_objs:
+                    if env_ob is None:
+                        continue
 
-        for env_ob in env_objs:
-            if env_ob is None:
-                continue
+                    if env_ob.released:
+                        env_name = env_ob.title
+                        for doc in env_ob.objectValues("Report Document"):
+                            if getSecurityManager().checkPermission(view, doc):
+                                with doc.data_file.open() as doc_file:
+                                    with outzd.open(
+                                        _zip_info(
+                                            "%s/%s" % (env_name, str(doc.getId()))
+                                        ),
+                                        "w",
+                                        force_zip64=doc.data_file.size >= ZIP64_LIMIT,
+                                    ) as zip_entry:
+                                        for chunk in RepUtils.iter_file_data(doc_file):
+                                            zip_entry.write(chunk)
 
-            if env_ob.released:
-                env_name = env_ob.title
-                for doc in env_ob.objectValues("Report Document"):
-                    if getSecurityManager().checkPermission(view, doc):
-                        with doc.data_file.open() as doc_file:
-                            tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-                        with tmp_copy:
-                            outzd.write(
-                                tmp_copy.name,
-                                "%s/%s" % (env_name, str(doc.getId())),
+                        for name, content in (
+                            ("metadata.txt", zip_content.get_metadata_content(env_ob)),
+                            ("README.txt", zip_content.get_readme_content(env_ob)),
+                            ("history.txt", zip_content.get_history_content(env_ob)),
+                        ):
+                            if isinstance(content, str):
+                                content = content.encode("utf-8")
+                            outzd.writestr(
+                                _zip_info("%s/%s" % (env_name, name)), content
                             )
 
-                # write metadata.txt
-                metadata_file = RepUtils.TmpFile(
-                    zip_content.get_metadata_content(env_ob)
-                )
-                outzd.write(str(metadata_file), "%s/%s" % (env_name, "metadata.txt"))
-
-                # write README.txt
-                readme_file = RepUtils.TmpFile(zip_content.get_readme_content(env_ob))
-                outzd.write(str(readme_file), "%s/%s" % (env_name, "README.txt"))
-
-                # write history.txt
-                history_file = RepUtils.TmpFile(zip_content.get_history_content(env_ob))
-                outzd.write(str(history_file), "%s/%s" % (env_name, "history.txt"))
-
-        outzd.close()
-        stat = os.stat(tmpfile)
+            size = tmpfile.seek(0, os.SEEK_END)
+            tmpfile.seek(0)
+        except BaseException:
+            tmpfile.close()
+            raise
 
         RESPONSE.setHeader("Content-Type", "application/x-zip")
         RESPONSE.setHeader(
             "Content-Disposition",
             'attachment; filename="%s.zip"' % "envelopes",
         )
-        RESPONSE.setHeader("Content-Length", stat[6])
-        RepUtils.copy_file(tmpfile, RESPONSE)
-        os.unlink(tmpfile)
-        return ""
+        RESPONSE.setHeader("Content-Length", size)
+        return tmpfile
 
     def __getObjects(self, p_brains):
         """Get objects from catalog identifiers.

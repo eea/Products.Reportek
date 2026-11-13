@@ -1,7 +1,7 @@
 import logging
 import os.path
 from gzip import GzipFile
-from io import IOBase, StringIO
+from io import FileIO, IOBase, StringIO
 from time import localtime, strftime, time
 
 import OFS.SimpleItem as _SimpleItem
@@ -11,6 +11,7 @@ from AccessControl.Permissions import view
 from App.config import getConfiguration
 from persistent import Persistent
 from ZODB.blob import Blob, POSKeyError
+from ZODB.interfaces import BlobError
 from zope.contenttype import guess_content_type
 from ZPublisher.HTTPRequest import FileUpload
 
@@ -90,10 +91,32 @@ class FileContainer(Persistent):
 
     # Remove this after migration is complete
 
+    def _open_blob(self, mode):
+        """Open the file of the blob, for reading or for writing.
+
+        The committed file is opened directly for reading, as it does not
+        change: a file that Blob.open() returns is tracked by the Blob object,
+        which belongs to a connection, and a response that holds the file is
+        sent after the request, with the connection used by other requests.
+        Then the Blob forgets the file it gave when the file is closed, which
+        happens when the server is done, and closes it, while it is sent,
+        when the document is changed; and it refuses to open the document
+        for writing as long as the file is open.
+        """
+        if mode == "r":
+            try:
+                path = self._blob.committed()
+            except BlobError:
+                # there are uncommitted changes, which only Blob.open() reads
+                pass
+            else:
+                return FileIO(path, "rb")
+        return self._blob.open(mode)
+
     def open(
         self,
         mode="rb",
-        orig_size=0,
+        orig_size=None,
         preserve_mtime=False,
         skip_decompress=False,
         crc=None,
@@ -109,7 +132,8 @@ class FileContainer(Persistent):
 
         @param mode string for read or write modes
         @param orig_size This is the size computed by the caller. used
-         in case of compression.
+         in case of compression. 0 is the size of an empty file, None that
+         the caller does not know it: then it is the size of the file.
 
         @return file-like object opened for operation 'mode'
         """
@@ -122,7 +146,7 @@ class FileContainer(Persistent):
                 "Can't open file with mode %r, only %r allowed" % (mode, ok_modes)
             )
         try:
-            file_handle = self._blob.open(mode[0])
+            file_handle = self._open_blob(mode[0])
             orig_close = file_handle.close
             zip_close = None
 
@@ -141,7 +165,7 @@ class FileContainer(Persistent):
                         mode="wb",
                         fileobj=file_handle,
                         crc=crc,
-                        orig_size=orig_size,
+                        orig_size=orig_size or 0,
                     )
                     zip_close = file_handle.close
                     self.compressed_safe = True
@@ -171,7 +195,9 @@ class FileContainer(Persistent):
         # Remove this after migration is complete
         if not preserve_mtime:
             self.mtime = os.path.getmtime(fs_path)
-        self.size = orig_size if orig_size else os.path.getsize(fs_path)
+        # 0 is the size of an empty file, which is not the size of the file
+        # it is stored in, when that is compressed
+        self.size = os.path.getsize(fs_path) if orig_size is None else orig_size
         if self.compressed_safe:
             self.compressed_size = os.path.getsize(fs_path)
 
@@ -276,15 +302,15 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
 
     def index_html(self, REQUEST, RESPONSE):
         """download file content"""
-        with self.data_file.open() as data_file_handle:
-            RepUtils.http_response_with_file(
-                REQUEST,
-                RESPONSE,
-                data_file_handle,
-                self.data_file.content_type,
-                self.data_file.size,
-                self.data_file.mtime,
-            )
+        # The file is closed when the body of the response is sent
+        return RepUtils.http_response_with_file(
+            REQUEST,
+            RESPONSE,
+            self.data_file.open(),
+            self.data_file.content_type,
+            self.data_file.size,
+            self.data_file.mtime,
+        )
 
     _view_tmpl = PageTemplateFile("zpt/blob_view.zpt", globals())
 
@@ -293,15 +319,18 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     def view(self, REQUEST, RESPONSE):
         """View the content in a web page"""
         if self.data_file.content_type.startswith("text/html"):
-            with self.data_file.open() as data_file_handle:
-                separator = "HEADER-FOOTER-SPLIT"
-                html = self._view_tmpl(content=separator)
-                header, footer = html.split(separator)
-                RESPONSE.setHeader("Content-Type", "text/html")
-                RESPONSE.write(header.encode("utf-8"))
-                for chunk in RepUtils.iter_file_data(data_file_handle):
-                    RESPONSE.write(chunk)
-                RESPONSE.write(footer.encode("utf-8"))
+            separator = "HEADER-FOOTER-SPLIT"
+            html = self._view_tmpl(content=separator)
+            header, footer = html.split(separator)
+            RESPONSE.setHeader("Content-Type", "text/html")
+            data_file_handle = self.data_file.open()
+
+            def chunks():
+                yield header.encode("utf-8")
+                yield from RepUtils.iter_file_data(data_file_handle)
+                yield footer.encode("utf-8")
+
+            return RepUtils.StreamIterator(chunks(), data_file_handle.close)
 
         else:
             link = '<a href="{url}">Download</a>'.format(url=self.absolute_url())

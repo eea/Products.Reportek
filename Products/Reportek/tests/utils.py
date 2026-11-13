@@ -248,7 +248,30 @@ def chase_response(target, environ={}, user=None):
     return response
 
 
-def publish_view(view, environ={}, user=None):
+def makewsgirequest(app, environ):
+    """Like makerequest, with the request and the response that the WSGI
+    publisher uses. Their response sends a body that is a stream iterator, as it
+    does in production, while HTTPResponse would make a text of it.
+    """
+    from zope.publisher.browser import setDefaultSkin
+    from ZPublisher.BaseRequest import RequestContainer
+    from ZPublisher.HTTPRequest import WSGIRequest
+    from ZPublisher.HTTPResponse import WSGIResponse
+
+    environ.setdefault("SERVER_NAME", "nohost")
+    environ.setdefault("SERVER_PORT", "80")
+    environ.setdefault("REQUEST_METHOD", "GET")
+    request = WSGIRequest(BytesIO(), environ, WSGIResponse(stdout=BytesIO()))
+    request._steps = ["noobject"]  # Fake a published object.
+    request["ACTUAL_URL"] = request.get("URL")
+    setDefaultSkin(request)
+    return app.__of__(RequestContainer(REQUEST=request))
+
+
+def publish_view(view, environ={}, user=None, wsgi=False):
+    """Publish the view. With wsgi the response is the one of production: the
+    body of a file is a stream iterator, and not what the response wrote.
+    """
     from AccessControl.SecurityManagement import noSecurityManager
     from ZPublisher.WSGIPublisher import publish
 
@@ -264,7 +287,10 @@ def publish_view(view, environ={}, user=None):
         user = Mock()
         user.getUserName.return_value = "test_user"
     root.__allow_groups__ = Mock(validate=Mock(return_value=user))
-    request = makerequest(root, new_environ["_stdout"], new_environ).REQUEST
+    if wsgi:
+        request = makewsgirequest(root, new_environ).REQUEST
+    else:
+        request = makerequest(root, new_environ["_stdout"], new_environ).REQUEST
     view.__doc__ = "non-empty documentation"
     setattr(root, name, view)
 

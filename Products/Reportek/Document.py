@@ -420,7 +420,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         # TODO also take weights into consideration (gzip;q=0,deflate;q=1)
         if ae and ae.lower().startswith("gzip"):
             skip_decomp = True
-        with self.data_file.open(skip_decompress=skip_decomp) as data_file_handle:
+        # The file is closed when the body of the response is sent
+        data_file_handle = self.data_file.open(skip_decompress=skip_decomp)
+        try:
             size = self.data_file.size
             if skip_decomp and self.is_compressed():
                 # This is hackish. If the client asked for gzip compression
@@ -430,14 +432,17 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 # gzipped
                 RESPONSE.setHeader("content-encoding", "gzip")
                 size = self.data_file.compressed_size
-            RepUtils.http_response_with_file(
-                REQUEST,
-                RESPONSE,
-                data_file_handle,
-                self.content_type,
-                size,
-                self.data_file.mtime,
-            )
+        except BaseException:
+            data_file_handle.close()
+            raise
+        return RepUtils.http_response_with_file(
+            REQUEST,
+            RESPONSE,
+            data_file_handle,
+            self.content_type,
+            size,
+            self.data_file.mtime,
+        )
 
     security.declarePublic("isGML")
 
@@ -478,15 +483,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         content_type = "image/gif"
         file_size = os.path.getsize(filename)
         file_mtime = os.path.getmtime(filename)
-        with open(filename, "rb") as data_file:
-            RepUtils.http_response_with_file(
-                REQUEST,
-                RESPONSE,
-                data_file,
-                content_type,
-                file_size,
-                file_mtime,
-            )
+        return RepUtils.http_response_with_file(
+            REQUEST,
+            RESPONSE,
+            open(filename, "rb"),
+            content_type,
+            file_size,
+            file_mtime,
+        )
 
     security.declarePublic("icon_html")
 

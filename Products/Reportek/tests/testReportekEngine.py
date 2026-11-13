@@ -310,13 +310,12 @@ class ReportekEngineZipTest(BaseUnitTest):
         envelope.released = True
         envelope.title = "TestedEnvelope"
 
-        response_body = BytesIO()
-        mock_response = Mock(write=response_body.write)
+        mock_response = Mock()
 
         with patch("Products.Reportek.ReportekEngine.getSecurityManager"):
-            engine.zipEnvelopes(["/envelope"], Mock(), mock_response)
+            body = engine.zipEnvelopes(["/envelope"], Mock(), mock_response)
 
-        response_body.seek(0)
+        response_body = BytesIO(b"".join(body))
         with zipfile.ZipFile(response_body) as response_zip:
             self.assertEqual(
                 response_zip.namelist(),

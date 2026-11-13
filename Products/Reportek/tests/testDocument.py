@@ -1,5 +1,4 @@
 import os
-from io import BytesIO
 
 import transaction
 from unittest.mock import Mock, patch
@@ -229,12 +228,13 @@ class HttpRequestTest(BaseUnitTest):
 
         mtime = self.doc.data_file.mtime
 
-        resp = publish_view(self.doc)
+        resp = publish_view(self.doc, wsgi=True)
 
         self.assertEqual(resp.getHeader("Content-Length"), str(len(self.file_data)))
         # In Zope 4, charset is added to Content-Type for text types
         self.assertTrue(resp.getHeader("Content-Type").startswith("text/plain"))
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
+        self.assertEqual(b"".join(resp.body), self.file_data.encode())
 
     def test_get_file_not_modified_returns_304(self):
         from zope.datetime import rfc1123_date
@@ -261,10 +261,12 @@ class HttpRequestTest(BaseUnitTest):
             {
                 "HTTP_IF_MODIFIED_SINCE": rfc1123_date(mtime - 50),
             },
+            wsgi=True,
         )
 
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.getHeader("Last-Modified"), rfc1123_date(mtime))
+        self.assertEqual(b"".join(resp.body), self.file_data.encode())
 
     def test_get_missing_file(self):
         from Products.Reportek.Document import StorageError
@@ -274,27 +276,21 @@ class HttpRequestTest(BaseUnitTest):
         self.assertRaises(StorageError, publish_view, self.doc)
 
     def test_get_icon_from_specialized_view(self):
-        out = BytesIO()
         resp = publish_view(
             self.doc,
-            {
-                "PATH_INFO": "/testdoc/icon_gif",
-                "_stdout": out,
-            },
+            {"PATH_INFO": "/testdoc/icon_gif"},
+            wsgi=True,
         )
-        body = out.getvalue().split(b"\r\n\r\n", 1)[1]
+        body = b"".join(resp.body)
         self.assertEqual(body[:6], b"GIF89a")
         self.assertEqual(resp.getHeader("Content-Type"), "image/gif")
 
     def test_get_icon_from_index_view(self):
-        out = BytesIO()
         resp = publish_view(
             self.doc,
-            {
-                "QUERY_STRING": "icon=1",
-                "_stdout": out,
-            },
+            {"QUERY_STRING": "icon=1"},
+            wsgi=True,
         )
-        body = out.getvalue().split(b"\r\n\r\n", 1)[1]
+        body = b"".join(resp.body)
         self.assertEqual(body[:6], b"GIF89a")
         self.assertEqual(resp.getHeader("Content-Type"), "image/gif")
