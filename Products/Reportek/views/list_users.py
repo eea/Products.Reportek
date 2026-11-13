@@ -197,29 +197,23 @@ class ListUsers(BaseAdmin):
                     col_obligations.append((uri, title))
 
                 if use_role:
-                    users = dict(
-                        (
-                            user,
-                            {
-                                "uid": user,
-                                "role": role,
-                            },
-                        )
+                    users = {
+                        user: {
+                            "uid": user,
+                            "role": role,
+                        }
                         for user, roles in brain.local_defined_roles.items()
                         if use_role in roles
-                    )
+                    }
                 else:
                     if brain.local_defined_users:
-                        users = dict(
-                            (
-                                user,
-                                {
-                                    "uid": user,
-                                    "role": brain.local_defined_roles.get(user),
-                                },
-                            )
+                        users = {
+                            user: {
+                                "uid": user,
+                                "role": brain.local_defined_roles.get(user),
+                            }
                             for user in brain.local_defined_users
-                        )
+                        }
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     # Hide our internal user agent from search results
                     if "bdr_folder_agent" in users:

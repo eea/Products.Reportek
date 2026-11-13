@@ -6,7 +6,7 @@ import transaction
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 
 from string import ascii_uppercase
-from random import choice
+from secrets import choice
 
 
 def do_update(app):

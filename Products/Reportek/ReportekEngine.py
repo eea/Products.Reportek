@@ -249,6 +249,12 @@ def _zip_info(name):
     return info
 
 
+def _drop_empty_values(kwargs):
+    """Remove the search parameters that are None or an empty string."""
+    for key in [key for key, value in kwargs.items() if value in [None, ""]]:
+        del kwargs[key]
+
+
 @implementer(IReportekEngine, II18nAware)
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """Stores generic attributes for Reportek"""
@@ -1995,7 +2001,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             upd_module.update(app)
 
         migs = getattr(self, constants.MIGRATION_ID)
-        migs = sorted(list(migs.values()), key=lambda o: o.current_ts, reverse=True)
+        migs = sorted(migs.values(), key=lambda o: o.current_ts, reverse=True)
         done_rows = []
         todo_rows = []
 
@@ -2648,7 +2654,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         raise ValueError("hello world")
 
     def getSearchResults(self, **kwargs):
-        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
+        _drop_empty_values(kwargs)
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**kwargs)
 
@@ -2661,7 +2667,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         of rows is the same as with getSearchResults, and rows sharing a date
         are ordered by their record id.
         """
-        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
+        _drop_empty_values(kwargs)
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         if kwargs.get("sort_on") in WINDOWED_SORT_KEYS:
             # a Batch looks at the row after its last row and its orphans

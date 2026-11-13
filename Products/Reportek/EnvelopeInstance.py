@@ -63,6 +63,8 @@ from Products.Reportek.RepUtils import getToolByName, refuse_when_frozen
 from Products.Reportek.workitem import workitem
 from Products.Reportek.permissions import manage_openflow, use_openflow
 
+RMQ_MESSAGE_FORMAT = "{}|{}"  # the message of the queue: url|frequency
+
 try:
     # do you have CMF?
     # if so use its Expression class
@@ -696,7 +698,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     if rmq:
                         activity = self.getActivity(wk.id)
                         queue_msg(
-                            "{}|{}".format(self.absolute_url(), self.get_freq(wk.id)),
+                            RMQ_MESSAGE_FORMAT.format(
+                                self.absolute_url(), self.get_freq(wk.id)
+                            ),
                             queue=self.get_rmq_queue(activity.getId()),
                         )
                     result["triggered"] = wk.activity_id
@@ -814,7 +818,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.startAutomaticApplication(workitem_id)
                     if rmq:
                         queue_msg(
-                            "{}|{}".format(
+                            RMQ_MESSAGE_FORMAT.format(
                                 self.absolute_url(), self.get_freq(workitem_id)
                             ),
                             queue=self.get_rmq_queue(activity.getId()),
@@ -1123,7 +1127,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     application = self.restrictedTraverse(application_url)
                     if rmq and not isinstance(application, RemoteRabbitMQQAApplication):
                         queue_msg(
-                            "{}|{}".format(
+                            RMQ_MESSAGE_FORMAT.format(
                                 self.absolute_url(), self.get_freq(workitem_id)
                             ),
                             queue=self.get_rmq_queue(activity.getId()),

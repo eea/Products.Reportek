@@ -400,9 +400,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             return list(self.__ac_local_roles__.keys())
 
     def local_unique_roles(self):
-        return set(
-            role for roles in list(self.__ac_local_roles__.values()) for role in roles
-        )
+        return set(role for roles in self.__ac_local_roles__.values() for role in roles)
 
     security.declareProtected(manage_users, "get_users_list")
 
@@ -812,9 +810,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         l_query_array = self.changeQueryString2Dict(
             p_query_string, p_parameter, p_value
         )
-        return "&".join(
-            str(x) + "=" + str(l_query_array[x]) for x in list(l_query_array.keys())
-        )
+        return "&".join(str(x) + "=" + str(l_query_array[x]) for x in l_query_array)
 
     def changeQueryString2Dict(self, p_query_string, p_parameter=None, p_value=None):
         """returns the array for changeQueryString2"""
@@ -1348,7 +1344,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             "partofyear": self.partofyear,
             "country": self.country,
             "locality": self.locality,
-            "dataflow_uris": [df for df in self.dataflow_uris],
+            "dataflow_uris": list(self.dataflow_uris),
             "allow_collections": self.allow_collections,
             "allow_envelopes": self.allow_envelopes,
             "allow_referrals": self.are_referrals_allowed(),

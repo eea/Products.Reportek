@@ -3,6 +3,14 @@ Changelog
 
 101.1-dev0 - (unreleased)
 ---------------------------
+* refactor: SonarQube code smells: list() calls on what is iterable already,
+        list(...)[0] as next(iter(...)), dict() of pairs and comprehensions
+        that copy as a dict comprehension and list(), a constant for the
+        message of the queue of EnvelopeInstance, secrets.choice for the ids
+        of migrate_dataflow_mappings; the search parameters that are empty
+        are removed by a function (the keys are listed first, as the
+        dictionary is changed) in getSearchResults and
+        getBatchSearchResults; add tests
 * fix: security (path traversal reported by SonarQube): the scripts that get
         paths on the command line, updates/import_ecas_plugin.py and
         locales/page-based-po.py, resolve them and only read an existing

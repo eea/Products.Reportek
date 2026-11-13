@@ -1442,7 +1442,7 @@ class EnvelopeCustomDataflows(Toolz):
                     xml_id = xml_file.getId()
                     xml_title = getattr(xml_file, "title", "")
                     xml_restricted = getattr(xml_file, "restricted", "")
-                    fbs = [fb for fb in xml_file.getFeedbacksForDocument()]
+                    fbs = list(xml_file.getFeedbacksForDocument())
                     # Change the document_ids of the associated feedback files
                     # so that they don't get deleted when the xml contents are
                     # being replaced
@@ -1619,9 +1619,10 @@ class EnvelopeCustomDataflows(Toolz):
                         if m:
                             if len(m) == 1:
                                 m = m[0]
-                                metadata[list(m.keys())[0]] = m[list(m.keys())[0]]
+                                m_key = next(iter(m))
+                                metadata[m_key] = m[m_key]
                             else:
-                                m_key = list(m[0].keys())[0]
+                                m_key = next(iter(m[0]))
                                 metadata[m_key] = [k[m_key] for k in m]
                 else:
                     metadata = r_metadata
@@ -1806,7 +1807,7 @@ class EnvelopeCustomDataflows(Toolz):
         """Copies prefill files from src to the envelope"""
 
         prefill_folder = self.unrestrictedTraverse(src)
-        fxmls = [x for x in prefill_folder.objectValues("File")]
+        fxmls = list(prefill_folder.objectValues("File"))
         w0 = getattr(self, workitem_id)
 
         for fxml in fxmls:
@@ -1834,9 +1835,7 @@ class EnvelopeCustomDataflows(Toolz):
                 )
                 for col in c_colls:
                     if col.company_id == self.company_id:
-                        envs[k] = envs[k] + [
-                            env for env in col.objectValues("Report Envelope")
-                        ]
+                        envs[k] = envs[k] + list(col.objectValues("Report Envelope"))
 
         return envs
 

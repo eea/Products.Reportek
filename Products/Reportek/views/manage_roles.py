@@ -42,7 +42,7 @@ class ManageRoles(BaseAdmin):
                     {
                         "country": coll.getCountryName,
                         "collection": coll,
-                        "roles": ", ".join([role for role in local_roles]),
+                        "roles": ", ".join(local_roles),
                     }
                 )
 
@@ -295,7 +295,7 @@ class ManageRoles(BaseAdmin):
         )
         disabled_uids = [user.get("uid") for user in disabled_users]
         groups = get_ldap_group_ids(self.context)
-        group_prefixes = tuple({group.split("-")[0] for group in groups})
+        group_prefixes = tuple(group.split("-")[0] for group in groups)
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         brains = catalog.searchResults(**query)
         for brain in brains:
