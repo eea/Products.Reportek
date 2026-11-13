@@ -61,15 +61,16 @@ def _strip_hop_by_hop_headers(headers):
     """Remove HTTP hop-by-hop headers before copying to a WSGI response."""
     connection_tokens = {
         token.strip().lower()
-        for header, value in list(headers.items())
+        for header, value in headers.items()
         if header.lower() == "connection"
         for token in value.split(",")
         if token.strip()
     }
     blocked_headers = _HOP_BY_HOP_HEADERS | connection_tokens
-    for header in list(headers):
-        if header.lower() in blocked_headers:
-            headers.pop(header, None)
+    # the headers are removed from the mapping, so they are listed first
+    blocked = [header for header in headers if header.lower() in blocked_headers]
+    for header in blocked:
+        headers.pop(header, None)
     return headers
 
 

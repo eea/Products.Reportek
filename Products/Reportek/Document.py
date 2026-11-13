@@ -454,7 +454,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """Checks whether or not this is a GML file.
         The content type must be text/xml and it must end with .gml
         """
-        return self.content_type == CONTENT_TYPE_XML and self.id[-4:] == ".gml"
+        return self.content_type == CONTENT_TYPE_XML and self.id.endswith(".gml")
 
     security.declareProtected("View", "getQAScripts")
 

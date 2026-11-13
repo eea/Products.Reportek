@@ -170,9 +170,8 @@ class ListUsers(BaseAdmin):
             countries = [countries]
 
         use_role = role
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if role == REPORTER_OWNER_ROLE:
-                use_role = "Owner"
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and role == REPORTER_OWNER_ROLE:
+            use_role = "Owner"
 
         if path:
             parts = path.split("/")

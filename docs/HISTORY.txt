@@ -3,6 +3,10 @@ Changelog
 
 101.1-dev0 - (unreleased)
 ---------------------------
+* refactor: SonarQube: the if statements of the role of the owner in
+        manage_roles and list_users are merged, Document.isGML uses endswith,
+        the list() calls on the headers of the converters are not needed
+        (the ones that are removed are listed first); add tests
 * refactor: SonarQube code smells: list() calls on what is iterable already,
         list(...)[0] as next(iter(...)), dict() of pairs and comprehensions
         that copy as a dict comprehension and list(), a constant for the

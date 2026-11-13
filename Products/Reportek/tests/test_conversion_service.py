@@ -56,6 +56,36 @@ class ConversionServiceTest(BaseUnitTest):
             _strip_hop_by_hop_headers(headers),
         )
 
+    def test_strip_hop_by_hop_headers_of_a_response(self):
+        from requests.structures import CaseInsensitiveDict
+
+        headers = CaseInsensitiveDict(
+            {
+                "content-type": "text/plain",
+                "CONNECTION": "Keep-Alive, x-internal-header",
+                "keep-alive": "timeout=5",
+                "Transfer-Encoding": "chunked",
+                "X-Internal-Header": "remove-me",
+                "X-Application-Header": "keep-me",
+            }
+        )
+
+        result = _strip_hop_by_hop_headers(headers)
+
+        self.assertIs(result, headers)
+        self.assertEqual(
+            {"content-type": "text/plain", "x-application-header": "keep-me"},
+            {key.lower(): value for key, value in result.items()},
+        )
+
+    def test_strip_hop_by_hop_headers_without_headers_to_strip(self):
+        headers = {"Content-Type": "text/plain", "X-Other": "kept"}
+        self.assertEqual(
+            {"Content-Type": "text/plain", "X-Other": "kept"},
+            _strip_hop_by_hop_headers(dict(headers)),
+        )
+        self.assertEqual({}, _strip_hop_by_hop_headers({}))
+
     @patch.object(Converters, "_get_local_converters")
     def test_only_http_converters(self, mock_local_converters):
         """no local converters, only http"""

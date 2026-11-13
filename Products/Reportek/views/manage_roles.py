@@ -52,9 +52,8 @@ class ManageRoles(BaseAdmin):
         collections = self.request.get("collections", [])
         role = self.request.get("role", "")
 
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if role == REPORTER_OWNER_ROLE:
-                role = "Owner"
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and role == REPORTER_OWNER_ROLE:
+            role = "Owner"
 
         search_type = self.request.get("search_type")
         entity = self.request.get("username", "")
