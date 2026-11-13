@@ -1,5 +1,6 @@
 from .base_admin import BaseAdmin
 from Products.Reportek import constants
+from Products.Reportek.constants import METATYPE_ENVELOPE
 
 
 class Statistics(BaseAdmin):
@@ -7,9 +8,9 @@ class Statistics(BaseAdmin):
 
     def totals_per_type(self):
         total = {}
-        total["envelopes"] = len(self.context.Catalog(meta_type="Report Envelope"))
+        total["envelopes"] = len(self.context.Catalog(meta_type=METATYPE_ENVELOPE))
         total["envelopes_released"] = len(
-            self.context.Catalog(meta_type="Report Envelope", released=True)
+            self.context.Catalog(meta_type=METATYPE_ENVELOPE, released=True)
         )
         total["files"] = len(self.context.Catalog(meta_type="Report Document"))
         total["feedbacks"] = len(self.context.Catalog(meta_type="Report Feedback"))
@@ -36,7 +37,7 @@ class Statistics(BaseAdmin):
                         "country": localities[country_url]["name"],
                         "count": len(
                             self.context.Catalog(
-                                meta_type="Report Envelope",
+                                meta_type=METATYPE_ENVELOPE,
                                 released=True,
                                 country=country_url,
                             )

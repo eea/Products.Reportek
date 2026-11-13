@@ -3,6 +3,11 @@ Changelog
 
 101.1-dev0 - (unreleased)
 ---------------------------
+* refactor: the meta_type of the content classes (Report Document, Report
+        Envelope, Report Collection, Report Feedback, Workitem, ...) is a
+        constant in constants.py, which the classes and the code that looks
+        for the objects by it use, instead of the string repeated in many
+        places; the strings are the same; add tests
 * fix: the download of an empty file that is stored compressed (xml, text,
         octet-stream, ...) had a Content-Length of 32 and no content, so the
         client waited for the rest: the size of the file was the size of the

@@ -43,6 +43,7 @@ import Products
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.constants import METATYPE_PROCESS, METATYPE_WORKITEM
 
 from . import RepUtils, process
 
@@ -135,7 +136,7 @@ class OpenFlowEngine(Folder, Toolz):
 
         y = [
             {
-                "name": "Process",
+                "name": METATYPE_PROCESS,
                 "action": "manage_addProcessForm",
                 "permission": "Manage OpenFlow",
             }
@@ -203,7 +204,7 @@ class OpenFlowEngine(Folder, Toolz):
         if removeList:
             for i in catalog.unrestrictedSearchResults(
                 dict(
-                    meta_type="Workitem",
+                    meta_type=METATYPE_WORKITEM,
                     process_path=process_path,
                     activity_id=removeList,
                 )
@@ -217,7 +218,7 @@ class OpenFlowEngine(Folder, Toolz):
         if addList:
             for i in catalog.unrestrictedSearchResults(
                 dict(
-                    meta_type="Workitem",
+                    meta_type=METATYPE_WORKITEM,
                     process_path=process_path,
                     activity_id=addList,
                 )
@@ -292,7 +293,7 @@ class OpenFlowEngine(Folder, Toolz):
         if removeList:
             for i in catalog.unrestrictedSearchResults(
                 dict(
-                    meta_type="Workitem",
+                    meta_type=METATYPE_WORKITEM,
                     process_path=process_path,
                     activity_id=removeList,
                 )
@@ -306,7 +307,7 @@ class OpenFlowEngine(Folder, Toolz):
         if addList:
             for i in catalog.unrestrictedSearchResults(
                 dict(
-                    meta_type="Workitem",
+                    meta_type=METATYPE_WORKITEM,
                     process_path=process_path,
                     activity_id=addList,
                 )
@@ -451,7 +452,7 @@ class OpenFlowEngine(Folder, Toolz):
         catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
         ret_list = catalog.unrestrictedSearchResults(
             dict(
-                meta_type="Workitem",
+                meta_type=METATYPE_WORKITEM,
                 process_path=process_path,
                 status=statuses_list,
             )
@@ -561,7 +562,7 @@ class OpenFlowEngine(Folder, Toolz):
             procs = [getattr(self, proc)]
         else:
             filename = "workflows.json"
-            procs = self.objectValues("Process")
+            procs = self.objectValues(METATYPE_PROCESS)
         if REQUEST:
             REQUEST.RESPONSE.setHeader(
                 "content-type", "application/json; charset=UTF-8"
@@ -854,7 +855,7 @@ class OpenFlowEngine(Folder, Toolz):
         useful
         A newly added process is not valid for any dataflow or country
         """
-        l_all_processes = self.objectIds("Process")
+        l_all_processes = self.objectIds(METATYPE_PROCESS)
         l_return_dict = self.process_mappings
         for l_process_id in l_all_processes:
             # add new processes
@@ -1061,7 +1062,7 @@ class OpenFlowEngine(Folder, Toolz):
 
     def getApplicationToActivitiesMapping(self):
         out = defaultdict(list)
-        for p in self.objectValues(["Process"]):
+        for p in self.objectValues([METATYPE_PROCESS]):
             for activity in p.objectValues(["Activity"]):
                 if activity.kind == "standard":
                     out[activity.application].append(activity)

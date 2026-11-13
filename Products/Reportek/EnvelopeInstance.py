@@ -45,7 +45,7 @@ from ZPublisher.BaseRequest import BaseRequest
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.constants import DEFAULT_CATALOG, ENGINE_ID
+from Products.Reportek.constants import DEFAULT_CATALOG, ENGINE_ID, METATYPE_WORKITEM
 from Products.Reportek.exceptions import ApplicationException
 
 # Product specific imports
@@ -196,7 +196,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     ###########################################
 
     def addWorkitem(self, activity_id, blocked, push_roles=[], pull_roles=[]):
-        w_id = str(len(self.objectValues("Workitem")))
+        w_id = str(len(self.objectValues(METATYPE_WORKITEM)))
         w = workitem(
             w_id,
             self.id,
@@ -330,12 +330,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if cached is not None:
                     workitems = cached
                 else:
-                    workitems = self.objectValues("Workitem")
+                    workitems = self.objectValues(METATYPE_WORKITEM)
                     request.set(cache_key, workitems)
             else:
-                workitems = self.objectValues("Workitem")
+                workitems = self.objectValues(METATYPE_WORKITEM)
         except AttributeError:
-            workitems = self.objectValues("Workitem")
+            workitems = self.objectValues(METATYPE_WORKITEM)
 
         if status is None:
             return workitems
@@ -950,7 +950,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def sendWorkitemsToException(self, process_id, activity_id):
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         for wi in catalog.searchResults(
-            meta_type="Workitem",
+            meta_type=METATYPE_WORKITEM,
             process_id=process_id,
             activity_id=activity_id,
             status=["active", "inactive"],
@@ -1167,7 +1167,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def traceActivity(self, steps=0, activity_type=None):
         """Return required activity by crawling up it's history."""
 
-        wk_ids = [int(wk_id) for wk_id in self.objectIds("Workitem")]
+        wk_ids = [int(wk_id) for wk_id in self.objectIds(METATYPE_WORKITEM)]
         last_workitem_id = max(wk_ids)
 
         if not steps and not activity_type:

@@ -28,7 +28,7 @@ from App.Common import package_home
 from OFS.Folder import Folder
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.constants import ENGINE_ID, METATYPE_QASCRIPT
 from Products.Reportek.RemoteApplication import RemoteApplication
 
 from . import QAScript, RepUtils, constants
@@ -54,7 +54,7 @@ class QARepository(Folder):
         self.id = constants.QAREPOSITORY_ID
         self.QA_application = "EnvelopeQAApplication"
 
-    meta_types = ({"name": "QAScript", "action": "manage_addQAScriptForm"},)
+    meta_types = ({"name": METATYPE_QASCRIPT, "action": "manage_addQAScriptForm"},)
     all_meta_types = meta_types
 
     manage_addQAScriptForm = QAScript.manage_addQAScriptForm
@@ -86,12 +86,14 @@ class QARepository(Folder):
         """ """
         if p_schema and not dataflow_uris:
             return [
-                x for x in self.objectValues("QAScript") if x.xml_schema == p_schema
+                x
+                for x in self.objectValues(METATYPE_QASCRIPT)
+                if x.xml_schema == p_schema
             ]
         elif p_schema and dataflow_uris and not content_type_in:
             return [
                 x
-                for x in self.objectValues("QAScript")
+                for x in self.objectValues(METATYPE_QASCRIPT)
                 if (
                     getattr(x, "workflow", None) in dataflow_uris
                     or x.xml_schema == p_schema
@@ -100,7 +102,7 @@ class QARepository(Folder):
         elif p_schema and dataflow_uris and content_type_in:
             return [
                 x
-                for x in self.objectValues("QAScript")
+                for x in self.objectValues(METATYPE_QASCRIPT)
                 if (
                     (
                         getattr(x, "workflow", None) in dataflow_uris
@@ -112,7 +114,7 @@ class QARepository(Folder):
         elif dataflow_uris and content_type_in:
             return [
                 x
-                for x in self.objectValues("QAScript")
+                for x in self.objectValues(METATYPE_QASCRIPT)
                 if (
                     getattr(x, "workflow", None) in dataflow_uris
                     and content_type_in == getattr(x, "content_type_in", None)
@@ -121,17 +123,17 @@ class QARepository(Folder):
         elif dataflow_uris and not content_type_in:
             return [
                 x
-                for x in self.objectValues("QAScript")
+                for x in self.objectValues(METATYPE_QASCRIPT)
                 if (getattr(x, "workflow", None) in dataflow_uris)
             ]
         elif not dataflow_uris and content_type_in:
             return [
                 x
-                for x in self.objectValues("QAScript")
+                for x in self.objectValues(METATYPE_QASCRIPT)
                 if (content_type_in == getattr(x, "content_type_in", None))
             ]
         elif not dataflow_uris:
-            return self.objectValues("QAScript")
+            return self.objectValues(METATYPE_QASCRIPT)
 
     def _get_remote_qa_scripts(self, p_schema=""):
         """ """

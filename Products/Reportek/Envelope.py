@@ -94,7 +94,12 @@ from Products.Reportek.RepUtils import (
 )
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 
-from .constants import ENGINE_ID, WORKFLOW_ENGINE_ID
+from .constants import (
+    ENGINE_ID,
+    METATYPE_BLOB_FILE,
+    METATYPE_ENVELOPE,
+    WORKFLOW_ENGINE_ID,
+)
 from .exceptions import InvalidPartOfYear
 
 __version__ = "$Revision$"[11:-2]
@@ -328,7 +333,7 @@ class Envelope(
     a management interface
     """
 
-    meta_type = "Report Envelope"
+    meta_type = METATYPE_ENVELOPE
     icon = "++resource++images/envelope.gif"
 
     # location of the file-repository
@@ -1705,8 +1710,8 @@ class Envelope(
                 )
 
                 # Add feedback attachments
-                for attachment in feedback.objectValues(["File", "File (Blob)"]):
-                    if attachment.meta_type == "File (Blob)":
+                for attachment in feedback.objectValues(["File", METATYPE_BLOB_FILE]):
+                    if attachment.meta_type == METATYPE_BLOB_FILE:
                         zip_file.add(
                             RepUtils.iter_file_data(
                                 attachment.data_file.open(),
@@ -2057,13 +2062,13 @@ class Envelope(
                                     RepUtils.xmlEncode(url_quote(o.document_id)),
                                 )
                             )  # noqa
-                        for attachment in o.objectValues(["File", "File (Blob)"]):
+                        for attachment in o.objectValues(["File", METATYPE_BLOB_FILE]):
                             xmlChunk.append(
                                 '<cr:hasAttachment rdf:resource="%s"/>'  # noqa
                                 % parse_uri(attachment.absolute_url(), http_res)
                             )
                         xmlChunk.append("</cr:Feedback>")
-                        for attachment in o.objectValues(["File", "File (Blob)"]):
+                        for attachment in o.objectValues(["File", METATYPE_BLOB_FILE]):
                             xmlChunk.append(
                                 '<cr:FeedbackAttachment rdf:about="%s">'
                                 % parse_uri(  # noqa

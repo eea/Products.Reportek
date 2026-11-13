@@ -20,6 +20,8 @@ from Products.Reportek.constants import (
     DF_URL_PREFIX,
     ECAS_ID,
     ENGINE_ID,
+    METATYPE_FEEDBACK,
+    METATYPE_WORKITEM,
 )
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
@@ -235,7 +237,7 @@ class EnvelopesAPI(BrowserView):
         if env_path:
             envelope = self.context.restrictedTraverse(env_path, None)
             if envelope:
-                for fb in envelope.objectValues("Report Feedback"):
+                for fb in envelope.objectValues(METATYPE_FEEDBACK):
                     fb_properties = {
                         "url": fb.absolute_url(0),
                         "title": fb.title,
@@ -461,7 +463,7 @@ class EnvelopesAPI(BrowserView):
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         brains = list(catalog.searchResults(**query))
 
-        if children_type == "Workitem":
+        if children_type == METATYPE_WORKITEM:
             brains.sort(key=self.get_brain_id)
         cache[cache_key] = brains
         return brains
@@ -496,7 +498,7 @@ class EnvelopesAPI(BrowserView):
             if parent in children:
                 children[parent].append(brain)
         for path, brains in children.items():
-            if children_type == "Workitem":
+            if children_type == METATYPE_WORKITEM:
                 brains.sort(key=self.get_brain_id)
             cache[(path, children_type)] = brains
 
@@ -595,7 +597,7 @@ class EnvelopesAPI(BrowserView):
     def get_env_history(self, env_brain):
         """Return the envelope's workflow history."""
         result = []
-        wk_brains = self.get_env_children(env_brain.getPath(), "Workitem")
+        wk_brains = self.get_env_children(env_brain.getPath(), METATYPE_WORKITEM)
         for brain in wk_brains:
             blocker = brain.blocker
             if not blocker and blocker is not False:
@@ -622,7 +624,7 @@ class EnvelopesAPI(BrowserView):
 
     def has_unknown_qc(self, path):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
-        fb_brains = self.get_env_children(path, "Report Feedback")
+        fb_brains = self.get_env_children(path, METATYPE_FEEDBACK)
         aqc_brains = [
             brain for brain in fb_brains if brain.title.startswith("AutomaticQA")
         ]
@@ -667,7 +669,7 @@ class EnvelopesAPI(BrowserView):
     def get_additional_props(self, brain):
         """Return additional envelope properties."""
         last_status_d = None
-        wk_brains = self.get_env_children(brain.getPath(), "Workitem")
+        wk_brains = self.get_env_children(brain.getPath(), METATYPE_WORKITEM)
         actors = [wk.actor for wk in wk_brains if wk.activity_id == "Draft"]
         creator = None
         if actors:
@@ -751,9 +753,9 @@ class EnvelopesAPI(BrowserView):
                 ) or any(param in self.WORKFLOW_FILTERS for param in fed_params)
                 if needs_workflow_props or "history" in (fields or []):
                     paths = [brain.getPath() for brain in brains]
-                    self.prefetch_env_children(paths, "Workitem")
+                    self.prefetch_env_children(paths, METATYPE_WORKITEM)
                     if needs_workflow_props:
-                        self.prefetch_env_children(paths, "Report Feedback")
+                        self.prefetch_env_children(paths, METATYPE_FEEDBACK)
                 for brain in brains:
                     default_props = self.get_default_props(brain)
                     envelope_data = {}

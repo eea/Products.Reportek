@@ -53,7 +53,11 @@ from Products.Reportek.config import (
     REPORTEK_DEPLOYMENT,
     permission_manage_properties_collections,
 )
-from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    METATYPE_COLLECTION,
+    METATYPE_ENVELOPE,
+)
 from Products.Reportek.events import LocalRolesChangedEvent
 from Products.Reportek.interfaces import ICollection
 from Products.Reportek.modification_date import set_reportek_modification_date
@@ -221,7 +225,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     a management interface and can have arbitrary properties.
     """
 
-    meta_type = "Report Collection"
+    meta_type = METATYPE_COLLECTION
     icon = "++resource++images/collection.gif"
     security = ClassSecurityInfo()
 
@@ -301,7 +305,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if self.allow_collections:
             y.append(
                 {
-                    "name": "Report Collection",
+                    "name": METATYPE_COLLECTION,
                     "action": "manage_addCollectionForm",
                     "permission": "Add Collections",
                 }
@@ -310,7 +314,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if self.allow_envelopes:
             y.append(
                 {
-                    "name": "Report Envelope",
+                    "name": METATYPE_ENVELOPE,
                     "action": "manage_addEnvelopeForm",
                     "permission": "Add Envelopes",
                 }
@@ -421,7 +425,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                         }
         # retrieve the local accounts
         folders = catalog.searchResults(
-            **dict(meta_type=["Report Collection"], path=self.absolute_url(1))
+            **dict(meta_type=[METATYPE_COLLECTION], path=self.absolute_url(1))
         )
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
@@ -611,7 +615,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         reported = False
         if catalog is not None:
             query = {
-                "meta_type": "Report Envelope",
+                "meta_type": METATYPE_ENVELOPE,
                 "path": "/".join(self.getPhysicalPath()),
                 "released": 1,
                 "status": "complete",
@@ -757,10 +761,10 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if p_ret is None:
             p_ret = []
         # loop the envelopes
-        for l_env in self.objectValues("Report Envelope"):
+        for l_env in self.objectValues(METATYPE_ENVELOPE):
             p_ret.extend(l_env.getListOfWorkitems(["active", "inactive"]))
         # loop the subcollections
-        for l_coll in self.objectValues("Report Collection"):
+        for l_coll in self.objectValues(METATYPE_COLLECTION):
             l_coll.getWorkitemsForWorklist(p_ret)
         return p_ret
 
@@ -1443,7 +1447,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def get_released_envelopes(self):
         path = "/".join(self.getPhysicalPath())
         query = {
-            "meta_type": "Report Envelope",
+            "meta_type": METATYPE_ENVELOPE,
             "released": 1,
             "sort_on": "reportingdate",
             "sort_order": "reverse",
@@ -1459,7 +1463,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if catalog is not None:
             path = "/".join(self.getPhysicalPath())
             brains = catalog.searchResults(
-                meta_type="Report Envelope",
+                meta_type=METATYPE_ENVELOPE,
                 sort_on="reportingdate",
                 sort_order="reverse",
                 sort_limit=1,
@@ -1470,7 +1474,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 if obj is not None:
                     return obj.reportingdate
             return None
-        envs = self.get_children("Report Envelope", "reportingdate")
+        envs = self.get_children(METATYPE_ENVELOPE, "reportingdate")
         if envs:
             return envs[0].reportingdate
 
@@ -1617,7 +1621,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         # subcollection of the FGAS collection.
         res = []
         rep_coll = self.getParentNode()
-        envs = rep_coll.objectValues("Report Envelope")
+        envs = rep_coll.objectValues(METATYPE_ENVELOPE)
         envs = [env for env in envs if env.is_auditable()]
         MKEYS = [
             "tr_09C",

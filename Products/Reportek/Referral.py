@@ -39,6 +39,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.constants import METATYPE_REFERRAL
 
 # Product imports
 from . import RepUtils
@@ -106,7 +107,7 @@ class Referral(
     a management interface and can have arbitrary properties.
     """
 
-    meta_type = "Repository Referral"
+    meta_type = METATYPE_REFERRAL
     icon = "++resource++images/referral.gif"
 
     # Create a SecurityInfo for this class. We will use this

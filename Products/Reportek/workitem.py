@@ -19,6 +19,7 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.interfaces import IWkMetadata, IWorkitem
 from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.constants import METATYPE_WORKITEM
 
 ANNOTATION_KEY = "workitem.metadata"
 
@@ -34,7 +35,7 @@ def computed_attribute_decorator(level=0):
 class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     """describes a single workitem of the history graph"""
 
-    meta_type = "Workitem"
+    meta_type = METATYPE_WORKITEM
     icon = "++resource++images/Workitem.gif"
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security

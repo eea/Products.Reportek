@@ -54,7 +54,7 @@ from Products.Reportek.events import AuditAssignedEvent, AuditUnassignedEvent
 from Products.Reportek.interfaces import IAudit
 
 from . import RepUtils, zip_content
-from .constants import CONVERTERS_ID, ENGINE_ID
+from .constants import CONVERTERS_ID, ENGINE_ID, METATYPE_DOCUMENT
 from .Toolz import Toolz
 from .XMLInfoParser import SchemaError, detect_single_schema
 from .zip_content import ZZipFile
@@ -131,7 +131,7 @@ class EnvelopeCustomDataflows(Toolz):
         """
         return [
             doc.id
-            for doc in self.objectValues("Report Document")
+            for doc in self.objectValues(METATYPE_DOCUMENT)
             if doc.xml_schema_location == schema
         ]
 
@@ -327,7 +327,7 @@ class EnvelopeCustomDataflows(Toolz):
             #       fileName (String): Name of the result file
             #       content (Byte[]): XML content of result document as a
             #       UTF-8 encoded byte array
-            t_docs = self.objectValues("Report Document")
+            t_docs = self.objectValues(METATYPE_DOCUMENT)
             dt_ids = [
                 x.id
                 for x in t_docs
@@ -848,7 +848,7 @@ class EnvelopeCustomDataflows(Toolz):
             xml_f = {}
             docs = [
                 (x.xml_schema_location, x.id)
-                for x in self.objectValues("Report Document")
+                for x in self.objectValues(METATYPE_DOCUMENT)
                 if x.xml_schema_location
             ]
             for i, j in docs:
@@ -1260,7 +1260,7 @@ class EnvelopeCustomDataflows(Toolz):
         xml_a = xml.append
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
         xml_a("<files>")
-        for doc in self.objectValues("Report Document"):
+        for doc in self.objectValues(METATYPE_DOCUMENT):
             if doc.id.endswith(".shp"):
                 xml_a('<file id="' + doc.id + '" url="' + doc.absolute_url() + '" />')
         xml_a("</files>")
@@ -1383,7 +1383,7 @@ class EnvelopeCustomDataflows(Toolz):
     def getFormContentAsXML(self, form_name):
         # Load an XML from 'report document'/disk into minidom for parsing
         ret = None
-        for doc in self.objectValues("Report Document"):
+        for doc in self.objectValues(METATYPE_DOCUMENT):
             if doc.id == form_name:
                 with doc.data_file.open() as f:
                     ret = f.read()
@@ -1426,7 +1426,7 @@ class EnvelopeCustomDataflows(Toolz):
                 if log:
                     log(msg)
 
-        for xml_file in self.objectValues("Report Document"):
+        for xml_file in self.objectValues(METATYPE_DOCUMENT):
             schema = xml_file.xml_schema_location
             if schema in list(schema_convs.keys()):
                 url = xml_file.absolute_url(1)
@@ -1584,7 +1584,7 @@ class EnvelopeCustomDataflows(Toolz):
             if not doc_ids:
                 docs = (
                     doc
-                    for doc in self.objectValues("Report Document")
+                    for doc in self.objectValues(METATYPE_DOCUMENT)
                     if doc.content_type == "text/xml"
                 )
             else:
@@ -1625,7 +1625,7 @@ class EnvelopeCustomDataflows(Toolz):
         # Retrieve the metadata from the XML document
         xmls = [
             doc
-            for doc in self.objectValues("Report Document")
+            for doc in self.objectValues(METATYPE_DOCUMENT)
             if doc.content_type == "text/xml" and hasattr(aq_base(doc), "metadata")
         ]
 
@@ -1982,7 +1982,7 @@ class EnvelopeCustomDataflows(Toolz):
                 obj = getattr(self, f_id, None)
                 if obj is None:
                     raise KeyError("File with ID '{}' not found.".format(f_id))
-                if getattr(obj, "meta_type", None) == "Report Document":
+                if getattr(obj, "meta_type", None) == METATYPE_DOCUMENT:
                     delete_ids.append(f_id)
 
             if not delete_ids:

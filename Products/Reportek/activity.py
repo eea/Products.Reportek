@@ -29,13 +29,14 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.constants import METATYPE_ACTIVITY
 
 
 class activity(CatalogAware, SimpleItem):
     """Each activity is responsible for doing something and then forwarding
     the instance"""
 
-    meta_type = "Activity"
+    meta_type = METATYPE_ACTIVITY
     icon = "++resource++images/Activity.gif"
 
     manage_options = (

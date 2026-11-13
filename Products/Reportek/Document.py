@@ -56,6 +56,7 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.constants import (
     DEFAULT_CATALOG,
     ENGINE_ID,
+    METATYPE_DOCUMENT,
     QAREPOSITORY_ID,
 )
 from Products.Reportek.interfaces import IDocument
@@ -293,7 +294,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def macros(self):
         return self._macros_template.macros
 
-    meta_type = "Report Document"
+    meta_type = METATYPE_DOCUMENT
 
     ################################
     # Init method                  #

@@ -60,6 +60,7 @@ from Products.Reportek.RepUtils import (
     parse_uri,
     refuse_when_frozen,
 )
+from Products.Reportek.constants import METATYPE_FEEDBACK
 
 __version__ = "$Rev$"[6:-2]
 ANNOTATION_KEY = "feedback.history"
@@ -253,7 +254,7 @@ class ReportFeedback(
     people discussing the content of the feedback.
     """
 
-    meta_type = "Report Feedback"
+    meta_type = METATYPE_FEEDBACK
     icon = "++resource++images/feedback.gif"
 
     # what management options are there?

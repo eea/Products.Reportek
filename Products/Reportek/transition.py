@@ -33,6 +33,7 @@ from OFS.SimpleItem import SimpleItem
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.constants import METATYPE_TRANSITION
 
 
 class transition(CatalogAware, SimpleItem):
@@ -63,7 +64,7 @@ class transition(CatalogAware, SimpleItem):
     #   security.declareProtected('Use OpenFlow', 'index_html')
     index_html = PageTemplateFile("zpt/Workflow/transition_index.zpt", globals())
 
-    meta_type = "Transition"
+    meta_type = METATYPE_TRANSITION
     icon = "++resource++images/Transition.gif"
 
     security.declareProtected("Manage OpenFlow", "edit")

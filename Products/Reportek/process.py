@@ -16,6 +16,11 @@ from Products.Reportek import constants
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.interfaces import IProcess
 from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.constants import (
+    METATYPE_ACTIVITY,
+    METATYPE_PROCESS,
+    METATYPE_TRANSITION,
+)
 
 # Product imports
 from .activity import activity
@@ -66,7 +71,7 @@ class process(CatalogAware, Folder):
     The process map is given by the linking of activities by transitions.
     Each process instance is described by a instance"""
 
-    meta_type = "Process"
+    meta_type = METATYPE_PROCESS
 
     security = ClassSecurityInfo()
     icon = "++resource++images/Process.gif"
@@ -232,12 +237,12 @@ class process(CatalogAware, Folder):
         )
 
     def listActivities(self):
-        return sorted(self.objectIds("Activity"))
+        return sorted(self.objectIds(METATYPE_ACTIVITY))
 
     def listUnreferedActivities(self):
         """Return a list of activities with no transitions going to them."""
         activities = {}  # use dict in order to avoid duplicates
-        for t in self.objectValues("Transition"):
+        for t in self.objectValues(METATYPE_TRANSITION):
             activities[t.From] = ""
             activities[t.To] = ""
         return list(activities.keys())
@@ -298,7 +303,7 @@ class process(CatalogAware, Folder):
         """
         transpairs = []
         froms = [self.begin]
-        for t in self.objectValues("Transition"):
+        for t in self.objectValues(METATYPE_TRANSITION):
             if t.To != self.begin:
                 transpairs.append((self.begin, t.To))
             if t.From != self.end:
@@ -365,7 +370,9 @@ class process(CatalogAware, Folder):
     def manage_delObjects(self, ids=[], REQUEST=None):
         """override default method to handle better the redirection"""
         catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
-        for activity_id in [id for id in ids if id in self.objectIds("Activity")]:
+        for activity_id in [
+            id for id in ids if id in self.objectIds(METATYPE_ACTIVITY)
+        ]:
             # fallout all the workitems that have this activity id
             for wi in catalog.searchResults(
                 **dict(
@@ -458,7 +465,7 @@ def process_to_dot(process):
 
     cond_prefix = "python:"
     link_lines = []
-    for t in process.objectValues("Transition"):
+    for t in process.objectValues(METATYPE_TRANSITION):
         short_tr_from = namify(t.From)
         short_tr_to = namify(t.To)
         condition = t.condition.strip()
@@ -489,7 +496,7 @@ def process_to_dot(process):
     for line in link_lines:
         dot.write("  " + line + ";\n")
 
-    for act in process.objectValues("Activity"):
+    for act in process.objectValues(METATYPE_ACTIVITY):
         app_details = act.mapped_application_details()
         color = "white"
         if app_details["mapped_by_path"]:

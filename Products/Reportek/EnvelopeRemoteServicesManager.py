@@ -42,7 +42,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 # Product specific imports
 from Products.Reportek import RepUtils
-from Products.Reportek.constants import QAREPOSITORY_ID
+from Products.Reportek.constants import METATYPE_DOCUMENT, QAREPOSITORY_ID
 from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException
 
@@ -64,7 +64,7 @@ class EnvelopeRemoteServicesManager:
         return len(
             [
                 x
-                for x in self.objectValues("Report Document")
+                for x in self.objectValues(METATYPE_DOCUMENT)
                 if x.xml_schema_location == schema
             ]
         )
@@ -79,7 +79,7 @@ class EnvelopeRemoteServicesManager:
         """
         l_list = [
             x
-            for x in self.objectValues("Report Document")
+            for x in self.objectValues(METATYPE_DOCUMENT)
             if x.xml_schema_location == p_schema_url
         ]
         return len(l_list)
@@ -111,7 +111,7 @@ class EnvelopeRemoteServicesManager:
             if len(baseName) < 3:
                 baseName = self.id
 
-        docs = [doc for doc in self.objectValues("Report Document")]
+        docs = [doc for doc in self.objectValues(METATYPE_DOCUMENT)]
         # first file
         if not docs:
             return "%s__1.xml" % baseName
@@ -162,7 +162,7 @@ class EnvelopeRemoteServicesManager:
         which can be manually run against the contained XML files
         """
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles(
-            self.objectValues("Report Document")
+            self.objectValues(METATYPE_DOCUMENT)
         )
 
     security.declareProtected("View", "note")
@@ -324,7 +324,7 @@ class EnvelopeRemoteServicesManager:
         l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(
             self.dataflow_uris
         )
-        for docu in self.objectValues("Report Document"):
+        for docu in self.objectValues(METATYPE_DOCUMENT):
             if docu.xml_schema_location:
                 schema_locations = docu.xml_schema_location.split(" ")
                 schema_locations.append(docu.xml_schema_location)
@@ -482,7 +482,7 @@ class EnvelopeRemoteServicesManager:
         the value is a list of structs containing fileurls and file-titles
         """
         l_ret_dict = {}
-        for l_doc in self.objectValues("Report Document"):
+        for l_doc in self.objectValues(METATYPE_DOCUMENT):
             if l_doc.content_type == "text/xml" and l_doc.xml_schema_location:
                 if l_doc.xml_schema_location in l_ret_dict:
                     l_ret_dict[str(l_doc.xml_schema_location)].append(
@@ -499,7 +499,7 @@ class EnvelopeRemoteServicesManager:
         l_dict = {}
         l_list = [
             x.xml_schema_location
-            for x in self.objectValues("Report Document")
+            for x in self.objectValues(METATYPE_DOCUMENT)
             if x.xml_schema_location != ""
         ]
         # remove duplicates

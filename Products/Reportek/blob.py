@@ -19,6 +19,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import RepUtils
 from Products.Reportek.gzipraw import GzipFileRaw
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
+from Products.Reportek.constants import METATYPE_BLOB_FILE
 
 logger = logging.getLogger("Reportek")
 
@@ -283,7 +284,7 @@ class FileContainer(Persistent):
 class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     """OFS object, similar to Image, that stores its data as a Blob."""
 
-    meta_type = "File (Blob)"
+    meta_type = METATYPE_BLOB_FILE
     security = ClassSecurityInfo()
 
     manage_options = (

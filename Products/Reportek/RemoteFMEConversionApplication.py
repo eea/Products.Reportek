@@ -35,6 +35,7 @@ from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import METATYPE_DOCUMENT
 
 logger = logging.getLogger(__name__ + ".FME")
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
@@ -471,7 +472,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 for e in ext:
                     e_files = [
                         f
-                        for f in env.objectValues("Report Document")
+                        for f in env.objectValues(METATYPE_DOCUMENT)
                         if f.title_or_id().lower().endswith("." + e.strip().lower())
                     ]
                     if e_files:
@@ -496,11 +497,11 @@ class RemoteFMEConversionApplication(SimpleItem):
             ]
             files = [
                 f
-                for f in env.objectValues("Report Document")
+                for f in env.objectValues(METATYPE_DOCUMENT)
                 if f.title_or_id().lower().startswith(up_group.lower())
             ]
         else:
-            files = env.objectValues("Report Document")
+            files = env.objectValues(METATYPE_DOCUMENT)
         files = list(set(files))
 
         return files
@@ -1063,7 +1064,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 if p.endswith((".shp", ".zip")):
                     gmls = [
                         fid.split(".")[0]
-                        for fid in env.objectIds("Report Document")
+                        for fid in env.objectIds(METATYPE_DOCUMENT)
                         if fid.endswith(".gml")
                     ]
                     if not [x for x in gmls if p.split(".")[0] in x]:
@@ -1519,7 +1520,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             # lets the next run find (and remove) the stale failure feedback
             feedback_ob.fme_failure_app = self.app_name
         conv_res_id = "conversion_log_{}".format(jobid)
-        for doc_id in envelope.objectIds("Report Document"):
+        for doc_id in envelope.objectIds(METATYPE_DOCUMENT):
             if conv_res_id in doc_id:
                 self.__attach_conversion_log(
                     envelope, workitem, feedback_ob, getattr(envelope, doc_id)

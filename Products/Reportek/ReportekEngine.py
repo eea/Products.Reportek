@@ -69,7 +69,13 @@ from Products.Reportek.BdrAuthorizationMiddleware import (
     BdrAuthorizationMiddleware,
 )
 from Products.Reportek.clamav import AVService
-from Products.Reportek.constants import DEFAULT_CATALOG, ECAS_ID
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    ECAS_ID,
+    METATYPE_COLLECTION,
+    METATYPE_DOCUMENT,
+    METATYPE_ENVELOPE,
+)
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (
     BDRRegistryAPI,
@@ -974,7 +980,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         endyear="",
     ):
         """Create subcollection in parent_coll"""
-        for coll in parent_coll.objectValues("Report Collection"):
+        for coll in parent_coll.objectValues(METATYPE_COLLECTION):
             if coll.title == title:
                 return coll
         p_allow_c = getattr(parent_coll, "allow_collections", 0)
@@ -1118,7 +1124,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     "Unable to load verification metadata override: {}".format(str(e))
                 )
         ctx.allow_collections = 1
-        existing = ctx.objectValues("Report Collection")
+        existing = ctx.objectValues(METATYPE_COLLECTION)
         existing_dataflows = set("".join(vc.dataflow_uris) for vc in existing)
         df_uris = [
             df
@@ -1340,7 +1346,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def get_query_args(self):
         """Make a Catalog query object from the form in the REQUEST"""
-        catalog_args = {"meta_type": ["Report Envelope", "Repository Referral"]}
+        catalog_args = {"meta_type": [METATYPE_ENVELOPE, "Repository Referral"]}
 
         status = self.REQUEST.get("release_status")
         if status == "anystatus":
@@ -1419,7 +1425,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj = eBrain.getObject()
                 if getSecurityManager().checkPermission("View", obj):
                     files = []
-                    for fileObj in obj.objectValues("Report Document"):
+                    for fileObj in obj.objectValues(METATYPE_DOCUMENT):
                         files.append(
                             {
                                 "filename": fileObj.id,
@@ -1444,7 +1450,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         obligations.append(self.dataflow_lookup(uri)["TITLE"])
 
                     countryName = ""
-                    if obj.meta_type == "Report Envelope":
+                    if obj.meta_type == METATYPE_ENVELOPE:
                         countryName = obj.getCountryName()
                     else:
                         try:
@@ -1453,7 +1459,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             countryName = "Unknown"
 
                     reported = obj.bobobase_modification_time()
-                    if obj.meta_type == "Report Envelope":
+                    if obj.meta_type == METATYPE_ENVELOPE:
                         reported = obj.reportingdate
 
                     company_id = "-"
@@ -1525,11 +1531,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """REST API to get local roles for user id"""
 
         def filter_objects(root):
-            accepted_meta_types = ["Report Collection", "Report Envelope"]
+            accepted_meta_types = [METATYPE_COLLECTION, METATYPE_ENVELOPE]
             for node in root.objectValues():
                 if node.meta_type in accepted_meta_types:
                     yield node
-                    if node.meta_type == "Report Collection":
+                    if node.meta_type == METATYPE_COLLECTION:
                         for subnode in filter_objects(node):
                             if subnode.meta_type in accepted_meta_types:
                                 yield subnode
@@ -1581,7 +1587,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for country in ccountries:
             query = {
                 "dataflow_uris": dataflow_uris,
-                "meta_type": "Report Collection",
+                "meta_type": METATYPE_COLLECTION,
                 "country": country,
             }
 
@@ -1618,7 +1624,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def getCountriesList(self):
         """ """
-        l_countries = self.getParentNode().objectValues("Report Collection")
+        l_countries = self.getParentNode().objectValues(METATYPE_COLLECTION)
         return RepUtils.utSortByAttr(l_countries, "title")
 
     security.declarePrivate("sitemap_filter")
@@ -1628,7 +1634,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             x
             for x in objs
             if x.meta_type
-            in ["Report Collection", "Report Envelope", "Repository Referral"]
+            in [METATYPE_COLLECTION, METATYPE_ENVELOPE, "Repository Referral"]
         ]
 
     security.declareProtected("View", "getSitemap")
@@ -1740,7 +1746,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
                     if env_ob.released:
                         env_name = env_ob.title
-                        for doc in env_ob.objectValues("Report Document"):
+                        for doc in env_ob.objectValues(METATYPE_DOCUMENT):
                             if getSecurityManager().checkPermission(view, doc):
                                 with doc.data_file.open() as doc_file:
                                     with outzd.open(
@@ -1798,7 +1804,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def get_running_envelopes(self):
         catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
-        return catalog(meta_type="Report Envelope", wf_status="forward")
+        return catalog(meta_type=METATYPE_ENVELOPE, wf_status="forward")
 
     def get_forward_envelopes(self):
         """Return a JSON array with envelopes that are in forward wf_status."""
@@ -1858,7 +1864,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """Looks for Report Envelopes with the given attributes"""
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
         l_result = []
-        l_deliveries = l_catalog(meta_type="Report Envelope", country=country)
+        l_deliveries = l_catalog(meta_type=METATYPE_ENVELOPE, country=country)
         for l_delivery in l_deliveries:
             l_obj = l_delivery.getObject()
             if RepUtils.utIsSubsetOf(l_obj.dataflow_uris, dataflow_uris):
@@ -1914,7 +1920,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         reslist = []
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         l_params = {
-            "meta_type": "Report Envelope",
+            "meta_type": METATYPE_ENVELOPE,
             "dataflow_uris": obligation,
             "released": 1,
         }
@@ -1935,7 +1941,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 "partofyear": obj.partofyear,
             }
             filelist = []
-            for file in obj.objectValues("Report Document"):
+            for file in obj.objectValues(METATYPE_DOCUMENT):
                 if file.content_type == "text/xml":
                     if file.acquiredRolesAreUsedBy("View"):
                         restricted = 0
@@ -2740,7 +2746,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             """Cache collection groups mapping for 12 hours"""
 
             site_root = self.restrictedTraverse("/")
-            collections = site_root.objectValues("Report Collection")
+            collections = site_root.objectValues(METATYPE_COLLECTION)
             col_tmap = {
                 "fgases": ("Fluorinated gases (F-gases) reporting by undertakings"),
                 "ods": ("Ozone depleting substances (ODS) reporting by undertakings"),
@@ -2883,7 +2889,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         def _add_personal_collections(self, username, catalog, collections):
             """Add user's personal collections."""
-            query = {"meta_type": "Report Collection", "id": username}
+            query = {"meta_type": METATYPE_COLLECTION, "id": username}
             brains = catalog.searchResults(**query)
 
             for brain in brains:
@@ -2917,7 +2923,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             entry in its local roles.
             """
             query = {
-                "meta_type": "Report Collection",
+                "meta_type": METATYPE_COLLECTION,
                 "local_unique_roles": list(BDR_LOCAL_ROLES),
                 "local_defined_users": [username],
             }
@@ -3076,7 +3082,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
     def get_main_cols(self):
         root = self.getPhysicalRoot()
-        collections = root.objectValues("Report Collection")
+        collections = root.objectValues(METATYPE_COLLECTION)
         collections.sort(key=lambda x: x.title_or_id().lower())
 
         return collections
@@ -3087,7 +3093,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         result = None
         # Verify that we have metadata and that we have dataflow_uris in it
         if metadata:
-            for coll in parent.objectValues("Report Collection"):
+            for coll in parent.objectValues(METATYPE_COLLECTION):
                 if coll.title == metadata.get("title"):
                     result = coll
                     break
@@ -3277,7 +3283,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return self.jsonify(results)
 
     def init_cols_sync(self):
-        query = {"meta_type": "Report Collection"}
+        query = {"meta_type": METATYPE_COLLECTION}
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         brains = catalog.searchResults(**query)
         data = PersistentMapping()
