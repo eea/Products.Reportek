@@ -6,6 +6,7 @@ collections of a user until the cache expires, even if the registry is back.
 The files and the answers are dummy.
 """
 
+import logging
 import threading
 import unittest
 from unittest.mock import Mock, patch
@@ -15,6 +16,7 @@ from ZODB.POSException import ConflictError
 import requests
 from plone.memoize import ram
 
+from Products.Reportek import BdrAuthorizationMiddleware as middleware_module
 from Products.Reportek import RegistryManagement
 from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
 from Products.Reportek.CountriesManager import CountriesManager
@@ -27,6 +29,7 @@ from Products.Reportek.RegistryManagement import (
     BaseRegistryAPI,
     BDRRegistryAPI,
     FGASRegistryAPI,
+    LookupStats,
     RegistryUnavailable,
     prefetch_requests,
 )
@@ -675,3 +678,79 @@ class PrefetchTest(CacheTest):
         pending = self.requests()
         self.assertIsNone(pending[0])
         self.assertIsNotNone(pending[1])
+
+
+class LookupStatsTest(CacheTest):
+    """The caches count how often they keep an answer."""
+
+    def setUp(self):
+        super().setUp()
+        self.stats = LookupStats()
+        for module in (RegistryManagement, middleware_module):
+            patcher = patch.object(module, "lookup_stats", self.stats)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.middleware = BdrAuthorizationMiddleware("http://middleware")
+        self.middleware.FGASRegistryAPI = FGASRegistryAPI(
+            "FGAS", "http://registry", "token"
+        )
+        self.bdr = BDRRegistryAPI("BDR", "http://bdr")
+        self.bdr.bdr_registry_token = "token"
+
+    def paths(self):
+        return self.middleware.getUserCollectionPaths(
+            "e1", userdata={"username": "a", "ecas_id": "e1"}, recheck_interval=300
+        )
+
+    @patch(REGISTRY_GET)
+    def test_the_paths_count_the_lookups_that_asked_the_registry(self, get):
+        get.return_value = answer(200, [])
+        for _ in range(3):
+            self.paths()
+        counts = self.stats.snapshot()["paths"]
+        self.assertEqual((counts["lookup"], counts["miss"]), (3, 1))
+        self.assertEqual(counts["failure"], 0)
+
+    @patch(REGISTRY_GET)
+    def test_the_details_of_the_user_count_the_lookups_that_asked_the_registry(
+        self, get
+    ):
+        get.return_value = answer(200, [])
+        for _ in range(4):
+            self.bdr.get_user_details("a")
+        counts = self.stats.snapshot()["user_details"]
+        self.assertEqual((counts["lookup"], counts["miss"]), (4, 1))
+
+    @patch(REGISTRY_GET)
+    def test_a_failure_is_counted_and_a_check_that_follows_in_the_request_is_not(
+        self, get
+    ):
+        get.side_effect = DOWN
+        with in_request(FakeRequest()):
+            for _ in range(5):
+                self.paths()
+        counts = self.stats.snapshot()["paths"]
+        self.assertEqual(
+            (counts["lookup"], counts["miss"], counts["failure"]), (1, 1, 1)
+        )
+
+    def test_a_summary_is_logged_when_the_window_is_over(self):
+        # the test layers switch the logging off
+        previous = logging.root.manager.disable
+        logging.disable(logging.NOTSET)
+        self.addCleanup(logging.disable, previous)
+        with patch.object(RegistryManagement, "time") as clock:
+            clock.return_value = 1000
+            stats = LookupStats()
+            stats.record("paths", "lookup")
+            stats.record("paths", "miss", 1.5)
+            stats.record("paths", "lookup")
+            clock.return_value = 1000 + LookupStats.WINDOW
+            with self.assertLogs("Reportek", "INFO") as logged:
+                stats.record("paths", "lookup")
+        self.assertEqual(len(logged.records), 1)
+        message = logged.records[0].getMessage()
+        self.assertIn("3 lookups, 1 asked the registry (67% kept)", message)
+        self.assertIn("1.5 s", message)
+        # the next window starts empty
+        self.assertEqual(stats.snapshot(), {})

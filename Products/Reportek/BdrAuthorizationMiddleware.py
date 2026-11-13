@@ -9,6 +9,7 @@ from Products.Reportek.RegistryManagement import (
     RegistryUnavailable,
     failed_in_this_request,
     is_cold,
+    lookup_stats,
     remember_failure_in_this_request,
 )
 
@@ -49,11 +50,13 @@ class BdrAuthorizationMiddleware(SimpleItem):
         )
         if failed_in_this_request(failed):
             return {"paths": [], "prev_paths": [], "audit_paths": []}
+        lookup_stats.record("paths", "lookup")
         try:
             return self._cachedUserCollectionPaths(
                 username, userdata=userdata, recheck_interval=recheck_interval
             )
         except RegistryUnavailable:
+            lookup_stats.record("paths", "failure")
             remember_failure_in_this_request(failed)
             return {"paths": [], "prev_paths": [], "audit_paths": []}
 
@@ -69,7 +72,13 @@ class BdrAuthorizationMiddleware(SimpleItem):
         self, username, userdata=None, recheck_interval=recheck_interval
     ):
         logger.debug("Get companies from middleware for ecas user: %s" % username)
-        return self.FGASRegistryAPI._fetchCollectionPaths(username, userdata=userdata)
+        started = time()
+        try:
+            return self.FGASRegistryAPI._fetchCollectionPaths(
+                username, userdata=userdata
+            )
+        finally:
+            lookup_stats.record("paths", "miss", time() - started)
 
     def authorizedUser(self, username, path, userdata=None):
         if self.lockedCollection(path):

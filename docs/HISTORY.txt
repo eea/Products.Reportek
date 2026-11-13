@@ -20,6 +20,10 @@ Changelog
         caller that changes them does not change them for the others; the
         lookup of the paths that raises is not published from the web; add
         tests
+* feat: the cache of the registry lookups of the first page (the paths of the
+        user and the details of the user) logs every 5 minutes how many lookups
+        there were, how many asked the registry, how many failed and how long
+        the registry took, per pod; add tests
 * perf: the first page of a user whose registry answers are not kept sends the
         request for the paths of the user and the request for the details of the
         user to the BDR registry at the same time, and not one after the other;

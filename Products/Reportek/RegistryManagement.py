@@ -132,6 +132,57 @@ def take_prefetched(url, params):
     return request.other.get(PREFETCHED, {}).pop(_prefetch_key(url, params), None)
 
 
+class LookupStats:
+    """How often the registry caches of this process keep an answer.
+
+    A lookup is a call of a cached registry lookup, a miss is a call that went
+    to the registry (the answer was not kept), a failure is a miss that the
+    registry did not answer. A summary of the window is logged when a lookup
+    finds the window over, per process (pod): it tells how often a pod has to
+    ask the registry again for what another pod asked a moment ago.
+    """
+
+    WINDOW = 300
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._counts = {}
+        self._since = time()
+
+    def record(self, name, outcome, seconds=0.0):
+        done = None
+        with self._lock:
+            counts = self._counts.setdefault(
+                name, {"lookup": 0, "miss": 0, "failure": 0, "seconds": 0.0}
+            )
+            if outcome == "miss":
+                counts["seconds"] += seconds
+            counts[outcome] += 1
+            if time() - self._since >= self.WINDOW:
+                done, self._counts, self._since = self._counts, {}, time()
+        if done:
+            for name, counts in sorted(done.items()):
+                lookups = counts["lookup"]
+                logger.info(
+                    "Registry cache %s, last %s s: %s lookups, %s asked the "
+                    "registry (%.0f%% kept), %s failed, %.1f s waiting for it",
+                    name,
+                    self.WINDOW,
+                    lookups,
+                    counts["miss"],
+                    100.0 * (lookups - counts["miss"]) / max(lookups, 1),
+                    counts["failure"],
+                    counts["seconds"],
+                )
+
+    def snapshot(self):
+        with self._lock:
+            return {name: dict(counts) for name, counts in self._counts.items()}
+
+
+lookup_stats = LookupStats()
+
+
 class RegistryUnavailable(Exception):
     """The registry did not answer, or answered with a server error.
 
@@ -983,9 +1034,11 @@ class BDRRegistryAPI(BaseRegistryAPI):
         failed = ("user_details", self.baseUrl, username)
         if failed_in_this_request(failed):
             return []
+        lookup_stats.record("user_details", "lookup")
         try:
             return self._get_user_details(username)
         except RegistryUnavailable:
+            lookup_stats.record("user_details", "failure")
             remember_failure_in_this_request(failed)
             return []
 
@@ -993,9 +1046,13 @@ class BDRRegistryAPI(BaseRegistryAPI):
     @ram.cache(lambda *args, **kwargs: _user_details_key(args[2]))
     def _get_user_details(self, username):
         url, params = self._user_details_url(username)
-        response = self._lookup(
-            url, params=params, headers={"Authorization": self.bdr_registry_token}
-        )
+        started = time()
+        try:
+            response = self._lookup(
+                url, params=params, headers={"Authorization": self.bdr_registry_token}
+            )
+        finally:
+            lookup_stats.record("user_details", "miss", time() - started)
         if response.status_code == requests.codes.ok:
             return response.json()
         return []
