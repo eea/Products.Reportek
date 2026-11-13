@@ -74,8 +74,8 @@ class FileStorageTest(BaseTest):
 
         request = BaseTest.create_mock_request()
         request.RESPONSE.setHeader = Mock()
-        doc.index_html(request, request.RESPONSE)
-        self.assertEqual(request.RESPONSE._data.getvalue(), data)
+        body = doc.index_html(request, request.RESPONSE)
+        self.assertEqual(b"".join(body), data)
         self.assertNotIn(
             call("content-encoding", "gzip"),
             request.RESPONSE.setHeader.call_args_list,
@@ -97,8 +97,8 @@ class FileStorageTest(BaseTest):
         request = BaseTest.create_mock_request()
         request.getHeader = Mock(return_value="gzip,bla")
         request.RESPONSE.setHeader = Mock()
-        doc.index_html(request, request.RESPONSE)
-        self.assertEqual(len(request.RESPONSE._data.getvalue()), compressed_size)
+        body = doc.index_html(request, request.RESPONSE)
+        self.assertEqual(len(b"".join(body)), compressed_size)
         self.assertTrue(request.RESPONSE.setHeader.called)
         self.assertIn(
             call("content-encoding", "gzip"),
@@ -542,15 +542,10 @@ class OfsBlobFileTest(BaseUnitTest):
             f.write(content)
         myfile.data_file.content_type = "image/jpeg"
 
-        out = BytesIO()
-        publish_view(myfile, {"_stdout": out})
-        (headers_str, body) = out.getvalue().split(b"\r\n\r\n", 1)
-        headers = {}
-        for line in headers_str.decode("utf-8").splitlines():
-            k, v = line.split(":", 1)
-            headers[k.strip()] = v.strip()
-        self.assertEqual(body, content)
-        self.assertEqual(headers["Content-Type"], "image/jpeg")
+        response = publish_view(myfile, wsgi=True)
+        self.assertEqual(b"".join(response.body), content)
+        self.assertEqual(response.getHeader("Content-Type"), "image/jpeg")
+        self.assertEqual(response.getHeader("Content-Length"), str(len(content)))
 
     def test_update_content(self):
         from Products.Reportek.blob import OfsBlobFile

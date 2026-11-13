@@ -42,9 +42,15 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 # Product specific imports
 from Products.Reportek import RepUtils
-from Products.Reportek.constants import QAREPOSITORY_ID
+from Products.Reportek.constants import (
+    CONTENT_TYPE_HTML,
+    CONTENT_TYPE_XML,
+    METATYPE_DOCUMENT,
+    QAREPOSITORY_ID,
+)
 from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException
+from Products.Reportek.permissions import change_envelopes
 
 logger = logging.getLogger("Reportek")
 
@@ -64,7 +70,7 @@ class EnvelopeRemoteServicesManager:
         return len(
             [
                 x
-                for x in self.objectValues("Report Document")
+                for x in self.objectValues(METATYPE_DOCUMENT)
                 if x.xml_schema_location == schema
             ]
         )
@@ -79,7 +85,7 @@ class EnvelopeRemoteServicesManager:
         """
         l_list = [
             x
-            for x in self.objectValues("Report Document")
+            for x in self.objectValues(METATYPE_DOCUMENT)
             if x.xml_schema_location == p_schema_url
         ]
         return len(l_list)
@@ -111,7 +117,7 @@ class EnvelopeRemoteServicesManager:
             if len(baseName) < 3:
                 baseName = self.id
 
-        docs = [doc for doc in self.objectValues("Report Document")]
+        docs = [doc for doc in self.objectValues(METATYPE_DOCUMENT)]
         # first file
         if not docs:
             return "%s__1.xml" % baseName
@@ -162,7 +168,7 @@ class EnvelopeRemoteServicesManager:
         which can be manually run against the contained XML files
         """
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles(
-            self.objectValues("Report Document")
+            self.objectValues(METATYPE_DOCUMENT)
         )
 
     security.declareProtected("View", "note")
@@ -181,7 +187,7 @@ class EnvelopeRemoteServicesManager:
         if not l_qa_app:
             if return_inline:
                 return "System error."
-            REQUEST.SESSION.set("note_content_type", "text/html")
+            REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
             REQUEST.SESSION.set("note_title", "Error")
             REQUEST.SESSION.set("note_text", "The operation could not be completed.")
             REQUEST.RESPONSE.redirect("note")
@@ -190,7 +196,7 @@ class EnvelopeRemoteServicesManager:
                 p_file_url, p_script_id
             )
             if not l_tmp:
-                REQUEST.SESSION.set("note_content_type", "text/html")
+                REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
                 REQUEST.SESSION.set("note_title", "Error")
                 REQUEST.SESSION.set(
                     "note_text",
@@ -226,7 +232,7 @@ class EnvelopeRemoteServicesManager:
                     """of the following error: %s""" % l_err
                 )
                 return msg
-            REQUEST.SESSION.set("note_content_type", "text/html")
+            REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
             REQUEST.SESSION.set("note_title", "Error")
             REQUEST.SESSION.set(
                 "note_text",
@@ -254,7 +260,7 @@ class EnvelopeRemoteServicesManager:
         for l_file, l_scripts in list(REQUEST.form.items()):
             l_files_dict[l_file] = l_scripts.split(",")
         if len(list(l_files_dict.keys())) == 0 or not l_qa_app:
-            REQUEST.SESSION.set("note_content_type", "text/html")
+            REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
             REQUEST.SESSION.set("note_title", "Error in QA service")
             REQUEST.SESSION.set(
                 "note_text",
@@ -273,7 +279,7 @@ class EnvelopeRemoteServicesManager:
                     )
                     l_res.append(l_d[1].data)
 
-            REQUEST.SESSION.set("note_content_type", "text/html")
+            REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
             REQUEST.SESSION.set("note_title", "Quality assessment results")
             REQUEST.SESSION.set(
                 "note_tip",
@@ -286,7 +292,7 @@ class EnvelopeRemoteServicesManager:
             REQUEST.RESPONSE.redirect("note")
 
         except Exception:
-            REQUEST.SESSION.set("note_content_type", "text/html")
+            REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
             REQUEST.SESSION.set("note_title", "Error in QA service")
             REQUEST.SESSION.set(
                 "note_text",
@@ -324,13 +330,13 @@ class EnvelopeRemoteServicesManager:
         l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(
             self.dataflow_uris
         )
-        for docu in self.objectValues("Report Document"):
+        for docu in self.objectValues(METATYPE_DOCUMENT):
             if docu.xml_schema_location:
                 schema_locations = docu.xml_schema_location.split(" ")
                 schema_locations.append(docu.xml_schema_location)
                 for schema in schema_locations:
                     if (
-                        docu.content_type == "text/xml"
+                        docu.content_type == CONTENT_TYPE_XML
                         and schema
                         and (schema in l_valid_schemas or not l_valid_schemas)
                     ):
@@ -374,7 +380,7 @@ class EnvelopeRemoteServicesManager:
     # WebQ integration functions
     ##################################################
 
-    security.declareProtected("Change Envelopes", "webqKeepAlive")
+    security.declareProtected(change_envelopes, "webqKeepAlive")
 
     def webqKeepAlive(self):
         """This is used by webq to keep user logged in.
@@ -388,7 +394,7 @@ class EnvelopeRemoteServicesManager:
         return ""
 
     # Protected by the same permission as for adding Report Documents
-    security.declareProtected("Change Envelopes", "saveXML")
+    security.declareProtected(change_envelopes, "saveXML")
 
     def saveXML(
         self,
@@ -420,7 +426,7 @@ class EnvelopeRemoteServicesManager:
                 l_file = self._getOb(file_id)
                 savepoint = transaction.savepoint()
                 try:
-                    l_file.manage_file_upload(file=file, content_type="text/xml")
+                    l_file.manage_file_upload(file=file, content_type=CONTENT_TYPE_XML)
                 except Exception as e:
                     savepoint.rollback()
                     raise e
@@ -429,7 +435,7 @@ class EnvelopeRemoteServicesManager:
                 if not file_id:
                     file_id = RepUtils.generate_id("doc")
                 self.manage_addDocument(
-                    id=file_id, title=title, file=file, content_type="text/xml"
+                    id=file_id, title=title, file=file, content_type=CONTENT_TYPE_XML
                 )
                 l_file = self._getOb(file_id)
             # enforce the schema_url attribute - maybe the
@@ -449,7 +455,7 @@ class EnvelopeRemoteServicesManager:
             REQUEST.RESPONSE.write(("0" + str(err)).encode("utf-8"))
             return "0"
 
-    security.declareProtected("Change Envelopes", "fetchFile")
+    security.declareProtected(change_envelopes, "fetchFile")
 
     def fetchFile(self, p_location="", p_file_name="", REQUEST=None):
         """Grabbs a file from a certain location and uploads it as
@@ -482,8 +488,8 @@ class EnvelopeRemoteServicesManager:
         the value is a list of structs containing fileurls and file-titles
         """
         l_ret_dict = {}
-        for l_doc in self.objectValues("Report Document"):
-            if l_doc.content_type == "text/xml" and l_doc.xml_schema_location:
+        for l_doc in self.objectValues(METATYPE_DOCUMENT):
+            if l_doc.content_type == CONTENT_TYPE_XML and l_doc.xml_schema_location:
                 if l_doc.xml_schema_location in l_ret_dict:
                     l_ret_dict[str(l_doc.xml_schema_location)].append(
                         (l_doc.absolute_url(), l_doc.title_or_id())
@@ -499,7 +505,7 @@ class EnvelopeRemoteServicesManager:
         l_dict = {}
         l_list = [
             x.xml_schema_location
-            for x in self.objectValues("Report Document")
+            for x in self.objectValues(METATYPE_DOCUMENT)
             if x.xml_schema_location != ""
         ]
         # remove duplicates
@@ -507,7 +513,7 @@ class EnvelopeRemoteServicesManager:
             l_dict[l_item] = ""
         return list(l_dict.keys())
 
-    security.declareProtected("Change Envelopes", "getValidXMLSchemas")
+    security.declareProtected(change_envelopes, "getValidXMLSchemas")
 
     def getValidXMLSchemas(self, web_form_only=False):
         """The purpose is to know if to put an edit button and a record in
@@ -518,7 +524,7 @@ class EnvelopeRemoteServicesManager:
             self.dataflow_uris, web_form_only=web_form_only
         )
 
-    security.declareProtected("Change Envelopes", "get_webform_for_schema")
+    security.declareProtected(change_envelopes, "get_webform_for_schema")
 
     def get_webform_for_schema(self, schema):
         mappings_c = self.getDataflowMappingsContainer()
@@ -527,7 +533,7 @@ class EnvelopeRemoteServicesManager:
         )
         return wf_cust or self.getEngine().webq_before_edit_page
 
-    security.declareProtected("Change Envelopes", "getWebQ_BeforeEditForm_URL")
+    security.declareProtected(change_envelopes, "getWebQ_BeforeEditForm_URL")
 
     def getWebQ_BeforeEditForm_URL(self, schema=None, custom_params=False):
         """Retrieves the URL to the edit for of the XML file - if any"""
@@ -557,7 +563,7 @@ class EnvelopeRemoteServicesManager:
             return form_url.split("?")[0]
         return form_url
 
-    security.declareProtected("Change Envelopes", "getWebQ_MenuEnvelope_URL")
+    security.declareProtected(change_envelopes, "getWebQ_MenuEnvelope_URL")
 
     def getWebQ_MenuEnvelope_URL(self):
         """Retrieves the URL to the edit for of the XML file - if any"""

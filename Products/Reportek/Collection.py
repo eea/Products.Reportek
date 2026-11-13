@@ -34,7 +34,11 @@ from decimal import Decimal, InvalidOperation
 import requests
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from AccessControl.Permissions import change_permissions, manage_users
+from AccessControl.Permissions import (
+    change_permissions,
+    manage_users,
+    view_management_screens,
+)
 from AccessControl.requestmethod import requestmethod
 from App.Common import package_home
 from DateTime import DateTime
@@ -53,13 +57,23 @@ from Products.Reportek.config import (
     REPORTEK_DEPLOYMENT,
     permission_manage_properties_collections,
 )
-from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import (
+    CONTENT_TYPE_JSON,
+    DEFAULT_CATALOG,
+    METATYPE_COLLECTION,
+    METATYPE_ENVELOPE,
+)
 from Products.Reportek.events import LocalRolesChangedEvent
 from Products.Reportek.interfaces import ICollection
 from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.paginator import DiggPaginator, EmptyPage, InvalidPage
 from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
+from Products.Reportek.permissions import (
+    add_collections,
+    add_envelopes,
+    change_collections,
+)
 from ZPublisher import zpublish
 
 # import constants
@@ -221,7 +235,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     a management interface and can have arbitrary properties.
     """
 
-    meta_type = "Report Collection"
+    meta_type = METATYPE_COLLECTION
     icon = "++resource++images/collection.gif"
     security = ClassSecurityInfo()
 
@@ -276,12 +290,12 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         self.allow_collections = allow_collections
         self.allow_envelopes = allow_envelopes
 
-    security.declareProtected("Change Collections", "manage_cutObjects")
-    security.declareProtected("Change Collections", "manage_copyObjects")
-    security.declareProtected("Change Collections", "manage_pasteObjects")
-    security.declareProtected("Change Collections", "manage_renameForm")
-    security.declareProtected("Change Collections", "manage_renameObject")
-    security.declareProtected("Change Collections", "manage_renameObjects")
+    security.declareProtected(change_collections, "manage_cutObjects")
+    security.declareProtected(change_collections, "manage_copyObjects")
+    security.declareProtected(change_collections, "manage_pasteObjects")
+    security.declareProtected(change_collections, "manage_renameForm")
+    security.declareProtected(change_collections, "manage_renameObject")
+    security.declareProtected(change_collections, "manage_renameObjects")
 
     def all_meta_types(self, interfaces=None):
         """
@@ -301,18 +315,18 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if self.allow_collections:
             y.append(
                 {
-                    "name": "Report Collection",
+                    "name": METATYPE_COLLECTION,
                     "action": "manage_addCollectionForm",
-                    "permission": "Add Collections",
+                    "permission": add_collections,
                 }
             )
             types.append("Repository Referral")
         if self.allow_envelopes:
             y.append(
                 {
-                    "name": "Report Envelope",
+                    "name": METATYPE_ENVELOPE,
                     "action": "manage_addEnvelopeForm",
-                    "permission": "Add Envelopes",
+                    "permission": add_envelopes,
                 }
             )
             if not self.allow_collections:
@@ -323,7 +337,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 y.append(x)
         return y
 
-    security.declareProtected("View management screens", "manage_main_inh")
+    security.declareProtected(view_management_screens, "manage_main_inh")
 
     def manage_main_inh(self, *args, **kw):
         """Inherited manage_main from Folder."""
@@ -333,27 +347,27 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def manage_main(self, *args, **kw):
         """Define manage main to be context aware"""
-        if getSecurityManager().checkPermission("View management screens", self):
+        if getSecurityManager().checkPermission(view_management_screens, self):
             return self.manage_main_inh(*args, **kw)
         else:
             return self.index_html(*args, **kw)
 
-    security.declareProtected("Add Collections", "manage_addCollectionForm")
+    security.declareProtected(add_collections, "manage_addCollectionForm")
     manage_addCollectionForm = manage_addCollectionForm
 
-    security.declareProtected("Add Collections", "manage_addCollection")
+    security.declareProtected(add_collections, "manage_addCollection")
     manage_addCollection = manage_addCollection
 
-    security.declareProtected("Add Envelopes", "manage_addEnvelopeForm")
+    security.declareProtected(add_envelopes, "manage_addEnvelopeForm")
     manage_addEnvelopeForm = Envelope.manage_addEnvelopeForm
 
-    security.declareProtected("Add Envelopes", "manage_addEnvelope")
+    security.declareProtected(add_envelopes, "manage_addEnvelope")
     manage_addEnvelope = Envelope.manage_addEnvelope
 
-    security.declareProtected("Add Envelopes", "manage_addReferralForm")
+    security.declareProtected(add_envelopes, "manage_addReferralForm")
     manage_addReferralForm = Referral.manage_addReferralForm
 
-    security.declareProtected("Add Envelopes", "manage_addReferral")
+    security.declareProtected(add_envelopes, "manage_addReferral")
     manage_addReferral = Referral.manage_addReferral
 
     security.declareProtected("View", "index_html")
@@ -361,7 +375,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         os.path.join(package_home(globals()), "zpt/collection/index.zpt")
     )
 
-    security.declareProtected("Change Collections", "manage_prop")
+    security.declareProtected(change_collections, "manage_prop")
     manage_prop = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/collection/prop.zpt")
     )
@@ -386,9 +400,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             return list(self.__ac_local_roles__.keys())
 
     def local_unique_roles(self):
-        return set(
-            role for roles in list(self.__ac_local_roles__.values()) for role in roles
-        )
+        return set(role for roles in self.__ac_local_roles__.values() for role in roles)
 
     security.declareProtected(manage_users, "get_users_list")
 
@@ -421,7 +433,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                         }
         # retrieve the local accounts
         folders = catalog.searchResults(
-            **dict(meta_type=["Report Collection"], path=self.absolute_url(1))
+            **dict(meta_type=[METATYPE_COLLECTION], path=self.absolute_url(1))
         )
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
@@ -611,7 +623,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         reported = False
         if catalog is not None:
             query = {
-                "meta_type": "Report Envelope",
+                "meta_type": METATYPE_ENVELOPE,
                 "path": "/".join(self.getPhysicalPath()),
                 "released": 1,
                 "status": "complete",
@@ -680,7 +692,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 action="",
             )
 
-    security.declareProtected("Change Collections", "manage_editCategories")
+    security.declareProtected(change_collections, "manage_editCategories")
 
     def manage_editCategories(self, REQUEST=None):
         """Manage the edited values"""
@@ -757,10 +769,10 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if p_ret is None:
             p_ret = []
         # loop the envelopes
-        for l_env in self.objectValues("Report Envelope"):
+        for l_env in self.objectValues(METATYPE_ENVELOPE):
             p_ret.extend(l_env.getListOfWorkitems(["active", "inactive"]))
         # loop the subcollections
-        for l_coll in self.objectValues("Report Collection"):
+        for l_coll in self.objectValues(METATYPE_COLLECTION):
             l_coll.getWorkitemsForWorklist(p_ret)
         return p_ret
 
@@ -798,9 +810,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         l_query_array = self.changeQueryString2Dict(
             p_query_string, p_parameter, p_value
         )
-        return "&".join(
-            str(x) + "=" + str(l_query_array[x]) for x in list(l_query_array.keys())
-        )
+        return "&".join(str(x) + "=" + str(l_query_array[x]) for x in l_query_array)
 
     def changeQueryString2Dict(self, p_query_string, p_parameter=None, p_value=None):
         """returns the array for changeQueryString2"""
@@ -922,7 +932,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             stat = "Your changes have been saved."
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
-    security.declareProtected("Add Envelopes", "get_company_data")
+    security.declareProtected(add_envelopes, "get_company_data")
 
     def get_company_data(self):
         """Retrieve company data by interrogating the appropriate registry
@@ -1063,7 +1073,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def aggregated_multi_year_licences(self, all_years=False):
         """Return the ODS multi year licences for the company"""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         engine = self.getEngine()
         registry = engine.get_registry(self)
         res = self._get_licences_data(
@@ -1077,7 +1087,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def aggregated_licences(self, all_years=False):
         """Return the ODS licences for the company"""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         engine = self.getEngine()
         registry = engine.get_registry(self)
         res = self._get_licences_data(
@@ -1103,7 +1113,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def process_agent_uses(self):
         """Return the ODS process agent uses for the company"""
         res = {"result": "Ok", "message": ""}
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
             registry = engine.get_registry(self)
@@ -1156,7 +1166,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def stocks(self):
         """Return the ODS stocks for the company"""
         res = {"result": "Ok", "message": ""}
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
             registry = engine.get_registry(self)
@@ -1201,7 +1211,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         res = {
             "match": 0,
         }
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             new_id = self.REQUEST.get("new_id", "")
             old_id = self.REQUEST.get("old_id", "")
@@ -1237,7 +1247,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def company_details_short(self):
         """Return the short company details"""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         res = self.get_company_details_short()
         return json.dumps(res, indent=4)
 
@@ -1311,7 +1321,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         """Check through aquisition if referrals are allowed"""
         return getattr(self, "prop_allowed_referrals", 1)
 
-    security.declareProtected("View management screens", "metadata")
+    security.declareProtected(view_management_screens, "metadata")
 
     def metadata(self):
         """Collection metadata in JSON"""
@@ -1334,7 +1344,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             "partofyear": self.partofyear,
             "country": self.country,
             "locality": self.locality,
-            "dataflow_uris": [df for df in self.dataflow_uris],
+            "dataflow_uris": list(self.dataflow_uris),
             "allow_collections": self.allow_collections,
             "allow_envelopes": self.allow_envelopes,
             "allow_referrals": self.are_referrals_allowed(),
@@ -1344,8 +1354,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             "local_roles": self.get_local_roles(),
         }
         accept = self.REQUEST.environ.get("HTTP_ACCEPT")
-        if accept == "application/json":
-            self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        if accept == CONTENT_TYPE_JSON:
+            self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(result, indent=4)
 
         return result
@@ -1355,7 +1365,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if getattr(engine, "col_sync_rmq", False):
             queue_msg(self.absolute_url(), queue="collections_sync")
 
-    security.declareProtected("Add Envelopes", "get_company_details")
+    security.declareProtected(add_envelopes, "get_company_details")
 
     def get_company_details(self):
         """Company details tab view"""
@@ -1443,7 +1453,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def get_released_envelopes(self):
         path = "/".join(self.getPhysicalPath())
         query = {
-            "meta_type": "Report Envelope",
+            "meta_type": METATYPE_ENVELOPE,
             "released": 1,
             "sort_on": "reportingdate",
             "sort_order": "reverse",
@@ -1459,7 +1469,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if catalog is not None:
             path = "/".join(self.getPhysicalPath())
             brains = catalog.searchResults(
-                meta_type="Report Envelope",
+                meta_type=METATYPE_ENVELOPE,
                 sort_on="reportingdate",
                 sort_order="reverse",
                 sort_limit=1,
@@ -1470,7 +1480,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 if obj is not None:
                     return obj.reportingdate
             return None
-        envs = self.get_children("Report Envelope", "reportingdate")
+        envs = self.get_children(METATYPE_ENVELOPE, "reportingdate")
         if envs:
             return envs[0].reportingdate
 
@@ -1617,7 +1627,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         # subcollection of the FGAS collection.
         res = []
         rep_coll = self.getParentNode()
-        envs = rep_coll.objectValues("Report Envelope")
+        envs = rep_coll.objectValues(METATYPE_ENVELOPE)
         envs = [env for env in envs if env.is_auditable()]
         MKEYS = [
             "tr_09C",
@@ -1689,7 +1699,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             self, "Manager", self.manage_addEnvelope, **kwargs
         )
 
-    security.declareProtected("View management screens", "set_restricted")
+    security.declareProtected(view_management_screens, "set_restricted")
 
     def set_restricted(self, permission, roles, acquire=0, REQUEST=None):
         """

@@ -15,6 +15,7 @@ import transaction
 #
 
 from time import strftime
+from Products.Reportek.constants import METATYPE_DOCUMENT
 
 
 def update(app, outName="blob_compression.log"):
@@ -22,7 +23,7 @@ def update(app, outName="blob_compression.log"):
     if outName:
         out = open(outName, "a")
         out.write(" --- Begin log (%s) ---\n" % strftime("%a, %d %b %Y %H:%M:%S"))
-    for brain in app.Catalog(meta_type=["Report Document", "File (Blob)"]):
+    for brain in app.Catalog(meta_type=[METATYPE_DOCUMENT, "File (Blob)"]):
         try:
             ob = brain.getObject()
             # just making sure we populate the aquisition wrapper for later
@@ -38,13 +39,13 @@ def update(app, outName="blob_compression.log"):
             skipped_FileContainer = False
             if old_FileContainer:
                 setattr(data_file, "compressed", False)
-                if ob.meta_type == "Report Document":
+                if ob.meta_type == METATYPE_DOCUMENT:
                     setattr(data_file, "_toCompress", "auto")
                 else:
                     setattr(data_file, "_toCompress", "no")
                 setattr(data_file, "compressed_size", None)
                 data_file._p_changed = 1
-            if ob.meta_type == "Report Document":
+            if ob.meta_type == METATYPE_DOCUMENT:
                 # should remove old content_type atribute and let
                 # the property take over
                 if "content_type" in ob.__dict__:
@@ -57,7 +58,7 @@ def update(app, outName="blob_compression.log"):
             # while solving #20539
             if (
                 not old_FileContainer
-                and ob.meta_type == "Report Document"
+                and ob.meta_type == METATYPE_DOCUMENT
                 and data_file._toCompress == "no"
             ):
                 data_file._toCompress = "auto"
@@ -67,7 +68,7 @@ def update(app, outName="blob_compression.log"):
             # new type of objects that were set to deferred compression
             if (
                 not old_FileContainer
-                and ob.meta_type == "Report Document"
+                and ob.meta_type == METATYPE_DOCUMENT
                 and data_file._toCompress == "deferred"
             ):
                 data_file._toCompress = "auto"

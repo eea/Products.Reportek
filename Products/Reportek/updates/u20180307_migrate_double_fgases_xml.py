@@ -12,6 +12,9 @@ import logging
 import lxml.etree
 import transaction
 
+BACKUP_FOLDER_ID = "backed_up_double_gases_xml"
+BACKUP_FOLDER_PATH = "/" + BACKUP_FOLDER_ID
+
 logger = logging.getLogger(__name__)
 VERSION = 14
 APPLIES_TO = [
@@ -27,9 +30,9 @@ def log_msg(msg):
 
 
 def back_it_up(app, xml):
-    if not app.unrestrictedTraverse("/backed_up_double_gases_xml", None):
-        app.manage_addFolder("backed_up_double_gases_xml")
-    bck_folder = app.unrestrictedTraverse("/backed_up_double_gases_xml")
+    if not app.unrestrictedTraverse(BACKUP_FOLDER_PATH, None):
+        app.manage_addFolder(BACKUP_FOLDER_ID)
+    bck_folder = app.unrestrictedTraverse(BACKUP_FOLDER_PATH)
     xml_filename = xml.split("/")[-1]
     env_path = xml.split(xml_filename)[0]
     env = app.unrestrictedTraverse(env_path)
@@ -51,7 +54,7 @@ def has_backup(app, xml):
     env_path = xml.split(xml_filename)[0]
     env = app.unrestrictedTraverse(env_path)
     folder_name = "_".join([env.company_id, env_path.split("/")[-2]])
-    bck_xml_file = "/".join(["/backed_up_double_gases_xml", folder_name, xml_filename])
+    bck_xml_file = "/".join([BACKUP_FOLDER_PATH, folder_name, xml_filename])
 
     if app.unrestrictedTraverse(bck_xml_file, None):
         return True

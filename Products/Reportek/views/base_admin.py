@@ -10,6 +10,7 @@ from Products.Five import BrowserView
 from Products.Reportek import config, constants
 from Products.Reportek.ldap_utils import get_ldap_plugin, search_ldap_groups
 from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.constants import REPORTER_OWNER_ROLE
 
 
 class BaseAdmin(BrowserView):
@@ -91,7 +92,7 @@ class BaseAdmin(BrowserView):
         if deployment_type == config.DEPLOYMENT_BDR:
             # For BDR, Reporters actually have local 'Owner' Roles
             l_roles = [
-                "Reporter (Owner)" if role == "Reporter" else role for role in l_roles
+                REPORTER_OWNER_ROLE if role == "Reporter" else role for role in l_roles
             ]
         return l_roles
 
@@ -218,7 +219,7 @@ class BaseAdmin(BrowserView):
                     # For BDR, Reporters actually have local 'Owner' Roles
                     for user in list(l_roles.keys()):
                         l_roles[user] = [
-                            "Reporter (Owner)" if role == "Owner" else role
+                            REPORTER_OWNER_ROLE if role == "Owner" else role
                             for role in l_roles[user]
                         ]
                 collection = {

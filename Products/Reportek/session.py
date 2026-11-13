@@ -5,6 +5,8 @@ from beaker.middleware import SessionMiddleware
 from zope.component import adapter
 from ZPublisher.interfaces import IPubStart
 
+SESSION_KEY = "beaker.session"
+
 logger = logging.getLogger("Products.Reportek.session")
 
 
@@ -51,7 +53,7 @@ def beaker_session_filter_factory(app, global_conf, **local_conf):
         "session.type": "ext:redis",
         "session.url": redis_url,
         "session.secret": secret,
-        "session.key": "beaker.session",
+        "session.key": SESSION_KEY,
         "session.auto": True,
         "session.cookie_expires": cookie_expires,
         "session.secure": _env_bool("SESSION_COOKIE_SECURE", "true"),
@@ -130,6 +132,6 @@ def extract_beaker_session(event):
     so Zope code continues to work securely as a drop-in replacement.
     """
     request = event.request
-    if "beaker.session" in request.environ:
+    if SESSION_KEY in request.environ:
         logger.debug("SETTING request.SESSION: {}")
-        request.SESSION = ZopeBeakerSessionWrapper(request.environ["beaker.session"])
+        request.SESSION = ZopeBeakerSessionWrapper(request.environ[SESSION_KEY])

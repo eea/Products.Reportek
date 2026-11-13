@@ -30,9 +30,9 @@ from collections import OrderedDict
 from copy import copy, deepcopy
 from io import BytesIO
 from operator import itemgetter
-from time import strftime, time
+from time import localtime, strftime, time
 from urllib.parse import urlparse
-from zipfile import ZIP_DEFLATED, ZipFile
+from zipfile import ZIP64_LIMIT, ZIP_DEFLATED, ZipFile, ZipInfo
 
 import plone.protect.interfaces
 from plone.protect import CheckAuthenticator
@@ -69,13 +69,21 @@ from Products.Reportek.BdrAuthorizationMiddleware import (
     BdrAuthorizationMiddleware,
 )
 from Products.Reportek.clamav import AVService
-from Products.Reportek.constants import DEFAULT_CATALOG, ECAS_ID
+from Products.Reportek.constants import (
+    CONTENT_TYPE_JSON,
+    DEFAULT_CATALOG,
+    ECAS_ID,
+    METATYPE_COLLECTION,
+    METATYPE_DOCUMENT,
+    METATYPE_ENVELOPE,
+)
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (
     BDRRegistryAPI,
     FGASRegistryAPI,
 )
 from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.permissions import audit_envelopes
 
 # product imports
 from . import RepUtils, constants
@@ -229,6 +237,22 @@ def _group_ecr_content_data(user_ct):
         ),
         "fgas_by_company": fgas_by_company,
     }
+
+
+def _zip_info(name):
+    """The entry of a zip like ZipFile.write() makes it, with the current time
+    and the mode of a file, as ZipFile.open() sets the time to 1980-01-01.
+    """
+    info = ZipInfo(name, date_time=localtime()[:6])
+    info.compress_type = ZIP_DEFLATED
+    info.external_attr = 0o100600 << 16
+    return info
+
+
+def _drop_empty_values(kwargs):
+    """Remove the search parameters that are None or an empty string."""
+    for key in [key for key, value in kwargs.items() if value in [None, ""]]:
+        del kwargs[key]
 
 
 @implementer(IReportekEngine, II18nAware)
@@ -964,7 +988,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         endyear="",
     ):
         """Create subcollection in parent_coll"""
-        for coll in parent_coll.objectValues("Report Collection"):
+        for coll in parent_coll.objectValues(METATYPE_COLLECTION):
             if coll.title == title:
                 return coll
         p_allow_c = getattr(parent_coll, "allow_collections", 0)
@@ -1108,7 +1132,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     "Unable to load verification metadata override: {}".format(str(e))
                 )
         ctx.allow_collections = 1
-        existing = ctx.objectValues("Report Collection")
+        existing = ctx.objectValues(METATYPE_COLLECTION)
         existing_dataflows = set("".join(vc.dataflow_uris) for vc in existing)
         df_uris = [
             df
@@ -1190,7 +1214,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return
 
         response = self.REQUEST.RESPONSE
-        response.setHeader("Content-Type", "application/json")
+        response.setHeader("Content-Type", CONTENT_TYPE_JSON)
 
         def create_error_response(message, status_code=404):
             response.setStatus(status_code)
@@ -1263,20 +1287,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return create_success_response(success_msg)
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        security.declareProtected("Audit Envelopes", "globalworklist")
-        security.declareProtected("Audit Envelopes", "searchfeedbacks")
-        security.declareProtected("Audit Envelopes", "resultsfeedbacks")
-        security.declareProtected("Audit Envelopes", "recent")
-        security.declareProtected("Audit Envelopes", "recent_released")
-        security.declareProtected("Audit Envelopes", "searchxml")
-        security.declareProtected("Audit Envelopes", "resultsxml")
-        security.declareProtected("Audit Envelopes", "search_dataflow")
-        security.declareProtected("Audit Envelopes", "search_dataflow_url")
-        security.declareProtected("Audit Envelopes", "lookup_last_delivery")
-        security.declareProtected("Audit Envelopes", "getEnvelopesInfo")
-        security.declareProtected("Audit Envelopes", "getSearchResults")
-        security.declareProtected("Audit Envelopes", "getBatchSearchResults")
-        security.declareProtected("Audit Envelopes", "getUniqueValuesFor")
+        security.declareProtected(audit_envelopes, "globalworklist")
+        security.declareProtected(audit_envelopes, "searchfeedbacks")
+        security.declareProtected(audit_envelopes, "resultsfeedbacks")
+        security.declareProtected(audit_envelopes, "recent")
+        security.declareProtected(audit_envelopes, "recent_released")
+        security.declareProtected(audit_envelopes, "searchxml")
+        security.declareProtected(audit_envelopes, "resultsxml")
+        security.declareProtected(audit_envelopes, "search_dataflow")
+        security.declareProtected(audit_envelopes, "search_dataflow_url")
+        security.declareProtected(audit_envelopes, "lookup_last_delivery")
+        security.declareProtected(audit_envelopes, "getEnvelopesInfo")
+        security.declareProtected(audit_envelopes, "getSearchResults")
+        security.declareProtected(audit_envelopes, "getBatchSearchResults")
+        security.declareProtected(audit_envelopes, "getUniqueValuesFor")
     else:
         security.declareProtected("View", "globalworklist")
         security.declareProtected("View", "searchfeedbacks")
@@ -1330,7 +1354,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def get_query_args(self):
         """Make a Catalog query object from the form in the REQUEST"""
-        catalog_args = {"meta_type": ["Report Envelope", "Repository Referral"]}
+        catalog_args = {"meta_type": [METATYPE_ENVELOPE, "Repository Referral"]}
 
         status = self.REQUEST.get("release_status")
         if status == "anystatus":
@@ -1409,7 +1433,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj = eBrain.getObject()
                 if getSecurityManager().checkPermission("View", obj):
                     files = []
-                    for fileObj in obj.objectValues("Report Document"):
+                    for fileObj in obj.objectValues(METATYPE_DOCUMENT):
                         files.append(
                             {
                                 "filename": fileObj.id,
@@ -1434,7 +1458,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         obligations.append(self.dataflow_lookup(uri)["TITLE"])
 
                     countryName = ""
-                    if obj.meta_type == "Report Envelope":
+                    if obj.meta_type == METATYPE_ENVELOPE:
                         countryName = obj.getCountryName()
                     else:
                         try:
@@ -1443,7 +1467,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             countryName = "Unknown"
 
                     reported = obj.bobobase_modification_time()
-                    if obj.meta_type == "Report Envelope":
+                    if obj.meta_type == METATYPE_ENVELOPE:
                         reported = obj.reportingdate
 
                     company_id = "-"
@@ -1515,11 +1539,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """REST API to get local roles for user id"""
 
         def filter_objects(root):
-            accepted_meta_types = ["Report Collection", "Report Envelope"]
+            accepted_meta_types = [METATYPE_COLLECTION, METATYPE_ENVELOPE]
             for node in root.objectValues():
                 if node.meta_type in accepted_meta_types:
                     yield node
-                    if node.meta_type == "Report Collection":
+                    if node.meta_type == METATYPE_COLLECTION:
                         for subnode in filter_objects(node):
                             if subnode.meta_type in accepted_meta_types:
                                 yield subnode
@@ -1545,7 +1569,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 import json
             except ImportError:
                 return resp
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+            REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             return json.dumps(resp, indent=4)
         return None
 
@@ -1571,7 +1595,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for country in ccountries:
             query = {
                 "dataflow_uris": dataflow_uris,
-                "meta_type": "Report Collection",
+                "meta_type": METATYPE_COLLECTION,
                 "country": country,
             }
 
@@ -1608,7 +1632,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def getCountriesList(self):
         """ """
-        l_countries = self.getParentNode().objectValues("Report Collection")
+        l_countries = self.getParentNode().objectValues(METATYPE_COLLECTION)
         return RepUtils.utSortByAttr(l_countries, "title")
 
     security.declarePrivate("sitemap_filter")
@@ -1618,7 +1642,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             x
             for x in objs
             if x.meta_type
-            in ["Report Collection", "Report Envelope", "Repository Referral"]
+            in [METATYPE_COLLECTION, METATYPE_ENVELOPE, "Repository Referral"]
         ]
 
     security.declareProtected("View", "getSitemap")
@@ -1710,60 +1734,63 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         envelopes = RepUtils.utConvertToList(envelopes)
 
-        temp_dir = RepUtils.get_zip_cache()
-        tmpfile = tempfile.mktemp(".temp", dir=str(temp_dir))
-
         if len(envelopes) == 0:
             return
 
         # get envelopes
         env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
 
-        outzd = ZipFile(tmpfile, "w", ZIP_DEFLATED)
+        # The zip is built in a file that is removed when it is closed, with
+        # the documents added as they are read. The file is the body of the
+        # response: the server sends it, without a thread waiting for the
+        # client, and closes it.
+        temp_dir = RepUtils.get_zip_cache()
+        tmpfile = tempfile.TemporaryFile(dir=str(temp_dir))
+        try:
+            with ZipFile(tmpfile, "w", ZIP_DEFLATED) as outzd:
+                for env_ob in env_objs:
+                    if env_ob is None:
+                        continue
 
-        for env_ob in env_objs:
-            if env_ob is None:
-                continue
+                    if env_ob.released:
+                        env_name = env_ob.title
+                        for doc in env_ob.objectValues(METATYPE_DOCUMENT):
+                            if getSecurityManager().checkPermission(view, doc):
+                                with doc.data_file.open() as doc_file:
+                                    with outzd.open(
+                                        _zip_info(
+                                            "%s/%s" % (env_name, str(doc.getId()))
+                                        ),
+                                        "w",
+                                        force_zip64=doc.data_file.size >= ZIP64_LIMIT,
+                                    ) as zip_entry:
+                                        for chunk in RepUtils.iter_file_data(doc_file):
+                                            zip_entry.write(chunk)
 
-            if env_ob.released:
-                env_name = env_ob.title
-                for doc in env_ob.objectValues("Report Document"):
-                    if getSecurityManager().checkPermission(view, doc):
-                        with doc.data_file.open() as doc_file:
-                            tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-                        with tmp_copy:
-                            outzd.write(
-                                tmp_copy.name,
-                                "%s/%s" % (env_name, str(doc.getId())),
+                        for name, content in (
+                            ("metadata.txt", zip_content.get_metadata_content(env_ob)),
+                            ("README.txt", zip_content.get_readme_content(env_ob)),
+                            ("history.txt", zip_content.get_history_content(env_ob)),
+                        ):
+                            if isinstance(content, str):
+                                content = content.encode("utf-8")
+                            outzd.writestr(
+                                _zip_info("%s/%s" % (env_name, name)), content
                             )
 
-                # write metadata.txt
-                metadata_file = RepUtils.TmpFile(
-                    zip_content.get_metadata_content(env_ob)
-                )
-                outzd.write(str(metadata_file), "%s/%s" % (env_name, "metadata.txt"))
-
-                # write README.txt
-                readme_file = RepUtils.TmpFile(zip_content.get_readme_content(env_ob))
-                outzd.write(str(readme_file), "%s/%s" % (env_name, "README.txt"))
-
-                # write history.txt
-                history_file = RepUtils.TmpFile(zip_content.get_history_content(env_ob))
-                outzd.write(str(history_file), "%s/%s" % (env_name, "history.txt"))
-
-        outzd.close()
-        stat = os.stat(tmpfile)
+            size = tmpfile.seek(0, os.SEEK_END)
+            tmpfile.seek(0)
+        except BaseException:
+            tmpfile.close()
+            raise
 
         RESPONSE.setHeader("Content-Type", "application/x-zip")
         RESPONSE.setHeader(
             "Content-Disposition",
             'attachment; filename="%s.zip"' % "envelopes",
         )
-        RESPONSE.setHeader("Content-Length", stat[6])
-        RepUtils.copy_file(tmpfile, RESPONSE)
-        os.unlink(tmpfile)
-        return ""
+        RESPONSE.setHeader("Content-Length", size)
+        return tmpfile
 
     def __getObjects(self, p_brains):
         """Get objects from catalog identifiers.
@@ -1785,7 +1812,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def get_running_envelopes(self):
         catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
-        return catalog(meta_type="Report Envelope", wf_status="forward")
+        return catalog(meta_type=METATYPE_ENVELOPE, wf_status="forward")
 
     def get_forward_envelopes(self):
         """Return a JSON array with envelopes that are in forward wf_status."""
@@ -1845,7 +1872,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """Looks for Report Envelopes with the given attributes"""
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
         l_result = []
-        l_deliveries = l_catalog(meta_type="Report Envelope", country=country)
+        l_deliveries = l_catalog(meta_type=METATYPE_ENVELOPE, country=country)
         for l_delivery in l_deliveries:
             l_obj = l_delivery.getObject()
             if RepUtils.utIsSubsetOf(l_obj.dataflow_uris, dataflow_uris):
@@ -1901,7 +1928,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         reslist = []
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         l_params = {
-            "meta_type": "Report Envelope",
+            "meta_type": METATYPE_ENVELOPE,
             "dataflow_uris": obligation,
             "released": 1,
         }
@@ -1922,7 +1949,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 "partofyear": obj.partofyear,
             }
             filelist = []
-            for file in obj.objectValues("Report Document"):
+            for file in obj.objectValues(METATYPE_DOCUMENT):
                 if file.content_type == "text/xml":
                     if file.acquiredRolesAreUsedBy("View"):
                         restricted = 0
@@ -1961,7 +1988,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         os.path.join(package_home(globals()), "zpt/engine/migration_table.zpt")
     )
 
-    security.declareProtected("View management screens", "migration_table")
+    security.declareProtected(view_management_screens, "migration_table")
 
     def migration_table(self):
         """List all migrations applied to this deployment and their details"""
@@ -1974,7 +2001,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             upd_module.update(app)
 
         migs = getattr(self, constants.MIGRATION_ID)
-        migs = sorted(list(migs.values()), key=lambda o: o.current_ts, reverse=True)
+        migs = sorted(migs.values(), key=lambda o: o.current_ts, reverse=True)
         done_rows = []
         todo_rows = []
 
@@ -2255,7 +2282,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return "Lock updated."
         return "Locked {} obligation(s).".format(len(uris))
 
-    security.declareProtected("View management screens", "obligation_locks_table")
+    security.declareProtected(view_management_screens, "obligation_locks_table")
 
     def obligation_locks_table(self):
         """Manage the obligations closed to reporting"""
@@ -2287,7 +2314,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             message_dialog=message,
         )
 
-    security.declareProtected("View management screens", "manage_editUNSInterface")
+    security.declareProtected(view_management_screens, "manage_editUNSInterface")
 
     def manage_editUNSInterface(
         self,
@@ -2620,14 +2647,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             <rel_uri>/%s</rel_uri>
         </envelope>""" % file_obj.getMySelf().absolute_url(1)
 
-    security.declareProtected("View management screens", "manage_raise_exception")
+    security.declareProtected(view_management_screens, "manage_raise_exception")
 
     def manage_raise_exception(self):
         """Generate exception to check that it's handled properly"""
         raise ValueError("hello world")
 
     def getSearchResults(self, **kwargs):
-        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
+        _drop_empty_values(kwargs)
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         return catalog.searchResults(**kwargs)
 
@@ -2640,7 +2667,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         of rows is the same as with getSearchResults, and rows sharing a date
         are ordered by their record id.
         """
-        [kwargs.pop(el) for el in list(kwargs.keys()) if kwargs[el] in [None, ""]]
+        _drop_empty_values(kwargs)
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         if kwargs.get("sort_on") in WINDOWED_SORT_KEYS:
             # a Batch looks at the row after its last row and its orphans
@@ -2727,7 +2754,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             """Cache collection groups mapping for 12 hours"""
 
             site_root = self.restrictedTraverse("/")
-            collections = site_root.objectValues("Report Collection")
+            collections = site_root.objectValues(METATYPE_COLLECTION)
             col_tmap = {
                 "fgases": ("Fluorinated gases (F-gases) reporting by undertakings"),
                 "ods": ("Ozone depleting substances (ODS) reporting by undertakings"),
@@ -2870,7 +2897,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         def _add_personal_collections(self, username, catalog, collections):
             """Add user's personal collections."""
-            query = {"meta_type": "Report Collection", "id": username}
+            query = {"meta_type": METATYPE_COLLECTION, "id": username}
             brains = catalog.searchResults(**query)
 
             for brain in brains:
@@ -2904,7 +2931,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             entry in its local roles.
             """
             query = {
-                "meta_type": "Report Collection",
+                "meta_type": METATYPE_COLLECTION,
                 "local_unique_roles": list(BDR_LOCAL_ROLES),
                 "local_defined_users": [username],
             }
@@ -3019,7 +3046,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return xls.read()
 
-    security.declareProtected("View management screens", "zip_cache_cleanup")
+    security.declareProtected(view_management_screens, "zip_cache_cleanup")
 
     def zip_cache_cleanup(self, days=7):
         """Deletes files older than days."""
@@ -3029,10 +3056,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def jsonify(self, value, ensure_ascii=False):
         """Return the value as JSON"""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(value, indent=4, ensure_ascii=ensure_ascii)
 
-    security.declareProtected("View management screens", "get_left_menu_tmpl")
+    security.declareProtected(view_management_screens, "get_left_menu_tmpl")
 
     def get_left_menu_tmpl(self, username=None):
         """Get the left menu template for username."""
@@ -3063,7 +3090,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
     def get_main_cols(self):
         root = self.getPhysicalRoot()
-        collections = root.objectValues("Report Collection")
+        collections = root.objectValues(METATYPE_COLLECTION)
         collections.sort(key=lambda x: x.title_or_id().lower())
 
         return collections
@@ -3074,7 +3101,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         result = None
         # Verify that we have metadata and that we have dataflow_uris in it
         if metadata:
-            for coll in parent.objectValues("Report Collection"):
+            for coll in parent.objectValues(METATYPE_COLLECTION):
                 if coll.title == metadata.get("title"):
                     result = coll
                     break
@@ -3099,7 +3126,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return result
 
-    security.declareProtected("View management screens", "sync_collection")
+    security.declareProtected(view_management_screens, "sync_collection")
 
     def sync_collection(self):
         """Sync local collection from remote collection"""
@@ -3126,7 +3153,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 }
                 try:
                     url = "/".join([remote_depl, collection, "metadata"])
-                    headers = {"Accept": "application/json"}
+                    headers = {"Accept": CONTENT_TYPE_JSON}
                     depl = self.REQUEST.SERVER_URL.split("://")[-1].split(".")[0]
                     data = {"deployment": depl}
                     res = requests.post(url, auth=auth, headers=headers, data=data)
@@ -3264,7 +3291,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return self.jsonify(results)
 
     def init_cols_sync(self):
-        query = {"meta_type": "Report Collection"}
+        query = {"meta_type": METATYPE_COLLECTION}
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
         brains = catalog.searchResults(**query)
         data = PersistentMapping()

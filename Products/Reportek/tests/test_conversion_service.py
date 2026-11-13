@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, Mock, patch
 from pathlib import Path
 
 from Products.Reportek import conversion_registry
@@ -55,6 +55,36 @@ class ConversionServiceTest(BaseUnitTest):
             },
             _strip_hop_by_hop_headers(headers),
         )
+
+    def test_strip_hop_by_hop_headers_of_a_response(self):
+        from requests.structures import CaseInsensitiveDict
+
+        headers = CaseInsensitiveDict(
+            {
+                "content-type": "text/plain",
+                "CONNECTION": "Keep-Alive, x-internal-header",
+                "keep-alive": "timeout=5",
+                "Transfer-Encoding": "chunked",
+                "X-Internal-Header": "remove-me",
+                "X-Application-Header": "keep-me",
+            }
+        )
+
+        result = _strip_hop_by_hop_headers(headers)
+
+        self.assertIs(result, headers)
+        self.assertEqual(
+            {"content-type": "text/plain", "x-application-header": "keep-me"},
+            {key.lower(): value for key, value in result.items()},
+        )
+
+    def test_strip_hop_by_hop_headers_without_headers_to_strip(self):
+        headers = {"Content-Type": "text/plain", "X-Other": "kept"}
+        self.assertEqual(
+            {"Content-Type": "text/plain", "X-Other": "kept"},
+            _strip_hop_by_hop_headers(dict(headers)),
+        )
+        self.assertEqual({}, _strip_hop_by_hop_headers({}))
 
     @patch.object(Converters, "_get_local_converters")
     def test_only_http_converters(self, mock_local_converters):
@@ -177,10 +207,150 @@ class ConversionServiceTest(BaseUnitTest):
         # allow current user (Anonymous) to see this file
         self.app.Converters.testfile._View_Permission = ("Anonymous",)
         self.app.Converters.note = Mock(return_value="")
-        self.app.Converters.run_conversion(**params)
-        self.assertEqual(
-            call("txtesrever"), self.app.REQUEST.RESPONSE.write.mock_calls[0]
+        result = self.app.Converters.run_conversion(**params)
+        self.assertFalse(self.app.REQUEST.RESPONSE.write.called)
+        self.assertEqual(["txtesrever"], list(result))
+        self.assertTrue(mock_resp.close.called)
+
+    def _remote_convert(self, mock_requests, headers, chunks, error=None):
+        from requests.structures import CaseInsensitiveDict
+
+        from Products.Reportek.Converter import RemoteConverter
+        from Products.Reportek.Document import Document
+
+        if "testfile" in self.app.Converters.objectIds():
+            self.app.Converters._delObject("testfile")
+        document = Document("testfile", "", content_type="application/x-rar")
+        self.app.Converters._setObject("testfile", document)
+        mock_resp = MagicMock()
+        mock_resp.headers = CaseInsensitiveDict(headers)
+        mock_resp.iter_content = Mock(return_value=iter(chunks))
+        mock_resp.raise_for_status = Mock(side_effect=error)
+        mock_requests.post.return_value = mock_resp
+        conv = RemoteConverter("remote_conv").__of__(self.app.Converters)
+        conv.api_url = "http://converters.test"
+        request = self.app.REQUEST = Mock(SESSION=Mock())
+        request.RESPONSE.headers = {}
+        file_obj = self.app.Converters.testfile
+        file_obj.note = Mock(return_value="note")
+        return conv, file_obj, mock_resp, request
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_is_streamed(self, mock_requests):
+        conv, file_obj, mock_resp, request = self._remote_convert(
+            mock_requests,
+            {"Content-Type": "text/plain", "Content-Length": "6"},
+            [b"abc", b"def"],
         )
+        result = conv.convert(file_obj)
+        self.assertTrue(mock_requests.post.call_args[1]["stream"])
+        self.assertFalse(request.RESPONSE.write.called)
+        self.assertFalse(mock_resp.close.called)
+        self.assertEqual(b"abcdef", b"".join(result))
+        self.assertTrue(mock_resp.close.called)
+        self.assertEqual("text/plain", request.RESPONSE.headers["Content-Type"])
+        self.assertEqual("6", request.RESPONSE.headers["Content-Length"])
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_closed_when_not_consumed(self, mock_requests):
+        conv, file_obj, mock_resp, request = self._remote_convert(
+            mock_requests, {"Content-Type": "text/plain"}, [b"abc", b"def"]
+        )
+        result = conv.convert(file_obj)
+        next(result)
+        result.close()
+        self.assertEqual(1, mock_resp.close.call_count)
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_gzip_content_length(self, mock_requests):
+        conv, file_obj, mock_resp, request = self._remote_convert(
+            mock_requests,
+            {
+                "Content-Type": "text/plain",
+                "Content-Encoding": "gzip",
+                "Content-Length": "3",
+            },
+            [b"abcdef"],
+        )
+        conv.convert(file_obj)
+        headers = request.RESPONSE.headers
+        self.assertEqual("none", headers["Content-Encoding"])
+        self.assertNotIn("Content-Length", headers)
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_decoded_content_headers(self, mock_requests):
+        for encoding in ("gzip", "deflate", "GZIP", "br"):
+            conv, file_obj, mock_resp, request = self._remote_convert(
+                mock_requests,
+                {
+                    "Content-Type": "text/plain",
+                    "Content-Encoding": encoding,
+                    "Content-Length": "3",
+                },
+                [b"abcdef"],
+            )
+            conv.convert(file_obj)
+            headers = request.RESPONSE.headers
+            self.assertEqual("none", headers["Content-Encoding"], encoding)
+            self.assertNotIn("Content-Length", headers, encoding)
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_not_encoded_keeps_the_length(self, mock_requests):
+        conv, file_obj, mock_resp, request = self._remote_convert(
+            mock_requests,
+            {"Content-Encoding": "identity", "Content-Length": "6"},
+            [b"abcdef"],
+        )
+        conv.convert(file_obj)
+        headers = request.RESPONSE.headers
+        self.assertEqual("identity", headers["Content-Encoding"])
+        self.assertEqual("6", headers["Content-Length"])
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_does_not_copy_date_and_server(self, mock_requests):
+        conv, file_obj, mock_resp, request = self._remote_convert(
+            mock_requests,
+            {
+                "Content-Type": "text/plain",
+                "Date": "Thu, 12 Nov 2026 20:34:25 GMT",
+                "Server": "BaseHTTP/0.6",
+                "X-Other": "kept",
+            },
+            [b"abc"],
+        )
+        conv.convert(file_obj)
+        headers = request.RESPONSE.headers
+        self.assertNotIn("Date", headers)
+        self.assertNotIn("Server", headers)
+        self.assertEqual("kept", headers["X-Other"])
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_http_error(self, mock_requests):
+        from requests import HTTPError
+
+        conv, file_obj, mock_resp, request = self._remote_convert(
+            mock_requests, {}, [], error=HTTPError("boom")
+        )
+        mock_requests.HTTPError = HTTPError
+        mock_resp.text = "converter failed"
+        request.__getitem__ = Mock(return_value="/referer")
+        self.assertEqual("note", conv.convert(file_obj))
+        self.assertTrue(mock_resp.close.called)
+        notes = dict(c[0] for c in request.SESSION.set.call_args_list)
+        self.assertIn("converter failed", notes["note_text"])
+
+    @patch("Products.Reportek.Converter.requests")
+    def test_remote_conversion_connection_error(self, mock_requests):
+        from requests import ConnectionError, HTTPError
+
+        conv, file_obj, mock_resp, request = self._remote_convert(mock_requests, {}, [])
+        mock_requests.HTTPError = HTTPError
+        mock_requests.post.side_effect = ConnectionError("<down>")
+        request.__getitem__ = Mock(return_value="/referer")
+        self.assertEqual("note", conv.convert(file_obj))
+        notes = dict(c[0] for c in request.SESSION.set.call_args_list)
+        self.assertIn("down", notes["note_text"])
+        self.assertNotIn("<", notes["note_text"].split("<br />")[-1])
 
     @patch.object(Converters, "_http_params")
     def test_converter_ct_extraparams_attribute(self, mock_http_params):

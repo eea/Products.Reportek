@@ -20,7 +20,6 @@
 
 import os
 import re
-import string
 from copy import deepcopy
 
 import requests
@@ -62,15 +61,16 @@ def _strip_hop_by_hop_headers(headers):
     """Remove HTTP hop-by-hop headers before copying to a WSGI response."""
     connection_tokens = {
         token.strip().lower()
-        for header, value in list(headers.items())
+        for header, value in headers.items()
         if header.lower() == "connection"
         for token in value.split(",")
         if token.strip()
     }
     blocked_headers = _HOP_BY_HOP_HEADERS | connection_tokens
-    for header in list(headers):
-        if header.lower() in blocked_headers:
-            headers.pop(header, None)
+    # the headers are removed from the mapping, so they are listed first
+    blocked = [header for header in headers if header.lower() in blocked_headers]
+    for header in blocked:
+        headers.pop(header, None)
     return headers
 
 
@@ -275,10 +275,10 @@ class RemoteConverter(Converter):
 
         return converter(file_obj)
 
-    def _do_conversion(self, file_url):
+    def _do_conversion(self, file_url, stream=False):
         url = "/".join([self.api_url, "convert"])
         data = dict(convert_id=self.id, url=file_url)
-        return requests.post(url, data=data)
+        return requests.post(url, data=data, stream=stream)
 
     def convert_for_script(self, file_obj):
         result = self._do_conversion(file_obj.absolute_url())
@@ -286,8 +286,9 @@ class RemoteConverter(Converter):
         return result.content
 
     def convert(self, file_obj):
+        result = None
         try:
-            result = self._do_conversion(file_obj.absolute_url())
+            result = self._do_conversion(file_obj.absolute_url(), stream=True)
             result.raise_for_status()
             headers = deepcopy(result.headers)
             # Let Zope add the transfer-encoding: chuncked header if
@@ -304,19 +305,27 @@ class RemoteConverter(Converter):
             # content.
             # However, requests automatically decompresses the content and we
             # need to replace the 'Content-Encoding' value with none.
-            if headers.get("Content-Encoding") == "gzip":
+            if headers.get("Content-Encoding", "").lower() not in ("", "identity"):
+                # requests decodes gzip, deflate, ...: the content is not
+                # encoded anymore and it has not the length of the encoded one
                 headers["Content-Encoding"] = "none"
+                headers.pop("Content-Length", None)
+            # Zope and the server add their own
+            for header in ("Date", "Server"):
+                headers.pop(header, None)
             self.REQUEST.RESPONSE.headers.update(headers)
-            for chunk in result.iter_content(chunk_size=64 * 1024):
-                self.REQUEST.RESPONSE.write(chunk)
-            return self.REQUEST.RESPONSE
+            # RESPONSE.write() does not stream under WSGI, the converted
+            # file would be kept in memory until the request is done
+            return RepUtils.StreamIterator(
+                result.iter_content(chunk_size=64 * 1024), result.close
+            )
 
         except Exception as error:
             self.REQUEST.SESSION.set("note_title", "Error in conversion")
             if isinstance(error, requests.HTTPError):
                 message = result.text
             else:
-                l_tmp = string.maketrans("<>", "  ")
+                l_tmp = str.maketrans("<>", "  ")
                 message = str(error).translate(l_tmp)
             message.replace(r"\n", "<br />")
             self.REQUEST.SESSION.set(
@@ -328,6 +337,8 @@ class RemoteConverter(Converter):
                 % message,
             )
             self.REQUEST.SESSION.set("redirect_to", self.REQUEST["HTTP_REFERER"])
+            if result is not None:
+                result.close()
             return file_obj.note()
 
 

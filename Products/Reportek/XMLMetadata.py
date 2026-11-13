@@ -196,7 +196,7 @@ class XMLMetadata:
         tf = {0: "false", 1: "true"}
         xml = []
         xml_a = xml.append  # optimisation
-        doc_objs = [doc for doc in self.envelope.objectValues("Report Document")]
+        doc_objs = list(self.envelope.objectValues("Report Document"))
 
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
         p_coll = self.envelope.getParentNode()

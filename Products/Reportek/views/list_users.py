@@ -2,7 +2,12 @@ from plone.memoize import ram
 from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
-from Products.Reportek.constants import ENGINE_ID, ECAS_ID
+from Products.Reportek.constants import (
+    ACL_USERS_PATH,
+    ECAS_ID,
+    ENGINE_ID,
+    REPORTER_OWNER_ROLE,
+)
 from Products.Reportek.ldap_utils import get_ldap_group_ids, get_ldap_user
 from time import time
 import json
@@ -33,7 +38,7 @@ class ListUsers(BaseAdmin):
                 return True
 
     def is_ecas_user(self, username):
-        ecas_path = "/acl_users/" + ECAS_ID
+        ecas_path = ACL_USERS_PATH + ECAS_ID
         ecas = self.context.unrestrictedTraverse(ecas_path, None)
         if ecas:
             if ecas.getEcasUserId(username):
@@ -41,7 +46,7 @@ class ListUsers(BaseAdmin):
 
     def get_ecas_user(self, username):
         user = None
-        ecas_path = "/acl_users/" + ECAS_ID
+        ecas_path = ACL_USERS_PATH + ECAS_ID
         ecas = self.context.unrestrictedTraverse(ecas_path, None)
         if ecas:
             user = ecas.getEcasUserId(username)
@@ -49,7 +54,7 @@ class ListUsers(BaseAdmin):
 
     def get_ecas_email(self, username):
         email = None
-        ecas_path = "/acl_users/" + ECAS_ID
+        ecas_path = ACL_USERS_PATH + ECAS_ID
         ecas = self.context.unrestrictedTraverse(ecas_path, None)
         if ecas:
             email = ecas.getEcasIDEmail(username)
@@ -133,7 +138,7 @@ class ListUsers(BaseAdmin):
                 c_data = col.get_company_data()
 
                 if c_data:
-                    role_map = {"RW": "Reporter (Owner)", "RO": "Reader"}
+                    role_map = {"RW": REPORTER_OWNER_ROLE, "RO": "Reader"}
                     check_path = path[1:] if path.startswith("/") else path
                     users[path] = [
                         {
@@ -165,9 +170,8 @@ class ListUsers(BaseAdmin):
             countries = [countries]
 
         use_role = role
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if role == "Reporter (Owner)":
-                use_role = "Owner"
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and role == REPORTER_OWNER_ROLE:
+            use_role = "Owner"
 
         if path:
             parts = path.split("/")
@@ -192,35 +196,29 @@ class ListUsers(BaseAdmin):
                     col_obligations.append((uri, title))
 
                 if use_role:
-                    users = dict(
-                        (
-                            user,
-                            {
-                                "uid": user,
-                                "role": role,
-                            },
-                        )
+                    users = {
+                        user: {
+                            "uid": user,
+                            "role": role,
+                        }
                         for user, roles in brain.local_defined_roles.items()
                         if use_role in roles
-                    )
+                    }
                 else:
                     if brain.local_defined_users:
-                        users = dict(
-                            (
-                                user,
-                                {
-                                    "uid": user,
-                                    "role": brain.local_defined_roles.get(user),
-                                },
-                            )
+                        users = {
+                            user: {
+                                "uid": user,
+                                "role": brain.local_defined_roles.get(user),
+                            }
                             for user in brain.local_defined_users
-                        )
+                        }
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     # Hide our internal user agent from search results
                     if "bdr_folder_agent" in users:
                         del users["bdr_folder_agent"]
 
-                if not users and role != "Reporter (Owner)":
+                if not users and role != REPORTER_OWNER_ROLE:
                     continue
 
                 yield {

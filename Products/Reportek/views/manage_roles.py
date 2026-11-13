@@ -1,6 +1,11 @@
 from .base_admin import BaseAdmin
 from operator import itemgetter
-from Products.Reportek.constants import ENGINE_ID, ECAS_ID, DEFAULT_CATALOG
+from Products.Reportek.constants import (
+    DEFAULT_CATALOG,
+    ECAS_ID,
+    ENGINE_ID,
+    REPORTER_OWNER_ROLE,
+)
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.rabbitmq import queue_msg
@@ -37,7 +42,7 @@ class ManageRoles(BaseAdmin):
                     {
                         "country": coll.getCountryName,
                         "collection": coll,
-                        "roles": ", ".join([role for role in local_roles]),
+                        "roles": ", ".join(local_roles),
                     }
                 )
 
@@ -47,9 +52,8 @@ class ManageRoles(BaseAdmin):
         collections = self.request.get("collections", [])
         role = self.request.get("role", "")
 
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if role == "Reporter (Owner)":
-                role = "Owner"
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and role == REPORTER_OWNER_ROLE:
+            role = "Owner"
 
         search_type = self.request.get("search_type")
         entity = self.request.get("username", "")
@@ -126,7 +130,7 @@ class ManageRoles(BaseAdmin):
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             sync_transfers = True
-            if role == "Reporter (Owner)":
+            if role == REPORTER_OWNER_ROLE:
                 role = "Owner"
 
         if search_type == "groups":
@@ -147,7 +151,7 @@ class ManageRoles(BaseAdmin):
                 revoke_roles = [revoke_roles]
             roles = set(obj.get_local_roles_for_userid(entity))
             for r in revoke_roles:
-                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and r == "Reporter (Owner)":
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and r == REPORTER_OWNER_ROLE:
                     roles.remove("Owner")
                 else:
                     roles.remove(r)
@@ -290,7 +294,7 @@ class ManageRoles(BaseAdmin):
         )
         disabled_uids = [user.get("uid") for user in disabled_users]
         groups = get_ldap_group_ids(self.context)
-        group_prefixes = tuple({group.split("-")[0] for group in groups})
+        group_prefixes = tuple(group.split("-")[0] for group in groups)
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         brains = catalog.searchResults(**query)
         for brain in brains:

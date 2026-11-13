@@ -32,6 +32,7 @@
 
 import time
 from xml.dom import minidom
+from Products.Reportek.constants import METATYPE_TRANSITION
 
 
 class OpenFlow2Xpdl:
@@ -370,7 +371,7 @@ class OpenFlow2Xpdl:
             # ekintza honetatik irteten diren trantsizioen identifikadoreak
             # add which transitions start after this activity
             transrefs = self.xmldoc.createElement("TransitionRefs")
-            for k in prozesua.objectValues("Transition"):
+            for k in prozesua.objectValues(METATYPE_TRANSITION):
                 if k.From == i.getId():
                     trasref = self.xmldoc.createElement("TransitionRef")
                     trasref.setAttribute("Id", k.getId())
@@ -397,8 +398,8 @@ class OpenFlow2Xpdl:
         trantsizioak = self.xmldoc.createElement("Transitions")
         # dagoen trantsizio bakoitzeko
         # for each transition
-        for i in prozesua.objectValues("Transition"):
-            trantsizioa = self.xmldoc.createElement("Transition")
+        for i in prozesua.objectValues(METATYPE_TRANSITION):
+            trantsizioa = self.xmldoc.createElement(METATYPE_TRANSITION)
             trantsizioa.setAttribute("Id", i.getId())
             trantsizioa.setAttribute("Name", i.description)
             trantsizioa.setAttribute("From", i.From)

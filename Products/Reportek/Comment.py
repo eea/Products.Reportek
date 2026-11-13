@@ -35,6 +35,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.RepUtils import cleanup_id, generate_id, getFilename
+from Products.Reportek.constants import METATYPE_FEEDBACK_COMMENT
 
 __version__ = "$Rev$"[6:-2]
 
@@ -47,7 +48,7 @@ MANAGE_PERMISSION = "Manage Feedback Comments"
 class CommentItem(ObjectManager, SimpleItem, PropertyManager):
     """class that implements a comment"""
 
-    meta_type = "Report Feedback Comment"
+    meta_type = METATYPE_FEEDBACK_COMMENT
     icon = "++resource++images/comment.png"
 
     security = ClassSecurityInfo()
@@ -200,17 +201,17 @@ class CommentsManager:
 
     def listComments(self):
         """Returns the list of comments sorted by date."""
-        t = [(x.date, x) for x in self.objectValues("Report Feedback Comment")]
+        t = [(x.date, x) for x in self.objectValues(METATYPE_FEEDBACK_COMMENT)]
         t.sort()
         return [val for (key, val) in t]
 
     def hasComments(self):
         """Returns the number of comments."""
-        return len(self.objectValues("Report Feedback Comment")) > 0
+        return len(self.objectValues(METATYPE_FEEDBACK_COMMENT)) > 0
 
     def countComments(self):
         """Returns the number of comments."""
-        return len(self.objectValues("Report Feedback Comment"))
+        return len(self.objectValues(METATYPE_FEEDBACK_COMMENT))
 
     def checkPermissionAddComments(self):
         """Check for adding comments permission"""

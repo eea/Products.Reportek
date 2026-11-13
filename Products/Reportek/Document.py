@@ -54,8 +54,11 @@ from Products.Reportek import IconShow, RepUtils
 from Products.Reportek.blob import FileContainer, StorageError
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.constants import (
+    CONTENT_TYPE_JSON,
+    CONTENT_TYPE_XML,
     DEFAULT_CATALOG,
     ENGINE_ID,
+    METATYPE_DOCUMENT,
     QAREPOSITORY_ID,
 )
 from Products.Reportek.interfaces import IDocument
@@ -68,6 +71,7 @@ from Products.Reportek.RepUtils import (
 )
 from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
+from Products.Reportek.permissions import change_envelopes
 
 __version__ = "$Rev$"[6:-2]
 
@@ -96,8 +100,8 @@ def error_message(ctx, message, action=None, REQUEST=None):
         action = ctx.absolute_url()
     if REQUEST is not None:
         accept = REQUEST.environ.get("HTTP_ACCEPT")
-        if accept == "application/json":
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        if accept == CONTENT_TYPE_JSON:
+            REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             error = {"title": "Error", "description": message}
             data = {
                 "errors": [error],
@@ -115,8 +119,8 @@ def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=N
         errors = []
     if REQUEST is not None:
         accept = REQUEST.environ.get("HTTP_ACCEPT")
-        if accept == "application/json":
-            REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        if accept == CONTENT_TYPE_JSON:
+            REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
             REQUEST.RESPONSE.setStatus(201)
             files = []
             for obj in objs:
@@ -269,10 +273,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     security.declareProtected("Change permissions", "manage_access")
 
-    security.declareProtected("Change Envelopes", "manage_editDocument")
-    security.declareProtected("Change Envelopes", "manage_main")
-    security.declareProtected("Change Envelopes", "manage_uploadForm")
-    security.declareProtected("Change Envelopes", "manage_file_upload")
+    security.declareProtected(change_envelopes, "manage_editDocument")
+    security.declareProtected(change_envelopes, "manage_main")
+    security.declareProtected(change_envelopes, "manage_uploadForm")
+    security.declareProtected(change_envelopes, "manage_file_upload")
 
     security.declareProtected("View", "index_html")
     security.declareProtected("View", "link")
@@ -293,7 +297,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def macros(self):
         return self._macros_template.macros
 
-    meta_type = "Report Document"
+    meta_type = METATYPE_DOCUMENT
 
     ################################
     # Init method                  #
@@ -420,7 +424,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         # TODO also take weights into consideration (gzip;q=0,deflate;q=1)
         if ae and ae.lower().startswith("gzip"):
             skip_decomp = True
-        with self.data_file.open(skip_decompress=skip_decomp) as data_file_handle:
+        # The file is closed when the body of the response is sent
+        data_file_handle = self.data_file.open(skip_decompress=skip_decomp)
+        try:
             size = self.data_file.size
             if skip_decomp and self.is_compressed():
                 # This is hackish. If the client asked for gzip compression
@@ -430,14 +436,17 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 # gzipped
                 RESPONSE.setHeader("content-encoding", "gzip")
                 size = self.data_file.compressed_size
-            RepUtils.http_response_with_file(
-                REQUEST,
-                RESPONSE,
-                data_file_handle,
-                self.content_type,
-                size,
-                self.data_file.mtime,
-            )
+        except BaseException:
+            data_file_handle.close()
+            raise
+        return RepUtils.http_response_with_file(
+            REQUEST,
+            RESPONSE,
+            data_file_handle,
+            self.content_type,
+            size,
+            self.data_file.mtime,
+        )
 
     security.declarePublic("isGML")
 
@@ -445,7 +454,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """Checks whether or not this is a GML file.
         The content type must be text/xml and it must end with .gml
         """
-        return self.content_type == "text/xml" and self.id[-4:] == ".gml"
+        return self.content_type == CONTENT_TYPE_XML and self.id.endswith(".gml")
 
     security.declareProtected("View", "getQAScripts")
 
@@ -478,15 +487,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         content_type = "image/gif"
         file_size = os.path.getsize(filename)
         file_mtime = os.path.getmtime(filename)
-        with open(filename, "rb") as data_file:
-            RepUtils.http_response_with_file(
-                REQUEST,
-                RESPONSE,
-                data_file,
-                content_type,
-                file_size,
-                file_mtime,
-            )
+        return RepUtils.http_response_with_file(
+            REQUEST,
+            RESPONSE,
+            open(filename, "rb"),
+            content_type,
+            file_size,
+            file_mtime,
+        )
 
     security.declarePublic("icon_html")
 
@@ -605,7 +613,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             local_converters, remote_converters = ex.results
             warning_message = "Local conversion service unavailable."
 
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(
             {
                 "local_converters": local_converters,
@@ -632,14 +640,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             else:
                 large_qa.append(qa)
         res["file"] = parse_uri(self.absolute_url(), http_res)
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         return json.dumps(res)
 
     security.declareProtected("View", "file_metadata")
 
     def file_metadata(self):
         """Return the file metadata in JSON format."""
-        self.REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+        self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
         res = {}
         try:
             res = {
@@ -699,7 +707,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             editable,
         )
 
-    security.declareProtected("Change Envelopes", "manage_restrictDocument")
+    security.declareProtected(change_envelopes, "manage_restrictDocument")
 
     def manage_restrictDocument(self, REQUEST=None):
         """Restrict access to this file"""
@@ -710,7 +718,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 action=REQUEST["HTTP_REFERER"],
             )
 
-    security.declareProtected("Change Envelopes", "manage_unrestrictDocument")
+    security.declareProtected(change_envelopes, "manage_unrestrictDocument")
 
     def manage_unrestrictDocument(self, REQUEST=None):
         """Remove access restriction for this file"""
@@ -862,7 +870,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             engine = getattr(self, ENGINE_ID, None)
             if engine:
                 engine.AVService.scan(data_file_handle, filename=self.getId())
-            if self.content_type == "text/xml":
+            if self.content_type == CONTENT_TYPE_XML:
                 self.xml_schema_location = detect_schema(data_file_handle)
             else:
                 self.xml_schema_location = ""
@@ -918,7 +926,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             name = name.lower()
         if name.endswith(".gml"):
-            return "text/xml"
+            return CONTENT_TYPE_XML
         elif name.endswith(".rar"):
             return "application/x-rar-compressed"
 
@@ -976,7 +984,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         }
         to filter specific tags or paths to tags.
         """
-        if self.content_type != "text/xml":
+        if self.content_type != CONTENT_TYPE_XML:
             return error_message(
                 self, "This document is not an XML file", REQUEST=REQUEST
             )
@@ -1146,7 +1154,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 xml_dict = filtered_dict
 
             if REQUEST is not None:
-                REQUEST.RESPONSE.setHeader("Content-Type", "application/json")
+                REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
                 return json.dumps(xml_dict, indent=2, ensure_ascii=False).encode(
                     "utf-8"
                 )

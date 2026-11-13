@@ -7,10 +7,13 @@ from DateTime import DateTime
 from Products.Reportek.constants import (
     DEFAULT_CATALOG,
     ENGINE_ID,
+    METATYPE_WORKITEM,
     WORKFLOW_ENGINE_ID,
 )
 from Products.Reportek.rabbitmq import send_message
 from Products.Reportek.RepUtils import getToolByName
+
+DATETIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 
 
 class EnvelopeUtils(BaseAdmin):
@@ -77,7 +80,7 @@ class EnvelopeUtils(BaseAdmin):
         obligations = self.request.get("dataflow_uris", [])
 
         query = {
-            "meta_type": "Workitem",
+            "meta_type": METATYPE_WORKITEM,
             "status": ["active", "inactive"],
             "sort_on": "reportingdate",
             "sort_order": "reverse",
@@ -200,7 +203,7 @@ class EnvelopeUtils(BaseAdmin):
         }
         # Get all inactive workitems
         query = {
-            "meta_type": "Workitem",
+            "meta_type": METATYPE_WORKITEM,
             "status": "inactive",
             "admin_check": self.should_check_permission(),
         }
@@ -210,7 +213,7 @@ class EnvelopeUtils(BaseAdmin):
             obj = b.getObject()
             if obj.activity_id in auto_activities:
                 env = obj.aq_parent
-                wk_ids = [int(wk_id) for wk_id in env.objectIds("Workitem")]
+                wk_ids = [int(wk_id) for wk_id in env.objectIds(METATYPE_WORKITEM)]
                 last_workitem_id = str(max(wk_ids))
                 # Check if it's the last workitem_id and cannot be pulled
                 if obj.getId() == last_workitem_id and not obj.pull_roles:
@@ -239,7 +242,7 @@ class EnvelopeUtils(BaseAdmin):
                                 "title": activity_title,
                             },
                             "s_date": DateTime(obj.event_log[-1].get("time")).strftime(
-                                "%d/%m/%Y %H:%M:%S"
+                                DATETIME_FORMAT
                             ),
                         }
                     )
@@ -251,7 +254,7 @@ class EnvelopeUtils(BaseAdmin):
 
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         query = {
-            "meta_type": "Workitem",
+            "meta_type": METATYPE_WORKITEM,
             "activity_id": "AutomaticQA",
             "status": "active",
             "admin_check": self.should_check_permission(),
@@ -286,7 +289,7 @@ class EnvelopeUtils(BaseAdmin):
                                 "title": activity.title_or_id(),
                             },
                             "s_date": DateTime(wk.event_log[-1].get("time")).strftime(
-                                "%d/%m/%Y %H:%M:%S"
+                                DATETIME_FORMAT
                             ),
                         }
                     )
@@ -360,7 +363,7 @@ class EnvelopeUtils(BaseAdmin):
                     "process": {"url": process_url, "title": process_title},
                     "activity": {"url": activity_url, "title": activity_title},
                     "s_date": DateTime(last_wk.event_log[-1].get("time")).strftime(
-                        "%d/%m/%Y %H:%M:%S"
+                        DATETIME_FORMAT
                     ),
                 }
             )

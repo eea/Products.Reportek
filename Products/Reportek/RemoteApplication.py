@@ -44,6 +44,8 @@ from Products.Reportek.interfaces import IQAApplication
 
 from .Document import Document
 
+SENDING_FILES_ERROR = "Error in sending files to %s: %s"
+
 feedback_log = logging.getLogger(__name__ + ".feedback")
 
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
@@ -508,8 +510,7 @@ class RemoteApplication(BaseRemoteApplication):
             l_nRetries = int(l_wk_prop["analyze"]["retries_left"])
             if l_nRetries == 0:
                 l_workitem.addEvent(
-                    "Error in sending files to %s: %s"
-                    % (self.app_name, str(l_fault.faultString))
+                    SENDING_FILES_ERROR % (self.app_name, str(l_fault.faultString))
                 )
                 l_workitem.failure = True
                 err = "Code: {}\nDescription: {}".format(
@@ -540,8 +541,7 @@ class RemoteApplication(BaseRemoteApplication):
             l_nRetries = int(l_wk_prop["analyze"]["retries_left"])
             if l_nRetries == 0:
                 l_workitem.addEvent(
-                    "Error in sending files to %s: %s"
-                    % (self.app_name, str(l_protocol.errmsg))
+                    SENDING_FILES_ERROR % (self.app_name, str(l_protocol.errmsg))
                 )
                 l_workitem.failure = True
                 err = "Code: {}\nDescription: {}".format(
@@ -569,9 +569,7 @@ class RemoteApplication(BaseRemoteApplication):
                 )
         # A broken response package - critical, do not retry
         except xmlrpc.client.ResponseError as l_response:
-            l_workitem.addEvent(
-                "Error in sending files to %s: %s" % (self.app_name, str(l_response))
-            )
+            l_workitem.addEvent(SENDING_FILES_ERROR % (self.app_name, str(l_response)))
             l_workitem.failure = True
             self.__manageAutomaticProperty(
                 p_workitem_id=p_workitem_id,
@@ -582,18 +580,14 @@ class RemoteApplication(BaseRemoteApplication):
             )
         # Generic client error - critical, do not retry
         except xmlrpc.client.Error as err:
-            l_workitem.addEvent(
-                "Error in sending files to %s: %s" % (self.app_name, str(err))
-            )
+            l_workitem.addEvent(SENDING_FILES_ERROR % (self.app_name, str(err)))
             l_workitem.failure = True
             self.__manageAutomaticProperty(
                 p_workitem_id=p_workitem_id,
                 p_analyze={"code": -2, "last_error": str(err)},
             )
         except Exception as err:
-            l_workitem.addEvent(
-                "Error in sending files to %s: %s" % (self.app_name, str(err))
-            )
+            l_workitem.addEvent(SENDING_FILES_ERROR % (self.app_name, str(err)))
             l_workitem.failure = True
             self.__manageAutomaticProperty(
                 p_workitem_id=p_workitem_id,

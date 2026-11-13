@@ -27,6 +27,7 @@ from App.Common import package_home
 from OFS.SimpleItem import SimpleItem
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import METATYPE_QASCRIPT
 
 __doc__ = """
       QAScript product module.
@@ -75,7 +76,7 @@ def manage_addQAScript(
 class QAScript(SimpleItem):
     """ """
 
-    meta_type = "QAScript"
+    meta_type = METATYPE_QASCRIPT
 
     manage_options = (
         {"label": "Settings", "action": "manage_settings_html"},

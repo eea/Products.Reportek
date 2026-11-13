@@ -29,13 +29,15 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.constants import METATYPE_ACTIVITY
+from Products.Reportek.permissions import manage_openflow
 
 
 class activity(CatalogAware, SimpleItem):
     """Each activity is responsible for doing something and then forwarding
     the instance"""
 
-    meta_type = "Activity"
+    meta_type = METATYPE_ACTIVITY
     icon = "++resource++images/Activity.gif"
 
     manage_options = (
@@ -83,12 +85,12 @@ class activity(CatalogAware, SimpleItem):
         # the workitem will be completed if this parameter is true
         self.complete_automatically = complete_automatically
 
-    security.declareProtected("Manage OpenFlow", "manage_editForm")
+    security.declareProtected(manage_openflow, "manage_editForm")
     manage_editForm = PageTemplateFile("zpt/Workflow/activity_edit.zpt", globals())
 
     index_html = PageTemplateFile("zpt/Workflow/activity_index.zpt", globals())
 
-    security.declareProtected("Manage OpenFlow", "edit")
+    security.declareProtected(manage_openflow, "edit")
 
     def edit(
         self,
@@ -150,7 +152,7 @@ class activity(CatalogAware, SimpleItem):
                 "manage_editForm?manage_tabs_message=Saved changes."
             )
 
-    security.declareProtected("Manage OpenFlow", "title_or_id")
+    security.declareProtected(manage_openflow, "title_or_id")
 
     def title_or_id(self):
         """ """
@@ -262,49 +264,49 @@ class activity(CatalogAware, SimpleItem):
             [tr for tr in self.aq_parent.objectValues("Transition") if tr.To == self.id]
         )
 
-    security.declareProtected("Manage OpenFlow", "isAutoStart")
+    security.declareProtected(manage_openflow, "isAutoStart")
 
     def isAutoStart(self):
         """returns true if the activity start mode is automatic"""
         return self.start_mode and self.kind == "standard"
 
-    security.declareProtected("Manage OpenFlow", "isBundled")
+    security.declareProtected(manage_openflow, "isBundled")
 
     def isBundled(self):
         """returns true if the activity start mode is automatic"""
         return getattr(self, "bundle_mode", 0) and self.kind == "standard"
 
-    security.declareProtected("Manage OpenFlow", "isSelfAssignable")
+    security.declareProtected(manage_openflow, "isSelfAssignable")
 
     def isSelfAssignable(self):
         """returns true if the activity is assignable to self"""
         return self.self_assignable and self.kind == "standard"
 
-    security.declareProtected("Manage OpenFlow", "isAutoFinish")
+    security.declareProtected(manage_openflow, "isAutoFinish")
 
     def isAutoFinish(self):
         """returns true if the activity finish mode is automatic"""
         return self.finish_mode == 1
 
-    security.declareProtected("Manage OpenFlow", "isStandard")
+    security.declareProtected(manage_openflow, "isStandard")
 
     def isStandard(self):
         """returns true if the activity is of 'standard' kind"""
         return self.kind == "standard"
 
-    security.declareProtected("Manage OpenFlow", "isSubflow")
+    security.declareProtected(manage_openflow, "isSubflow")
 
     def isSubflow(self):
         """returns true if the activity is a subflow"""
         return self.subflow != ""
 
-    security.declareProtected("Manage OpenFlow", "isDummy")
+    security.declareProtected(manage_openflow, "isDummy")
 
     def isDummy(self):
         """returns true if the activity is a dummy"""
         return self.kind == "dummy"
 
-    security.declareProtected("Manage OpenFlow", "isAutoPush")
+    security.declareProtected(manage_openflow, "isAutoPush")
 
     def isAutoPush(self):
         """returns true if the activity push mode is automatic"""

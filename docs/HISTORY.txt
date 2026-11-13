@@ -1,6 +1,86 @@
 Changelog
 =========
 
+101.1 - (2026-11-13)
+--------------------
+* refactor: SonarQube: the if statements of the role of the owner in
+        manage_roles and list_users are merged, Document.isGML uses endswith,
+        the list() calls on the headers of the converters are not needed
+        (the ones that are removed are listed first); add tests
+* refactor: SonarQube code smells: list() calls on what is iterable already,
+        list(...)[0] as next(iter(...)), dict() of pairs and comprehensions
+        that copy as a dict comprehension and list(), a constant for the
+        message of the queue of EnvelopeInstance, secrets.choice for the ids
+        of migrate_dataflow_mappings; the search parameters that are empty
+        are removed by a function (the keys are listed first, as the
+        dictionary is changed) in getSearchResults and
+        getBatchSearchResults; add tests
+* fix: security (path traversal reported by SonarQube): the scripts that get
+        paths on the command line, updates/import_ecas_plugin.py and
+        locales/page-based-po.py, resolve them and only read an existing
+        file of the kind they expect: the eCas export has to be a .json file
+        in the instance, the current directory or ECAS_EXPORT_DIR, and a
+        link that leads out of the directory is not followed; the id of the
+        plugin is checked; page-based-po.py also does not use the Python 2
+        encoding calls that made it fail; add tests
+* refactor: the names of the permissions (Change Envelopes, Manage OpenFlow,
+        Add Feedback, ...) are constants in permissions.py, and config.py
+        uses them, the content types (text/html, text/xml, application/json)
+        and the path of the user folder are constants in constants.py, and
+        the label of the role of the owner is a constant too, and the
+        strings that are repeated in a module (the messages of
+        RemoteApplication, Feedback and RegistryManagement, the dates of
+        BaseDelivery and envelope_utils, the names in OpenFlowEngine,
+        RemoteFMEConversionApplication, session, ...) are constants of
+        their modules; the values are the same, and so are the permissions
+        of every method; add tests
+* refactor: the meta_type of the content classes (Report Document, Report
+        Envelope, Report Collection, Report Feedback, Workitem, ...) is a
+        constant in constants.py, which the classes and the code that looks
+        for the objects by it use, instead of the string repeated in many
+        places; the strings are the same; add tests
+* fix: the download of an empty file that is stored compressed (xml, text,
+        octet-stream, ...) had a Content-Length of 32 and no content, so the
+        client waited for the rest: the size of the file was the size of the
+        empty gzip stream it is stored in, because a size of 0 given by the
+        upload was taken as no size (FileContainer.open orig_size); now 0 is
+        the size and None is the absence of it. The files that were uploaded
+        like this keep the wrong size: they are compressed, with a size equal
+        to compressed_size of a few bytes; add tests
+* perf: downloads of files: the documents and the blob files are sent as
+        files, which Zope hands to the server (wsgi.file_wrapper), and the zip
+        of several envelopes (ReportekEngine/zipEnvelopes) is built without
+        copying every document first and sent the same way. response.write()
+        does not stream under WSGI, as the publisher keeps what is written in
+        memory, twice, until the request is done: a download of a 250 MB file
+        needed 500 MB, and four at the same time 2 GB; now they need 20 MB.
+        The server sends the files from its own loop, so no thread waits for
+        a slow client. A file that is stored compressed and sent to a client
+        that does not accept gzip is decoded while it is read and streamed:
+        for those the thread is busy until the client has received it, unless
+        the server accepts the output in a buffer, which waitress keeps on
+        disk (outbuf_high_watermark, in the [server:main] section of
+        zope.ini). The committed file of a blob is opened directly, not with
+        Blob.open(): the Blob forgets a file when it is closed, which is after
+        the request now, and it closes the files it gave when the document is
+        changed, so a download would end half way and the document could not
+        be changed while it was downloaded. The files are read by the server
+        when it sends them, so while the blob directory is a slow network
+        volume (zeoSharedBlobDir) the server waits for it, and it answers
+        the other requests when it has read what it sends: with 20 MB files
+        and a volume of 6 MB/s the other requests waited 3 seconds, and 10
+        before this change. The headers and the content are the same; add
+        tests
+* perf: converters: the response of a remote converter is streamed to the
+        client instead of being kept in memory, twice, until the request is
+        done: a conversion of a 260 MB file needed 500 MB, four at the same
+        time 2 GB; now they need 20 MB and 60 MB; the Content-Length of a
+        gzip or deflate response, which was the one of the encoded content
+        while the content is decoded, is not sent anymore, and the Date and
+        Server headers of the converter are not copied; fix the error page of
+        a failed conversion, which raised an AttributeError
+        (string.maketrans); add tests
+
 101.0 - (2026-11-12)
 --------------------
 * fix: improved security for CDR/BDR api/envelopes; add tests

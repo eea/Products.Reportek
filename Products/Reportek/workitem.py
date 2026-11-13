@@ -19,6 +19,8 @@ from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.interfaces import IWkMetadata, IWorkitem
 from Products.Reportek.modification_date import set_reportek_modification_date
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.constants import METATYPE_WORKITEM
+from Products.Reportek.permissions import manage_openflow
 
 ANNOTATION_KEY = "workitem.metadata"
 
@@ -34,7 +36,7 @@ def computed_attribute_decorator(level=0):
 class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     """describes a single workitem of the history graph"""
 
-    meta_type = "Workitem"
+    meta_type = METATYPE_WORKITEM
     icon = "++resource++images/Workitem.gif"
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
@@ -112,13 +114,13 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
         + SimpleItem.manage_options
     )
 
-    security.declareProtected("Manage OpenFlow", "workitemProperties")
+    security.declareProtected(manage_openflow, "workitemProperties")
     workitemProperties = PageTemplateFile("zpt/Workflow/workitem_edit", globals())
 
     security.declareProtected("View", "workitemDetails")
     workitemDetails = PageTemplateFile("zpt/Workflow/workitem_details", globals())
 
-    security.declareProtected("Manage OpenFlow", "workitem_metadata")
+    security.declareProtected(manage_openflow, "workitem_metadata")
     workitem_metadata = PageTemplateFile("zpt/Workflow/workitem_metadata", globals())
 
     security.declareProtected("View", "index_html")
@@ -164,7 +166,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
             return self.event_log[-1]["time"]
         return self.creation_time
 
-    security.declareProtected("Manage OpenFlow", "edit")
+    security.declareProtected(manage_openflow, "edit")
 
     def edit(
         self,

@@ -31,6 +31,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import RepUtils
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.RepUtils import refuse_when_frozen
+from Products.Reportek.permissions import change_envelopes
 
 __doc__ = """
       Hyperlink product module.
@@ -121,7 +122,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     def size(self):
         return ""
 
-    security.declareProtected("Change Envelopes", "manage_editHyperlink")
+    security.declareProtected(change_envelopes, "manage_editHyperlink")
 
     def manage_editHyperlink(
         self,
@@ -148,13 +149,13 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
     security.declareProtected("View", "index_html")
     index_html = PageTemplateFile("zpt/hyperlink/index", globals())
 
-    security.declareProtected("Change Envelopes", "manage_editHyperlinkForm")
+    security.declareProtected(change_envelopes, "manage_editHyperlinkForm")
     manage_editHyperlinkForm = PageTemplateFile(
         "zpt/hyperlink/edit",
         globals(),
     )
 
-    security.declareProtected("Change Envelopes", "manage_restrictDocument")
+    security.declareProtected(change_envelopes, "manage_restrictDocument")
 
     def manage_restrictDocument(self, REQUEST=None):
         """Restrict access to this file."""
@@ -165,7 +166,7 @@ class ReportHyperlink(CatalogAware, SimpleItem, PropertyManager):
                 action=REQUEST["HTTP_REFERER"],
             )
 
-    security.declareProtected("Change Envelopes", "manage_unrestrictDocument")
+    security.declareProtected(change_envelopes, "manage_unrestrictDocument")
 
     def manage_unrestrictDocument(self, REQUEST=None):
         """Remove access restriction for this file."""

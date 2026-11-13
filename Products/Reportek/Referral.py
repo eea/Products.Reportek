@@ -39,6 +39,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.constants import METATYPE_REFERRAL
+from Products.Reportek.permissions import change_collections
 
 # Product imports
 from . import RepUtils
@@ -106,7 +108,7 @@ class Referral(
     a management interface and can have arbitrary properties.
     """
 
-    meta_type = "Repository Referral"
+    meta_type = METATYPE_REFERRAL
     icon = "++resource++images/referral.gif"
 
     # Create a SecurityInfo for this class. We will use this
@@ -179,7 +181,7 @@ class Referral(
     security.declareProtected("View", "referral_tabs")
     referral_tabs = PageTemplateFile("zpt/referral/tabs", globals())
 
-    security.declareProtected("Change Collections", "manage_prop")
+    security.declareProtected(change_collections, "manage_prop")
     manage_prop = PageTemplateFile("zpt/referral/prop", globals())
 
     security.declareProtected("View", "manage_main")
@@ -222,7 +224,7 @@ class Referral(
 
         return env_data
 
-    security.declareProtected("Change Collections", "manage_editReferral")
+    security.declareProtected(change_collections, "manage_editReferral")
 
     def manage_editReferral(
         self,
@@ -266,7 +268,7 @@ class Referral(
                 action="./manage_main",
             )
 
-    security.declareProtected("Change Collections", "manage_changeReferral")
+    security.declareProtected(change_collections, "manage_changeReferral")
 
     def manage_changeReferral(
         self,

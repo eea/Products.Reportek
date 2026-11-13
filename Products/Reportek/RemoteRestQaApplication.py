@@ -42,6 +42,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.exceptions import LocalConversionException
 from Products.Reportek.interfaces import IQAApplication
+from Products.Reportek.constants import CONTENT_TYPE_HTML
 
 from .Document import Document
 
@@ -384,7 +385,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         feedback_ob = envelope[feedback_id]
         content = result[1].data
         content_type = result[0]
-        content_type = content_type if content_type else "text/html"
+        content_type = content_type if content_type else CONTENT_TYPE_HTML
         self.store_feedback_content(
             feedback_ob,
             content,
@@ -588,7 +589,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         e_data = {
                             "SCRIPT_TITLE": data.get("scriptTitle"),
                             "feedbackContentType": data.get(
-                                "feedbackContentType", "text/html"
+                                "feedbackContentType", CONTENT_TYPE_HTML
                             ),
                         }
                         r_res = self.handle_remote_file(
@@ -645,7 +646,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         content = data["feedbackContent"]
                         content_type = data.get("feedbackContentType")
                         if not content_type:
-                            content_type = "text/html"
+                            content_type = CONTENT_TYPE_HTML
 
                         self.store_feedback_content(
                             feedback_ob,
@@ -1007,7 +1008,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             res = self.makeHTTPRequest(url, method="POST", data=data)
             if res.status_code == 200:
                 result = res.json()
-                c_type = result.get("feedbackContentType", "text/html")
+                c_type = result.get("feedbackContentType", CONTENT_TYPE_HTML)
                 # Creating a class here to preserve backwards compatibility
 
                 class ODQA(object):

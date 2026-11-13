@@ -37,6 +37,8 @@ import time
 import traceback
 from copy import deepcopy
 from datetime import datetime
+from gzip import GzipFile
+from io import IOBase
 from pathlib import Path
 from urllib.request import FancyURLopener
 
@@ -58,6 +60,7 @@ from zope.component import getUtility
 from zope.datetime import rfc1123_date
 from zope.interface import implementer
 from zope.interface.interfaces import ComponentLookupError
+from ZPublisher.Iterators import IUnboundStreamIterator
 
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
@@ -143,6 +146,37 @@ def copy_file(infile, outfile):
         instream.close()
     if close_out:
         outstream.close()
+
+
+@implementer(IUnboundStreamIterator)
+class StreamIterator:
+    """The body of a response that is sent while it is read.
+
+    response.write() does not send anything: under WSGI the publisher keeps
+    what was written in memory, twice, and sends it when the request is done.
+    Only a body that is an iterator like this one is streamed, so the files
+    are returned with it, which holds the file open until it is sent.
+    """
+
+    def __init__(self, chunks, close=None):
+        self._chunks = iter(chunks)
+        self._close = close
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return next(self._chunks)
+        except BaseException:
+            self.close()
+            raise
+
+    def close(self):
+        """Called by the server when the response is done, and when it fails."""
+        close, self._close = self._close, None
+        if close is not None:
+            close()
 
 
 def iter_file_data(in_file, chunk_size=131072, close_when_done=False):
@@ -527,39 +561,54 @@ def temporary_named_copy(source_file):
 def http_response_with_file(
     request, response, data_file, content_type, file_size, file_mtime
 ):
-    # HTTP If-Modified-Since header handling.
-    header = request.get_header("If-Modified-Since", None)
-    if header is not None:
-        header = header.split(";")[0]
-        # Some proxies seem to send invalid date strings for this
-        # header. If the date string is not valid, we ignore it
-        # rather than raise an error to be generally consistent
-        # with common servers such as Apache (which can usually
-        # understand the screwy date string as a lucky side effect
-        # of the way they parse it).
-        # This happens to be what RFC2616 tells us to do in the face of an
-        # invalid date.
-        try:
-            mod_since = int(DateTime(header).timeTime())
-        except Exception:
-            mod_since = None
-        if mod_since is not None:
-            last_mod = int(file_mtime)
-            if last_mod > 0 and last_mod <= mod_since:
-                # Set header values since apache caching will return
-                # Content-Length of 0 in response if size is not set here
-                response.setHeader("Last-Modified", rfc1123_date(file_mtime))
-                response.setHeader("Content-Type", content_type)
-                response.setHeader("Content-Length", file_size)
-                response.setStatus(304)
-                return
+    """Set the headers of the response with a file and return its body.
 
-    response.setHeader("Last-Modified", rfc1123_date(file_mtime))
-    response.setHeader("Content-Type", content_type)
-    response.setHeader("Content-Length", file_size)
+    The caller returns the body, which sends data_file and closes it. The
+    file is closed here when there is no body to send.
+    """
+    try:
+        # HTTP If-Modified-Since header handling.
+        header = request.get_header("If-Modified-Since", None)
+        if header is not None:
+            header = header.split(";")[0]
+            # Some proxies seem to send invalid date strings for this
+            # header. If the date string is not valid, we ignore it
+            # rather than raise an error to be generally consistent
+            # with common servers such as Apache (which can usually
+            # understand the screwy date string as a lucky side effect
+            # of the way they parse it).
+            # This happens to be what RFC2616 tells us to do in the face of an
+            # invalid date.
+            try:
+                mod_since = int(DateTime(header).timeTime())
+            except Exception:
+                mod_since = None
+            if mod_since is not None:
+                last_mod = int(file_mtime)
+                if last_mod > 0 and last_mod <= mod_since:
+                    # Set header values since apache caching will return
+                    # Content-Length of 0 in response if size is not set here
+                    response.setHeader("Last-Modified", rfc1123_date(file_mtime))
+                    response.setHeader("Content-Type", content_type)
+                    response.setHeader("Content-Length", file_size)
+                    response.setStatus(304)
+                    data_file.close()
+                    return ""
 
-    for chunk in iter_file_data(data_file):
-        response.write(chunk)
+        response.setHeader("Last-Modified", rfc1123_date(file_mtime))
+        response.setHeader("Content-Type", content_type)
+        response.setHeader("Content-Length", file_size)
+    except BaseException:
+        data_file.close()
+        raise
+
+    if isinstance(data_file, IOBase) and not isinstance(data_file, GzipFile):
+        # Zope hands a file to the server (wsgi.file_wrapper), which sends it
+        # from its own loop and closes it, so no thread of ours waits for a
+        # slow client. A GzipFile is not sent like this, as the server
+        # measures a file by reading it to the end.
+        return data_file
+    return StreamIterator(iter_file_data(data_file), data_file.close)
 
 
 def iter_ofs_file_data(ofs_file):

@@ -22,6 +22,31 @@
 # ZCatalog
 DEFAULT_CATALOG = "Catalog"
 
+# The meta_type of the content classes. The classes define it and the code that
+# looks for them by it (the catalog, objectValues, ...) uses the same constants
+METATYPE_COLLECTION = "Report Collection"
+METATYPE_ENVELOPE = "Report Envelope"
+METATYPE_DOCUMENT = "Report Document"
+METATYPE_FEEDBACK = "Report Feedback"
+METATYPE_FEEDBACK_COMMENT = "Report Feedback Comment"
+METATYPE_REFERRAL = "Repository Referral"
+METATYPE_BLOB_FILE = "File (Blob)"
+METATYPE_QASCRIPT = "QAScript"
+# the OpenFlow workflow objects
+METATYPE_WORKITEM = "Workitem"
+METATYPE_ACTIVITY = "Activity"
+METATYPE_PROCESS = "Process"
+METATYPE_TRANSITION = "Transition"
+
+CONTENT_TYPE_HTML = "text/html"
+CONTENT_TYPE_XML = "text/xml"
+CONTENT_TYPE_JSON = "application/json"
+
+ACL_USERS_PATH = "/acl_users/"
+
+# the label of the role of the Reporter that is the owner of a collection (BDR)
+REPORTER_OWNER_ROLE = "Reporter (Owner)"
+
 # ids of Root objects
 # The name of the engine is hardcoded in DTML files
 ENGINE_ID = "ReportekEngine"

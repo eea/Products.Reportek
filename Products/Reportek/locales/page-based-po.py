@@ -39,22 +39,45 @@
 # which zpts, dtml, pys, etc were used to generate it, and scan those.
 # Thus we scan the main .po file with the above drawbacks
 
-from poParsing import po_load
-import os.path
-import os
 import codecs
+import os
+import os.path
 import sys
-import importlib
-
-importlib.reload(sys)
-sys.setdefaultencoding("utf-8")
-
 
 g_result_dir = None
 
 
 def usage():
-    "\tUsage: %s <main.po> <html directory>" % sys.argv[0]
+    return "\tUsage: %s <main.po> <html directory>" % sys.argv[0]
+
+
+def checked_file(path, suffixes):
+    """The real path of an existing file with one of the suffixes: a path
+    that is given on the command line can lead anywhere with .. or a link."""
+    real = os.path.realpath(path)
+    if not os.path.isfile(real) or not real.endswith(suffixes):
+        raise ValueError("Not an existing %s file: %s" % ("/".join(suffixes), path))
+    return real
+
+
+def checked_dir(path):
+    """The real path of an existing directory."""
+    real = os.path.realpath(path)
+    if not os.path.isdir(real):
+        raise ValueError("Not an existing directory: %s" % path)
+    return real
+
+
+def files_of(directory):
+    """The files of the directory, without the links that lead out of it."""
+    seen = set()
+    for name in sorted(os.listdir(directory)):
+        real = os.path.realpath(os.path.join(directory, name))
+        if real in seen:
+            continue
+        seen.add(real)
+        if os.path.commonpath([directory, real]) == directory and os.path.isfile(real):
+            yield real
 
 
 def play(po_header, bySrc):
@@ -71,7 +94,7 @@ def play(po_header, bySrc):
 def process_html(html, po_header, bySrc):
     text = codecs.open(html, "r", "utf-8").read()
     base_name = os.path.splitext(os.path.basename(html))[0]
-    po = codecs.open(g_result_dir + "/" + base_name + ".po", "w", "utf-8")
+    po = codecs.open(os.path.join(g_result_dir, base_name + ".po"), "w", "utf-8")
     po.write("\n".join(po_header))
     po.write("\n")
 
@@ -108,18 +131,20 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(usage())
         sys.exit(1)
-    main_po = sys.argv[1]
-    html_dir = sys.argv[2]
-    if html_dir.endswith("/"):
-        html_dir = html_dir[:-1]
+    try:
+        main_po = checked_file(sys.argv[1], (".po", ".pot"))
+        html_dir = checked_dir(sys.argv[2])
+    except ValueError as error:
+        print(error)
+        sys.exit(1)
     g_result_dir = mk_result_dir(html_dir)
+
+    from poParsing import po_load
 
     po_header = []
     bySrc = {}
     po_load(main_po, poHeader=po_header, bySrc=bySrc)
     # play(po_header, bySrc)
 
-    for f in os.listdir(html_dir):
-        f = os.path.join(html_dir, f)
-        if os.path.isfile(f):
-            process_html(f, po_header, bySrc)
+    for f in files_of(html_dir):
+        process_html(f, po_header, bySrc)

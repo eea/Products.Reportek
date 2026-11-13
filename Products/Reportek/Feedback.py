@@ -60,6 +60,10 @@ from Products.Reportek.RepUtils import (
     parse_uri,
     refuse_when_frozen,
 )
+from Products.Reportek.constants import METATYPE_FEEDBACK
+from Products.Reportek.permissions import change_feedback
+
+EDIT_FEEDBACK_FORM_URL = "%s/manage_editFeedbackForm"
 
 __version__ = "$Rev$"[6:-2]
 ANNOTATION_KEY = "feedback.history"
@@ -180,7 +184,7 @@ def manage_addFeedback(
 
     if REQUEST is not None:
         if "file_upload" in REQUEST.form:
-            REQUEST.RESPONSE.redirect("%s/manage_editFeedbackForm" % obj.absolute_url())
+            REQUEST.RESPONSE.redirect(EDIT_FEEDBACK_FORM_URL % obj.absolute_url())
         else:
             return self.messageDialog(
                 message="The Feedback %s was successfully created!" % id,
@@ -253,7 +257,7 @@ class ReportFeedback(
     people discussing the content of the feedback.
     """
 
-    meta_type = "Report Feedback"
+    meta_type = METATYPE_FEEDBACK
     icon = "++resource++images/feedback.gif"
 
     # what management options are there?
@@ -336,7 +340,7 @@ class ReportFeedback(
         ]
         return y
 
-    security.declareProtected("Change Feedback", "manage_editFeedback")
+    security.declareProtected(change_feedback, "manage_editFeedback")
 
     @refuse_when_frozen
     def manage_editFeedback(
@@ -438,7 +442,7 @@ class ReportFeedback(
                 value = value.get("data", "")
         return value, kwargs
 
-    security.declareProtected("Change Feedback", "edit")
+    security.declareProtected(change_feedback, "edit")
 
     def edit(self):
         """Edits the properties of the feedback.
@@ -490,9 +494,7 @@ class ReportFeedback(
             res["message"] = "Feedback updated"
             return json.dumps(res, indent=4)
         else:
-            self.REQUEST.RESPONSE.redirect(
-                "%s/manage_editFeedbackForm" % self.absolute_url()
-            )
+            self.REQUEST.RESPONSE.redirect(EDIT_FEEDBACK_FORM_URL % self.absolute_url())
 
     def _history(self, create=True):
         if getattr(self, "__history", None) is not None:
@@ -522,7 +524,7 @@ class ReportFeedback(
     def author(self, value):
         self._author = value
 
-    security.declareProtected("Change Feedback", "manage_uploadFeedback")
+    security.declareProtected(change_feedback, "manage_uploadFeedback")
 
     @refuse_when_frozen
     def manage_uploadFeedback(self, file="", REQUEST=None, filename=None):
@@ -538,11 +540,9 @@ class ReportFeedback(
         engine.AVService.scan(file)
         add_OfsBlobFile(self, filename, file)
         if REQUEST:
-            REQUEST.RESPONSE.redirect(
-                "%s/manage_editFeedbackForm" % self.absolute_url()
-            )
+            REQUEST.RESPONSE.redirect(EDIT_FEEDBACK_FORM_URL % self.absolute_url())
 
-    security.declareProtected("Change Feedback", "manage_uploadAttFeedback")
+    security.declareProtected(change_feedback, "manage_uploadAttFeedback")
 
     @refuse_when_frozen
     def manage_uploadAttFeedback(self, file_id="", file="", REQUEST=None):
@@ -552,11 +552,9 @@ class ReportFeedback(
             for chunk in RepUtils.iter_file_data(file):
                 f.write(chunk)
         if REQUEST:
-            REQUEST.RESPONSE.redirect(
-                "%s/manage_editFeedbackForm" % self.absolute_url()
-            )
+            REQUEST.RESPONSE.redirect(EDIT_FEEDBACK_FORM_URL % self.absolute_url())
 
-    security.declareProtected("Change Feedback", "manage_deleteAttFeedback")
+    security.declareProtected(change_feedback, "manage_deleteAttFeedback")
 
     @refuse_when_frozen
     def manage_deleteAttFeedback(self, file_id="", REQUEST=None):
@@ -567,9 +565,7 @@ class ReportFeedback(
             p_action = REQUEST.get("go", "")
             if p_action == "Delete":
                 self.manage_delObjects(file_id)
-            REQUEST.RESPONSE.redirect(
-                "%s/manage_editFeedbackForm" % self.absolute_url()
-            )
+            REQUEST.RESPONSE.redirect(EDIT_FEEDBACK_FORM_URL % self.absolute_url())
 
     def renderFeedbacktext(self):
         feedbacktext = ensure_text(self.feedbacktext)
@@ -650,13 +646,13 @@ class ReportFeedback(
     security.declareProtected("View", "index_html")
     index_html = PageTemplateFile("zpt/feedback/index", globals())
 
-    security.declareProtected("Change Feedback", "manage_editFeedbackForm")
+    security.declareProtected(change_feedback, "manage_editFeedbackForm")
     manage_editFeedbackForm = PageTemplateFile("zpt/feedback/edit", globals())
 
-    security.declareProtected("Change Feedback", "manage_uploadAttFeedbackForm")
+    security.declareProtected(change_feedback, "manage_uploadAttFeedbackForm")
     manage_uploadAttFeedbackForm = PageTemplateFile("zpt/feedback/uploadatt", globals())
 
-    security.declareProtected("Change Feedback", "manage_deleteAttFeedbackForm")
+    security.declareProtected(change_feedback, "manage_deleteAttFeedbackForm")
     manage_deleteAttFeedbackForm = PageTemplateFile("zpt/feedback/deleteatt", globals())
 
     security.declareProtected("View", "rdf")

@@ -35,6 +35,10 @@ from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import CONTENT_TYPE_HTML, METATYPE_DOCUMENT
+from Products.Reportek.permissions import view_configuration
+
+RESOURCES_ZIP_NAME = "resources.zip"
 
 logger = logging.getLogger(__name__ + ".FME")
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
@@ -235,8 +239,8 @@ class RemoteFMEConversionApplication(SimpleItem):
         "delete_job",
     )
     security.declareProtected("Use OpenFlow", "__call__")
-    security.declareProtected("View configuration", "is_v4")
-    security.declareProtected("View configuration", "get_settings")
+    security.declareProtected(view_configuration, "is_v4")
+    security.declareProtected(view_configuration, "get_settings")
     security.declareProtected(view_management_screens, "has_secret")
     security.declareProtected(view_management_screens, "validate_settings")
 
@@ -245,7 +249,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         "zpt/RemoteFMEConversionApplicationSettings", globals()
     )
 
-    security.declareProtected("View configuration", "index_html")
+    security.declareProtected(view_configuration, "index_html")
     index_html = PageTemplateFile("zpt/RemoteFMEConversionApplicationView", globals())
 
     def __init__(
@@ -471,7 +475,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 for e in ext:
                     e_files = [
                         f
-                        for f in env.objectValues("Report Document")
+                        for f in env.objectValues(METATYPE_DOCUMENT)
                         if f.title_or_id().lower().endswith("." + e.strip().lower())
                     ]
                     if e_files:
@@ -496,11 +500,11 @@ class RemoteFMEConversionApplication(SimpleItem):
             ]
             files = [
                 f
-                for f in env.objectValues("Report Document")
+                for f in env.objectValues(METATYPE_DOCUMENT)
                 if f.title_or_id().lower().startswith(up_group.lower())
             ]
         else:
-            files = env.objectValues("Report Document")
+            files = env.objectValues(METATYPE_DOCUMENT)
         files = list(set(files))
 
         return files
@@ -877,7 +881,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             payload = {
                 "path": path,
                 "items": items,
-                "zipFileName": "resources.zip",
+                "zipFileName": RESOURCES_ZIP_NAME,
             }
             res = requests.post(
                 url,
@@ -896,7 +900,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     "output",
                 ]
             )
-            params = {"zipFileName": "resources.zip", "fileNames": "."}
+            params = {"zipFileName": RESOURCES_ZIP_NAME, "fileNames": "."}
             headers["Content-Type"] = "application/x-www-form-urlencoded"
             res = requests.post(
                 url,
@@ -906,7 +910,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             )
         if res.status_code == 200:
             z = BytesIO(res.content)
-            z.filename = "resources.zip"
+            z.filename = RESOURCES_ZIP_NAME
             return env.manage_addDDzipfile(file=z, verbose=True)
         else:
             return (
@@ -1063,7 +1067,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 if p.endswith((".shp", ".zip")):
                     gmls = [
                         fid.split(".")[0]
-                        for fid in env.objectIds("Report Document")
+                        for fid in env.objectIds(METATYPE_DOCUMENT)
                         if fid.endswith(".gml")
                     ]
                     if not [x for x in gmls if p.split(".")[0] in x]:
@@ -1252,7 +1256,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 job_id,
                 msg,
                 inputfile=inputfile,
-                content_type="text/html",
+                content_type=CONTENT_TYPE_HTML,
             )
             self.__update_storage(
                 workitem,
@@ -1270,7 +1274,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 job_id,
                 msg,
                 inputfile=inputfile,
-                content_type="text/html",
+                content_type=CONTENT_TYPE_HTML,
             )
             self.__update_storage(
                 workitem,
@@ -1519,7 +1523,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             # lets the next run find (and remove) the stale failure feedback
             feedback_ob.fme_failure_app = self.app_name
         conv_res_id = "conversion_log_{}".format(jobid)
-        for doc_id in envelope.objectIds("Report Document"):
+        for doc_id in envelope.objectIds(METATYPE_DOCUMENT):
             if conv_res_id in doc_id:
                 self.__attach_conversion_log(
                     envelope, workitem, feedback_ob, getattr(envelope, doc_id)
@@ -1544,7 +1548,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         with doc.data_file.open() as f:
             content = f.read()
             text_content = self.ensure_text(content)
-            if doc.content_type == "text/html":
+            if doc.content_type == CONTENT_TYPE_HTML:
                 fb_status, fb_message = self.__parse_log_summary(text_content)
             if len(content) > FEEDBACKTEXT_LIMIT:
                 f.seek(0)
@@ -1558,7 +1562,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         '<a href="qa-output/view">see attachment</a>.'
                     ),
                 )
-                feedback_ob.content_type = "text/html"
+                feedback_ob.content_type = CONTENT_TYPE_HTML
             else:
                 feedback_ob.feedbacktext = text_content
                 feedback_ob.content_type = doc.content_type
