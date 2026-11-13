@@ -530,10 +530,7 @@ class PrefetchTest(CacheTest):
                 return answer(200, self.fgas)
             return answer(200, [{"has_reporting_folder": True}])
 
-        with (
-            in_request(self.request),
-            patch(REGISTRY_GET, side_effect=get) as mock,
-        ):
+        with in_request(self.request), patch(REGISTRY_GET, side_effect=get) as mock:
             prefetch_requests(self.requests())
             paths, details = self.lookups()
         self.assertEqual(mock.call_count, 2)
