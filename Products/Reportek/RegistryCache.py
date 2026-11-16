@@ -27,7 +27,7 @@ import hmac
 import json
 import logging
 import os
-import random
+import secrets
 import threading
 import zlib
 from time import sleep, time
@@ -240,7 +240,7 @@ class SharedCache:
         if value is not MISS:
             return value
 
-        token = "%032x" % random.getrandbits(128)
+        token = secrets.token_hex(16)
         locked = self._take_lock(name, key, token)
         try:
             if locked is False and self._usable():

@@ -145,7 +145,7 @@ class DataflowsManager:
 
     def get_dataflows_rest(self):
         res = requests.get(
-            self.dfm_rest_url, timeout=self.dfm_timeout or ROD_TIMEOUT, verify=False
+            self.dfm_rest_url, timeout=self.dfm_timeout or ROD_TIMEOUT, verify=True
         )
         if res.status_code != 200:
             raise RODUnavailable(self.dfm_rest_url)

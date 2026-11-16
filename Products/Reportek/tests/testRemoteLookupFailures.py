@@ -391,6 +391,12 @@ class DataflowsTest(CacheTest):
         self.assertEqual(get.call_args[1]["timeout"], (5, 30))
 
     @patch(ROD_DATAFLOWS_GET)
+    def test_the_certificate_of_rod_is_checked(self, get):
+        get.return_value = answer(200, [obligation(1)])
+        self.rod.dataflow_rod()
+        self.assertTrue(get.call_args[1]["verify"])
+
+    @patch(ROD_DATAFLOWS_GET)
     def test_an_error_status_gives_the_custom_dataflows_and_is_not_kept(self, get):
         get.side_effect = [answer(503), answer(200, [obligation(1)])]
         self.assertEqual([d["uri"] for d in self.rod.dataflow_rod()], ["custom"])
