@@ -1,8 +1,8 @@
 Changelog
 =========
 
-101.2-dev0 - (unreleased)
----------------------------
+101.2 - (2026-11-16)
+--------------------
 * fix: the request for the ROD dataflows checks the certificate of the server
         (the one for the countries already did; Sonar: certificate validation);
         the scripts that read paths from the command line are checked (Sonar:
