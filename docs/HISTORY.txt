@@ -27,7 +27,7 @@ Changelog
         older than it can be in the memory of a pod (the key holds its window,
         the entry expires with it), only what the registry answered is
         stored, never a failure, and every entry is signed with a key derived
-        from SESSION_SECRET: what cannot be verified is a miss. A Valkey that
+        from the session secret: what cannot be verified is a miss. A Valkey that
         does not answer is a miss too (100 ms at most per lookup, it is left
         alone for 15 seconds after 3 errors). It is off unless
         REGISTRY_SHARED_CACHE=1 is set; the address is REGISTRY_CACHE_URL or
