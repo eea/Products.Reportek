@@ -416,8 +416,17 @@ if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         pass
 
 
+_initialized = False
+
+
 def initialize(context):
     """Reportek initializer"""
+    # An installed (not editable) package is initialized by the Products scan
+    # and again by five:registerPackage: every type would be registered twice.
+    global _initialized
+    if _initialized:
+        return
+    _initialized = True
 
     from AccessControl.Permissions import view_management_screens
 

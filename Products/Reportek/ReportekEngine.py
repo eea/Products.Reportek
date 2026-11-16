@@ -81,6 +81,7 @@ from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (
     BDRRegistryAPI,
     FGASRegistryAPI,
+    prefetch_requests,
 )
 from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.permissions import audit_envelopes
@@ -2831,6 +2832,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             ecas = self.unrestrictedTraverse("/acl_users/%s" % constants.ECAS_ID)
             ecas_user_id = ecas.getEcasUserId(username)
 
+            self._prefetch_registry_lookups(username, ecas_user_id)
+
             if ecas_user_id:
                 self._add_auth_middleware_collections(
                     username, ecas_user_id, middleware_collections
@@ -2840,6 +2843,31 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self._add_bdr_registry_collections(username, middleware_collections)
 
             return middleware_collections
+
+        security.declarePrivate("_prefetch_registry_lookups")
+
+        def _prefetch_registry_lookups(self, username, ecas_user_id):
+            """Send the registry requests that both miss at the same time.
+
+            The paths of the middleware and the details of the user of the BDR
+            registry do not depend on each other: when neither is kept, the
+            requests are sent together instead of one after the other. The
+            lookups that follow decide as always, with their caches.
+            """
+            if not ecas_user_id:
+                return
+            userdata = {"username": username, "ecas_id": ecas_user_id}
+            middleware = self.authMiddleware
+            pending = [
+                middleware.paths_request(
+                    ecas_user_id,
+                    userdata=userdata,
+                    recheck_interval=middleware.recheck_interval,
+                ),
+                self.BDRRegistryAPI.user_details_request(username),
+            ]
+            if all(pending):
+                prefetch_requests(pending)
 
         security.declarePrivate("_add_auth_middleware_collections")
 

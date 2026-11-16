@@ -1,14 +1,20 @@
+import copy
 import json
 import logging
+import threading
+from concurrent.futures import Future
 from time import time
+from types import SimpleNamespace
 
 import requests
 from AccessControl import ClassSecurityInfo
+from . import RegistryCache
 from .interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
 from requests.exceptions import HTTPError
+from zope.globalrequest import getRequest
 from zope.interface import implementer
 
 import Products
@@ -17,6 +23,176 @@ from functools import reduce
 LOCKDOWN_EMAILS_NOT_SENT = "Lockdown notification emails of %s not sent"
 
 logger = logging.getLogger("Reportek")
+
+
+FAILED_LOOKUPS = "_reportek_registry_failed_lookups"
+# answers that say that the registry cannot answer now, besides the 5xx
+RETRY_LATER_STATUS = (408, 429)
+
+
+def failed_in_this_request(key):
+    """Did the lookup fail already in the current request?
+
+    A page asks for the same lookup many times (a check for every envelope of a
+    list), and a registry that is down must not be asked again for each. Only
+    the current request remembers it: the next request asks the registry again.
+    """
+    request = getRequest()
+    return request is not None and key in request.other.get(FAILED_LOOKUPS, ())
+
+
+def remember_failure_in_this_request(key):
+    request = getRequest()
+    if request is not None:
+        request.other.setdefault(FAILED_LOOKUPS, set()).add(key)
+
+
+PREFETCHED = "_reportek_registry_prefetched"
+# module and name of the cached function, as plone.memoize names it
+USER_DETAILS = (__name__, "_get_user_details")
+# seconds that the details of a user are kept
+USER_DETAILS_WINDOW = 10 * 60
+# the requests that wait for the answer in a thread at the same time
+_prefetching = threading.BoundedSemaphore(16)
+
+
+def _user_details_key(username):
+    return username + str(time() // USER_DETAILS_WINDOW)
+
+
+_MISSING = object()
+
+
+def is_cold(function, key):
+    """Does the cache of the function miss the key?
+
+    function is the cached function as plone.memoize names it: its module and
+    its name, key is what its key function gives.
+    """
+    holder = SimpleNamespace(__module__=function[0], __name__=function[1])
+    cache = ram.store_in_cache(holder)
+    return cache.get("%s.%s:%s" % (function + (key,)), _MISSING) is _MISSING
+
+
+def send_request(method, url, kwargs):
+    """The HTTP request alone, no persistent object is used: it may run in a thread.
+
+    Returns the response or None when the registry cannot be contacted."""
+    api_req = requests.post if method == "post" else requests.get
+    try:
+        return api_req(url, **kwargs)
+    except Exception as e:
+        logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+        return None
+
+
+def _prefetch_key(url, params):
+    return (url, tuple(sorted((params or {}).items())))
+
+
+def prefetch_requests(requests_to_send):
+    """Send the registry requests at the same time, for the lookups that follow.
+
+    requests_to_send is a list of (url, kwargs) of the requests that would be
+    sent one after the other. The lookup that follows takes the answer of its
+    request instead of sending it (see BaseRegistryAPI._lookup). Nothing is
+    started for less than two requests, there is nothing to overlap, nor when
+    there is no current request or too many threads are waiting: the lookups
+    then send their requests as always.
+    """
+    request = getRequest()
+    if request is None or len(requests_to_send) < 2:
+        return
+    started = request.other.setdefault(PREFETCHED, {})
+    for url, kwargs in requests_to_send:
+        key = _prefetch_key(url, kwargs.get("params"))
+        if key in started or not _prefetching.acquire(blocking=False):
+            continue
+        future = Future()
+
+        def run(future=future, url=url, kwargs=kwargs):
+            try:
+                future.set_result(send_request("get", url, kwargs))
+            except BaseException as e:
+                future.set_exception(e)
+            finally:
+                _prefetching.release()
+
+        try:
+            threading.Thread(target=run, daemon=True).start()
+        except Exception:
+            # no thread to start: the lookup sends its request as always
+            _prefetching.release()
+            logger.warning("Cannot start a thread for a registry request")
+            continue
+        started[key] = future
+
+
+def take_prefetched(url, params):
+    request = getRequest()
+    if request is None:
+        return None
+    return request.other.get(PREFETCHED, {}).pop(_prefetch_key(url, params), None)
+
+
+class LookupStats:
+    """How often the registry caches of this process keep an answer.
+
+    A lookup is a call of a cached registry lookup, a miss is a call that went
+    to the registry (the answer was not kept), a failure is a miss that the
+    registry did not answer. A summary of the window is logged when a lookup
+    finds the window over, per process (pod): it tells how often a pod has to
+    ask the registry again for what another pod asked a moment ago.
+    """
+
+    WINDOW = 300
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._counts = {}
+        self._since = time()
+
+    def record(self, name, outcome, seconds=0.0):
+        done = None
+        with self._lock:
+            counts = self._counts.setdefault(
+                name, {"lookup": 0, "miss": 0, "failure": 0, "seconds": 0.0}
+            )
+            if outcome == "miss":
+                counts["seconds"] += seconds
+            counts[outcome] += 1
+            if time() - self._since >= self.WINDOW:
+                done, self._counts, self._since = self._counts, {}, time()
+        if done:
+            for name, counts in sorted(done.items()):
+                lookups = counts["lookup"]
+                logger.info(
+                    "Registry cache %s, last %s s: %s lookups, %s asked the "
+                    "registry (%.0f%% kept), %s failed, %.1f s waiting for it",
+                    name,
+                    self.WINDOW,
+                    lookups,
+                    counts["miss"],
+                    100.0 * (lookups - counts["miss"]) / max(lookups, 1),
+                    counts["failure"],
+                    counts["seconds"],
+                )
+
+    def snapshot(self):
+        with self._lock:
+            return {name: dict(counts) for name, counts in self._counts.items()}
+
+
+lookup_stats = LookupStats()
+RegistryCache.shared_cache.stats = lookup_stats
+
+
+class RegistryUnavailable(Exception):
+    """The registry did not answer, or answered with a server error.
+
+    Raised by the lookups whose result is cached, so a failure is not stored:
+    the next request asks the registry again.
+    """
 
 
 @implementer(IRegistryManagement)
@@ -33,7 +209,12 @@ class RegistryManagement(Folder):
 
 
 class BaseRegistryAPI(SimpleItem):
+    # seconds to connect to the registry
+    CONNECT_TIMEOUT = 5
+    # seconds to wait for the answer of an administration call
     TIMEOUT = 120
+    # seconds to wait for the answer of the lookups that decide what a user can access
+    LOOKUP_TIMEOUT = 30
 
     def __init__(self, registry_name, url, token=None):
         self.registry_name = registry_name
@@ -43,6 +224,36 @@ class BaseRegistryAPI(SimpleItem):
     def set_base_url(self, url, token=None):
         self.baseUrl = url
         self.token = token
+
+    def _request_kwargs(self, data, files, cookies, headers, params, timeout):
+        if not timeout:
+            timeout = self.TIMEOUT
+        if isinstance(timeout, (int, float)):
+            timeout = (self.CONNECT_TIMEOUT, timeout)
+        return dict(
+            data=data,
+            files=files,
+            cookies=cookies,
+            headers=headers,
+            params=params,
+            verify=False,
+            timeout=timeout,
+        )
+
+    def _answer(self, response, url, raw=None):
+        """What do_api_request gives for the response of a request."""
+        if response is None:
+            return None
+        if response.status_code != requests.codes.ok:
+            logger.warning(
+                """Retrieved a %s status code when contacting """
+                """SatelliteRegistry's url: %s """ % (response.status_code, url)
+            )
+            if raw:
+                return response
+            return None
+
+        return response
 
     def do_api_request(
         self,
@@ -56,36 +267,31 @@ class BaseRegistryAPI(SimpleItem):
         timeout=None,
         raw=None,
     ):
-        api_req = requests.get
-        if method == "post":
-            api_req = requests.post
+        kwargs = self._request_kwargs(data, files, cookies, headers, params, timeout)
+        return self._answer(send_request(method, url, kwargs), url, raw)
 
-        if not timeout:
-            timeout = self.TIMEOUT
+    def lookup_request(self, url, headers=None, params=None, timeout=None):
+        """The (url, kwargs) that _lookup sends, to send it before with prefetch."""
+        timeout = timeout or self.LOOKUP_TIMEOUT
+        return url, self._request_kwargs(None, None, None, headers, params, timeout)
 
-        try:
-            response = api_req(
-                url,
-                data=data,
-                files=files,
-                cookies=cookies,
-                headers=headers,
-                params=params,
-                verify=False,
-                timeout=timeout,
-            )
-        except Exception as e:
-            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
-            return None
-        if response.status_code != requests.codes.ok:
-            logger.warning(
-                """Retrieved a %s status code when contacting """
-                """SatelliteRegistry's url: %s """ % (response.status_code, url)
-            )
-            if raw:
-                return response
-            return None
+    def _lookup(self, url, **kwargs):
+        """Request for a lookup whose result is cached or decides access.
 
+        A registry that cannot be reached, or that answers with a server error,
+        raises RegistryUnavailable. Other answers are returned, the caller checks
+        the status.
+        """
+        kwargs.setdefault("timeout", self.LOOKUP_TIMEOUT)
+        sent = take_prefetched(url, kwargs.get("params"))
+        if sent is None:
+            response = self.do_api_request(url, raw=True, **kwargs)
+        else:
+            response = self._answer(sent.result(), url, raw=True)
+        if response is None or (
+            response.status_code >= 500 or response.status_code in RETRY_LATER_STATUS
+        ):
+            raise RegistryUnavailable(url)
         return response
 
 
@@ -402,17 +608,45 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCollectionPaths(self, username, userdata=None):
         """Get all collection paths for a username or userdata.
+
+        A registry that cannot be reached gives no paths: nobody gets access
+        that the registry did not confirm.
+        """
+        try:
+            return self._fetchCollectionPaths(username, userdata=userdata)
+        except RegistryUnavailable:
+            return {"paths": [], "prev_paths": [], "audit_paths": []}
+
+    def _paths_url(self, username, userdata=None):
+        # <ecr_host>/user/companies/v2/?username=<username>&ecas_id=<ecas_id>
+        if userdata:
+            return "{}/user/companies/v2/".format(self.baseUrl), userdata
+        return self.baseUrl + "/user/" + username + "/companies", None
+
+    def paths_request(self, username, userdata=None):
+        """The (url, kwargs) of the request of _fetchCollectionPaths."""
+        url, params = self._paths_url(username, userdata)
+        return self.lookup_request(
+            url, headers={"Authorization": self.token}, params=params
+        )
+
+    def _fetchCollectionPaths(self, username, userdata=None):
+        """The collection paths of a username or userdata, see _loadCollectionPaths."""
+        return self._loadCollectionPaths(username, userdata=userdata)[0]
+
+    def _loadCollectionPaths(self, username, userdata=None):
+        """Get all collection paths for a username or userdata.
         The username request is in the process of being deprecated.
         The userdata request is the preferred method which should match
-        either the ecas_id or the username(e-mail) in the ecr."""
-        # <ecr_host>/user/companies/v2/?username=<username>&ecas_id=<ecas_id>
-        url = "{}/user/companies/v2/".format(self.baseUrl)
-        headers = {"Authorization": self.token}
-        if userdata:
-            response = self.do_api_request(url, params=userdata, headers=headers)
-        else:
-            url = self.baseUrl + "/user/" + username + "/companies"
-            response = self.do_api_request(url, headers=headers)
+        either the ecas_id or the username(e-mail) in the ecr.
+
+        Returns the paths and whether the registry answered with them (an
+        answer that is not one gives no paths and is not shared).
+        Raises RegistryUnavailable when the registry does not answer."""
+        url, params = self._paths_url(username, userdata)
+        response = self._lookup(
+            url, params=params, headers={"Authorization": self.token}
+        )
         rep_paths = {}
         paths = []
         prev_paths = []
@@ -437,7 +671,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
             return path
 
-        if response:
+        if response.status_code == requests.codes.ok:
             data = response.json()
             if isinstance(data, list):
                 data = {"reporter": data, "auditor": []}
@@ -472,7 +706,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         rep_paths["prev_paths"] = prev_paths
         rep_paths["audit_paths"] = audit_paths
 
-        return rep_paths
+        return rep_paths, response.status_code == requests.codes.ok
 
     def existsCompany(self, params, domain="FGAS"):
         url = "/".join([self.baseUrl, "undertaking", domain, "filter"])
@@ -755,32 +989,101 @@ class BDRRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id, domain=None):
         """Get company details from Registry"""
+        failed = ("company_details", self.baseUrl, company_id, domain)
+        if failed_in_this_request(failed):
+            return None
+        try:
+            # a copy: the cached details are shared, a caller may change them
+            return copy.deepcopy(self._get_company_details(company_id, domain))
+        except RegistryUnavailable:
+            remember_failure_in_this_request(failed)
+            return None
+
+    # A failure is not cached: the exception leaves nothing in the cache.
+    @ram.cache(
+        lambda fun, self, company_id, domain=None: (
+            company_id,
+            domain,
+            time() // (60 * 60),
+        )
+    )
+    def _get_company_details(self, company_id, domain=None):
         url = self.baseUrl + "/management/companies/account/{0}/{1}".format(
             company_id, domain
         )
-        response = self.do_api_request(
-            url, headers={"Authorization": self.bdr_registry_token}
+        # not a lookup that decides access: it keeps the long timeout
+        response = self._lookup(
+            url,
+            headers={"Authorization": self.bdr_registry_token},
+            timeout=self.TIMEOUT,
         )
-
-        if response:
+        if response.status_code == requests.codes.ok:
             return response.json()
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (10 * 60)))
+    def _user_details_url(self, username):
+        return (
+            self.baseUrl + "/management/username/companies/",
+            {"username": username},
+        )
+
+    def user_details_request(self, username):
+        """The (url, kwargs) of the request for the details of a user, when cold."""
+        if failed_in_this_request(
+            ("user_details", self.baseUrl, username)
+        ) or not is_cold(USER_DETAILS, _user_details_key(username)):
+            return None
+        # Valkey has it: the lookup will not ask the registry
+        if RegistryCache.shared_cache.has(
+            "user_details", self._user_details_parts(username), USER_DETAILS_WINDOW
+        ):
+            return None
+        url, params = self._user_details_url(username)
+        return self.lookup_request(
+            url, headers={"Authorization": self.bdr_registry_token}, params=params
+        )
+
     def get_user_details(self, username):
         """Get details for username"""
-        url = self.baseUrl + "/management/username/companies/"
-        params = {"username": username}
-        response = self.do_api_request(
-            url,
-            params=params,
-            headers={"Authorization": self.bdr_registry_token},
+        failed = ("user_details", self.baseUrl, username)
+        if failed_in_this_request(failed):
+            return []
+        lookup_stats.record("user_details", "lookup")
+        try:
+            return self._get_user_details(username)
+        except RegistryUnavailable:
+            lookup_stats.record("user_details", "failure")
+            remember_failure_in_this_request(failed)
+            return []
+
+    # A failure is not cached: the exception leaves nothing in the cache.
+    @ram.cache(lambda *args, **kwargs: _user_details_key(args[2]))
+    def _get_user_details(self, username):
+        return RegistryCache.shared_cache.fetch(
+            "user_details",
+            self._user_details_parts(username),
+            USER_DETAILS_WINDOW,
+            lambda: self._load_user_details(username),
         )
-        if response and response.status_code == requests.codes.ok:
-            return response.json()
-        return []
+
+    def _user_details_parts(self, username):
+        window = time() // USER_DETAILS_WINDOW
+        return ["user_details", self.baseUrl, username, window]
+
+    def _load_user_details(self, username):
+        """The details of the user, and whether the registry answered with them."""
+        url, params = self._user_details_url(username)
+        started = time()
+        try:
+            response = self._lookup(
+                url, params=params, headers={"Authorization": self.bdr_registry_token}
+            )
+        finally:
+            lookup_stats.record("user_details", "miss", time() - started)
+        if response.status_code == requests.codes.ok:
+            return response.json(), True
+        return [], False
 
     def getCollectionPaths(self, username):
         """Get collections accessible by the user"""

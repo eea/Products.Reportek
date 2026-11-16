@@ -1,6 +1,57 @@
 Changelog
 =========
 
+101.2 - (2026-11-16)
+--------------------
+* fix: the request for the ROD dataflows checks the certificate of the server
+        (the one for the countries already did; Sonar: certificate validation);
+        the scripts that read paths from the command line are checked (Sonar:
+        path traversal)
+* fix: a call to the registry or to ROD that failed was kept in the cache: the
+        collections of a user were hidden for 5-10 minutes after the registry
+        was unreachable for a moment (the registry answers of the user, the
+        company details and the paths of the middleware), and the dataflows
+        and countries of ROD for 12 hours after an error status. A failure is
+        not kept now, the next request asks again, but only once in a request
+        (a list of checks does not ask a registry that is down for each item);
+        the user still has no access while the registry does not answer; 408
+        and 429 answers count as not answering; ROD calls without a configured
+        timeout wait 5 seconds to connect and 30 for the answer; add tests
+* fix: the cache of the paths of a user is keyed also by what is asked to the
+        registry (the username and the ecas id), and the cache of the company
+        details by the domain: a later question with other values got the
+        answer of the first one; the company details are returned as a copy, a
+        caller that changes them does not change them for the others; the
+        lookup of the paths that raises is not published from the web; add
+        tests
+* feat: the pods can share the answers of the registry (the paths of the user
+        and the details of the user) through Valkey/Redis: a pod that does not
+        have an answer in its memory asks Valkey before it asks the registry,
+        and 5 to 15 pods do not ask for the same user each. An answer is not
+        older than it can be in the memory of a pod (the key holds its window,
+        the entry expires with it), only what the registry answered is
+        stored, never a failure, and every entry is signed with a key derived
+        from the session secret: what cannot be verified is a miss. A Valkey that
+        does not answer is a miss too (100 ms at most per lookup, it is left
+        alone for 15 seconds after 3 errors). It is off unless
+        REGISTRY_SHARED_CACHE=1 is set; the address is REGISTRY_CACHE_URL or
+        REDIS_URL; add tests
+* feat: the cache of the registry lookups of the first page (the paths of the
+        user and the details of the user) logs every 5 minutes how many lookups
+        there were, how many asked the registry, how many failed and how long
+        the registry took, per pod; add tests
+* perf: the first page of a user whose registry answers are not kept sends the
+        request for the paths of the user and the request for the details of the
+        user to the BDR registry at the same time, and not one after the other;
+        each answer is used by its own lookup, with its cache and its handling of
+        a registry that does not answer; add tests
+* perf: the calls to the registry connect with a timeout of 5 seconds (it was
+        120 for the connection and the answer), and the lookups that decide
+        what a user can access wait 30 seconds for the answer
+* fix: the types of Reportek were listed twice in the ZMI add list when the
+        package is installed (not editable): initialize() is called by the
+        Products scan and by five:registerPackage, now it runs once; add test
+
 101.1 - (2026-11-13)
 --------------------
 * refactor: SonarQube: the if statements of the role of the owner in
