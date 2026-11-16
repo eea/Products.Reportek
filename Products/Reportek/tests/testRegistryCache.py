@@ -14,7 +14,7 @@ from plone.memoize import ram
 
 from Products.Reportek import RegistryCache
 from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
-from Products.Reportek.RegistryCache import MISS, SharedCache
+from Products.Reportek.RegistryCache import SharedCache
 from Products.Reportek.RegistryManagement import (
     BDRRegistryAPI,
     FGASRegistryAPI,
