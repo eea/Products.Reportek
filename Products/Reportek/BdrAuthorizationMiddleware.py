@@ -5,6 +5,7 @@ from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
 from ZODB.PersistentMapping import PersistentMapping
 
+from Products.Reportek import RegistryCache
 from Products.Reportek.RegistryManagement import (
     RegistryUnavailable,
     failed_in_this_request,
@@ -65,6 +66,10 @@ class BdrAuthorizationMiddleware(SimpleItem):
         key = _paths_key(None, self, username, userdata, recheck_interval)
         if failed_in_this_request(("paths",) + key) or not is_cold(PATHS, key):
             return None
+        # Valkey has it: the lookup will not ask the registry
+        parts = self._paths_parts(username, userdata, recheck_interval)
+        if RegistryCache.shared_cache.has("paths", parts, recheck_interval):
+            return None
         return self.FGASRegistryAPI.paths_request(username, userdata=userdata)
 
     @ram.cache(_paths_key)
@@ -72,13 +77,26 @@ class BdrAuthorizationMiddleware(SimpleItem):
         self, username, userdata=None, recheck_interval=recheck_interval
     ):
         logger.debug("Get companies from middleware for ecas user: %s" % username)
-        started = time()
-        try:
-            return self.FGASRegistryAPI._fetchCollectionPaths(
-                username, userdata=userdata
-            )
-        finally:
-            lookup_stats.record("paths", "miss", time() - started)
+        registry = self.FGASRegistryAPI
+
+        def load():
+            started = time()
+            try:
+                return registry._loadCollectionPaths(username, userdata=userdata)
+            finally:
+                lookup_stats.record("paths", "miss", time() - started)
+
+        return RegistryCache.shared_cache.fetch(
+            "paths",
+            self._paths_parts(username, userdata, recheck_interval),
+            recheck_interval,
+            load,
+        )
+
+    def _paths_parts(self, username, userdata, recheck_interval):
+        asked = sorted((userdata or {}).items())
+        window = time() // recheck_interval
+        return ["paths", self.FGASRegistryAPI.baseUrl, username, asked, window]
 
     def authorizedUser(self, username, path, userdata=None):
         if self.lockedCollection(path):

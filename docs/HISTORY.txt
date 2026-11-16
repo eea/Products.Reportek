@@ -20,6 +20,18 @@ Changelog
         caller that changes them does not change them for the others; the
         lookup of the paths that raises is not published from the web; add
         tests
+* feat: the pods can share the answers of the registry (the paths of the user
+        and the details of the user) through Valkey/Redis: a pod that does not
+        have an answer in its memory asks Valkey before it asks the registry,
+        and 5 to 15 pods do not ask for the same user each. An answer is not
+        older than it can be in the memory of a pod (the key holds its window,
+        the entry expires with it), only what the registry answered is
+        stored, never a failure, and every entry is signed with a key derived
+        from SESSION_SECRET: what cannot be verified is a miss. A Valkey that
+        does not answer is a miss too (100 ms at most per lookup, it is left
+        alone for 15 seconds after 3 errors). It is off unless
+        REGISTRY_SHARED_CACHE=1 is set; the address is REGISTRY_CACHE_URL or
+        REDIS_URL; add tests
 * feat: the cache of the registry lookups of the first page (the paths of the
         user and the details of the user) logs every 5 minutes how many lookups
         there were, how many asked the registry, how many failed and how long

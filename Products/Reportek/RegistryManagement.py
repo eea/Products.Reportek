@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import requests
 from AccessControl import ClassSecurityInfo
+from . import RegistryCache
 from .interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
@@ -49,12 +50,14 @@ def remember_failure_in_this_request(key):
 PREFETCHED = "_reportek_registry_prefetched"
 # module and name of the cached function, as plone.memoize names it
 USER_DETAILS = (__name__, "_get_user_details")
+# seconds that the details of a user are kept
+USER_DETAILS_WINDOW = 10 * 60
 # the requests that wait for the answer in a thread at the same time
 _prefetching = threading.BoundedSemaphore(16)
 
 
 def _user_details_key(username):
-    return username + str(time() // (10 * 60))
+    return username + str(time() // USER_DETAILS_WINDOW)
 
 
 _MISSING = object()
@@ -181,6 +184,7 @@ class LookupStats:
 
 
 lookup_stats = LookupStats()
+RegistryCache.shared_cache.stats = lookup_stats
 
 
 class RegistryUnavailable(Exception):
@@ -627,11 +631,17 @@ class FGASRegistryAPI(BaseRegistryAPI):
         )
 
     def _fetchCollectionPaths(self, username, userdata=None):
+        """The collection paths of a username or userdata, see _loadCollectionPaths."""
+        return self._loadCollectionPaths(username, userdata=userdata)[0]
+
+    def _loadCollectionPaths(self, username, userdata=None):
         """Get all collection paths for a username or userdata.
         The username request is in the process of being deprecated.
         The userdata request is the preferred method which should match
         either the ecas_id or the username(e-mail) in the ecr.
 
+        Returns the paths and whether the registry answered with them (an
+        answer that is not one gives no paths and is not shared).
         Raises RegistryUnavailable when the registry does not answer."""
         url, params = self._paths_url(username, userdata)
         response = self._lookup(
@@ -696,7 +706,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         rep_paths["prev_paths"] = prev_paths
         rep_paths["audit_paths"] = audit_paths
 
-        return rep_paths
+        return rep_paths, response.status_code == requests.codes.ok
 
     def existsCompany(self, params, domain="FGAS"):
         url = "/".join([self.baseUrl, "undertaking", domain, "filter"])
@@ -1024,6 +1034,11 @@ class BDRRegistryAPI(BaseRegistryAPI):
             ("user_details", self.baseUrl, username)
         ) or not is_cold(USER_DETAILS, _user_details_key(username)):
             return None
+        # Valkey has it: the lookup will not ask the registry
+        if RegistryCache.shared_cache.has(
+            "user_details", self._user_details_parts(username), USER_DETAILS_WINDOW
+        ):
+            return None
         url, params = self._user_details_url(username)
         return self.lookup_request(
             url, headers={"Authorization": self.bdr_registry_token}, params=params
@@ -1045,6 +1060,19 @@ class BDRRegistryAPI(BaseRegistryAPI):
     # A failure is not cached: the exception leaves nothing in the cache.
     @ram.cache(lambda *args, **kwargs: _user_details_key(args[2]))
     def _get_user_details(self, username):
+        return RegistryCache.shared_cache.fetch(
+            "user_details",
+            self._user_details_parts(username),
+            USER_DETAILS_WINDOW,
+            lambda: self._load_user_details(username),
+        )
+
+    def _user_details_parts(self, username):
+        window = time() // USER_DETAILS_WINDOW
+        return ["user_details", self.baseUrl, username, window]
+
+    def _load_user_details(self, username):
+        """The details of the user, and whether the registry answered with them."""
         url, params = self._user_details_url(username)
         started = time()
         try:
@@ -1054,8 +1082,8 @@ class BDRRegistryAPI(BaseRegistryAPI):
         finally:
             lookup_stats.record("user_details", "miss", time() - started)
         if response.status_code == requests.codes.ok:
-            return response.json()
-        return []
+            return response.json(), True
+        return [], False
 
     def getCollectionPaths(self, username):
         """Get collections accessible by the user"""
