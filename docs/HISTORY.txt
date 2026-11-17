@@ -1,6 +1,9 @@
 Changelog
 =========
 
+101.4-dev0 - (unreleased)
+---------------------------
+
 101.3 - (2026-11-17)
 --------------------
 * feat: a Registry cache tab in the engine (manager only): whether the shared
