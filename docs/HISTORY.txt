@@ -3,6 +3,7 @@ Changelog
 
 101.5-dev0 - (unreleased)
 ---------------------------
+* fix: more methods are no longer published
 
 101.4 - (2026-11-17)
 --------------------

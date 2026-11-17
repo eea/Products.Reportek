@@ -1,4 +1,5 @@
 from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.class_init import InitializeClass
 from DateTime import DateTime
 from zope.interface import implementer
 from ZPublisher import zpublish
@@ -319,3 +320,6 @@ class BaseDelivery(ReportekContent):
         res.extend(self.get_custom_cobjs_rdf_meta())
         res_a("</rdf:RDF>")
         return "\n".join(res)
+
+
+InitializeClass(BaseDelivery)

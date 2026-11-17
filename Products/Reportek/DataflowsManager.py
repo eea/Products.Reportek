@@ -36,6 +36,7 @@ from time import time
 
 import requests
 from plone.memoize import ram
+from ZPublisher import zpublish
 
 from Products.Reportek.constants import CUSTOM_DFLOWS
 
@@ -124,6 +125,7 @@ class DataflowsManager:
             result = custom_dfs()
         return result
 
+    @zpublish(False)
     def dataflow_rod(self):
         """The dataflows of ROD and the custom ones.
 
@@ -168,6 +170,7 @@ class DataflowsManager:
 
         return dflows
 
+    @zpublish(False)
     def dataflow_table(self):
         """ """
         try:
@@ -175,6 +178,7 @@ class DataflowsManager:
         except Exception:
             raise ServiceTemporarilyUnavailableException(ROD_UNAVAILABLE_MESSAGE)
 
+    @zpublish(False)
     def dataflow_dict(self):
         """Converts the dataflow table into a dictionary"""
         try:
@@ -195,6 +199,7 @@ class DataflowsManager:
             raise RODUnavailable("no dataflows from ROD")
         return {item["uri"]: item for item in rows}
 
+    @zpublish(False)
     def dataflow_lookup(self, uri):
         """Lookup a dataflow on URI and return a dictionary of info"""
         try:
@@ -209,6 +214,7 @@ class DataflowsManager:
                 "PK_RA_ID": "0",
             }
 
+    @zpublish(False)
     def getDataflowDict(self, dataflow_uri):
         """returns all properties of a dataflow as dictionary given the uri"""
         result = self.dataflow_dict().get(dataflow_uri)
@@ -218,22 +224,27 @@ class DataflowsManager:
 
     # Getters for the dataflow
 
+    @zpublish(False)
     def isDataflowTerminated(self, dataflow_uri):
         """ """
         return bool(int(self.getDataflowDict(dataflow_uri)["terminated"]))
 
+    @zpublish(False)
     def getDataflowSourceTitle(self, dataflow_uri):
         """ """
         return self.getDataflowDict(dataflow_uri)["SOURCE_TITLE"]
 
+    @zpublish(False)
     def getDataflowTitle(self, dataflow_uri):
         """ """
         return self.getDataflowDict(dataflow_uri)["TITLE"]
 
+    @zpublish(False)
     def getDataflowSourceURI(self, dataflow_uri):
         """ """
         return self.getDataflowDict(dataflow_uri)["source_uri"]
 
+    @zpublish(False)
     def getDataflowDetailsURL(self, dataflow_uri):
         """ """
         return self.getDataflowDict(dataflow_uri)["details_url"]

@@ -30,6 +30,7 @@ from time import time
 import requests
 from plone.memoize import ram
 from ZODB.POSException import ConflictError
+from ZPublisher import zpublish
 
 from .DataflowsManager import ROD_TIMEOUT, RODUnavailable
 from .RepUtils import inline_replace
@@ -107,6 +108,7 @@ class CountriesManager:
     def cm_rest_timeout(self):
         return getattr(self, "_cm_rest_timeout", None)
 
+    @zpublish(False)
     def localities_rod(self):
         """The countries of ROD, none when ROD answers with an error status.
 
@@ -126,6 +128,7 @@ class CountriesManager:
 
         return countries
 
+    @zpublish(False)
     def localities_table(self):
         """ """
         try:
@@ -133,6 +136,7 @@ class CountriesManager:
         except Exception:
             return []
 
+    @zpublish(False)
     def localities_dict(self, country=None):
         """Converts the localities table into a dictionary"""
         try:
