@@ -2,6 +2,7 @@ import requests
 from requests.exceptions import ConnectionError
 from bs4 import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
+from ZPublisher import zpublish
 from Products.Reportek import zip_content
 from Products.Reportek.exceptions import LocalConversionException
 from ZODB.POSException import ConflictError
@@ -46,6 +47,7 @@ class BaseRemoteApplication(SimpleItem):
         content_type = self.ensure_text(content_type).strip()
         return content_type or default
 
+    @zpublish(False)
     def store_feedback_content(
         self,
         feedback_ob,

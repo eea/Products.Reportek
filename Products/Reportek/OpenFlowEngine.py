@@ -40,6 +40,7 @@ from OFS.ObjectManager import checkValidId
 from ZODB.PersistentMapping import PersistentMapping
 
 import Products
+from ZPublisher import zpublish
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.RepUtils import getToolByName
@@ -408,6 +409,7 @@ class OpenFlowEngine(Folder, Toolz):
                 current = None
         return result
 
+    @zpublish(False)
     def canPullActivity(self, p_activity_id, p_roles, p_process_id):
         """ """
         l_activitiespullableonrole = self.getActivitiesPullableOnRole()
@@ -428,6 +430,7 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
+    @zpublish(False)
     def getPushRoles(self, process_id, activity_id):
         """ """
         push_roles = []
@@ -438,6 +441,7 @@ class OpenFlowEngine(Folder, Toolz):
                     push_roles.append(role)
         return push_roles
 
+    @zpublish(False)
     def getPullRoles(self, process_id, activity_id):
         """ """
         pull_roles = []
@@ -448,6 +452,7 @@ class OpenFlowEngine(Folder, Toolz):
                     pull_roles.append(role)
         return pull_roles
 
+    @zpublish(False)
     def getWorkitems(self, process_path, statuses_list):
         """Finds all workitems from a process in certain statuses
         and sorts them by last modification time

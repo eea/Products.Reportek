@@ -10,6 +10,7 @@ from DateTime import DateTime
 from OFS.Folder import Folder
 from pathlib import Path
 from zope.interface import implementer
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
@@ -240,6 +241,7 @@ class process(CatalogAware, Folder):
     def listActivities(self):
         return sorted(self.objectIds(METATYPE_ACTIVITY))
 
+    @zpublish(False)
     def listUnreferedActivities(self):
         """Return a list of activities with no transitions going to them."""
         activities = {}  # use dict in order to avoid duplicates

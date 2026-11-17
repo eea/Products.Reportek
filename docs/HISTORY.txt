@@ -3,6 +3,7 @@ Changelog
 
 101.4-dev0 - (unreleased)
 ---------------------------
+* fix: do not publish methods that do not need to be published
 
 101.3 - (2026-11-17)
 --------------------

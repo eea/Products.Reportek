@@ -125,6 +125,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     security.declarePublic("activity_operations")
     activity_operations = PageTemplateFile("zpt/envelope/operations", globals())
 
+    @zpublish(False)
     def getWorkflowTabs(self, REQUEST):
         """Returns the tuple:
         (tabs available for the current user with respect to the active
@@ -147,12 +148,14 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     #   Methods to get the environment objects
     ###########################################
 
+    @zpublish(False)
     def getOpenFlowEngine(self):
         """Returns the Collection object, parent of the process"""
         process = self.unrestrictedTraverse(self.process_path, None)
         if process:
             return process.aq_parent
 
+    @zpublish(False)
     def getActivity(self, workitem_id):
         """Returns the activity of a workitem"""
         workitem = getattr(self, workitem_id)
@@ -170,6 +173,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if activity:
             return activity.mapped_application_details()["path"]
 
+    @zpublish(False)
     def getEnvironment(self, workitem_id):
         """Returns the engine, the workitem object, the current process and
         activity
@@ -181,10 +185,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         activity = getattr(process, activity_id, None)
         return wfengine, workitem, process, activity
 
+    @zpublish(False)
     def getInstanceProcessId(self):
         """Returns the process id from its path"""
         return self.process_path.split("/")[-1]
 
+    @zpublish(False)
     def getProcess(self):
         """Returns the process as an object"""
         return self.unrestrictedTraverse(self.process_path, None)
@@ -246,6 +252,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         # Return the first element from the generator or None
         return next(w_list, None)
 
+    @zpublish(False)
     def setStatus(self, status, comment="", actor=""):
         """ """
         old_status = self.status
@@ -709,6 +716,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
         return engine.jsonify(result)
 
+    @zpublish(False)
     def isEnd(self, activity_id):
         """ """
         process = self.restrictedTraverse(self.process_path)
@@ -786,6 +794,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         #     queue = 'poll_envelopes'
         return queue
 
+    @zpublish(False)
     def get_freq(self, workitem_id):
         """Return the frequency at which the application should be exec"""
         freq = 5
@@ -1026,6 +1035,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     security.declarePublic("getActiveWorkitemsForMe")
 
+    @zpublish(False)
     def getWorkitemsActiveForMe(self, REQUEST):
         """Returns the list of active workitems
         where an user is the current actor of
@@ -1108,6 +1118,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 actor = ""
             self.assignWorkitem(workitem_id, actor)
 
+    @zpublish(False)
     def manageWorkitemCreation(self, workitem_id):
         """ """
         activity = self.getActivity(workitem_id)
@@ -1158,6 +1169,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         self.linkWorkitems(workitem_id, [w.id])
         self.manageWorkitemCreation(w.id)
 
+    @zpublish(False)
     def getSubflowWorkitem(self, workitem_id):
         """TODO!"""
         same_process_path = self.unrestrictedTraverse(self.process_path).id
@@ -1168,12 +1180,14 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             workitem_id = workitem.workitems_from and workitem.workitems_from[0]
         return None
 
+    @zpublish(False)
     def completeSubflow(self, workitem_id):
         """ """
         self.completeWorkitem(workitem_id)
         if not self.isEnd(self.getActivity(workitem_id).id):
             self.forwardWorkitem(workitem_id)
 
+    @zpublish(False)
     def traceActivity(self, steps=0, activity_type=None):
         """Return required activity by crawling up it's history."""
 
@@ -1203,11 +1217,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 last_workitem_id = prev_wk.getId()
                 count += 1
 
+    @zpublish(False)
     def getPreviousActivityOfType(self, activity_type):
         """Return previous activity of type activity_type."""
 
         return self.traceActivity(activity_type=activity_type)
 
+    @zpublish(False)
     def getPreviousActivity(self, steps=1):
         """Return previous step activity."""
 
@@ -1215,6 +1231,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if activity:
             return activity.activity_id
 
+    @zpublish(False)
     def get_viable_cancel_fallin(self):
         """Looks over the envelope's history and determines the manual activity
         to which it can fall into
@@ -1226,12 +1243,14 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 return wk.activity_id
         return "Draft"
 
+    @zpublish(False)
     def is_globally_restricted(self):
         """Return True if is globally restricted"""
         engine = self.unrestrictedTraverse(ENGINE_ID, None)
         if getattr(engine, "globally_restricted_site", False):
             return True
 
+    @zpublish(False)
     def is_workflow_restricted(self):
         """Return True if is workflow restricted"""
         process = self.getProcess()
@@ -1292,6 +1311,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Return True if this envelope is read only for the current user."""
         return bool(self.active_locks())
 
+    @zpublish(False)
     def delete_app_jobs(self, workitem_id):
         """Delete jobs associated with the mapped activity"""
         wk = getattr(self, workitem_id)
@@ -1361,6 +1381,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 )
                 REQUEST.RESPONSE.redirect("note")
 
+    @zpublish(False)
     def is_cancellable(self, workitem_id):
         """Return True if activity is cancellable"""
         wk = getattr(self, workitem_id, None)

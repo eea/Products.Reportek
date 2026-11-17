@@ -46,6 +46,7 @@ from DateTime import DateTime
 from requests.exceptions import HTTPError
 from zope.contenttype import guess_content_type
 from zope.event import notify
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
@@ -180,6 +181,7 @@ class EnvelopeCustomDataflows(Toolz):
                 conv_results[wk.getId()] = wk_fc_log
         return conv_results
 
+    @zpublish(False)
     def get_failed_active_conversions(self):
         """Returns failed active conversions. Active means the file has not
         been deleted
@@ -1260,6 +1262,8 @@ class EnvelopeCustomDataflows(Toolz):
     #   Air Quality Questionnaire
     ##################################################
 
+    security.declareProtected("View", "getShapeFiles")
+
     def getShapeFiles(self):
         """Returns all the shape file names from the envelope"""
         self.REQUEST.RESPONSE.setHeader("content-type", "text/xml; charset=utf-8")
@@ -1272,6 +1276,8 @@ class EnvelopeCustomDataflows(Toolz):
                 xml_a('<file id="' + doc.id + '" url="' + doc.absolute_url() + '" />')
         xml_a("</files>")
         return "".join(xml)
+
+    security.declareProtected(change_envelopes, "createRegionInstances")
 
     def createRegionInstances(
         self, x="3", y="28", form_name="form2.xml", language="en"
@@ -1306,6 +1312,8 @@ class EnvelopeCustomDataflows(Toolz):
                 self.manage_addDocument(
                     xml_filename, "", xml_filecontent, CONTENT_TYPE_XML, ""
                 )
+
+    security.declareProtected("View", "getZonesForRegion")
 
     def getZonesForRegion(self, form_name=None, aqq_rule=None):
         """
@@ -1397,6 +1405,8 @@ class EnvelopeCustomDataflows(Toolz):
                 break
         return parseString(ret)
 
+    security.declareProtected(change_envelopes, "convert")
+
     def convert(self, xml_schema, req_xsl, file_url):
         """Call the conversion service for the file and return the converted
         file
@@ -1418,6 +1428,8 @@ class EnvelopeCustomDataflows(Toolz):
             converter_id=xsls_ids[0],
             write_to_response=False,
         )
+
+    security.declareProtected(change_envelopes, "sanitize_report_files")
 
     def sanitize_report_files(self, schema_convs, wk=None):
         """Pass the envelope documents with the specified schemas conversions
@@ -1728,6 +1740,8 @@ class EnvelopeCustomDataflows(Toolz):
             res = ty.get("#text") if self.is_ods() else ty
         return res
 
+    security.declareProtected(change_envelopes, "update_envelope_year")
+
     def update_envelope_year(self):
         """Update the envelope year based on the transaction year in the XML"""
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
@@ -1820,6 +1834,7 @@ class EnvelopeCustomDataflows(Toolz):
             )
             w0.addEvent("Prefill %s added to the envelope" % str(fxml.getId()))
 
+    @zpublish(False)
     def get_previous_deliveries(self):
         """Return a list of previous company deliveries"""
         envs = {"rw": [], "ro": []}
@@ -1839,6 +1854,7 @@ class EnvelopeCustomDataflows(Toolz):
 
         return envs
 
+    @zpublish(False)
     def get_updated_report_id(self, old_rep_id, offset=None, rep_year=None):
         """Return an up to date report id, from an old report where offset is
         current year +- offset or using the provided rep_year

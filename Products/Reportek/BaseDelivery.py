@@ -1,6 +1,7 @@
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from DateTime import DateTime
 from zope.interface import implementer
+from ZPublisher import zpublish
 
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.interfaces import IBaseDelivery
@@ -46,6 +47,7 @@ class BaseDelivery(ReportekContent):
             dataflow_uris = []
         self.dataflow_uris = dataflow_uris
 
+    @zpublish(False)
     def getStartDate(self):
         """returns the start date in DateTime format
         Returns None if there is no start date
@@ -245,6 +247,7 @@ class BaseDelivery(ReportekContent):
 
     security.declareProtected("View", "get_custom_cobjs_rdf_meta")
 
+    @zpublish(False)
     def get_custom_cobjs_rdf_meta(self):
         """Return custom child objects metadata for RDF export."""
         return []

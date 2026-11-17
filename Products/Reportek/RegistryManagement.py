@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import requests
 from AccessControl import ClassSecurityInfo
+from ZPublisher import zpublish
 from . import RegistryCache
 from .interfaces import IRegistryManagement
 from OFS.Folder import Folder
@@ -310,6 +311,7 @@ class BaseRegistryAPI(SimpleItem):
         kwargs = self._request_kwargs(data, files, cookies, headers, params, timeout)
         return self._answer(send_request(method, url, kwargs), url, raw)
 
+    @zpublish(False)
     def lookup_request(self, url, headers=None, params=None, timeout=None):
         """The (url, kwargs) that _lookup sends, to send it before with prefetch."""
         timeout = timeout or self.LOOKUP_TIMEOUT
@@ -646,6 +648,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
             return details
 
+    @zpublish(False)
     def getCollectionPaths(self, username, userdata=None):
         """Get all collection paths for a username or userdata.
 
@@ -663,6 +666,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             return "{}/user/companies/v2/".format(self.baseUrl), userdata
         return self.baseUrl + "/user/" + username + "/companies", None
 
+    @zpublish(False)
     def paths_request(self, username, userdata=None):
         """The (url, kwargs) of the request of _fetchCollectionPaths."""
         url, params = self._paths_url(username, userdata)
@@ -1019,6 +1023,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
 
 class BDRRegistryAPI(BaseRegistryAPI):
+    @zpublish(False)
     def get_registry_companies(self):
         """Get the list of companies from the Registry"""
         url = self.baseUrl + "/management/companies/export/json"
@@ -1029,6 +1034,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    @zpublish(False)
     def get_company_details(self, company_id, domain=None):
         """Get company details from Registry"""
         failed = ("company_details", self.baseUrl, company_id, domain)
@@ -1068,6 +1074,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
             {"username": username},
         )
 
+    @zpublish(False)
     def user_details_request(self, username):
         """The (url, kwargs) of the request for the details of a user, when cold."""
         if failed_in_this_request(
@@ -1084,6 +1091,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
             url, headers={"Authorization": self.bdr_registry_token}, params=params
         )
 
+    @zpublish(False)
     def get_user_details(self, username):
         """Get details for username"""
         failed = ("user_details", self.baseUrl, username)
@@ -1125,6 +1133,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
             return response.json(), True
         return [], False
 
+    @zpublish(False)
     def getCollectionPaths(self, username):
         """Get collections accessible by the user"""
         usr_details = self.get_user_details(username)

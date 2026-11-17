@@ -45,6 +45,7 @@ from zope.contenttype import guess_content_type
 from zope.event import notify
 from zope.interface import alsoProvides, implementer
 from zope.lifecycleevent import ObjectModifiedEvent
+from ZPublisher import zpublish
 from ZPublisher.HTTPRequest import FileUpload
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -344,10 +345,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def __len__(self):
         return 1
 
+    @zpublish(False)
     def upload_time(self):
         """Return the upload time"""
         return DateTime(self.data_file.mtime)
 
+    @zpublish(False)
     def get_accept_time(self):
         """A document can have an accepted status. It is set by the client,
         and is used to force the file to be immutable even if the envelope
@@ -397,6 +400,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """
         return self.getLDAPUserCanonicalName(self.getLDAPUser(self.getMyOwner()))
 
+    @zpublish(False)
     def logUpload(self):
         """Log file upload and any reuploads into the envelope history.
         The workitems' event logs are used since these are displayed
@@ -464,6 +468,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles([self])
 
+    security.declareProtected("View", "view_image_or_file")
+
     def view_image_or_file(self):
         """The default view of the contents of the File or Image."""
         raise Redirect(self.absolute_url())
@@ -502,6 +508,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """The icon embedded in html with a link to the real file"""
         return '<img src="%s/icon_gif" alt="" />' % self.absolute_url()
 
+    @zpublish(False)
     def get_size(self):
         """Returns the size of the file or image"""
         try:
@@ -511,6 +518,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     rawsize = get_size
 
+    @zpublish(False)
     def getFeedbacksForDocument(self):
         """Returns the Feedback objects associated with this document"""
         fbs = []
@@ -533,6 +541,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
         return fbs
 
+    @zpublish(False)
     def getExtendedFeedbackForDocument(self):
         """Returns the feedback relevant for a document - URL and title"""
         l_feedbacks = self.getParentNode().objectValues("Report Feedback")
@@ -545,6 +554,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 l_result[l_feedback.absolute_url()] = l_feedback.title_or_id()
         return l_result
 
+    @zpublish(False)
     def size(self):
         """Returns a formatted stringified version of the file size"""
         return self.data_file.human_readable(self.get_size())
@@ -571,6 +581,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
         return path
 
+    @zpublish(False)
     def canHaveOnlineQA(self, upper_limit=None):
         """Determines whether a HTTP QA can be done during Draft, based on
         file size
@@ -813,6 +824,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def hash(self, value):
         self._hash = value
 
+    @zpublish(False)
     def generate_hash(self):
         """Generate a sha256 hash for the file"""
 
@@ -963,6 +975,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             raise RuntimeError("Unable to compute uncompressed size")
 
+    @zpublish(False)
     def export_to_file(self, dst_path, file_id=None):
         """Export the document's file to a File in dst_path"""
         dst = self.unrestrictedTraverse(dst_path)

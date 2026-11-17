@@ -38,6 +38,7 @@ from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 from persistent.mapping import PersistentMapping
 from zope.interface import implementer
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
@@ -166,6 +167,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             self.do_request(workitem_id)
         return 1
 
+    @zpublish(False)
     def makeHTTPRequest(self, url, method="GET", data=None, params=None):
         """Makes an HTTP request to converters and returns the response"""
         headers = {
@@ -192,6 +194,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             )
         return response
 
+    @zpublish(False)
     def do_request(self, workitem_id):
         """Publishes the envelope to RabbitMQ requests queue"""
         wk = getattr(self, workitem_id)
@@ -202,16 +205,19 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         # send_message_nodqueue(json.dumps(data, indent=4), self.qarequests)
         l_wk_prop["requests"]["published"] = DateTime()
 
+    @zpublish(False)
     def check_uuid(self, workitem_id, uuid_str):
         """Return True if uuid is valid"""
         wk = getattr(self, workitem_id)
         return str(wk.UUID) == str(uuid_str)
 
+    @zpublish(False)
     def get_act_metadata(self, wk):
         """Returns the activity metadata"""
         annotations = wk._metadata()
         return annotations.get(self.app_name, {})
 
+    @zpublish(False)
     def update_act_metadata(self, wk, payload):
         """Update the workitem metadata"""
         act_metadata = self.get_act_metadata(wk)
@@ -280,6 +286,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     wk.failure = True
         wk._p_changed = True
 
+    @zpublish(False)
     def handle_result(self, wk, payload):
         """Handle payload with job results."""
         job_id = payload.get("jobId")
@@ -449,6 +456,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         "zpt/remote/application_edit_rabbitmq_qa", globals()
     )
 
+    @zpublish(False)
     def delete_job(self, job_id, workitem_id):
         """Make a request to delete the job"""
         url = "asynctasks/qajobs/delete/{}".format(job_id)
@@ -473,6 +481,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 )
             )
 
+    @zpublish(False)
     def listQAScripts(self, file_schema, short=True):
         """Return a list of QA scripts for file schema"""
         # /restapi/qascripts
@@ -521,6 +530,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
         return result
 
+    @zpublish(False)
     def runQAScript(self, p_file_url, p_script_id):
         """ """
         url = "qajobs"

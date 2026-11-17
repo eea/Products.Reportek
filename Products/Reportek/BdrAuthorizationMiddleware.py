@@ -4,6 +4,7 @@ from time import time
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
 from ZODB.PersistentMapping import PersistentMapping
+from ZPublisher import zpublish
 
 from Products.Reportek import RegistryCache
 from Products.Reportek.RegistryManagement import (
@@ -38,6 +39,7 @@ class BdrAuthorizationMiddleware(SimpleItem):
     def setServiceRecheckInterval(self, seconds):
         self.recheck_interval = seconds
 
+    @zpublish(False)
     def getUserCollectionPaths(
         self, username, userdata=None, recheck_interval=recheck_interval
     ):
@@ -61,6 +63,7 @@ class BdrAuthorizationMiddleware(SimpleItem):
             remember_failure_in_this_request(failed)
             return {"paths": [], "prev_paths": [], "audit_paths": []}
 
+    @zpublish(False)
     def paths_request(self, username, userdata=None, recheck_interval=300):
         """The (url, kwargs) that the paths of the user need, when not kept."""
         key = _paths_key(None, self, username, userdata, recheck_interval)
