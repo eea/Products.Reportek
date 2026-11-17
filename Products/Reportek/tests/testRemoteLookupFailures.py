@@ -760,3 +760,40 @@ class LookupStatsTest(CacheTest):
         self.assertIn("1.5 s", message)
         # the next window starts empty
         self.assertEqual(stats.snapshot(), {})
+
+    def test_the_report_has_the_window_in_progress_and_the_one_before(self):
+        with patch.object(RegistryManagement, "time") as clock:
+            clock.return_value = 1000
+            stats = LookupStats()
+            self.assertIsNone(stats.report()["previous"])
+            stats.record("paths", "lookup")
+            stats.record("paths", "miss", 1.5)
+            stats.record("paths", "lookup")
+            clock.return_value = 1000 + LookupStats.WINDOW
+            stats.record("paths", "lookup")
+            stats.record("paths", "lookup")
+            report = stats.report()
+        previous = report["previous"][0]
+        self.assertEqual(
+            (previous["name"], previous["lookups"], previous["asked"]), ("paths", 3, 1)
+        )
+        self.assertAlmostEqual(previous["kept"], 66.7, 1)
+        self.assertEqual(previous["seconds"], 1.5)
+        self.assertEqual(report["current"][0]["lookups"], 1)
+        self.assertEqual(report["previous_at"], 1000 + LookupStats.WINDOW)
+
+    def test_a_window_of_few_lookups_says_how_long_it_covered(self):
+        previous = logging.root.manager.disable
+        logging.disable(logging.NOTSET)
+        self.addCleanup(logging.disable, previous)
+        with patch.object(RegistryManagement, "time") as clock:
+            clock.return_value = 1000
+            stats = LookupStats()
+            stats.record("paths", "lookup")
+            # nobody asked for an hour
+            clock.return_value = 1000 + 3600
+            with self.assertLogs("Reportek", "INFO") as logged:
+                stats.record("paths", "lookup")
+            report = stats.report()
+        self.assertIn("last 3600 s", logged.records[0].getMessage())
+        self.assertEqual(report["previous_seconds"], 3600)

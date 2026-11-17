@@ -24,6 +24,7 @@ import importlib
 import json
 import logging
 import os
+import socket
 import tempfile
 import xmlrpc.client
 from collections import OrderedDict
@@ -65,6 +66,7 @@ import Products
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import RegistryCache
 from Products.Reportek.BdrAuthorizationMiddleware import (
     BdrAuthorizationMiddleware,
 )
@@ -81,6 +83,7 @@ from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (
     BDRRegistryAPI,
     FGASRegistryAPI,
+    lookup_stats,
     prefetch_requests,
 )
 from Products.Reportek.RepUtils import getToolByName
@@ -271,6 +274,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         {"label": "UNS settings", "action": "uns_settings"},
         {"label": "Migrations", "action": "migration_table"},
         {"label": "Obligation locks", "action": "obligation_locks_table"},
+        {"label": "Registry cache", "action": "registry_cache"},
     ) + Folder.manage_options[3:]
 
     _properties = (
@@ -2041,6 +2045,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         todo_rows = sorted(todo_rows, key=lambda o: o.get("version"), reverse=True)
         return self._migration_table(
             todo_migrationRows=todo_rows, done_migrationRows=done_rows
+        )
+
+    _registry_cache = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/engine/registry_cache.zpt")
+    )
+
+    security.declareProtected(view_management_screens, "registry_cache")
+
+    def registry_cache(self):
+        """The shared cache of the registry answers, and the counters of this pod"""
+        return self._registry_cache(
+            status=RegistryCache.shared_cache.status(),
+            counters=lookup_stats.report(),
+            pod=socket.gethostname(),
+            now=time(),
+            human=RegistryCache.human_size,
         )
 
     _obligation_locks_table = PageTemplateFile(

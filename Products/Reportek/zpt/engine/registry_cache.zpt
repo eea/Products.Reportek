@@ -1,0 +1,170 @@
+<span tal:replace="structure context/manage_page_header" />
+<span tal:replace="structure python:context.manage_tabs(management_view='Registry cache')" />
+<link href="++resource++static/style.css" rel="stylesheet"/>
+<style type="text/css">
+  .muted { color: #777; font-size: 90%; }
+  table.cache td.num, table.cache th.num { text-align: right; }
+</style>
+
+<h4 i18n:translate="">Registry cache</h4>
+<p i18n:translate="">
+  The answers of the registries are kept in the memory of each pod, and shared
+  between the pods through Valkey. This page shows the shared cache and what
+  this pod did with it.
+</p>
+
+<tal:status define="status options/status; server status/server">
+
+<h2 i18n:translate="">Shared cache</h2>
+<table class="table simple_table cache">
+  <tr>
+    <th i18n:translate="">Status</th>
+    <td tal:condition="status/enabled">on</td>
+    <td tal:condition="not:status/enabled">
+      off: <span tal:content="status/why_not" />
+    </td>
+  </tr>
+  <tr tal:condition="status/address">
+    <th i18n:translate="">Valkey</th>
+    <td>
+      <span tal:content="status/address" />
+      <tal:block condition="status/enabled">
+        <span tal:condition="python:status['reachable']">: reachable</span>
+        <span tal:condition="python:status['reachable'] is False">:
+          not reachable (<span tal:content="status/error" />)</span>
+      </tal:block>
+    </td>
+  </tr>
+  <tr tal:condition="status/enabled">
+    <th i18n:translate="">This pod and Valkey</th>
+    <td>
+      <span tal:condition="not:status/breaker/open">in use</span>
+      <span tal:condition="status/breaker/open">
+        left alone for <span tal:content="status/breaker/seconds_left" /> more
+        seconds, after errors
+      </span>
+      <span class="muted">
+        (errors in a row: <span tal:content="status/breaker/errors" />)
+      </span>
+    </td>
+  </tr>
+</table>
+
+<tal:valkey condition="python:status['enabled'] and status['reachable']">
+<h2 i18n:translate="">Entries in Valkey</h2>
+<table class="table simple_table cache">
+  <tr>
+    <th i18n:translate="">Kind</th>
+    <th class="num" i18n:translate="">Entries</th>
+    <th class="num" i18n:translate="">Sized</th>
+    <th class="num" i18n:translate="">Average size</th>
+    <th class="num" i18n:translate="">Largest size</th>
+  </tr>
+  <tr tal:repeat="entry status/entries">
+    <td tal:content="entry/name" />
+    <td class="num" tal:content="entry/count" />
+    <td class="num" tal:content="entry/sampled" />
+    <td class="num"
+        tal:content="python:options['human'](entry['average'])" />
+    <td class="num"
+        tal:content="python:options['human'](entry['largest'])" />
+  </tr>
+  <tr tal:condition="not:status/entries">
+    <td colspan="5" class="muted" i18n:translate="">No entries now</td>
+  </tr>
+</table>
+<p class="muted">
+  An entry expires with its window (5 minutes for the paths and 10 for the
+  user details, unless changed), so a short list is normal when few users
+  came. Locks held now: <span tal:content="status/locks" />.
+  <tal:truncated condition="status/truncated">The list is not complete.</tal:truncated>
+  Sizes are of the entries in "Sized": up to 500, so the largest size is the
+  largest of those.
+</p>
+
+<h2 i18n:translate="">Valkey</h2>
+<table class="table simple_table cache">
+  <tr>
+    <th i18n:translate="">Memory used</th>
+    <td tal:content="python:options['human'](server['used'])" />
+  </tr>
+  <tr>
+    <th i18n:translate="">Highest memory used</th>
+    <td tal:content="python:options['human'](server['peak'])" />
+  </tr>
+  <tr>
+    <th i18n:translate="">Memory limit (maxmemory)</th>
+    <td>
+      <span tal:condition="server/maxmemory"
+            tal:content="python:options['human'](server['maxmemory'])" />
+      <span tal:condition="not:server/maxmemory">none</span>
+      <span class="muted">(policy: <span tal:content="server/policy" />)</span>
+    </td>
+  </tr>
+  <tr>
+    <th i18n:translate="">Keys evicted</th>
+    <td tal:content="server/evicted" />
+  </tr>
+  <tr>
+    <th i18n:translate="">Keys expired</th>
+    <td tal:content="server/expired" />
+  </tr>
+  <tr>
+    <th i18n:translate="">Keys in total (with the sessions)</th>
+    <td tal:content="server/total" />
+  </tr>
+</table>
+</tal:valkey>
+
+</tal:status>
+
+<h2 i18n:translate="">This pod</h2>
+<p>
+  Pod <b tal:content="options/pod" />. The counters are of this pod only: reload
+  the page to see another one, or add up the log lines of all of them.
+</p>
+
+<tal:counters define="counters options/counters">
+<tal:window repeat="window python:(('current', 'In progress'), ('previous', 'Last window'))">
+  <h3 tal:content="python:window[1]" />
+  <p class="muted" tal:condition="python:window[0] == 'current'">
+    since <span tal:content="python:int(options['now'] - counters['since'])" />
+    s. A window ends at the first lookup after
+    <span tal:content="counters/window" /> s, so with few lookups it covers
+    more.
+  </p>
+  <p class="muted"
+     tal:condition="python:window[0] == 'previous' and counters['previous_at']">
+    covers <span tal:content="python:int(counters['previous_seconds'])" /> s,
+    ended <span tal:content="python:int(options['now'] - counters['previous_at'])" />
+    s ago
+  </p>
+  <tal:rows define="rows python:counters[window[0]]">
+  <table class="table simple_table cache" tal:condition="rows">
+    <tr>
+      <th i18n:translate="">Lookup</th>
+      <th class="num" i18n:translate="">Lookups</th>
+      <th class="num" i18n:translate="">Asked the registry</th>
+      <th class="num" i18n:translate="">Kept</th>
+      <th class="num" i18n:translate="">Failed</th>
+      <th class="num" i18n:translate="">Seconds waiting</th>
+    </tr>
+    <tr tal:repeat="row rows">
+      <td tal:content="row/name" />
+      <td class="num" tal:content="row/lookups" />
+      <td class="num" tal:content="row/asked" />
+      <td class="num" tal:content="python:'%.0f%%' % row['kept']" />
+      <td class="num" tal:content="row/failed" />
+      <td class="num" tal:content="python:'%.1f' % row['seconds']" />
+    </tr>
+  </table>
+  <p class="muted" tal:condition="not:rows" i18n:translate="">No lookups.</p>
+  </tal:rows>
+</tal:window>
+</tal:counters>
+<p class="muted">
+  "(valkey)" lines are the lookups that the memory of the pod did not have: they
+  went to Valkey, and to the registry when Valkey did not have them either.
+</p>
+
+<span tal:replace="structure here/manage_page_footer" />

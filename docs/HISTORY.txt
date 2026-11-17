@@ -3,6 +3,13 @@ Changelog
 
 101.3-dev0 - (unreleased)
 ---------------------------
+* feat: a Registry cache tab in the engine (manager only): whether the shared
+        cache is on, if Valkey answers or is left alone, the entries by kind
+        with their sizes, the memory and the evictions of Valkey, and the
+        counters of the pod of the last two windows; the log lines of the
+        counters say how many seconds they cover (a window ends at the first
+        lookup after 300 s, so with few lookups they said 300 s for hours);
+        add tests
 
 101.2 - (2026-11-16)
 --------------------

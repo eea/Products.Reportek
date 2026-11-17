@@ -31,6 +31,7 @@ import secrets
 import threading
 import zlib
 from time import sleep, time
+from urllib.parse import urlsplit
 
 logger = logging.getLogger("Reportek")
 
@@ -49,6 +50,11 @@ BREAKER_SECONDS = 15
 LOCK_SECONDS = 10
 WAIT_SECONDS = 0.5
 WAIT_STEP = 0.05
+# what the page of the engine reads from Valkey: the rounds of the scan, and the
+# entries whose size it asks
+SCAN_ROUNDS = 100
+SCAN_SECONDS = 2
+SIZED_ENTRIES = 500
 
 RELEASE_LOCK = (
     "if redis.call('get', KEYS[1]) == ARGV[1] then "
@@ -58,6 +64,17 @@ RELEASE_LOCK = (
 MISS = object()
 # Valkey did not answer
 ERROR = object()
+
+
+def human_size(size):
+    """Bytes as the page shows them; None is a dash."""
+    if size is None:
+        return "-"
+    size = float(size)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024 or unit == "GB":
+            return "%d B" % size if unit == "B" else "%.1f %s" % (size, unit)
+        size /= 1024
 
 
 def _enabled_in_env():
@@ -284,6 +301,133 @@ class SharedCache:
             if value is ERROR:
                 break
         return MISS
+
+    # -- what the page of the engine shows
+
+    def status(self):
+        """The state of the cache for the page of the engine, it never fails.
+
+        It reads Valkey for the page and leaves the count of errors alone."""
+        state = {
+            "enabled": self.enabled(),
+            "why_not": self._why_not(),
+            "address": self._address(),
+            "breaker": self._breaker(),
+            "reachable": None,
+            "error": None,
+            "entries": [],
+            "locks": 0,
+            "truncated": False,
+            "server": {},
+        }
+        if not state["enabled"]:
+            return state
+        try:
+            client = self._valkey()
+            state["entries"], state["locks"], state["truncated"] = self._entries(client)
+            state["server"] = self._server(client)
+            state["reachable"] = True
+        except Exception as e:
+            state["reachable"] = False
+            state["error"] = type(e).__name__
+        return state
+
+    def _why_not(self):
+        if self.enabled():
+            return None
+        if not self._secret():
+            return "SESSION_SECRET is not set"
+        if not _enabled_in_env():
+            return "REGISTRY_SHARED_CACHE is not set"
+        return "neither REGISTRY_CACHE_URL nor REDIS_URL is set"
+
+    def _address(self):
+        """Host, port and database of Valkey: never the user or the password."""
+        if self._given is not None:
+            return "given by the caller"
+        url = self._url()
+        if not url:
+            return None
+        try:
+            parts = urlsplit(url)
+            if not parts.hostname:
+                return "%s (a socket)" % (parts.scheme or "unknown")
+            return "%s:%s/%s" % (
+                parts.hostname,
+                parts.port or 6379,
+                parts.path.lstrip("/") or "0",
+            )
+        except ValueError:
+            return None
+
+    def _breaker(self):
+        left = max(0, int(self._left_alone_until - time()))
+        return {"open": left > 0, "seconds_left": left, "errors": self._errors}
+
+    def _entries(self, client):
+        """The entries of the cache by kind, with the size of the ones sampled."""
+        found = {}
+        locks = 0
+        sample = []
+        cursor = 0
+        deadline = time() + SCAN_SECONDS
+        for _ in range(SCAN_ROUNDS):
+            cursor, keys = client.scan(cursor, match=KEY_PREFIX + ":*", count=1000)
+            for key in keys:
+                key = key.decode() if isinstance(key, bytes) else key
+                parts = key[len(KEY_PREFIX) + 1 :].split(":")
+                if parts[-1] == "lock":
+                    locks += 1
+                    continue
+                found[parts[0]] = found.get(parts[0], 0) + 1
+                if len(sample) < SIZED_ENTRIES:
+                    sample.append((parts[0], key))
+            if not cursor or time() > deadline:
+                break
+        sizes = self._sizes(client, sample)
+        entries = []
+        for name in sorted(found):
+            seen = sizes.get(name, [])
+            entries.append(
+                {
+                    "name": name,
+                    "count": found[name],
+                    "sampled": len(seen),
+                    "average": sum(seen) // len(seen) if seen else None,
+                    "largest": max(seen) if seen else None,
+                }
+            )
+        return entries, locks, bool(cursor)
+
+    def _sizes(self, client, sample):
+        """The sizes of the sampled entries by kind: not having them is not an error."""
+        sizes = {}
+        if not sample:
+            return sizes
+        try:
+            pipe = client.pipeline(transaction=False)
+            for _, key in sample:
+                pipe.memory_usage(key)
+            for (name, _), size in zip(sample, pipe.execute()):
+                if size is not None:
+                    sizes.setdefault(name, []).append(size)
+        except Exception as e:
+            logger.debug("Registry cache: the sizes cannot be read (%r)", e)
+            return {}
+        return sizes
+
+    def _server(self, client):
+        memory = client.info("memory")
+        stats = client.info("stats")
+        return {
+            "used": memory.get("used_memory"),
+            "peak": memory.get("used_memory_peak"),
+            "maxmemory": memory.get("maxmemory"),
+            "policy": memory.get("maxmemory_policy"),
+            "evicted": stats.get("evicted_keys"),
+            "expired": stats.get("expired_keys"),
+            "total": client.dbsize(),
+        }
 
 
 shared_cache = SharedCache()
