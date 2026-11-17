@@ -29,6 +29,7 @@ from time import time
 from DateTime import DateTime
 from plone.memoize import ram
 from plone.protect.utils import addTokenToUrl
+from ZPublisher import zpublish
 
 from Products.PythonScripts.standard import html_quote
 from Products.Reportek import constants
@@ -67,6 +68,7 @@ class Toolz:
         return res
 
     # security.declareProtected('View', 'SearchSortWorkitems')
+    @zpublish(False)
     def SearchSortWorkitems(self, sortby, how):
         """Returns a sorted list with workitem objects"""
         l_workitems = self.getWorkitemsForWorklist()
@@ -99,6 +101,7 @@ class Toolz:
     def getLDAPUserEmail(self, dn):
         return dn.get("mail", "")
 
+    @zpublish(False)
     @ram.cache(lambda *args: time() // (60 * 60 * 12))
     def getLDAPGroups(self):
         """Return a list of LDAP group ids"""

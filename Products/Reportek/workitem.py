@@ -12,6 +12,7 @@ from zope.annotation.interfaces import IAnnotations
 from zope.event import notify
 from zope.interface import implementer
 from zope.lifecycleevent import ObjectModifiedEvent
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
@@ -158,6 +159,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
         url = activity.absolute_url() + "/manage_editForm" if activity else "-"
         return {"id": activity_id, "url": url}
 
+    @zpublish(False)
     def lastActivityDate(self):
         """Returns last activity date and time based on the workitem's
         event log
@@ -203,23 +205,27 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
             self.graph_level = graph_level
         self.reindexObject()
 
+    @zpublish(False)
     def addFrom(self, id):
         """ """
         self.workitems_from.append(id)
         self._p_changed = 1
         self.reindexObject()
 
+    @zpublish(False)
     def addTo(self, id_list):
         """ """
         self.workitems_to.extend(id_list)
         self._p_changed = 1
         self.reindexObject()
 
+    @zpublish(False)
     def setGraphLevel(self, graph_level):
         """ """
         self.graph_level = graph_level
         self.reindexObject()
 
+    @zpublish(False)
     def addEvent(self, event, comment=""):
         """ """
         self.event_log.append({"event": event, "time": DateTime(), "comment": comment})
@@ -236,6 +242,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
         self.event_log.append({"event": event, "time": p_time, "comment": comment})
         self._p_changed = 1
 
+    @zpublish(False)
     def isActiveOrInactiveOn(self, process_id, activity_id):
         """ """
         return (
@@ -244,6 +251,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
             and self.activity_id == activity_id
         )
 
+    @zpublish(False)
     def unblock(self, value=1, comment="", actor=""):
         """ """
         self.blocked = max(self.blocked - value, 0)
@@ -267,6 +275,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
 
         self.reindexObject()
 
+    @zpublish(False)
     def setStatus(self, status, comment="", actor=""):
         """ """
         old_status = self.status
@@ -304,27 +313,32 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
         self.addEvent(status, comment)
         self.reindexObject()
 
+    @zpublish(False)
     def endFallin(self):
         """ """
         if self.status == "fallout":
             self.setStatus("complete")
         self.reindexObject()
 
+    @zpublish(False)
     def setArrivalTime(self, activity_id, comment):
         """ """
         self.addEvent("arrival:" + activity_id)
         self.reindexObject()
 
+    @zpublish(False)
     def assignTo(self, actor, by=None, comment=""):
         """ """
         self.actor = actor
         self.addEvent("assigned to " + actor, comment)
         self.reindexObject()
 
+    @zpublish(False)
     def getEventLog(self):
         """ """
         return self.event_log
 
+    @zpublish(False)
     def getActivityDetails(self, p_attribute):
         """returns the activity's description"""
         l_process = self.unrestrictedTraverse(self.process_path, None)
@@ -333,6 +347,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
         except Exception:
             return self.activity_id
 
+    @zpublish(False)
     def getActivityAttribute(self, attr):
         """Returns activity attr attribute if activity is found.
         Otherwise returns None. Caller must consider both return cases."""

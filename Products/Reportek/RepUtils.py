@@ -60,6 +60,7 @@ from zope.component import getUtility
 from zope.datetime import rfc1123_date
 from zope.interface import implementer
 from zope.interface.interfaces import ComponentLookupError
+from ZPublisher import zpublish
 from ZPublisher.Iterators import IUnboundStreamIterator
 
 from Products.Five import BrowserView
@@ -1011,6 +1012,7 @@ class DFlowCatalogAware(object):
 
     _security_indexes = ("allowedAdminRolesAndUsers", "allowedRolesAndUsers")
 
+    @zpublish(False)
     def allowedAdminRolesAndUsers(self):
         """
         Return a list of roles and users with reportek_dataflow_admin
@@ -1031,6 +1033,7 @@ class DFlowCatalogAware(object):
 
         return list(allowed.keys())
 
+    @zpublish(False)
     def reindexObjectSecurity(self, skip_self=False):
         """Reindex security-related indexes on the object."""
         catalog = getToolByName(self, DEFAULT_CATALOG, None)

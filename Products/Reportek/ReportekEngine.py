@@ -54,6 +54,7 @@ from DateTime import DateTime
 # Zope imports
 from OFS.Folder import Folder
 from plone.memoize import ram
+from zExceptions import Unauthorized
 from ZPublisher import zpublish
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
@@ -842,6 +843,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
 
+    @zpublish(False)
     def canPingCR(self, envelope):
         """Check if a pingger is or can be created"""
         if getSecurityManager().checkPermission("Release Envelopes", envelope):
@@ -977,6 +979,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     ],
                 )
 
+    @zpublish(False)
     def create_subcollection(
         self,
         parent_coll,
@@ -1097,6 +1100,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return None
 
+    @zpublish(False)
     def create_fgas_ver_col(self, ctx, company_id, old_company_id=None):
         """Creates verification collections for FGAS.
         We'll look for a verification_metadata_override script in the ctx,
@@ -1682,6 +1686,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """
         return self.webq_url
 
+    @zpublish(False)
     def getNotCompletedWorkitems(self, sortby, how, REQUEST=None):
         """Loops for all the workitems that are in the 'active','inactive',
         'fallout' status and returns their list
@@ -1827,6 +1832,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             result.append(brain.getURL())
 
         return self.jsonify(result)
+
+    security.declareProtected(view_management_screens, "runAutomaticApplications")
 
     def runAutomaticApplications(self, p_applications, REQUEST=None):
         """Searches for the active workitems of activities that need
@@ -2426,6 +2433,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             )
             return 0
 
+    def _require_login(self):
+        """Refuse a request without login: these endpoints act as a user."""
+        request = getattr(self, "REQUEST", None)
+        # a web request always has its user; outside of a request, or in one made
+        # by a script, there may be none (REQUEST is then a string or has no user)
+        user = request.get("AUTHENTICATED_USER") if hasattr(request, "get") else None
+        if user is not None and user.getUserName() == "Anonymous User":
+            raise Unauthorized("You must log in to do this")
+
     security.declareProtected("View", "subscribeToUNS")
 
     def subscribeToUNS(
@@ -2440,6 +2456,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         (1, '') for success
         (0, error_description) for failure
         """
+        self._require_login()
         l_filters = []
         if dataflow_uris not in [[], [""]]:
             for df_uri in dataflow_uris:
@@ -2514,6 +2531,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected("View", "sendNotificationToUNS")
 
+    @zpublish(False)
     def sendNotificationToUNS(
         self,
         envelope,
@@ -2736,6 +2754,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         def validate_auditor(self, **kwargs):
             """Validate auditor."""
+            self._require_login()
             if not getattr(self, "REQUEST", None):
                 return []
             data = json.loads(self.REQUEST.get("BODY") or "{}")
@@ -2746,15 +2765,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         def assign_for_audit(self, data):
             """Assign envelope for audit."""
+            self._require_login()
             if not getattr(self, "REQUEST", None):
                 return []
             self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(self.FGASRegistryAPI.assign(data))
 
-        security.declareProtected("View", "assign_for_audit")
+        security.declareProtected("View", "unassign_for_audit")
 
         def unassign_for_audit(self, data):
             """Unassign envelope for audit."""
+            self._require_login()
             if not getattr(self, "REQUEST", None):
                 return []
             self.REQUEST.RESPONSE.setStatus(200)
@@ -3143,6 +3164,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return collections
 
+    @zpublish(False)
     def find_col_with_different_id(self, parent, metadata):
         """Find collection that may have a different id in the parent coll"""
         relevant = ["country", "dataflow_uris", "locality", "parent"]

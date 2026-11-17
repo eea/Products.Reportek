@@ -46,6 +46,7 @@ from zope.annotation.interfaces import IAnnotations
 from zope.event import notify
 from zope.interface import alsoProvides, implementer
 from zope.lifecycleevent import ObjectModifiedEvent
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
@@ -310,6 +311,7 @@ class ReportFeedback(
         self.feedback_status = feedback_status
         self.__history = None
 
+    @zpublish(False)
     def update_item(self, postingdate=None):
         """If the parameter is provided, updates the postingdate to it
         If not, checks if the property exists and sets it to
@@ -392,6 +394,7 @@ class ReportFeedback(
         sanitizer = convs["safe_html"]
         return sanitizer.convert(tmp, sanitizer.id).text
 
+    @zpublish(False)
     def set_html_feedback(self, content, metadata):
         """Sets HTML feedback."""
 
@@ -582,6 +585,8 @@ class ReportFeedback(
             )
         return result
 
+    security.declareProtected("View", "compileFeedbacktext")
+
     def compileFeedbacktext(self, REQUEST):
         """If the feedbacktext has another content type than plain text or
         HTML, it will be displayed separately on this page
@@ -591,6 +596,7 @@ class ReportFeedback(
         # fixme: loop chunk of data to display, not all at once
         response.write(ensure_text(self.feedbacktext))
 
+    @zpublish(False)
     def getActivityDetails(self, p_attribute):
         """returns the activity's description"""
         l_process = self.unrestrictedTraverse(self.getParentNode().process_path)

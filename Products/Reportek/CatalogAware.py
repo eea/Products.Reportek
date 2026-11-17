@@ -20,6 +20,7 @@ from Acquisition import aq_base
 from ExtensionClass import Base
 from zope.component import queryUtility
 from zope.interface import implementer
+from ZPublisher import zpublish
 
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.interfaces import (
@@ -73,18 +74,21 @@ class CatalogAware(Base):
             return candidate
         return queryUtility(IReportekCatalog)
 
+    @zpublish(False)
     def indexObject(self):
         """Index the object in the portal catalog."""
         catalog = self._getCatalogTool()
         if catalog is not None:
             catalog.indexObject(self)
 
+    @zpublish(False)
     def unindexObject(self):
         """Unindex the object from the portal catalog."""
         catalog = self._getCatalogTool()
         if catalog is not None:
             catalog.unindexObject(self)
 
+    @zpublish(False)
     def reindexObject(self, idxs=[], update_metadata=1, uid=None):
         """Reindex the object in the portal catalog."""
         if idxs == []:
@@ -102,6 +106,7 @@ class CatalogAware(Base):
         "allowedAdminRolesAndUsers",
     )
 
+    @zpublish(False)
     def reindexObjectSecurity(self, skip_self=False):
         """Reindex security-related indexes on the object."""
         # Get the catalog via traversing to avoid a Storage error
@@ -141,6 +146,7 @@ class CatalogAware(Base):
         """Return Reportek's persisted business modification date."""
         return get_reportek_modification_date(self)
 
+    @zpublish(False)
     def notifyModified(self):
         """Update the persisted business modification date.
 

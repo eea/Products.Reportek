@@ -1,4 +1,5 @@
 from zope.interface import implementer
+from ZPublisher import zpublish
 
 from Products.Reportek.interfaces import IReportekContent
 from Products.Reportek.modification_date import (
@@ -22,5 +23,6 @@ class ReportekContent(object):
     def bobobase_modification_time(self):
         return get_reportek_modification_date(self)
 
+    @zpublish(False)
     def notifyModified(self):
         mark_modified(self, cascade=True, reindex=True)

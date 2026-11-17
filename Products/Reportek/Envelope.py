@@ -55,6 +55,7 @@ from zope.interface import alsoProvides, implementer
 from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.BaseRequest import BaseRequest
 from ZPublisher.Iterators import filestream_iterator
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
@@ -435,6 +436,7 @@ class Envelope(
             pass
         return None
 
+    @zpublish(False)
     def get_qa_workitems(self):
         """Return a list of AutomaticQA workitems.
 
@@ -490,6 +492,7 @@ class Envelope(
         """Set the audit_info of the envelope."""
         self._audit_info = value
 
+    @zpublish(False)
     def get_qa_feedbacks(self):
         """Return a list containing all AutomaticQA feedback objects.
 
@@ -553,6 +556,7 @@ class Envelope(
             if fb_status in UNACCEPTABLE_FB_STATUSES:
                 return True
 
+    @zpublish(False)
     def get_fb_with_status(self, status):
         """Returns a list of fb ids with status status."""
         aqa_fbs = self.get_qa_feedbacks()
@@ -596,6 +600,7 @@ class Envelope(
         if not self.has_no_qa_result and not self.has_failed_qa:
             return True
 
+    @zpublish(False)
     def uns_is_set(self):
         """Returns True if UNS server is set"""
         engine = getattr(self, ENGINE_ID)
@@ -607,10 +612,13 @@ class Envelope(
     def uns_notifications_are_on(self):
         return bool(os.environ.get("UNS_NOTIFICATIONS", "off") == "on")
 
+    security.declareProtected("View", "has_blocker_feedback")
+
     def has_blocker_feedback(self, REQUEST=None):
         """web callable version of is_blocked"""
         return self.is_blocked
 
+    @zpublish(False)
     def is_acceptable(self):
         """Returns acceptability status:
         True: definitly blocked
@@ -1929,6 +1937,7 @@ class Envelope(
 
     security.declareProtected("View", "get_custom_cobjs_rdf_meta")
 
+    @zpublish(False)
     def get_custom_cobjs_rdf_meta(self):
         """Return custom child objects metadata for RDF export."""
         res = []
@@ -2204,6 +2213,7 @@ class Envelope(
 
         return engine.download_xls(wb, filename)
 
+    @zpublish(False)
     def has_dataflow(self, dataflow_uri):
         """Return True if dataflow_uri in envelope's dataflow_uris."""
         return dataflow_uri in self.dataflow_uris
@@ -2269,6 +2279,8 @@ class Envelope(
                 k.set_accept_time(0)
         if REQUEST:
             REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
+
+    security.declareProtected(change_feedback, "bulkAcceptTime")
 
     def bulkAcceptTime(self, ids, action, REQUEST=None):
         """ """

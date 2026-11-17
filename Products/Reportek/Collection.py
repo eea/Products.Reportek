@@ -488,10 +488,12 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         """Returns the Reportek engine object"""
         return getattr(self, constants.ENGINE_ID)
 
+    @zpublish(False)
     def getDataflowMappingsContainer(self):
         """ """
         return getattr(self, constants.DATAFLOW_MAPPINGS, None)
 
+    @zpublish(False)
     def getCountryName(self, country_uri=None):
         """Return country name from the country uri."""
         dummycounty = {"name": "Unknown", "iso": "xx"}
@@ -507,6 +509,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 return dummycounty["name"]
         return engine.localities_dict().get(self.country, dummycounty)["name"]
 
+    @zpublish(False)
     def getCountryCode(self, country_uri=None):
         """Return country ISO code from the country uri."""
         dummycounty = {"name": "Unknown", "iso": "xx"}
@@ -764,6 +767,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     security.declarePublic("getWorkitemsForWorklist")
 
+    @zpublish(False)
     def getWorkitemsForWorklist(self, p_ret=None):
         """Returns active and inactive workitems from all child envelopes"""
         if p_ret is None:
@@ -865,6 +869,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def company_id(self, value):
         self._company_id = value
 
+    @zpublish(False)
     def get_zope_company_meta(self):
         """Return the company meta attached to the collection"""
 
@@ -1286,6 +1291,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
             return pr_date
 
+    @zpublish(False)
     def is_valid(self):
         """Return False if BDR deployment and associated company status is
         disabled, otherwise True
@@ -1299,6 +1305,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return True
 
+    @zpublish(False)
     def has_company_checks_failed(self):
         """Return True if BDR deployment and company checks failed"""
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
@@ -1310,6 +1317,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     return True
         return False
 
+    @zpublish(False)
     def allowed_envelopes(self):
         """Return False if the collection's associated company is disabled"""
         if self.has_company_checks_failed():
@@ -1317,6 +1325,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return self.allow_envelopes
 
+    @zpublish(False)
     def are_referrals_allowed(self):
         """Check through aquisition if referrals are allowed"""
         return getattr(self, "prop_allowed_referrals", 1)
@@ -1400,6 +1409,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return data
 
+    @zpublish(False)
     def get_company_collections(self):
         """Get the company collections, to be used by other_reports for
         Managers
@@ -1484,6 +1494,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         if envs:
             return envs[0].reportingdate
 
+    @zpublish(False)
     def get_children(self, m_types, sort_on, desc=1):
         """Return sorted children."""
         objs = self.objectValues(m_types)
@@ -1536,6 +1547,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         except (EmptyPage, InvalidPage):
             return paginator.page(paginator.num_pages)
 
+    @zpublish(False)
     def get_catalog_children(self, m_types, sort_on, sort_order="reverse"):
         path = "/".join(self.getPhysicalPath())
         query = {

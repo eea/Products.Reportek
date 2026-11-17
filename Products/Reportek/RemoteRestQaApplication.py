@@ -37,6 +37,7 @@ from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
@@ -927,6 +928,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         "zpt/remote/application_edit_rest_qa", globals()
     )
 
+    @zpublish(False)
     def delete_job(self, job_id, workitem_id):
         """Make a request to delete the job"""
         url = "asynctasks/qajobs/delete/{}".format(job_id)
@@ -951,6 +953,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 )
             )
 
+    @zpublish(False)
     def listQAScripts(self, file_schema, short=True):
         """Return a list of QA scripts for file schema"""
         # /restapi/qascripts
@@ -999,6 +1002,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
         return result
 
+    @zpublish(False)
     def runQAScript(self, p_file_url, p_script_id):
         """ """
         url = "qajobs"

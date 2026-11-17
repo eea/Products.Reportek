@@ -175,6 +175,9 @@ class Referral(
         firstseg = segs[0].split(";")
         return firstseg[0].strip()
 
+    # declared in BaseDelivery too, but that class is never initialized
+    security.declareProtected("View", "rdf")
+
     security.declareProtected("View", "index_html")
     index_html = PageTemplateFile("zpt/referral/index", globals())
 

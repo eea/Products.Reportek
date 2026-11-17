@@ -8,6 +8,7 @@ from AccessControl.Permissions import view_management_screens
 from App.Common import package_home
 from OFS.SimpleItem import SimpleItem
 from ZODB.PersistentList import PersistentList
+from ZPublisher import zpublish
 
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -138,6 +139,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
     security.declareProtected(view_management_screens, "add_schema")
 
+    @zpublish(False)
     def delete_schemas(self, REQUEST):
         """Delete schemas"""
         schemas = REQUEST.form.get("ids", [])

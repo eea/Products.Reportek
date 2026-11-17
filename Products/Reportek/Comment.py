@@ -194,10 +194,14 @@ class CommentsManager:
 
     security = ClassSecurityInfo()
 
+    security.declareProtected("View", "getComment")
+
     def getComment(self, id):
         """ """
         if id:
             return self._getOb(id, None)
+
+    security.declareProtected("View", "listComments")
 
     def listComments(self):
         """Returns the list of comments sorted by date."""
@@ -205,9 +209,13 @@ class CommentsManager:
         t.sort()
         return [val for (key, val) in t]
 
+    security.declareProtected("View", "hasComments")
+
     def hasComments(self):
         """Returns the number of comments."""
         return len(self.objectValues(METATYPE_FEEDBACK_COMMENT)) > 0
+
+    security.declareProtected("View", "countComments")
 
     def countComments(self):
         """Returns the number of comments."""

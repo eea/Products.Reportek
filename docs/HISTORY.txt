@@ -1,6 +1,10 @@
 Changelog
 =========
 
+101.4 - (2026-11-17)
+--------------------
+* fix: do not publish methods that do not need to be published
+
 101.3 - (2026-11-17)
 --------------------
 * feat: a Registry cache tab in the engine (manager only): whether the shared

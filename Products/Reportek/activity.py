@@ -24,6 +24,7 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from OFS.SimpleItem import SimpleItem
+from ZPublisher import zpublish
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
@@ -256,6 +257,7 @@ class activity(CatalogAware, SimpleItem):
             resp["mapped_by_path"] = False
             return resp
 
+    @zpublish(False)
     def getIncomingTransitionsNumber(self):
         """returns all the process transition objects that go to the
         specified activity
