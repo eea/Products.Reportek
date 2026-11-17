@@ -45,6 +45,8 @@ class FakeValkey:
         self.data = {}
         self.error = None
         self.latency = 0
+        self.endless_scan = False
+        self.sizes_error = None
         self.calls = []
 
     def _check(self, command):
@@ -86,6 +88,52 @@ class FakeValkey:
             del self.data[key]
             return 1
         return 0
+
+    def scan(self, cursor, match=None, count=None):
+        self._check("scan")
+        self.clock.now += self.latency
+        if self.endless_scan:
+            return 1, []
+        prefix = match.rstrip("*")
+        keys = [k for k in list(self.data) if self._alive(k) and k.startswith(prefix)]
+        return 0, [k.encode() for k in keys]
+
+    def pipeline(self, transaction=True):
+        return FakePipeline(self)
+
+    def memory_usage(self, key):
+        self._check("memory_usage")
+        entry = self._alive(key)
+        return len(entry[0]) + 50 if entry else None
+
+    def info(self, section):
+        self._check("info")
+        if section == "memory":
+            return {
+                "used_memory": 3400000,
+                "used_memory_peak": 4100000,
+                "maxmemory": 134217728,
+                "maxmemory_policy": "volatile-lru",
+            }
+        return {"evicted_keys": 0, "expired_keys": 12}
+
+    def dbsize(self):
+        self._check("dbsize")
+        return len([k for k in list(self.data) if self._alive(k)])
+
+
+class FakePipeline:
+    def __init__(self, valkey):
+        self.valkey = valkey
+        self.keys = []
+
+    def memory_usage(self, key):
+        self.keys.append(key)
+
+    def execute(self):
+        if self.valkey.sizes_error:
+            raise self.valkey.sizes_error
+        return [self.valkey.memory_usage(key) for key in self.keys]
 
 
 def answer(status_code=200, payload=None):
@@ -366,6 +414,118 @@ class HardeningTest(SharedCacheCase):
         self.assertFalse(self.pod_b.has("paths", ["a", 1], 300))
         with patch.dict(os.environ, {}, clear=True):
             self.assertFalse(SharedCache(self.valkey).has("paths", ["a", 1], 300))
+
+
+class StatusTest(SharedCacheCase):
+    """What the page of the engine shows."""
+
+    def test_it_counts_the_entries_by_kind_and_sizes_them(self):
+        self.fetch(parts=("a", 1))
+        self.fetch(parts=("b", 1))
+        self.pod_a.fetch("user_details", ["a"], 600, self.load(value=[{"id": 1}]))
+        status = self.pod_a.status()
+        self.assertTrue(status["reachable"])
+        self.assertEqual(
+            [(e["name"], e["count"]) for e in status["entries"]],
+            [("paths", 2), ("user_details", 1)],
+        )
+        for entry in status["entries"]:
+            self.assertEqual(entry["sampled"], entry["count"])
+            self.assertGreater(entry["largest"], 50)
+        self.assertEqual(status["server"]["policy"], "volatile-lru")
+        self.assertEqual(status["server"]["evicted"], 0)
+        self.assertEqual(status["server"]["total"], 3)
+
+    def test_the_locks_are_counted_apart(self):
+        self.fetch()
+        self.valkey.set("reportek:regcache:v1:paths:abc:lock", "token", ex=10)
+        status = self.pod_a.status()
+        self.assertEqual(status["locks"], 1)
+        self.assertEqual([e["name"] for e in status["entries"]], ["paths"])
+        self.assertEqual(status["entries"][0]["count"], 1)
+
+    def test_an_empty_cache_has_no_entries(self):
+        status = self.pod_a.status()
+        self.assertEqual((status["entries"], status["locks"]), ([], 0))
+
+    def test_it_reads_valkey_without_changing_what_the_lookups_do(self):
+        self.valkey.error = ConnectionError("down")
+        for _ in range(5):
+            status = self.pod_a.status()
+        self.assertFalse(status["reachable"])
+        self.assertEqual(status["error"], "ConnectionError")
+        self.assertEqual(status["entries"], [])
+        self.assertEqual(
+            status["breaker"], {"open": False, "seconds_left": 0, "errors": 0}
+        )
+        self.valkey.error = None
+        self.assertEqual(self.fetch(), "answer")
+
+    def test_it_says_when_valkey_is_left_alone(self):
+        self.valkey.error = ConnectionError("down")
+        for i in range(RegistryCache.BREAKER_ERRORS):
+            self.fetch(parts=("x", i))
+        breaker = self.pod_a.status()["breaker"]
+        self.assertTrue(breaker["open"])
+        self.assertEqual(breaker["seconds_left"], RegistryCache.BREAKER_SECONDS)
+        self.clock.now += RegistryCache.BREAKER_SECONDS
+        self.assertFalse(self.pod_a.status()["breaker"]["open"])
+
+    def test_it_says_why_the_cache_is_off(self):
+        cache = SharedCache()
+        off = {"REGISTRY_SHARED_CACHE": "", "REGISTRY_CACHE_URL": "", "REDIS_URL": ""}
+        # a cache that is off does not touch Valkey
+        with patch.object(SharedCache, "_valkey", side_effect=AssertionError):
+            with patch.dict(os.environ, off):
+                self.assertIn("REGISTRY_SHARED_CACHE", cache.status()["why_not"])
+            with patch.dict(os.environ, dict(off, REGISTRY_SHARED_CACHE="1")):
+                self.assertIn("REDIS_URL", cache.status()["why_not"])
+            with patch.dict(os.environ, {"SESSION_SECRET": ""}):
+                self.assertIn("SESSION_SECRET", cache.status()["why_not"])
+        self.assertIsNone(self.pod_a.status()["why_not"])
+
+    def test_a_scan_that_does_not_end_is_cut_after_a_moment(self):
+        self.fetch()
+        self.valkey.endless_scan = True
+        self.valkey.latency = 0.5
+        status = self.pod_a.status()
+        self.assertTrue(status["truncated"])
+        self.assertTrue(status["reachable"])
+        scans = self.valkey.calls.count("scan")
+        self.assertLess(scans, RegistryCache.SCAN_ROUNDS)
+        self.assertLessEqual(scans * 0.5, RegistryCache.SCAN_SECONDS + 0.5)
+
+    def test_sizes_that_cannot_be_read_do_not_make_valkey_unreachable(self):
+        self.fetch()
+        self.valkey.sizes_error = RuntimeError("unknown command")
+        status = self.pod_a.status()
+        self.assertTrue(status["reachable"])
+        entry = status["entries"][0]
+        self.assertEqual((entry["count"], entry["sampled"]), (1, 0))
+        self.assertIsNone(entry["average"])
+        self.assertEqual(status["server"]["total"], 1)
+
+    def test_the_address_of_a_socket_is_not_a_host(self):
+        cache = SharedCache()
+        env = {"REGISTRY_SHARED_CACHE": "1", "REGISTRY_CACHE_URL": "unix:///x.sock"}
+        with patch.dict(os.environ, env), patch.object(
+            SharedCache, "_valkey", side_effect=ConnectionError("down")
+        ):
+            self.assertEqual(cache.status()["address"], "unix (a socket)")
+
+    def test_the_address_does_not_tell_the_password(self):
+        cache = SharedCache()
+        env = {
+            "REGISTRY_SHARED_CACHE": "1",
+            "REGISTRY_CACHE_URL": "redis://user:s3cret@valkey.example:6380/2",
+        }
+        with patch.dict(os.environ, env), patch.object(
+            SharedCache, "_valkey", side_effect=ConnectionError("down")
+        ):
+            status = cache.status()
+        self.assertEqual(status["address"], "valkey.example:6380/2")
+        self.assertNotIn("s3cret", repr(status))
+        self.assertFalse(status["reachable"])
 
 
 class RegistryLookupsTest(unittest.TestCase):

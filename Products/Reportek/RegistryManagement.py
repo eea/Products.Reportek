@@ -151,6 +151,9 @@ class LookupStats:
         self._lock = threading.Lock()
         self._counts = {}
         self._since = time()
+        self._previous = None
+        self._previous_seconds = None
+        self._previous_at = None
 
     def record(self, name, outcome, seconds=0.0):
         done = None
@@ -161,16 +164,22 @@ class LookupStats:
             if outcome == "miss":
                 counts["seconds"] += seconds
             counts[outcome] += 1
-            if time() - self._since >= self.WINDOW:
-                done, self._counts, self._since = self._counts, {}, time()
+            now = time()
+            if now - self._since >= self.WINDOW:
+                # a window ends at the first lookup after WINDOW seconds: with
+                # few lookups it covers more than WINDOW seconds
+                seconds = now - self._since
+                done, self._counts, self._since = self._counts, {}, now
+                self._previous, self._previous_at = done, now
+                self._previous_seconds = seconds
         if done:
             for name, counts in sorted(done.items()):
                 lookups = counts["lookup"]
                 logger.info(
-                    "Registry cache %s, last %s s: %s lookups, %s asked the "
+                    "Registry cache %s, last %.0f s: %s lookups, %s asked the "
                     "registry (%.0f%% kept), %s failed, %.1f s waiting for it",
                     name,
-                    self.WINDOW,
+                    seconds,
                     lookups,
                     counts["miss"],
                     100.0 * (lookups - counts["miss"]) / max(lookups, 1),
@@ -181,6 +190,37 @@ class LookupStats:
     def snapshot(self):
         with self._lock:
             return {name: dict(counts) for name, counts in self._counts.items()}
+
+    def report(self):
+        """The counters of the window in progress and of the one before, as rows."""
+        with self._lock:
+            previous = self._previous
+            return {
+                "window": self.WINDOW,
+                "since": self._since,
+                "current": self._rows(self._counts),
+                "previous": None if previous is None else self._rows(previous),
+                "previous_seconds": self._previous_seconds,
+                "previous_at": self._previous_at,
+            }
+
+    @staticmethod
+    def _rows(counts):
+        rows = []
+        for name in sorted(counts):
+            row = counts[name]
+            lookups = row["lookup"]
+            rows.append(
+                {
+                    "name": name,
+                    "lookups": lookups,
+                    "asked": row["miss"],
+                    "kept": 100.0 * (lookups - row["miss"]) / max(lookups, 1),
+                    "failed": row["failure"],
+                    "seconds": row["seconds"],
+                }
+            )
+        return rows
 
 
 lookup_stats = LookupStats()
