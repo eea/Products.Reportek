@@ -1,8 +1,8 @@
 Changelog
 =========
 
-101.3-dev0 - (unreleased)
----------------------------
+101.3 - (2026-11-17)
+--------------------
 * feat: a Registry cache tab in the engine (manager only): whether the shared
         cache is on, if Valkey answers or is left alone, the entries by kind
         with their sizes, the memory and the evictions of Valkey, and the
