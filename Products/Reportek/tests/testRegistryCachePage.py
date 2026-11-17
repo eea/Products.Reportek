@@ -55,8 +55,7 @@ class RegistryCachePageTest(BaseTest):
             RegistryCache, "shared_cache", cache
         ):
             html = self.engine.registry_cache()
-        self.assertIn("not reachable", html)
-        self.assertIn("<span>ConnectionError</span>", html)
+        self.assertIn("no (<span>ConnectionError</span>)", html)
 
     def test_the_tab_is_in_the_menu(self):
         labels = [option["label"] for option in self.engine.manage_options]
