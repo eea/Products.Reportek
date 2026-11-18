@@ -1,8 +1,8 @@
 Changelog
 =========
 
-101.5-dev0 - (unreleased)
----------------------------
+101.5 - (2026-11-18)
+--------------------
 * feat: the files of a zip archive in an envelope are listed and can be
         downloaded one at a time or several together in a new zip, with the
         files copied as they are (not compressed again); only for logged in
