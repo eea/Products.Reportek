@@ -26,6 +26,14 @@
             i18n:attributes="title title-documents-section"
             tal:attributes="href string:${item/id}/manage_document"
             tal:content="item/id">id</a>
+            <tal:block condition="python:item.can_browse_zip()">
+              <a class="zip-contents" tal:attributes="href string:${item/id}/zip_contents"
+               title="Files in the archive" aria-label="Files in the archive"
+               i18n:attributes="title zip-contents-title; aria-label zip-contents-title"><svg
+                 xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
+                 aria-hidden="true" focusable="false" style="vertical-align:-3px"><path
+                 fill="currentColor" d="M1 3h2v2H1zM5 3h10v2H5zM1 7h2v2H1zM5 7h10v2H5zM1 11h2v2H1zM5 11h10v2H5z"/></svg></a>
+            </tal:block>
           </td>
           <td style="white-space:nowrap">
             <tal:block

@@ -1028,6 +1028,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             parent_coll.reindexObject()
         return sc
 
+    @zpublish(False)
     @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
     def get_mapped_dfs(self):
         """Return the domain mapped dfs for fgas and ods."""
@@ -1824,6 +1825,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
         return catalog(meta_type=METATYPE_ENVELOPE, wf_status="forward")
 
+    security.declareProtected(view_management_screens, "get_forward_envelopes")
+
     def get_forward_envelopes(self):
         """Return a JSON array with envelopes that are in forward wf_status."""
         brains = self.get_running_envelopes()
@@ -1862,6 +1865,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 logger.exception(msg)
 
         return result
+
+    security.declareProtected(view_management_screens, "getWkAppsActive")
 
     def getWkAppsActive(self, p_applications, REQUEST=None):
         """Searches for the active workitems of activities that need

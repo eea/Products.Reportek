@@ -1,6 +1,14 @@
 Changelog
 =========
 
+101.5 - (2026-11-18)
+--------------------
+* feat: the files of a zip archive in an envelope are listed and can be
+        downloaded one at a time or several together in a new zip, with the
+        files copied as they are (not compressed again); only for logged in
+        users, as the zip of an envelope; add tests
+* fix: more methods are no longer published
+
 101.4 - (2026-11-17)
 --------------------
 * fix: do not publish methods that do not need to be published

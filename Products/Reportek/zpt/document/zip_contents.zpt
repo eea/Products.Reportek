@@ -1,0 +1,103 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+    <metal:block fill-slot="head">
+        <link href="++resource++static/style.css" rel="stylesheet" />
+    </metal:block>
+
+    <metal:block fill-slot="content">
+        <tal:block condition="python:context.canViewContent()">
+          <tal:block define="members context/get_zip_members;
+                             authenticator context/@@authenticator">
+
+            <div id="operations" role="navigation" aria-label="Document operations"
+                 i18n:attributes="aria-label zip-operations-label">
+                <ul>
+                    <li>
+                        <a tal:attributes="href string:${context/absolute_url}/manage_document"
+                           title="Go back to the file"
+                           i18n:attributes="title zip-go-back-title"
+                           i18n:translate="">Back to the file</a>
+                    </li>
+                </ul>
+            </div>
+
+            <h1 i18n:translate="">Files in <span tal:replace="context/id" i18n:name="file-id"/></h1>
+
+            <p tal:condition="not:members" i18n:translate="">No files were found in this archive.</p>
+
+            <form tal:condition="members" method="post" action="zip_selection">
+              <span tal:replace="structure python:authenticator.authenticator('zip_selection')" />
+              <table class="table simple_table">
+                <thead>
+                    <tr>
+                        <th style="width:2em">
+                            <input type="checkbox" id="select-all-files"
+                                   title="Select all the files"
+                                   i18n:attributes="title zip-select-all-title"
+                                   tal:attributes="data-limit context/zip_selection_limit" />
+                        </th>
+                        <th i18n:translate="">File</th>
+                        <th i18n:translate="">Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr tal:repeat="member members">
+                        <td>
+                            <input type="checkbox" class="zip-file" name="names:list"
+                                   tal:condition="member/selectable"
+                                   tal:attributes="value member/name" />
+                            <input type="checkbox" class="zip-file" name="names:list"
+                                   tal:condition="not:member/selectable"
+                                   disabled="disabled"
+                                   title="This file cannot be downloaded together with others"
+                                   i18n:attributes="title zip-not-selectable-title"
+                                   tal:attributes="value member/name" />
+                        </td>
+                        <td>
+                            <a tal:condition="python:not member['encrypted'] and not member['too_big']"
+                               tal:attributes="href member/url"
+                               tal:content="member/name">name</a>
+                            <tal:block condition="python:member['encrypted'] or member['too_big']">
+                                <span tal:content="member/name">name</span>
+                                <em tal:condition="member/encrypted" i18n:translate="">(encrypted, it cannot be downloaded)</em>
+                                <em tal:condition="python:member['too_big'] and not member['encrypted']"
+                                    i18n:translate="">(too big to download from the archive)</em>
+                            </tal:block>
+                        </td>
+                        <td tal:content="member/human_size">1 KB</td>
+                    </tr>
+                </tbody>
+              </table>
+
+              <p id="select-limit-note" class="muted" style="display:none" i18n:translate="">At most <span tal:replace="context/zip_selection_limit" i18n:name="limit"/> files can be downloaded together: the first ones are selected.</p>
+              <p>
+                <button type="submit" class="btn-ops" i18n:translate=""
+                        title="The chosen files in a new zip archive, as they are in this one"
+                        i18n:attributes="title zip-download-selected-title">Download selected</button>
+              </p>
+            </form>
+
+            <p tal:condition="python:len(members) >= context.zip_listing_limit()"
+               i18n:translate="">Only the first <span tal:replace="context/zip_listing_limit" i18n:name="limit"/> files are listed.</p>
+
+            <script type="text/javascript" tal:condition="members">
+              (function () {
+                var all = document.getElementById('select-all-files');
+                if (!all) { return; }
+                var limit = parseInt(all.getAttribute('data-limit'), 10);
+                all.addEventListener('change', function () {
+                  var boxes = document.querySelectorAll('input.zip-file');
+                  var ticked = 0, left_out = false;
+                  for (var i = 0; i < boxes.length; i++) {
+                    if (boxes[i].disabled) { continue; }
+                    if (all.checked && ticked >= limit) { boxes[i].checked = false; left_out = true; continue; }
+                    boxes[i].checked = all.checked;
+                    if (all.checked) { ticked++; }
+                  }
+                  document.getElementById('select-limit-note').style.display = left_out ? '' : 'none';
+                });
+              })();
+            </script>
+          </tal:block>
+        </tal:block>
+    </metal:block>
+</metal:block>

@@ -90,6 +90,8 @@ class EnvelopeRemoteServicesManager:
         ]
         return len(l_list)
 
+    security.declareProtected("View", "getFilesForSchema")
+
     def getFilesForSchema(self, schema_uri):
         """Return a list of Documents names in this envelope that are bound
         to the schema_uri.
@@ -499,6 +501,8 @@ class EnvelopeRemoteServicesManager:
                         (l_doc.absolute_url(), l_doc.title_or_id())
                     ]
         return l_ret_dict
+
+    security.declareProtected("View", "getXMLSchemas")
 
     def getXMLSchemas(self):
         """Gets all the schemas from the contained XML files"""
