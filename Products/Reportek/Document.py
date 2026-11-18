@@ -24,23 +24,34 @@ import hashlib
 import json
 import logging
 import os
+import copy
+import re
+import struct
+import tempfile
+import zlib
 from io import IOBase, StringIO
+from itertools import islice
 from os.path import join
 from time import time
+from urllib.parse import quote
+import zipfile
+from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, ZipFile
 
 import plone.protect.interfaces
+from plone.protect.interfaces import IDisableCSRFProtection
 
 # import RepUtils
 import requests
 import transaction
 import xmltodict
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from App.Common import package_home
 from zope.datetime import rfc1123_date
 from DateTime import DateTime
 from OFS.SimpleItem import SimpleItem
-from zExceptions import Redirect
+from zExceptions import BadRequest, NotFound, Redirect, Unauthorized
+from zope.component import getMultiAdapter
 from zope.contenttype import guess_content_type
 from zope.event import notify
 from zope.interface import alsoProvides, implementer
@@ -91,9 +102,134 @@ ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
 logger = logging.getLogger("Reportek")
 
+# The zip archives that are listed: by type, or by name for the types that are
+# used for anything (octet-stream)
+ZIP_CONTENT_TYPES = (
+    "application/zip",
+    "application/x-zip",
+    "application/x-zip-compressed",
+)
+# The biggest file of an archive that is sent. The file is read while it is
+# sent, so this bounds what a client can make the server decompress.
+ZIP_MEMBER_MAX_SIZE = 500 * 1024 * 1024
+# An archive that is stored compressed is decompressed into a temporary file,
+# that stays in memory up to this size
+ZIP_SPOOL_SIZE = 8 * 1024 * 1024
+# The biggest archive that is stored compressed that is read: it is decompressed
+# into a temporary file first
+ZIP_SPOOL_MAX_SIZE = 100 * 1024 * 1024
+# The most files of an archive that are listed on the page
+ZIP_MAX_LISTED = 1000
+ZIP_ENCRYPTED_FLAG = 0x1
+ZIP_UTF8_FLAG = 0x800
+# the mode of the files of an archive that is made: a plain file, rw-r--r--
+ZIP_FILE_ATTRIBUTES = 0o100644 << 16
+# The files that are chosen to download together: how many, and how big they are
+# together, as they are in the archive and as they are when they are unpacked
+ZIP_SELECTION_MAX_FILES = 100
+ZIP_SELECTION_MAX_SIZE = 500 * 1024 * 1024
+# The files of an archive are copied as they are, without being compressed or
+# decompressed, so these are the compressions that every program can read
+ZIP_COPY_METHODS = (ZIP_STORED, ZIP_DEFLATED)
+
 manage_addDocumentForm = PageTemplateFile(
     os.path.join(package_home(globals()), "zpt/document/add.zpt")
 )
+
+
+def _is_file(info):
+    """A file of a zip, not a folder."""
+    return bool(info.filename) and not info.is_dir()
+
+
+def _is_anonymous():
+    return getSecurityManager().getUser().getUserName() == "Anonymous User"
+
+
+def _is_safe_path(name):
+    """Whether a name of a file of an archive stays where it is unpacked: not an
+    absolute path, not a drive, no folder above. A program that unpacks an archive
+    does not always check it, and the archive that is made is ours."""
+    if name.startswith(("/", "\\")) or re.match(r"[A-Za-z]:", name):
+        return False
+    return ".." not in re.split(r"[\\/]", name)
+
+
+def _can_be_copied(info):
+    """Whether the file can be chosen to be downloaded with others."""
+    return (
+        not info.flag_bits & ZIP_ENCRYPTED_FLAG
+        and info.file_size <= ZIP_MEMBER_MAX_SIZE
+        and info.compress_type in ZIP_COPY_METHODS
+        and _is_safe_path(info.filename)
+    )
+
+
+def _dos_date_time(date_time):
+    year, month, day, hour, minute, second = date_time
+    return (
+        ((year - 1980) << 9) | (month << 5) | day,
+        (hour << 11) | (minute << 5) | (second // 2),
+    )
+
+
+def _base_name(path):
+    """The name of a file of a zip without the folders it is in."""
+    return re.split(r"[\\/]", path)[-1] or "file"
+
+
+def _attachment(filename):
+    """The Content-Disposition of a download: a name for the old clients that
+    has nothing in it that could end the header, and the real one."""
+    fallback = re.sub(r"[^A-Za-z0-9._ -]", "_", filename)
+    return "attachment; filename=\"%s\"; filename*=UTF-8''%s" % (
+        fallback,
+        quote(filename, safe=""),
+    )
+
+
+class ArchiveTooBig(ValueError):
+    """An archive that is stored compressed and is too big to read."""
+
+
+# What reading a file of a zip can raise when the file is damaged
+ZIP_MEMBER_ERRORS = (BadZipFile, zlib.error, EOFError)
+# What opening a zip can raise when the file is not one that can be read
+ZIP_READ_ERRORS = (BadZipFile, OSError, ValueError, StorageError, NotImplementedError)
+
+
+class ZipMemberReader:
+    """A file of a zip as the response needs it: read up to the size that the
+    zip says, and close. It is not a file on purpose: the server measures a
+    file by reading it to the end, which for this means decompressing it."""
+
+    def __init__(self, member, size, close_archive):
+        self._member = member
+        self._left = size
+        self._close_archive = close_archive
+        self._closed = False
+
+    def read(self, size=-1):
+        if self._left <= 0:
+            return b""
+        if size is None or size < 0 or size > self._left:
+            size = self._left
+        chunk = self._member.read(size)
+        if not chunk:
+            # the length was sent already: a file that ends early must break
+            # the download, not be taken for a shorter one
+            raise BadZipFile("The file in the archive is shorter than it says")
+        self._left -= len(chunk)
+        return chunk
+
+    def close(self):
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            self._member.close()
+        finally:
+            self._close_archive()
 
 
 def error_message(ctx, message, action=None, REQUEST=None):
@@ -451,6 +587,409 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             size,
             self.data_file.mtime,
         )
+
+    security.declareProtected("View", "is_zip")
+
+    @zpublish(False)
+    def is_zip(self):
+        """Whether the file is a zip archive, by its type or by its name."""
+        return self.content_type in ZIP_CONTENT_TYPES or self.id.lower().endswith(
+            ".zip"
+        )
+
+    security.declarePublic("can_browse_zip")
+
+    @zpublish(False)
+    def can_browse_zip(self):
+        """Whether the user can list the files of this archive and get them:
+        a user that is logged in, who can view the file."""
+        return bool(
+            self.is_zip()
+            and not _is_anonymous()
+            and self.canViewContent()
+            and getSecurityManager().checkPermission("View", self)
+        )
+
+    def _check_zip_access(self):
+        """The same rules as the zip of an envelope: not for a user that is not
+        logged in (a crawler could follow a link for each file of each archive)
+        and only where the content of the envelope can be seen. The permission to
+        view the file is the one of the methods."""
+        if _is_anonymous():
+            raise Unauthorized("You must log in to see the files of an archive")
+        if not self.canViewContent():
+            raise Unauthorized("The files of the envelope are not available")
+
+    def _open_zip(self):
+        """Open the stored file as a zip archive.
+
+        Return the archive and the function that closes it and what is under
+        it. A zip is read from its end, so the file has to be one that can seek:
+        a file that is stored compressed can only seek by being read, so it is
+        decompressed once into a temporary file.
+        """
+        compressed = self.data_file.compressed_safe
+        if compressed and self.data_file.size > ZIP_SPOOL_MAX_SIZE:
+            raise ArchiveTooBig("The archive is stored compressed and is too big")
+        handle = self.data_file.open()
+        spool = None
+        try:
+            source = handle
+            if compressed:
+                spool = tempfile.SpooledTemporaryFile(max_size=ZIP_SPOOL_SIZE)
+                for chunk in RepUtils.iter_file_data(handle):
+                    spool.write(chunk)
+                source = spool
+            archive = ZipFile(source)
+        except BaseException:
+            if spool is not None:
+                spool.close()
+            handle.close()
+            raise
+
+        def close():
+            try:
+                archive.close()
+            finally:
+                if spool is not None:
+                    spool.close()
+                handle.close()
+
+        return archive, close
+
+    security.declareProtected("View", "zip_member_url")
+
+    @zpublish(False)
+    def zip_member_url(self, name):
+        return "%s/zip_member?name=%s" % (self.absolute_url(), quote(name, safe=""))
+
+    security.declareProtected("View", "get_zip_members")
+
+    @zpublish(False)
+    def get_zip_members(self):
+        """The files of the zip archive, with the folders they are in as part of
+        the name and without the folders themselves, as dictionaries with the
+        name, the size and the link to it.
+
+        Only the end of the archive is read, where the list is kept, so the
+        cost does not depend on how big the files are.
+        """
+        if not self.is_zip():
+            return []
+        try:
+            archive, close = self._open_zip()
+        except ZIP_READ_ERRORS:
+            logger.warning("Cannot read the zip %s", self.absolute_url(), exc_info=True)
+            return []
+        try:
+            # by name, as the archive can have a name twice and a name opens the
+            # last one
+            infos = {i.filename: i for i in archive.infolist() if _is_file(i)}
+            return [
+                {
+                    "name": info.filename,
+                    "size": info.file_size,
+                    "human_size": FileContainer.human_readable(info.file_size),
+                    "url": self.zip_member_url(info.filename),
+                    "encrypted": bool(info.flag_bits & ZIP_ENCRYPTED_FLAG),
+                    "too_big": info.file_size > ZIP_MEMBER_MAX_SIZE,
+                    "selectable": _can_be_copied(info),
+                }
+                for info in islice(infos.values(), ZIP_MAX_LISTED)
+            ]
+        finally:
+            close()
+
+    security.declareProtected("View", "zip_selection_limit")
+
+    @zpublish(False)
+    def zip_selection_limit(self):
+        """The most files that are downloaded together."""
+        return ZIP_SELECTION_MAX_FILES
+
+    security.declareProtected("View", "zip_listing_limit")
+
+    @zpublish(False)
+    def zip_listing_limit(self):
+        """The most files of an archive that the page lists."""
+        return ZIP_MAX_LISTED
+
+    _zip_contents_template = PageTemplateFile(
+        os.path.join(package_home(globals()), "zpt/document/zip_contents.zpt")
+    )
+
+    security.declareProtected("View", "zip_contents")
+
+    def zip_contents(self, REQUEST=None):
+        """The files of the zip archive, to download one at a time."""
+        self._check_zip_access()
+        return self._zip_contents_template()
+
+    security.declareProtected("View", "zip_member")
+
+    def zip_member(self, name, REQUEST, RESPONSE):
+        """Send one file of the zip archive.
+
+        The file is copied into a temporary file first, that is in memory up to
+        ZIP_SPOOL_SIZE, and the server sends that one, so that no thread waits
+        for a slow client (a damaged file is found before anything is sent too).
+        """
+        self._check_zip_access()
+        if not self.is_zip() or not isinstance(name, str):
+            raise NotFound("The file is not a zip archive or has no such file")
+        try:
+            archive, close = self._open_zip()
+        except ArchiveTooBig as e:
+            raise BadRequest(str(e))
+        except ZIP_READ_ERRORS:
+            logger.warning("Cannot read the zip %s", self.absolute_url(), exc_info=True)
+            raise NotFound("The file is not a zip archive")
+        try:
+            try:
+                info = archive.getinfo(name)
+            except KeyError:
+                raise NotFound("There is no such file in the archive")
+            if not _is_file(info):
+                raise NotFound("There is no such file in the archive")
+            if info.flag_bits & ZIP_ENCRYPTED_FLAG:
+                raise BadRequest("The file is encrypted")
+            if info.file_size > ZIP_MEMBER_MAX_SIZE:
+                raise BadRequest("The file is too big to download from the archive")
+            spool = self._spool_member(archive, info)
+        finally:
+            close()
+        content_type = guess_content_type(info.filename)[0]
+        if content_type in (None, "text/x-unknown-content-type"):
+            content_type = "application/octet-stream"
+        try:
+            RESPONSE.setHeader(
+                "Content-Disposition", _attachment(_base_name(info.filename))
+            )
+            RESPONSE.setHeader("X-Content-Type-Options", "nosniff")
+        except BaseException:
+            spool.close()
+            raise
+        return RepUtils.http_response_with_file(
+            REQUEST,
+            RESPONSE,
+            spool,
+            content_type,
+            info.file_size,
+            self.data_file.mtime,
+        )
+
+    def _spool_member(self, archive, info):
+        """Copy one file of the archive into a temporary file, that stays in
+        memory when it is small and goes to the zip cache when it is not, and
+        return it, at its start. What is read is never more than the entry says."""
+        spool = tempfile.SpooledTemporaryFile(
+            max_size=ZIP_SPOOL_SIZE, dir=str(RepUtils.get_zip_cache())
+        )
+        try:
+            try:
+                with archive.open(info) as member:
+                    reader = ZipMemberReader(member, info.file_size, lambda: None)
+                    for chunk in RepUtils.iter_file_data(reader):
+                        spool.write(chunk)
+            except NotImplementedError:
+                raise BadRequest("The file in the archive cannot be read")
+            except ZIP_MEMBER_ERRORS:
+                logger.warning(
+                    "Damaged file %s in the zip %s",
+                    info.filename,
+                    self.absolute_url(),
+                    exc_info=True,
+                )
+                raise BadRequest("The file in the archive is damaged")
+            spool.seek(0)
+        except BaseException:
+            spool.close()
+            raise
+        return spool
+
+    security.declareProtected("View", "zip_selection")
+
+    def zip_selection(self, REQUEST, RESPONSE, names=None):
+        """Send some of the files of the zip archive as a new zip archive (one
+        file is sent as it is).
+
+        The files are copied as they are in the archive, compressed: nothing is
+        compressed or decompressed, so the work is the one of reading and
+        writing the bytes. The checksums are the ones of the archive, a program
+        that unpacks the new archive finds a file that is damaged.
+        """
+        self._check_zip_access()
+        if REQUEST.method != "POST":
+            raise BadRequest("The files are chosen with a POST request")
+        if not IDisableCSRFProtection.providedBy(REQUEST):
+            authenticator = getMultiAdapter((self, REQUEST), name="authenticator")
+            if not authenticator.verify("zip_selection"):
+                raise Unauthorized("Unable to verify authenticator")
+        if isinstance(names, str):
+            names = [names] if names else []
+        if not names or not all(isinstance(name, str) for name in names):
+            raise BadRequest("Choose at least one file")
+        # in the order of the choice, once each
+        names = list(dict.fromkeys(names))
+        if len(names) > ZIP_SELECTION_MAX_FILES:
+            raise BadRequest(
+                "Choose at most %d files at a time" % ZIP_SELECTION_MAX_FILES
+            )
+        if len(names) == 1:
+            # one file is sent as it is, not in a zip archive of its own
+            return self.zip_member(names[0], REQUEST, RESPONSE)
+        if not self.is_zip():
+            raise NotFound("The file is not a zip archive")
+        try:
+            archive, close = self._open_zip()
+        except ArchiveTooBig as e:
+            raise BadRequest(str(e))
+        except ZIP_READ_ERRORS:
+            logger.warning("Cannot read the zip %s", self.absolute_url(), exc_info=True)
+            raise NotFound("The file is not a zip archive")
+        try:
+            infos = self._chosen_infos(archive, names)
+            spool = self._copy_chosen(archive, infos)
+        finally:
+            close()
+        try:
+            spool.seek(0, 2)
+            size = spool.tell()
+            spool.seek(0)
+            stem = self.id[:-4] if self.id.lower().endswith(".zip") else self.id
+            RESPONSE.setHeader(
+                "Content-Disposition", _attachment("%s-selection.zip" % stem)
+            )
+            RESPONSE.setHeader("X-Content-Type-Options", "nosniff")
+        except BaseException:
+            spool.close()
+            raise
+        return RepUtils.http_response_with_file(
+            REQUEST, RESPONSE, spool, "application/zip", size, self.data_file.mtime
+        )
+
+    def _chosen_infos(self, archive, names):
+        """The entries of the files that are chosen, when they can be copied."""
+        infos = []
+        offsets = set()
+        size = compressed = 0
+        for name in names:
+            try:
+                info = archive.getinfo(name)
+            except KeyError:
+                raise NotFound("There is no such file in the archive")
+            if not _is_file(info):
+                raise NotFound("There is no such file in the archive")
+            if info.flag_bits & ZIP_ENCRYPTED_FLAG:
+                raise BadRequest("A file is encrypted")
+            if info.file_size > ZIP_MEMBER_MAX_SIZE:
+                raise BadRequest("A file is too big to download from the archive")
+            if info.compress_type not in ZIP_COPY_METHODS:
+                raise BadRequest("A file is compressed in a way that cannot be copied")
+            if not _is_safe_path(info.filename):
+                raise BadRequest("A file has a name that is not safe to unpack")
+            if info.header_offset in offsets:
+                # two files never share their bytes, but an archive that is made
+                # to be bigger when it is read could have them
+                raise BadRequest("The archive is damaged")
+            offsets.add(info.header_offset)
+            size += info.file_size
+            compressed += info.compress_size
+            if max(size, compressed) > ZIP_SELECTION_MAX_SIZE:
+                raise BadRequest("The files are too big to download together")
+            infos.append(info)
+        return infos
+
+    def _copy_chosen(self, archive, infos):
+        """Write a zip archive with the compressed data of the entries, as it is
+        in the archive: a header for each file, its bytes, then the directory."""
+        out = tempfile.SpooledTemporaryFile(
+            max_size=ZIP_SPOOL_SIZE, dir=str(RepUtils.get_zip_cache())
+        )
+        try:
+            entries = []
+            for info in infos:
+                entry = copy.copy(info)
+                # a name in UTF-8, no extra data, no data descriptor: the sizes
+                # and the checksum are the ones of the directory
+                entry.flag_bits = 0
+                entry.extra = b""
+                entry.comment = b""
+                # a plain file: the permissions of the source (a link, a program)
+                # are not passed on
+                entry.create_system = 3
+                entry.external_attr = ZIP_FILE_ATTRIBUTES
+                entry.internal_attr = 0
+                entry.create_version = entry.extract_version = 20
+                entry.header_offset = out.tell()
+                out.write(entry.FileHeader(False))
+                self._copy_compressed(archive.fp, info, out)
+                entries.append(entry)
+            start = out.tell()
+            for entry in entries:
+                name, flags = entry._encodeFilenameFlags()
+                date, time = _dos_date_time(entry.date_time)
+                out.write(
+                    struct.pack(
+                        zipfile.structCentralDir,
+                        zipfile.stringCentralDir,
+                        entry.create_version,
+                        entry.create_system,
+                        entry.extract_version,
+                        entry.reserved,
+                        flags,
+                        entry.compress_type,
+                        time,
+                        date,
+                        entry.CRC,
+                        entry.compress_size,
+                        entry.file_size,
+                        len(name),
+                        0,
+                        0,
+                        0,
+                        entry.internal_attr,
+                        entry.external_attr,
+                        entry.header_offset,
+                    )
+                    + name
+                )
+            out.write(
+                struct.pack(
+                    zipfile.structEndArchive,
+                    zipfile.stringEndArchive,
+                    0,
+                    0,
+                    len(entries),
+                    len(entries),
+                    out.tell() - start,
+                    start,
+                    0,
+                )
+            )
+        except BaseException:
+            out.close()
+            raise
+        return out
+
+    def _copy_compressed(self, source, info, out):
+        """Copy the compressed bytes of an entry of the archive to `out`."""
+        source.seek(info.header_offset)
+        header = source.read(zipfile.sizeFileHeader)
+        if len(header) != zipfile.sizeFileHeader:
+            raise BadRequest("The file in the archive is damaged")
+        header = struct.unpack(zipfile.structFileHeader, header)
+        if header[0] != zipfile.stringFileHeader:
+            raise BadRequest("The file in the archive is damaged")
+        # the lengths of the name and of the extra data of the header of the file
+        source.seek(header[10] + header[11], 1)
+        left = info.compress_size
+        while left:
+            chunk = source.read(min(left, 131072))
+            if not chunk:
+                raise BadRequest("The file in the archive is damaged")
+            out.write(chunk)
+            left -= len(chunk)
 
     security.declarePublic("isGML")
 
