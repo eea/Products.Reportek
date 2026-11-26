@@ -22,7 +22,7 @@ class UNSSettingsTest(unittest.TestCase):
 
         self.klass = ReportekEngine
         self.engine = ReportekEngine()
-        self.engine.UNS_password = "old-secret"
+        self.engine.UNS_password = "old-secret"  # betterleaks:allow (test fixture)
 
     def edit(self, password, confirmation):
         return self.engine.manage_editUNSInterface(
@@ -80,7 +80,7 @@ class EnginePropertiesUpdateTest(unittest.TestCase):
 
         self.root = create_fake_root()
         engine = ReportekEngine()
-        engine.UNS_password = "secret"
+        engine.UNS_password = "secret"  # betterleaks:allow (test fixture)
         setattr(self.root, constants.ENGINE_ID, engine)
         self.engine = engine
 

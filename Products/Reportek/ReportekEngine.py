@@ -2393,9 +2393,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     ):
         """Edit the UNS related properties
 
-        The form never shows the stored password: leaving both password
-        fields empty keeps it, UNS_password_clear removes it. Emptying the
-        server URL stops the calls to UNS.
+        The form never shows the stored password. It is kept when both
+        password fields are left empty and removed with UNS_password_clear.
+        Emptying the server URL stops the calls to UNS.
         """
         if UNS_password != UNS_password_confirmation:
             if REQUEST is not None:

@@ -15,6 +15,13 @@ regexTarget = "match"
 regexes = ['''Password:''']
 
 [[allowlists]]
+description = "UNS settings form: the remove-password checkbox field name"
+condition = "AND"
+paths = ['''(^|/)Products/Reportek/zpt/engine/unsinterface\.zpt$''']
+regexTarget = "match"
+regexes = ['''UNS_password_clear:boolean''']
+
+[[allowlists]]
 description = "ZZipFile: pwd is the zip password parameter name"
 condition = "AND"
 paths = ['''(^|/)Products/Reportek/zip_content\.py$''']
