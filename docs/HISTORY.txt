@@ -3,19 +3,9 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
-* security: local QA scripts and in-process converters are removed; both ran
-        a command line stored in the ZODB on the Zope host (QAScript
-        script_url, Converter convert_url, with their extra parameters
-        evaluated as Python), so anyone allowed to add or edit one could run
-        any command there. QA runs only in the QA application (new module qa), conversions only in
-        the local-converters service or remotely; /QARepository is no longer
-        created, QAScript and Converter can no longer be added, and the old
-        classes are kept only so that existing data still loads. The QA
-        application path is read from the engine's QA_application property.
-        Update u20261125_retire_local_qa copies that path over and removes
-        /QARepository and any stored Converter objects; it refuses to delete
-        a non-empty /QARepository unless called with confirm_exported=True;
-        add tests
+* fix: BDR, improve the collection access checks; add tests
+* security: remove local QA scripts and in-process converters; add update
+        u20261125_retire_local_qa; add tests
 
 101.5 - (2026-11-18)
 --------------------

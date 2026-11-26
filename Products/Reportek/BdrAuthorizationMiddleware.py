@@ -29,6 +29,20 @@ def _paths_key(fun, self, username, userdata=None, recheck_interval=300):
 PATHS = (__name__, "_cachedUserCollectionPaths")
 
 
+def is_within(path, granted):
+    """Whether ``path`` is the object at ``granted`` or one inside it.
+
+    A missing path (the registry could not build one) covers nothing.
+    """
+    if not path or not granted:
+        return False
+    path = path.strip("/")
+    granted = granted.strip("/")
+    if not granted:
+        return False
+    return path == granted or path.startswith(granted + "/")
+
+
 class BdrAuthorizationMiddleware(SimpleItem):
     recheck_interval = 300
 
@@ -109,13 +123,13 @@ class BdrAuthorizationMiddleware(SimpleItem):
             username, userdata=userdata, recheck_interval=self.recheck_interval
         )
         for ap in accessiblePaths.get("paths"):
-            if ap in path:
+            if is_within(path, ap):
                 return "RW"
         for ap in accessiblePaths.get("prev_paths"):
-            if ap in path:
+            if is_within(path, ap):
                 return "RO"
         for ap in accessiblePaths.get("audit_paths"):
-            if ap in path:
+            if is_within(path, ap):
                 return "AUDIT"
         return False
 
