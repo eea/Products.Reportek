@@ -40,7 +40,6 @@ from datetime import datetime
 from gzip import GzipFile
 from io import IOBase
 from pathlib import Path
-from urllib.request import FancyURLopener
 
 from zExceptions import Forbidden
 from AccessControl.ImplPython import rolesForPermissionOn
@@ -305,15 +304,6 @@ def asciiEncode(p_value):
         return ""
 
 
-def utRead(file):
-    """Open file on local or remote system."""
-    if "http" in file:
-        opener = FancyURLopener()
-        f = opener.open(file)
-    else:
-        f = open(file, "rb+")
-    return f
-
 
 def utf8Encode(p_str):
     """encodes a string to UTF-8"""
@@ -455,19 +445,6 @@ def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
         l_temp.reverse()
     return list(map(operator.getitem, l_temp, (-2,) * len(l_temp)))
 
-
-def utGrabFromUrl(p_url):
-    """Takes a file from a remote server"""
-    from urllib.request import URLopener
-
-    try:
-        l_opener = URLopener()
-        l_file = l_opener.open(p_url)
-        ctype = l_file.headers["Content-Type"]
-        l_opener.close()
-        return (l_file.read(), ctype)
-    except Exception:
-        return (None, "text/x-unknown-content-type")
 
 
 def parse_template(template, dict={}):

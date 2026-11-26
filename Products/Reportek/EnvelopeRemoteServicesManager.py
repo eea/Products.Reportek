@@ -451,31 +451,6 @@ class EnvelopeRemoteServicesManager:
             REQUEST.RESPONSE.write(("0" + str(err)).encode("utf-8"))
             return "0"
 
-    security.declareProtected(change_envelopes, "fetchFile")
-
-    def fetchFile(self, p_location="", p_file_name="", REQUEST=None):
-        """Grabbs a file from a certain location and uploads it as
-        Report Document
-        """
-        l_file, l_content_type = RepUtils.utGrabFromUrl(p_location)
-        if l_file is None:
-            if REQUEST is not None:
-                return self.messageDialog(
-                    message="Error fetching the file at: " + p_location + "!",
-                    action=self.absolute_url(),
-                )
-            return 0
-        if hasattr(self, p_file_name):
-            self.manage_delObjects(p_file_name)
-        self.manage_addDocument(
-            id=p_file_name, file=l_file, content_type=l_content_type
-        )
-        if REQUEST is not None:
-            return self.messageDialog(
-                message="File successfully fetched!",
-                action=self.absolute_url(),
-            )
-
     security.declareProtected("View", "getXMLFiles")
 
     def getXMLFiles(self):

@@ -4,6 +4,7 @@ Changelog
 101.6-dev0 - (unreleased)
 ---------------------------
 * fix: BDR, improve the collection access checks; add tests
+* security: remove fetchFile
 * security: remove local QA scripts and in-process converters; add update
         u20261125_retire_local_qa; add tests
 
