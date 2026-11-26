@@ -413,3 +413,101 @@ class MigrationTableTest(unittest.TestCase):
         self.engine.REQUEST = Mock(form={})
         self.assertEqual(self.engine.migration_table(), "page")
         self.importlib.import_module.assert_not_called()
+
+
+X = "python: 6*7"
+TAL = "http://xml.zope.org/namespaces/tal"
+
+
+class SafeToCompileTest(unittest.TestCase):
+    def check(self, html):
+        from Products.Reportek.Feedback import is_safe_to_compile
+
+        return is_safe_to_compile(html)
+
+    def test_feedback_markup_is_compiled(self):
+        for html in (
+            "",
+            "plain text: 3 errors, 100% done, a = b",
+            # BDR QA feedback
+            '<div xmlns:i18n="http://namespaces.zope.org/i18n"><p class="x" '
+            'i18n:translate="">Found <span i18n:name="n">3</span></p></div>',
+            '<p xmlns:i8n="http://namespaces.zope.org/i8n" i8n:translate="">a</p>',
+            "<script>function toggle(divName, linkName) { if (a > b) {} }</script>"
+            "<a href=\"javascript:toggle('d', 'l')\">x</a>",
+            # CDR QA feedback quoting reported data
+            '<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            'xsi:schemaLocation="a b">x</r>',
+            '<td aqd:change="true">x</td>',
+            '<rsm:NationalID xmlns:rsm="urn:eu:com:env:prtr:data:standard:2">'
+            "1</rsm:NationalID>",
+            '<?xml:namespace prefix = o ns = "urn:schemas-microsoft-com:office:'
+            'office" /><o:p>w</o:p>',
+            '<?xml version="1.0"?><p xmlns="http://www.w3.org/1999/xhtml">x</p>',
+            # inert: the engine interpolates nothing in feedback
+            "<script>var s = `${a}`;</script><p>${b}</p>",
+            "<p>total: 5</p><p>metal: iron</p><td>tal:foo</td>",
+        ):
+            self.assertTrue(self.check(html), html)
+
+    def test_template_code_is_not_compiled(self):
+        for html in (
+            '<p tal:content="%s">a</p>' % X,
+            '<p TAL:content="%s">a</p>' % X,
+            "<p tal:content=python:6*7>a</p>",
+            '<p/tal:content="%s">a</p>' % X,
+            '<p a="1"tal:content="%s">a</p>' % X,
+            '<p tal:con i18n:data="1"tent="%s">a</p>' % X,
+            '<tal:x replace="%s">c</tal:x>' % X,
+            '<metal:block define-macro="m">x</metal:block>',
+            '<div metal:use-macro="here/x">y</div>',
+            '<p meta:interpolation="true">${%s}</p>' % X,
+            '<i18n:x translate="">a</i18n:x>',
+            '<p i18n:translate="" i18n:data="%s">a</p>' % X,
+            '<p data-tal-content="%s">a</p>' % X,
+            '<p DATA-METAL-use-macro="x">a</p>',
+            "a<?python x = 1 ?>b",
+        ):
+            self.assertFalse(self.check(html), html)
+
+    def test_template_namespaces_under_any_prefix(self):
+        for uri in (
+            TAL,
+            TAL + "/",
+            " %s " % TAL,
+            TAL.upper(),
+            "http://xml.zope.org/namespaces/metal",
+            "http://xml.zope.org/namespaces/i18n",
+            "http://xml.zope.org/namespaces/meta",
+            "http://xml.zope.org/namespaces/&#116;al",
+            "http://xml.zope.org/namespaces/&#x74;&#x61;l",
+            "http:&#47;&#47;xml.zope.org&#47;namespaces&#47;tal",
+        ):
+            for html in (
+                '<p xmlns:z="%s" z:content="%s">a</p>' % (uri, X),
+                "<p xmlns:z='%s' z:content='%s'>a</p>" % (uri, X),
+                '<p xmlns="%s">a</p>' % uri,
+            ):
+                self.assertFalse(self.check(html), html)
+        # unquoted, unclosed, spaced or upper case declarations
+        for html in (
+            '<p xmlns:z=%s z:content="%s">a</p>' % (TAL, X),
+            '<p xmlns:z="%s z:content="%s">a</p>' % (TAL, X),
+            '<p xmlns:z = "%s" z:content="%s">a</p>' % (TAL, X),
+            '<p XMLNS:z="%s" z:content="%s">a</p>' % (TAL, X),
+        ):
+            self.assertFalse(self.check(html), html)
+
+    def test_runs_in_linear_time(self):
+        import time
+
+        for html in (
+            "<p" + " " * 40000,
+            "a:b=" * 40000,
+            ' xmlns:a="x"' * 20000,
+            ' xmlns:a="' * 20000,
+            "<a:" * 40000,
+        ):
+            started = time.time()
+            self.check(html)
+            self.assertLess(time.time() - started, 1, html[:20])

@@ -29,8 +29,10 @@ Feedback objects are sub-objects of Report Envelopes.
 
 # $Id$
 
+import html as html_module
 import json
 import logging
+import re
 import tempfile
 from io import StringIO
 
@@ -236,6 +238,70 @@ def manage_addManualQAFeedback(
             message="The Feedback %s was successfully created!" % id,
             action=self.absolute_url(),
         )
+
+
+# Feedback text is compiled as a page template so that its i18n markup is
+# translated. A page template runs code only through the namespaces of the
+# template engine (tal, metal, i18n and meta, all under
+# http://xml.zope.org/namespaces/): text that could reach them is shown as it
+# is, everything else (the namespaces of reported data included) is compiled.
+_TEMPLATE_NAMESPACE = re.compile(
+    r"xml\.zope\.org/namespaces|genshi\.edgewall\.org", re.I
+)
+# the prefixes the engine binds to its namespaces without a declaration
+_TEMPLATE_PREFIXES = frozenset({"tal", "metal", "meta"})
+_I18N_PREFIX = "i18n"
+# i18n attributes that only name messages; the others hold expressions
+_MESSAGE_ATTRIBUTES = frozenset(
+    {
+        "translate",
+        "name",
+        "domain",
+        "attributes",
+        "comment",
+        "ignore",
+        "ignore-attributes",
+    }
+)
+_NOT_IN_A_NAME = r"(?<![\w.:-])"
+_PREFIXED_ATTRIBUTE = re.compile(_NOT_IN_A_NAME + r"([\w.-]+):([\w.-]+)\s*=")
+_PREFIXED_ELEMENT = re.compile(r"</?([\w.-]+):")
+_XMLNS = re.compile(_NOT_IN_A_NAME + r"xmlns(?::[\w.-]+)?\s*=", re.I)
+_XMLNS_DECLARATION = re.compile(
+    _NOT_IN_A_NAME + r"""xmlns(?::[\w.-]+)?\s*=\s*("[^"]*"|'[^']*'|[^\s>"']+)""",
+    re.I,
+)
+# data-tal-content and the like, when the engine's data attributes are on
+_DATA_ATTRIBUTE = re.compile(_NOT_IN_A_NAME + r"data-(?:tal|metal|i18n|meta)-", re.I)
+# processing instructions other than <?xml ...>, such as <?python ... ?>
+_PROCESSING_INSTRUCTION = re.compile(r"<\?(?!xml)", re.I)
+
+
+def is_safe_to_compile(html):
+    """Whether ``html`` can be compiled as a page template without running
+    anything: none of its markup reaches the template engine's namespaces,
+    apart from the i18n attributes that name messages.
+    """
+    if _PROCESSING_INSTRUCTION.search(html) or _DATA_ATTRIBUTE.search(html):
+        return False
+    for prefix in _PREFIXED_ELEMENT.findall(html):
+        prefix = prefix.lower()
+        if prefix in _TEMPLATE_PREFIXES or prefix == _I18N_PREFIX:
+            return False
+    declarations = _XMLNS_DECLARATION.findall(html)
+    if len(declarations) != len(_XMLNS.findall(html)):
+        return False
+    for value in declarations:
+        # the template engine decodes character references in the URI
+        if _TEMPLATE_NAMESPACE.search(html_module.unescape(value)):
+            return False
+    for prefix, name in _PREFIXED_ATTRIBUTE.findall(html):
+        prefix = prefix.lower()
+        if prefix in _TEMPLATE_PREFIXES:
+            return False
+        if prefix == _I18N_PREFIX and name.lower() not in _MESSAGE_ATTRIBUTES:
+            return False
+    return True
 
 
 @implementer(IFeedback, IFeedbackHistory)
@@ -572,6 +638,8 @@ class ReportFeedback(
 
     def renderFeedbacktext(self):
         feedbacktext = ensure_text(self.feedbacktext)
+        if not is_safe_to_compile(feedbacktext):
+            return feedbacktext
         pt = ZopePageTemplate(self.id + "_tmp")
         pt.write(feedbacktext)
         try:

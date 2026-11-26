@@ -129,6 +129,50 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         self.assertIsInstance(rendered, str)
         self.assertIn("smałl html feedback", rendered)
 
+    def test_render_feedbacktext_runs_no_template_code(self):
+        self.create_feedback()
+        self.feedback.feedbacktext = (
+            '<div xmlns:z="http://xml.zope.org/namespaces/tal">'
+            '<p tal:content="python: 6*7">a</p><p z:content="python: 6*8">b</p>'
+            '<tal:x replace="python: 6*9">c</tal:x></div>'
+        )
+
+        rendered = self.feedback.renderFeedbacktext()
+
+        for value in ("42", "48", "54"):
+            self.assertNotIn(value, rendered)
+        # not compiled: shown as it is stored
+        self.assertEqual(rendered, self.feedback.feedbacktext)
+
+    def render(self, text):
+        self.create_feedback()
+        self.feedback.feedbacktext = text
+        with patch("Products.Reportek.Feedback.logger") as logger:
+            rendered = self.feedback.renderFeedbacktext()
+        # compiled, not the raw text of the fallback
+        logger.warning.assert_not_called()
+        return rendered
+
+    def test_render_feedbacktext_keeps_qa_markup(self):
+        # as QA feedback is stored: i18n declared with the zcml namespace
+        rendered = self.render(
+            '<div xmlns:i18n="http://namespaces.zope.org/i18n">'
+            '<p i18n:translate="">Check passed</p>'
+            '<p i18n:translate="">Found <span i18n:name="n">3</span> errors</p>'
+            "<script>function toggle(divName, linkName) { return 1; }</script>"
+            "<a href=\"javascript:toggle('d1', 'l1')\">show</a></div>"
+        )
+        self.assertIn('<p i18n:translate="">Check passed</p>', rendered)
+        self.assertIn("function toggle(divName, linkName)", rendered)
+        self.assertIn("javascript:toggle('d1', 'l1')", rendered)
+
+    def test_render_feedbacktext_still_processes_i18n(self):
+        rendered = self.render(
+            '<p i18n:translate="">Found <span i18n:name="n">3</span> errors</p>'
+        )
+        self.assertNotIn("i18n:", rendered)
+        self.assertIn("Found <span>3</span> errors", rendered)
+
     def testZipNational(self):
         self.testNationalChars()
         self.app.REQUEST.method = "POST"

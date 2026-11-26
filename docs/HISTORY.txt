@@ -3,6 +3,7 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: harden the rendering of feedback text; add tests
 * security: tighten permission checks on envelope zip and export, QA runs,
         actor subscriptions and migrations; validate redirect URLs; add tests
 * security: harden the UNS settings, role management, QA result pages and
