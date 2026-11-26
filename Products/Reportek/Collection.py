@@ -889,6 +889,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def messageDialog(self, message="", action="", params=None, REQUEST=None):
         """displays a message dialog"""
+        if action:
+            # the dialog's OK goes there: only on this site
+            action = RepUtils.safe_redirect_url(action, self)
         return self.message_dialog(message=message, action=action, params=params)
 
     message_dialog = PageTemplateFile(

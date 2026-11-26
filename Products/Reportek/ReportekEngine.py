@@ -54,7 +54,7 @@ from DateTime import DateTime
 # Zope imports
 from OFS.Folder import Folder
 from plone.memoize import ram
-from zExceptions import Unauthorized
+from zExceptions import BadRequest, Unauthorized
 from ZPublisher import zpublish
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
@@ -1738,8 +1738,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             workitems.object_list = [ob.getObject() for ob in workitems.object_list]
             return workitems
 
+    security.declareProtected("View", "zipEnvelopes")
+
     def zipEnvelopes(self, envelopes=[], REQUEST=None, RESPONSE=None):
-        """Zip several envelopes together with the metadata"""
+        """Zip several envelopes together with the metadata
+
+        Only the released envelopes the user can view are added, and their
+        history only for logged in users, as on the envelope.
+        """
         from . import zip_content
 
         envelopes = RepUtils.utConvertToList(envelopes)
@@ -1749,6 +1755,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         # get envelopes
         env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
+        security_manager = getSecurityManager()
+        with_history = security_manager.getUser().getUserName() != "Anonymous User"
 
         # The zip is built in a file that is removed when it is closed, with
         # the documents added as they are read. The file is the body of the
@@ -1759,7 +1767,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             with ZipFile(tmpfile, "w", ZIP_DEFLATED) as outzd:
                 for env_ob in env_objs:
-                    if env_ob is None:
+                    if env_ob is None or not security_manager.checkPermission(
+                        view, env_ob
+                    ):
                         continue
 
                     if env_ob.released:
@@ -1777,11 +1787,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                         for chunk in RepUtils.iter_file_data(doc_file):
                                             zip_entry.write(chunk)
 
-                        for name, content in (
+                        texts = [
                             ("metadata.txt", zip_content.get_metadata_content(env_ob)),
                             ("README.txt", zip_content.get_readme_content(env_ob)),
-                            ("history.txt", zip_content.get_history_content(env_ob)),
-                        ):
+                        ]
+                        if with_history:
+                            texts.append(
+                                (
+                                    "history.txt",
+                                    zip_content.get_history_content(env_ob),
+                                )
+                            )
+                        for name, content in texts:
                             if isinstance(content, str):
                                 content = content.encode("utf-8")
                             outzd.writestr(
@@ -2013,12 +2030,26 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """List all migrations applied to this deployment and their details"""
         do_update = self.REQUEST.form.get("update")
         if do_update:
+            if self.REQUEST["REQUEST_METHOD"] != "POST":
+                raise BadRequest("Updates are applied with POST.")
+            CheckAuthenticator(self.REQUEST)
+            done_rows, todo_rows = self._migration_rows()
+            pending = [row["name"] for row in todo_rows if row["applicable"]]
+            if do_update not in pending:
+                raise BadRequest("Not an update that can be applied here.")
             upd_module = importlib.import_module(
                 ".".join(["Products.Reportek.updates", do_update])
             )
             app = self.unrestrictedTraverse("/")
             upd_module.update(app)
 
+        done_rows, todo_rows = self._migration_rows()
+        return self._migration_table(
+            todo_migrationRows=todo_rows, done_migrationRows=done_rows
+        )
+
+    def _migration_rows(self):
+        """The applied updates and the ones not applied yet."""
         migs = getattr(self, constants.MIGRATION_ID)
         migs = sorted(migs.values(), key=lambda o: o.current_ts, reverse=True)
         done_rows = []
@@ -2057,9 +2088,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     }
                 )
         todo_rows = sorted(todo_rows, key=lambda o: o.get("version"), reverse=True)
-        return self._migration_table(
-            todo_migrationRows=todo_rows, done_migrationRows=done_rows
-        )
+        return done_rows, todo_rows
 
     _registry_cache = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/engine/registry_cache.zpt")
@@ -2685,6 +2714,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def messageDialog(self, message="", action="", REQUEST=None):
         """displays a message dialog"""
+        if action:
+            # the dialog's OK goes there: only on this site
+            action = RepUtils.safe_redirect_url(action, self)
         return self.message_dialog(message=message, action=action)
 
     message_dialog = PageTemplateFile(
@@ -3097,6 +3129,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 brains = catalog.searchResults(**catalog_args)
                 if brains:
                     env_objs = [brain.getObject() for brain in brains]
+
+        # only the envelopes the user can view
+        security_manager = getSecurityManager()
+        env_objs = [
+            obj
+            for obj in env_objs
+            if obj is not None and security_manager.checkPermission(view, obj)
+        ]
 
         wb = xlwt.Workbook()
         sheet = wb.add_sheet("Results")

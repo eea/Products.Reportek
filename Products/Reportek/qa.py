@@ -14,6 +14,8 @@ the path in ReportekEngine's ``QA_application`` property.
 import html
 import logging
 
+from AccessControl import Unauthorized, getSecurityManager
+from AccessControl.Permissions import view
 from Acquisition import aq_base
 
 from Products.Reportek.constants import (
@@ -98,6 +100,7 @@ def run_qa_script(context, file_url, script_id):
 
     Returns (file id, [content type, QAResult]). Only scripts of the QA
     application can run; ids of the removed local scripts are refused.
+    Raises Unauthorized when the user cannot view the file.
     """
     root = context.getPhysicalRoot()
     server_url = context.REQUEST.SERVER_URL
@@ -112,6 +115,9 @@ def run_qa_script(context, file_url, script_id):
     )
     if file_obj is None:
         return "", ["", QAResult("QA error")]
+    # as Converter.__call__: anonymous users are asked to log in
+    if not getSecurityManager().checkPermission(view, file_obj):
+        raise Unauthorized("You are not authorized to view this document")
 
     file_id = file_url.split("/")[-1]
     if script_id.startswith(LOCAL_SCRIPT_PREFIX):

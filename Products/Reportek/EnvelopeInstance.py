@@ -59,7 +59,11 @@ from Products.Reportek.rabbitmq import queue_msg
 from Products.Reportek.RemoteRabbitMQQAApplication import (
     RemoteRabbitMQQAApplication,
 )
-from Products.Reportek.RepUtils import getToolByName, refuse_when_frozen
+from Products.Reportek.RepUtils import (
+    getToolByName,
+    refuse_when_frozen,
+    safe_redirect_url,
+)
 from Products.Reportek.workitem import workitem
 from Products.Reportek.permissions import manage_openflow, use_openflow
 
@@ -378,7 +382,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.setStatus(status="suspended", actor=actor)
         if REQUEST:
             if "DestinationURL" in REQUEST:
-                REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+                REQUEST.RESPONSE.redirect(
+                    safe_redirect_url(REQUEST["DestinationURL"], self)
+                )
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
@@ -395,7 +401,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.old_status = ""
         if REQUEST:
             if "DestinationURL" in REQUEST:
-                REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+                REQUEST.RESPONSE.redirect(
+                    safe_redirect_url(REQUEST["DestinationURL"], self)
+                )
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
@@ -418,7 +426,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.REQUEST.RESPONSE.setHeader("Content-Type", CONTENT_TYPE_JSON)
                 return json.dumps(data, indent=4)
             if "DestinationURL" in self.REQUEST:
-                self.REQUEST.RESPONSE.redirect(self.REQUEST["DestinationURL"])
+                self.REQUEST.RESPONSE.redirect(
+                    safe_redirect_url(self.REQUEST["DestinationURL"], self)
+                )
             else:
                 self.REQUEST.RESPONSE.redirect(self.REQUEST["HTTP_REFERER"])
         return json.dumps(data, indent=4)
@@ -435,7 +445,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.setStatus(status="terminated", actor=actor)
         if REQUEST:
             if "DestinationURL" in REQUEST:
-                REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+                REQUEST.RESPONSE.redirect(
+                    safe_redirect_url(REQUEST["DestinationURL"], self)
+                )
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
@@ -458,7 +470,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         w = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.manageWorkitemCreation(w.id)
         if REQUEST and "DestinationURL" in REQUEST:
-            REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+            REQUEST.RESPONSE.redirect(
+                safe_redirect_url(REQUEST["DestinationURL"], self)
+            )
 
     def linkWorkitems(self, workitem_from_id, workitem_to_id_list):
         workitem_from = getattr(self, workitem_from_id)
@@ -894,7 +908,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.manageWorkitemCreation(w)
         if REQUEST:
             if "DestinationURL" in REQUEST:
-                REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+                REQUEST.RESPONSE.redirect(
+                    safe_redirect_url(REQUEST["DestinationURL"], self)
+                )
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
@@ -1012,7 +1028,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         self.manageWorkitemCreation(workitem_to.id)
         if REQUEST:
             if coming_from is not None:
-                REQUEST.RESPONSE.redirect(coming_from)
+                REQUEST.RESPONSE.redirect(safe_redirect_url(coming_from, self))
             else:
                 REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
@@ -1029,7 +1045,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             workitem.endFallin()
         if REQUEST:
             if "DestinationURL" in REQUEST:
-                REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+                REQUEST.RESPONSE.redirect(
+                    safe_redirect_url(REQUEST["DestinationURL"], self)
+                )
             else:
                 REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
 
@@ -1367,7 +1385,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.endFallinWorkitem(workitem_id=workitem_id, REQUEST=REQUEST)
             if REQUEST:
                 if "DestinationURL" in REQUEST:
-                    REQUEST.RESPONSE.redirect(REQUEST["DestinationURL"])
+                    REQUEST.RESPONSE.redirect(
+                        safe_redirect_url(REQUEST["DestinationURL"], self)
+                    )
                 else:
                     REQUEST.RESPONSE.redirect(REQUEST["HTTP_REFERER"])
         else:

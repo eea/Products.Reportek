@@ -39,7 +39,7 @@ import xmlrpc.client
 from xml.dom.minidom import parseString
 
 import transaction
-from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
 from DateTime import DateTime
@@ -1071,6 +1071,15 @@ class EnvelopeCustomDataflows(Toolz):
         envelope and subscribes them to receive notifications to a
         specified event if the parameter is provided
         """
+        # Workflow applications call it in whatever context the release runs;
+        # requested directly by URL it needs a logged in user.
+        request = getattr(self, "REQUEST", None)
+        published = request.get("PUBLISHED") if request is not None else None
+        if (
+            getattr(published, "__name__", None) == "subscribe_all_actors"
+            and getSecurityManager().getUser().getUserName() == "Anonymous User"
+        ):
+            raise Unauthorized("You must be logged in to subscribe actors.")
         engine = getattr(self, ENGINE_ID)
         if engine.UNS_server:
             actors = []

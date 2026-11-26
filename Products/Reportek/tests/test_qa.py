@@ -65,12 +65,12 @@ class QATestBase(BaseUnitTest):
         )
         self.envelope = create_envelope(self.root)
         self.envelope.getMySelf = Mock(side_effect=Exception("no process"))
-        self.doc = add_document(
-            self.envelope, create_upload_file("<a/>", "data.xml")
-        )
+        self.doc = add_document(self.envelope, create_upload_file("<a/>", "data.xml"))
         self.doc.xml_schema_location = "schema.xsd"
         self.mappings = Mock(getSchemasForDataflows=Mock(return_value=[]))
         setattr(self.root, constants.DATAFLOW_MAPPINGS, self.mappings)
+        # a public site: anonymous users can view the files
+        self.root.manage_permission("View", ["Anonymous"], acquire=1)
 
     def add_qa_application(self, path=("Applications", "QAApp")):
         parent = self.root
@@ -114,7 +114,9 @@ class GetQAApplicationTest(QATestBase):
         mapped = self.add_qa_application(("Mapped",))
         self.engine.QA_application = "Applications/QAApp"
         aqa = Mock(mapped_application_details=Mock(return_value={"path": "Mapped"}))
-        process = Mock(listActivities=Mock(return_value=["AutomaticQA"]), AutomaticQA=aqa)
+        process = Mock(
+            listActivities=Mock(return_value=["AutomaticQA"]), AutomaticQA=aqa
+        )
         self.envelope.getMySelf = Mock(
             return_value=Mock(getProcess=Mock(return_value=process))
         )
@@ -133,7 +135,9 @@ class CanRunQAOnFilesTest(QATestBase):
         )
         with patch.object(qa, "get_qa_application", return_value=qa_app):
             result = qa.can_run_qa_on_files(self.envelope, [self.doc])
-        self.assertEqual(result, {"data.xml": [["42", "Remote check", None, "10", "HTML"]]})
+        self.assertEqual(
+            result, {"data.xml": [["42", "Remote check", None, "10", "HTML"]]}
+        )
         qa_app.listQAScripts.assert_called_once_with("schema.xsd")
 
     def test_legacy_local_scripts_are_not_offered(self):
@@ -166,7 +170,9 @@ class RunQAScriptTest(QATestBase):
                 self.envelope, self.file_url, "42"
             )
         qa_app.runQAScript.assert_called_once_with(self.file_url, "42")
-        self.assertEqual((file_id, content_type, result.data), ("data.xml", "text/html", "ok"))
+        self.assertEqual(
+            (file_id, content_type, result.data), ("data.xml", "text/html", "ok")
+        )
 
     def test_local_script_ids_are_refused(self):
         add_legacy_repository(self.root, scripts=["script1"])
@@ -189,6 +195,16 @@ class RunQAScriptTest(QATestBase):
         with patch.object(qa, "get_qa_application", return_value=qa_app):
             file_id, (_, result) = qa.run_qa_script(self.envelope, "data.xml", "42")
         self.assertEqual((file_id, result.data), ("data.xml", "ok"))
+
+    def test_file_the_user_cannot_view_is_refused(self):
+        from zExceptions import Unauthorized
+
+        self.doc.manage_permission("View", ["Manager"], acquire=0)
+        qa_app = Mock()
+        with patch.object(qa, "get_qa_application", return_value=qa_app):
+            with self.assertRaises(Unauthorized):
+                qa.run_qa_script(self.envelope, self.file_url, "42")
+        qa_app.runQAScript.assert_not_called()
 
     def test_unknown_file(self):
         _, (_, result) = qa.run_qa_script(
@@ -275,7 +291,8 @@ class AutomaticQAWithoutLocalScriptsTest(BaseUnitTest):
         )
         app.runAutomaticLocalApps(workitem)
         self.assertEqual(
-            workitem.the_app["localQA"], {"data.xml": {"script2": "done"}, "old.xml": {}}
+            workitem.the_app["localQA"],
+            {"data.xml": {"script2": "done"}, "old.xml": {}},
         )
         self.assertTrue(workitem._p_changed)
         # nothing pending any more, so a failed remote analyze can finish

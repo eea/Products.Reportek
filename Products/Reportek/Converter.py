@@ -79,8 +79,10 @@ def validate_file_url(file_url):
     Only relative Zope paths are allowed. Absolute URLs with a scheme
     (e.g. http://, https://, ftp://) are rejected.
     """
-    if file_url and isinstance(file_url, str) and _SCHEME_RE.match(file_url):
-        raise BadRequest("External URLs are not allowed in the file parameter.")
+    if file_url and isinstance(file_url, str):
+        stripped = file_url.strip()
+        if _SCHEME_RE.match(stripped) or stripped.startswith("//") or "\\" in stripped:
+            raise BadRequest("External URLs are not allowed in the file parameter.")
 
 
 # Converter objects can no longer be added through the web: their convert_url

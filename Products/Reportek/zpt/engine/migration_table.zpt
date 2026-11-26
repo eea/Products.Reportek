@@ -13,6 +13,8 @@
 <h2 i18n:translate="">Available updates</h2>
 <form name="migration" action='' method='post'>
     <input type="hidden" name="update" id="update" value=""/>
+    <input type="hidden" name="_authenticator"
+           tal:attributes="value here/@@authenticator/token" />
     <table class="table simple_table" tal:condition="options/todo_migrationRows">
         <tr>
             <th style="text-align: center;" i18n:translate="">Name</th>

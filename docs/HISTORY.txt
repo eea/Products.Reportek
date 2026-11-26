@@ -3,6 +3,8 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: tighten permission checks on envelope zip and export, QA runs,
+        actor subscriptions and migrations; validate redirect URLs; add tests
 * security: harden the UNS settings, role management, QA result pages and
         BDR audit methods; add update u20261126_engine_properties; add tests
 * fix: BDR, improve the collection access checks; add tests

@@ -33,7 +33,7 @@ import re
 
 import plone.protect.interfaces
 import transaction
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, Unauthorized
 
 # Zope imports
 from AccessControl.class_init import InitializeClass
@@ -226,6 +226,8 @@ class EnvelopeRemoteServicesManager:
                 )
                 REQUEST.SESSION.set("note_text", l_tmp[1].data)
                 REQUEST.RESPONSE.redirect("note")
+        except Unauthorized:
+            raise
         except Exception as err:
             l_err = html.escape(str(err))
             if return_inline:
@@ -294,6 +296,8 @@ class EnvelopeRemoteServicesManager:
             REQUEST.SESSION.set("note_text", " ".join(l_res))
             REQUEST.RESPONSE.redirect("note")
 
+        except Unauthorized:
+            raise
         except Exception:
             REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
             REQUEST.SESSION.set("note_title", "Error in QA service")

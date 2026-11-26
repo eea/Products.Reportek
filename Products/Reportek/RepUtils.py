@@ -304,7 +304,6 @@ def asciiEncode(p_value):
         return ""
 
 
-
 def utf8Encode(p_str):
     """encodes a string to UTF-8"""
     return p_str.encode("utf8")
@@ -446,7 +445,6 @@ def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     return list(map(operator.getitem, l_temp, (-2,) * len(l_temp)))
 
 
-
 def parse_template(template, dict={}):
     """Make some text from a template file."""
     if dict is not None:
@@ -457,6 +455,36 @@ def parse_template(template, dict={}):
         except (TypeError, ValueError, KeyError) as error:
             logger.exception(error)
             raise Exception("An error occurred while generating this file")
+
+
+def safe_redirect_url(url, context, default=None):
+    """``url`` if it stays on this site, otherwise ``default`` (the URL of
+    ``context``).
+
+    Relative paths are kept; absolute http(s) URLs only on the host of the
+    request. Anything else (other hosts, ``//host``, backslashes, other
+    schemes) gives ``default``.
+    """
+    from urllib.parse import urlsplit
+
+    if default is None:
+        default = context.absolute_url()
+    if not isinstance(url, str):
+        return default
+    url = url.strip()
+    if not url or "\\" in url or any(ord(c) < 32 for c in url):
+        return default
+    parts = urlsplit(url)
+    if not parts.scheme and not parts.netloc:
+        return url
+    if parts.scheme not in ("http", "https") or not parts.netloc:
+        return default
+    request = getattr(context, "REQUEST", None)
+    site = (request.get("SERVER_URL") if request is not None else "") or ""
+    site_host = urlsplit(site or context.absolute_url()).netloc
+    if site_host and parts.netloc.lower() == site_host.lower():
+        return url
+    return default
 
 
 def utGetTemp():

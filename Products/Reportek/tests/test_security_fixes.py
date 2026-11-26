@@ -166,9 +166,7 @@ class QANoteTextTest(QATestBase):
     def setUp(self):
         super().setUp()
         self.session = {}
-        self.request = Mock(
-            SESSION=Mock(set=self.session.__setitem__), RESPONSE=Mock()
-        )
+        self.request = Mock(SESSION=Mock(set=self.session.__setitem__), RESPONSE=Mock())
 
     def test_file_ids_from_the_request_are_escaped(self):
         self.request.form = {"x/<svg onload=alert(1)>": "42"}
@@ -200,6 +198,18 @@ class QANoteTextTest(QATestBase):
         self.assertNotIn("<b>", self.session["note_text"])
         self.assertNotIn("<i>", self.session["note_text"])
 
+    def test_unviewable_file_asks_to_log_in(self):
+        from zExceptions import Unauthorized
+
+        self.doc.manage_permission("View", ["Manager"], acquire=0)
+        url = "http://example.com/envelope/data.xml"
+        self.request.form = {url: "42"}
+        with patch.object(qa, "get_qa_application", return_value=Mock()):
+            with self.assertRaises(Unauthorized):
+                self.envelope.runQAScript(url, "42", self.request)
+            with self.assertRaises(Unauthorized):
+                self.envelope.runQAScripts(self.request)
+
     def test_qa_error_text_is_escaped(self):
         qa_app = Mock(runQAScript=Mock(side_effect=ValueError("<b>boom</b>")))
         with patch.object(qa, "get_qa_application", return_value=qa_app):
@@ -223,3 +233,183 @@ class BDRAuditMethodsTest(unittest.TestCase):
             "get_ecr_audit_envelopes",
         ):
             self.assertEqual(getattr(ReportekEngine, name + "__roles__"), (), name)
+
+
+class SafeRedirectTest(unittest.TestCase):
+    def setUp(self):
+        self.context = Mock(
+            absolute_url=Mock(return_value="https://cdr.example/de/env"),
+            REQUEST={"SERVER_URL": "https://cdr.example"},
+        )
+
+    def check(self, url):
+        from Products.Reportek.RepUtils import safe_redirect_url
+
+        return safe_redirect_url(url, self.context)
+
+    def test_same_site_urls_are_kept(self):
+        for url in (
+            "note",
+            "/de/env/overview",
+            "../other?x=1",
+            "https://cdr.example/de/env",
+            "http://CDR.example/x",
+        ):
+            self.assertEqual(self.check(url), url.strip(), url)
+
+    def test_other_places_go_to_the_context(self):
+        for url in (
+            "https://evil.example/",
+            "//evil.example/x",
+            "/\\evil.example",
+            "javascript:alert(1)",
+            "data:text/html,x",
+            "https://cdr.example.evil.example/",
+            "http:evil.example",
+            "",
+            None,
+            "/x\r\nSet-Cookie: a=b",
+        ):
+            self.assertEqual(self.check(url), "https://cdr.example/de/env", url)
+
+
+class ValidateFileUrlTest(unittest.TestCase):
+    def test_external_urls_are_refused(self):
+        from Products.Reportek.Converter import validate_file_url
+
+        for url in ("https://evil", "//evil/x", " //evil", "\\\\evil\\x", "/\\evil"):
+            with self.assertRaises(BadRequest, msg=url):
+                validate_file_url(url)
+        for url in ("de/env/data.xml", "/de/env/data.xml", "", None):
+            validate_file_url(url)
+
+
+class ZipAndExportFilterTest(unittest.TestCase):
+    def setUp(self):
+        from .common import BaseTest
+        from .utils import add_document, create_envelope, create_fake_root
+        from .utils import create_upload_file
+
+        self.root = create_fake_root()
+        self.engine = BaseTest.create_reportek_engine(self.root)
+        self.envelope = create_envelope(self.root)
+        add_document(self.envelope, create_upload_file("x", "foo.txt"))
+        self.envelope.released = True
+        self.envelope.title = "Env"
+
+    def security(self, user="someone", can_view=True):
+        sm = Mock()
+        sm.getUser.return_value.getUserName.return_value = user
+        sm.checkPermission.return_value = can_view
+        return patch(
+            "Products.Reportek.ReportekEngine.getSecurityManager", return_value=sm
+        )
+
+    def zip_names(self, **kwargs):
+        import zipfile
+        from io import BytesIO
+
+        with self.security(**kwargs):
+            body = self.engine.zipEnvelopes(["/envelope", "/missing"], Mock(), Mock())
+        with zipfile.ZipFile(BytesIO(b"".join(body))) as z:
+            return z.namelist()
+
+    def test_logged_in_user_gets_the_history(self):
+        self.assertIn("Env/history.txt", self.zip_names())
+
+    def test_anonymous_gets_no_history(self):
+        names = self.zip_names(user="Anonymous User")
+        self.assertIn("Env/metadata.txt", names)
+        self.assertNotIn("Env/history.txt", names)
+
+    def test_envelopes_the_user_cannot_view_are_left_out(self):
+        self.assertEqual(self.zip_names(can_view=False), [])
+
+    def test_zip_is_declared(self):
+        from Products.Reportek.ReportekEngine import ReportekEngine
+
+        self.assertEqual(permission_of(ReportekEngine, "zipEnvelopes"), "View")
+
+    def test_export_leaves_out_what_the_user_cannot_view(self):
+        self.envelope.get_export_data = Mock(return_value={})
+        self.engine.download_xls = Mock(return_value=b"xls")
+        with self.security(can_view=False):
+            self.engine.xls_export(envelopes=["/envelope", "/missing"])
+        self.envelope.get_export_data.assert_not_called()
+
+
+class SubscribeAllActorsTest(QATestBase):
+    def call(self, published):
+        sm = Mock()
+        sm.getUser.return_value.getUserName.return_value = "Anonymous User"
+        self.root.REQUEST = {"PUBLISHED": published}
+        # no UNS server: nothing is sent
+        setattr(self.root, constants.ENGINE_ID, Mock(UNS_server=""))
+        with patch(
+            "Products.Reportek.EnvelopeCustomDataflows.getSecurityManager",
+            return_value=sm,
+        ):
+            return self.envelope.subscribe_all_actors()
+
+    def test_anonymous_request_by_url_is_refused(self):
+        from zExceptions import Unauthorized
+
+        with self.assertRaises(Unauthorized):
+            self.call(self.envelope.subscribe_all_actors)
+
+    def test_workflow_scripts_still_call_it(self):
+        # released through a workflow step, whoever triggered it
+        self.call(self.envelope.completeWorkitem)
+
+
+class MigrationTableTest(unittest.TestCase):
+    def setUp(self):
+        from Products.Reportek.ReportekEngine import ReportekEngine
+
+        self.engine = ReportekEngine()
+        self.engine._migration_rows = Mock(
+            return_value=(
+                [],
+                [
+                    {"name": "u_pending", "applicable": True, "version": 2},
+                    {"name": "u_other", "applicable": False, "version": 1},
+                ],
+            )
+        )
+        self.engine._migration_table = Mock(return_value="page")
+        self.engine.unrestrictedTraverse = Mock()
+        patches = [
+            patch("Products.Reportek.ReportekEngine.importlib"),
+            patch("Products.Reportek.ReportekEngine.CheckAuthenticator"),
+        ]
+        self.importlib, self.check_authenticator = [p.start() for p in patches]
+        for p in patches:
+            self.addCleanup(p.stop)
+
+    def run_update(self, name, method="POST"):
+        self.engine.REQUEST = Mock(form={"update": name})
+        self.engine.REQUEST.__getitem__ = Mock(return_value=method)
+        return self.engine.migration_table()
+
+    def test_pending_update_runs_with_post_and_token(self):
+        self.assertEqual(self.run_update("u_pending"), "page")
+        self.check_authenticator.assert_called_once()
+        self.importlib.import_module.assert_called_once_with(
+            "Products.Reportek.updates.u_pending"
+        )
+
+    def test_get_is_refused(self):
+        with self.assertRaises(BadRequest):
+            self.run_update("u_pending", method="GET")
+        self.importlib.import_module.assert_not_called()
+
+    def test_other_modules_are_refused(self):
+        for name in ("u_other", "cleanup_staging", "../x"):
+            with self.assertRaises(BadRequest, msg=name):
+                self.run_update(name)
+        self.importlib.import_module.assert_not_called()
+
+    def test_listing_without_update(self):
+        self.engine.REQUEST = Mock(form={})
+        self.assertEqual(self.engine.migration_table(), "page")
+        self.importlib.import_module.assert_not_called()
