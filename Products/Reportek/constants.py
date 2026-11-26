@@ -80,3 +80,16 @@ IGNORED_MIME_TYPES = [
     "application/octet-stream",
     "text/plain",
 ]
+
+# ReportekEngine.workflow_role_check: when users act on a workflow step
+# directly, whether their roles are checked against the step's pull and push
+# roles (administrative actions: managers only), and whether QA results come
+# from one of ReportekEngine.qa_service_accounts
+WORKFLOW_ROLE_CHECK_OFF = "off"
+WORKFLOW_ROLE_CHECK_LOG = "log"
+WORKFLOW_ROLE_CHECK_ENFORCE = "enforce"
+WORKFLOW_ROLE_CHECK_MODES = (
+    WORKFLOW_ROLE_CHECK_OFF,
+    WORKFLOW_ROLE_CHECK_LOG,
+    WORKFLOW_ROLE_CHECK_ENFORCE,
+)

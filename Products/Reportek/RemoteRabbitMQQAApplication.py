@@ -376,6 +376,10 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             except Exception as e:
                 feedback_log.exception("Unable to parse payload: {}".format(str(e)))
 
+        if isinstance(payload, dict) and "uuid" in payload:
+            # QA results, whichever URL the request came through
+            wk.getMySelf()._check_service_account("deliver QA results")
+
         if payload and self.check_uuid(workitem_id, payload.get("uuid")):
             if payload.get("errorMessage"):
                 wk.addEvent(

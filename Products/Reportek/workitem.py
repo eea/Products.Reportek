@@ -44,6 +44,10 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     # assertions.
     security = ClassSecurityInfo()
 
+    # shared with the QA service only, in the request message it gets; it
+    # authenticates the results it sends back, so nobody reads it here
+    security.declarePrivate("UUID")
+
     def __init__(
         self,
         id,

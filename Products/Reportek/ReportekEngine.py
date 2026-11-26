@@ -308,6 +308,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     # linked to it
     QA_application = ""
     qa_httpres = False
+    # whether users acting on workflow steps directly must hold the step's
+    # roles: off, log (only report who would be refused) or enforce
+    workflow_role_check = constants.WORKFLOW_ROLE_CHECK_LOG
+    # the accounts the QA service delivers results with; checked as
+    # workflow_role_check says
+    qa_service_accounts = ()
     exp_httpres = False
     globally_restricted_site = False
     cr_rmq = False
@@ -725,6 +731,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         )
         self.QA_application = self.REQUEST.get("QA_application", self.QA_application)
         self.qa_httpres = bool(self.REQUEST.get("qa_httpres", False))
+        role_check = self.REQUEST.get("workflow_role_check", self.workflow_role_check)
+        if role_check in constants.WORKFLOW_ROLE_CHECK_MODES:
+            self.workflow_role_check = role_check
+        if "qa_service_accounts" in self.REQUEST.form:
+            self.qa_service_accounts = tuple(
+                account.strip()
+                for account in RepUtils.utConvertToList(
+                    self.REQUEST.form["qa_service_accounts"]
+                )
+                if account.strip()
+            )
         self.exp_httpres = bool(self.REQUEST.get("exp_httpres", False))
         self.globally_restricted_site = bool(
             self.REQUEST.get("globally_restricted_site", self.globally_restricted_site)

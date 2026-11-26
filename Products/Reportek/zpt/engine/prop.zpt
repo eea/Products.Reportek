@@ -47,6 +47,25 @@
             </p>
         </fieldset>
         <fieldset>
+            <legend i18n:translate="">Workflow</legend>
+            <p class="form-help" i18n:translate="">
+                <strong><label for="workflow_role_check" i18n:translate="">Check the roles of users acting on workflow steps</label></strong>
+                <select id="workflow_role_check" name="workflow_role_check"
+                        tal:define="current here/workflow_role_check">
+                    <option value="off" tal:attributes="selected python:current == 'off'" i18n:translate="">Off</option>
+                    <option value="log" tal:attributes="selected python:current == 'log'" i18n:translate="">Log only</option>
+                    <option value="enforce" tal:attributes="selected python:current == 'enforce'" i18n:translate="">Enforce</option>
+                </select><br />
+                When a user acts on a workflow step directly (a link, a form, the API), compare their roles with the step's pull and push roles; administrative actions (assign, forward, suspend, fallout...) are for managers only. Also applies to the QA service accounts below. Log only reports in the log who would be refused; Enforce refuses them.
+            </p>
+            <p class="form-help" i18n:translate="">
+                <strong><label for="qa_service_accounts" i18n:translate="">QA service accounts</label></strong>
+                <textarea id="qa_service_accounts" name="qa_service_accounts:lines" rows="3" cols="30"
+                          tal:content="python:'\n'.join(here.qa_service_accounts)"></textarea><br />
+                The accounts, one per line, the QA service delivers results with. Under the setting above, results delivered by other accounts are logged or refused; managers always may. With Enforce and no account here, only managers can deliver results.
+            </p>
+        </fieldset>
+        <fieldset>
             <legend i18n:translate="">RDF and XML Export</legend>
             <p class="form-help" i18n:translate="">
                 <strong><label for="exp_httpres" i18n:translate="">Enforce http resources in the XML and RDF output</label></strong>

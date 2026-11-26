@@ -34,9 +34,9 @@ from time import time
 import plone.protect.interfaces
 
 # Zope imports
-from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
-from Acquisition import aq_inner, aq_parent
+from Acquisition import aq_base, aq_inner, aq_parent
 from ZPublisher import zpublish
 from DateTime import DateTime
 from OFS.Folder import Folder
@@ -50,6 +50,9 @@ from Products.Reportek.constants import (
     DEFAULT_CATALOG,
     ENGINE_ID,
     METATYPE_WORKITEM,
+    WORKFLOW_ROLE_CHECK_ENFORCE,
+    WORKFLOW_ROLE_CHECK_LOG,
+    WORKFLOW_ROLE_CHECK_OFF,
 )
 from Products.Reportek.exceptions import ApplicationException
 
@@ -458,6 +461,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Starts the flowing of the process instance inside the process
         definition
         """
+        if self._requested_directly(REQUEST, "startInstance"):
+            self._check_workitem_roles(None, "start instance", managers_only=True)
         if REQUEST:
             actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
@@ -491,6 +496,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         specified actor (string)
         """
         workitem = getattr(self, workitem_id)
+        if self._requested_directly(REQUEST, "assignWorkitem"):
+            self._check_workitem_roles(workitem, "assign", managers_only=True)
         activity = self.getActivity(workitem_id)
         user_is_ok = (
             REQUEST is None
@@ -523,9 +530,133 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def unassignWorkitem(self, workitem_id, REQUEST=None):
         """Unassign the specified workitem"""
         workitem = getattr(self, str(workitem_id))
+        if self._requested_directly(REQUEST, "unassignWorkitem"):
+            self._check_workitem_roles(workitem, "unassign", managers_only=True)
         if self.isActiveOrRunning() and workitem.status != "completed":
             getattr(self, workitem_id).assignTo("")
         return self.handle_wk_response(workitem)
+
+    def _requested_directly(self, REQUEST, name):
+        """Whether the method ``name`` of this envelope is what the request
+        published, as when a user follows a link, posts a form or calls the
+        API; not when code (an application, a remote service) calls it."""
+        if REQUEST is None:
+            REQUEST = getattr(self, "REQUEST", None)
+        if REQUEST is None or not hasattr(REQUEST, "get"):
+            return False
+        published = REQUEST.get("PUBLISHED")
+        return getattr(published, "__name__", None) == name and aq_base(
+            getattr(published, "__self__", None)
+        ) is aq_base(self)
+
+    def _current_user_name(self):
+        return getSecurityManager().getUser().getUserName()
+
+    def _step_roles(self, workitem):
+        """The roles that may work on the workitem's activity, as the workflow
+        engine is configured now (what the envelope's operations offer), not
+        the copy the workitem took when it was created."""
+        openflow = self.getOpenFlowEngine()
+        if workitem is None or openflow is None:
+            return set()
+        process_id = self.getInstanceProcessId()
+        return set(openflow.getPullRoles(process_id, workitem.activity_id)) | set(
+            openflow.getPushRoles(process_id, workitem.activity_id)
+        )
+
+    def _check_workitem_roles(
+        self,
+        workitem,
+        action,
+        actor_given=False,
+        managers_only=False,
+        assignee_may=False,
+    ):
+        """For a user acting on the workflow directly: whether they hold one
+        of the pull or push roles of the workitem's activity here, or for the
+        administrative actions (``managers_only``) whether they manage the
+        workflow; managers always may. With ``assignee_may`` the user the
+        workitem is assigned to may too, as the envelope's operations offer
+        it to them. Depending on ReportekEngine.workflow_role_check it does
+        nothing, logs, or also refuses."""
+        engine = getattr(self, ENGINE_ID, None)
+        mode = getattr(engine, "workflow_role_check", WORKFLOW_ROLE_CHECK_LOG)
+        if mode == WORKFLOW_ROLE_CHECK_OFF:
+            return
+        security_manager = getSecurityManager()
+        user = security_manager.getUser()
+        roles = set(user.getRolesInContext(self))
+        step_roles = self._step_roles(workitem)
+        if "Manager" in roles or security_manager.checkPermission(
+            manage_openflow, self
+        ):
+            verdict = "allowed (manager)"
+        elif managers_only:
+            verdict = "refused (managers only)"
+        elif (
+            assignee_may
+            and workitem is not None
+            and workitem.actor
+            and workitem.actor == user.getUserName()
+        ):
+            verdict = "allowed (assigned to them)"
+        elif not step_roles:
+            verdict = "allowed (step without roles)"
+        elif roles & step_roles:
+            verdict = "allowed"
+        else:
+            verdict = "refused"
+        refused = verdict.startswith("refused")
+        logger.log(
+            logging.WARNING if refused else logging.INFO,
+            "Workflow role check (%s): %s %s on %s workitem %s (%s) by %s; "
+            "roles %s, step roles %s; assigned to %s; actor given: %s",
+            mode,
+            verdict,
+            action,
+            self.absolute_url(1),
+            workitem.getId() if workitem is not None else "-",
+            workitem.activity_id if workitem is not None else "-",
+            user.getUserName(),
+            sorted(roles),
+            sorted(step_roles),
+            (workitem.actor if workitem is not None else "") or "nobody",
+            actor_given,
+        )
+        if refused and mode == WORKFLOW_ROLE_CHECK_ENFORCE:
+            raise Unauthorized("You are not allowed to do this on this step.")
+
+    def _check_service_account(self, action):
+        """For a request delivering automation results directly: whether its
+        account is one of ReportekEngine.qa_service_accounts (managers always
+        may). Logs or refuses as ReportekEngine.workflow_role_check says."""
+        engine = getattr(self, ENGINE_ID, None)
+        mode = getattr(engine, "workflow_role_check", WORKFLOW_ROLE_CHECK_LOG)
+        if mode == WORKFLOW_ROLE_CHECK_OFF:
+            return
+        security_manager = getSecurityManager()
+        user = security_manager.getUser()
+        accounts = set(getattr(engine, "qa_service_accounts", ()) or ())
+        if accounts & {user.getId(), user.getUserName()}:
+            verdict = "allowed (QA service account)"
+        elif "Manager" in user.getRolesInContext(self) or (
+            security_manager.checkPermission(manage_openflow, self)
+        ):
+            verdict = "allowed (manager)"
+        else:
+            verdict = "refused (not a QA service account)"
+        refused = verdict.startswith("refused")
+        logger.log(
+            logging.WARNING if refused else logging.INFO,
+            "QA service account check (%s): %s %s on %s by %s",
+            mode,
+            verdict,
+            action,
+            self.absolute_url(1),
+            user.getUserName(),
+        )
+        if refused and mode == WORKFLOW_ROLE_CHECK_ENFORCE:
+            raise Unauthorized("Only the QA service can deliver results.")
 
     # FIXME: In Openflow, the actor is not set when you activate the item,
     # unless you have given it as an argument. This seems strange given
@@ -542,7 +673,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if REQUEST:
                 alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
-        if actor:
+        if self._requested_directly(REQUEST, "activateWorkitem"):
+            # a user acts for themselves: an actor in the request is ignored
+            self._check_workitem_roles(workitem, "activate", actor_given=bool(actor))
+            actor = None
+            action_actor = self._current_user_name()
+        elif actor:
             action_actor = actor
         else:
             if REQUEST:
@@ -575,6 +711,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if REQUEST:
                 alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
+        if self._requested_directly(REQUEST, "inactivateWorkitem"):
+            self._check_workitem_roles(workitem, "inactivate", assignee_may=True)
         actor = ""  # We don't need any actor name
         if (
             self.isActiveOrRunning()
@@ -595,6 +733,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         instance
         """
         workitem = getattr(self, str(workitem_id))
+        if self._requested_directly(REQUEST, "suspendWorkitem"):
+            self._check_workitem_roles(workitem, "suspend", managers_only=True)
         if REQUEST:
             actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
@@ -618,6 +758,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         instance
         """
         workitem = getattr(self, str(workitem_id))
+        if self._requested_directly(REQUEST, "resumeWorkitem"):
+            self._check_workitem_roles(workitem, "resume", managers_only=True)
         if REQUEST:
             actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
@@ -642,15 +784,25 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if REQUEST:
             if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
                 alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
-            if "actor" in REQUEST:
-                actor = REQUEST["actor"]
-            else:
-                actor = REQUEST.AUTHENTICATED_USER.getUserName()
+        workitem = getattr(self, workitem_id)
+        if self._requested_directly(REQUEST, "completeWorkitem"):
+            # a user acts for themselves: an actor in the request is ignored
+            self._check_workitem_roles(
+                workitem,
+                "complete",
+                actor_given=bool(actor or REQUEST.form.get("actor")),
+            )
+            l_actor = self._current_user_name()
+        elif actor and isinstance(actor, str):
+            # code names the actor, e.g. openflow_engine for applications
+            l_actor = actor
+        elif REQUEST is not None and REQUEST.other.get("actor"):
+            # set by code with REQUEST.set("actor", ...), never from a form
+            l_actor = REQUEST.other["actor"]
+        elif REQUEST is not None:
+            l_actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
             l_actor = "openflow_engine"
-        if actor:
-            l_actor = actor
-        workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
         if self.isActiveOrRunning():
@@ -862,6 +1014,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
             if REQUEST:
                 alsoProvides(REQUEST, plone.protect.interfaces.IDisableCSRFProtection)
+        if self._requested_directly(REQUEST, "forwardWorkitem"):
+            self._check_workitem_roles(
+                getattr(self, str(workitem_id)), "forward", managers_only=True
+            )
         destinations = self.getDestinations(workitem_id, path)
         if destinations == []:
             self.falloutWorkitem(workitem_id)
@@ -974,6 +1130,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def falloutWorkitem(self, workitem_id, REQUEST=None):
         """drops the workitem in exceptional handling"""
         workitem = getattr(self, workitem_id)
+        if self._requested_directly(REQUEST, "falloutWorkitem"):
+            self._check_workitem_roles(workitem, "fallout", managers_only=True)
         if REQUEST:
             actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
@@ -1069,6 +1227,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def manageDummyActivity(self, workitem_id):
         """ """
+        if self._requested_directly(None, "manageDummyActivity"):
+            self._check_workitem_roles(
+                getattr(self, str(workitem_id)), "run dummy activity"
+            )
         self.activateWorkitem(workitem_id, "openflow_engine")
         self.completeWorkitem(workitem_id)
         if not self.isEnd(self.getActivity(workitem_id).id):
@@ -1078,6 +1240,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def startAutomaticApplication(self, workitem_id, REQUEST=None):
         """ """
+        if self._requested_directly(REQUEST, "startAutomaticApplication"):
+            self._check_workitem_roles(
+                getattr(self, str(workitem_id)), "run automatic application"
+            )
         application_url = self.getApplicationUrl(workitem_id)
         activity_obj = self.getActivity(workitem_id)
         self.activateWorkitem(workitem_id, "openflow_engine")

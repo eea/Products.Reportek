@@ -3,6 +3,8 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: check the roles of users acting on workflow steps and the
+        account delivering QA results (engine settings); add tests
 * security: harden the rendering of feedback text; add tests
 * security: tighten permission checks on envelope zip and export, QA runs,
         actor subscriptions and migrations; validate redirect URLs; add tests

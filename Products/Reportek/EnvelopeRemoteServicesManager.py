@@ -371,7 +371,8 @@ class EnvelopeRemoteServicesManager:
         # if something goes wrong
         return l_res
 
-    security.declareProtected("Use OpenFlow", "triggerApplicationPayload")
+    # not called by any client; the QA results come through forwardState
+    security.declarePrivate("triggerApplicationPayload")
 
     def triggerApplicationPayload(self, p_workitem_id, payload=None, REQUEST=None):
         """Triggers remote applications"""
