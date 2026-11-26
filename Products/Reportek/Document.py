@@ -60,7 +60,7 @@ from ZPublisher import zpublish
 from ZPublisher.HTTPRequest import FileUpload
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek import IconShow, RepUtils
+from Products.Reportek import IconShow, RepUtils, qa
 
 # Product imports
 from Products.Reportek.blob import FileContainer, StorageError
@@ -71,7 +71,6 @@ from Products.Reportek.constants import (
     DEFAULT_CATALOG,
     ENGINE_ID,
     METATYPE_DOCUMENT,
-    QAREPOSITORY_ID,
 )
 from Products.Reportek.interfaces import IDocument
 from Products.Reportek.modification_date import set_reportek_modification_date
@@ -1005,7 +1004,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """Returns a list of QA script labels.
         which can be manually run against the contained XML files
         """
-        return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles([self])
+        return qa.can_run_qa_on_files(self, [self])
 
     security.declareProtected("View", "view_image_or_file")
 

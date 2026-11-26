@@ -56,6 +56,11 @@ All other modules
 .. automodule:: Products.Reportek.process
    :members:
 
+:mod:`Products.Reportek.qa`
+---------------------------
+.. automodule:: Products.Reportek.qa
+   :members:
+
 :mod:`Products.Reportek.QARepository`
 -------------------------------------
 .. automodule:: Products.Reportek.QARepository

@@ -349,14 +349,34 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         return 1
 
     def runAutomaticLocalApps(self, workitem):
-        # call this from a thread (or no)
+        """Record the envelope's XML files in the workitem's localQA status.
+
+        Local QA scripts were removed (see Products.Reportek.qa), so nothing
+        runs here. The empty per-file entries are what the completion checks
+        in callApplication have always seen when there were no local scripts.
+        A workitem started before the removal may still list local scripts
+        that had not finished; they can no longer run, so they are dropped
+        instead of keeping it from finishing or failing it. Finished ones stay
+        for the log.
+        """
         wk_status = getattr(workitem, self.app_name)
-        for file_id, result, script_id in self._runLocalQAScripts(workitem):
-            wk_status = getattr(workitem, self.app_name)
-            self._addFeedback(file_id, result, workitem, script_id)
-            # mark script for file as done
-            wk_status["localQA"][file_id][script_id] = "done"
-            transaction.commit()
+        if "localQA" not in wk_status:
+            wk_status["localQA"] = {}
+        localQA = wk_status["localQA"]
+        changed = False
+        for scripts in list(localQA.values()):
+            for script_id, status in list(scripts.items()):
+                if status != "done":
+                    del scripts[script_id]
+                    changed = True
+        for xml in self.aq_parent.objectValues(Document.meta_type):
+            if xml.content_type == "text/xml" and xml.xml_schema_location:
+                if xml.id not in localQA:
+                    localQA[xml.id] = {}
+                    changed = True
+        if changed:
+            # the QA status is a plain dict attribute of the workitem
+            workitem._p_changed = True
 
     def get_restricted_status(self, env, file_id):
         if file_id == "xml" and env.areRestrictions():
@@ -365,66 +385,6 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         if doc and isinstance(doc, Document) and doc.isRestricted():
             return True
         return False
-
-    def _addFeedback(self, file_id, result, workitem, script_id):
-        envelope = self.aq_parent
-        qa_repo = self.QARepository
-        script_title = qa_repo[script_id].title
-
-        feedback_id = "{0}_{1}_{2}".format(self.app_name, script_id, file_id)
-        feedback_title = "{0} result for file {1}: {2}".format(
-            self.app_name, file_id, script_title
-        )
-        envelope.manage_addFeedback(
-            id=feedback_id,
-            title=feedback_title,
-            activity_id=workitem.activity_id,
-            automatic=1,
-            restricted=self.get_restricted_status(envelope, file_id),
-        )
-
-        feedback_ob = envelope[feedback_id]
-        content = result[1].data
-        content_type = result[0]
-        content_type = content_type if content_type else CONTENT_TYPE_HTML
-        self.store_feedback_content(
-            feedback_ob,
-            content,
-            content_type,
-            limit=FEEDBACKTEXT_LIMIT,
-        )
-
-    def _runLocalQAScripts(self, workitem):
-        # 'localQA': {'file_name':{'script_name': 'status',
-        #                          'script_name2': 'status'},
-        #             'file_name2': {'script_name2': 'status',
-        #                            'script_name3': 'status'}
-        qa_repo = self.QARepository
-        wk_status = getattr(workitem, self.app_name)
-        if "localQA" not in wk_status:
-            wk_status["localQA"] = {}
-        localQA = wk_status["localQA"]
-        xmls = (
-            x
-            for x in self.aq_parent.objectValues(Document.meta_type)
-            if x.content_type == "text/xml" and x.xml_schema_location
-        )
-        for xml in xmls:
-            if xml.id not in localQA:
-                localQA[xml.id] = {}
-            resultsForXml = localQA[xml.id]
-            for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
-                if (
-                    script.id not in resultsForXml
-                    or resultsForXml[script.id] == "failed"
-                ):
-                    resultsForXml[script.id] = "in progress"
-                    transaction.commit()
-                    file_id, result = qa_repo._runQAScript(
-                        xml.absolute_url(1), "loc_%s" % script.id
-                    )
-                    yield file_id, result, script.id
-                    # else, don't yield - nothing will happen in parent's loop
 
     def _local_scripts_done(self, localQA):
         # not ran yet

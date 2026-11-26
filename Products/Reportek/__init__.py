@@ -46,12 +46,9 @@ from Products.PluginIndexes.KeywordIndex.KeywordIndex import (
 )
 from Products.Reportek import (
     Collection,
-    Converter,
     Converters,
     DataflowMappings,
     OpenFlowEngine,
-    QARepository,
-    QAScript,
     Referral,
     RemoteApplication,
     RemoteFMEConversionApplication,
@@ -200,12 +197,8 @@ def create_reportek_objects(app):
         converters = Converters.Converters()
         app._setObject(constants.CONVERTERS_ID, converters)
 
-    # Add QARepository folder
-    try:
-        qarepo = getattr(app, constants.QAREPOSITORY_ID)
-    except AttributeError:
-        qarepo = QARepository.QARepository()
-        app._setObject(constants.QAREPOSITORY_ID, qarepo)
+    # /QARepository is no longer created: local QA scripts were removed, see
+    # Products.Reportek.qa and the u20261125 update.
 
     # Add dataflow mapping
     try:
@@ -432,25 +425,9 @@ def initialize(context):
 
     from . import blob
 
-    context.registerClass(
-        QAScript.QAScript,
-        permission="Add QAScripts",
-        constructors=(
-            QAScript.manage_addQAScriptForm,
-            QAScript.manage_addQAScript,
-        ),
-        icon="www/qascript.gif",
-    )
-
-    context.registerClass(
-        Converter.Converter,
-        permission="Add Converters",
-        constructors=(
-            Converter.manage_addConverterForm,
-            Converter.manage_addConverter,
-        ),
-        icon="www/conv.gif",
-    )
+    # QAScript and Converter are no longer addable: both ran a stored command
+    # line on the Zope host. QA runs in the QA application, conversions in the
+    # local-converters service or remotely.
 
     context.registerClass(
         blob.OfsBlobFile,

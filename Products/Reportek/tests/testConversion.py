@@ -164,14 +164,6 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         because filename ends with ."""
         mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
-        converters.manage_addConverter(
-            "pdftext",
-            title="Show as text",
-            convert_url="pdf2txt %s",
-            ct_input="application/pdf",
-            ct_output="text/plain",
-            suffix="",
-        )
         # Some people end the filename with a period - giving an empty suffix
         local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             "text/plain", filename="myfile."
@@ -500,14 +492,6 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
     def testImageException(self):
         converters = getattr(self.app, CONVERTERS_ID)
         self.create_text_document()
-        converters.manage_addConverter(
-            "reversetxt",
-            title="Reverse",
-            convert_url="pdf2txt %s",
-            ct_input="image/jpg",
-            ct_output="text/plain",
-            suffix="pdf",
-        )
         self.document.content_type = "image/"
         with self.assertRaises(Redirect):
             converters.run_conversion(
@@ -519,14 +503,6 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
     def testUnknownSourceException(self):
         converters = getattr(self.app, CONVERTERS_ID)
         self.create_text_document()
-        converters.manage_addConverter(
-            "reversetxt",
-            title="Reverse",
-            convert_url="pdf2txt %s",
-            ct_input="image/jpg",
-            ct_output="text/plain",
-            suffix="pdf",
-        )
         self.document.content_type = "image/"
         with self.assertRaises(Redirect):
             converters.run_conversion(

@@ -46,8 +46,8 @@ from Products.Reportek.constants import (
     CONTENT_TYPE_HTML,
     CONTENT_TYPE_XML,
     METATYPE_DOCUMENT,
-    QAREPOSITORY_ID,
 )
+from Products.Reportek import qa
 from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException
 from Products.Reportek.permissions import change_envelopes
@@ -169,9 +169,7 @@ class EnvelopeRemoteServicesManager:
         """Returns a list of QA script labels
         which can be manually run against the contained XML files
         """
-        return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles(
-            self.objectValues(METATYPE_DOCUMENT)
-        )
+        return qa.can_run_qa_on_files(self, self.objectValues(METATYPE_DOCUMENT))
 
     security.declareProtected("View", "note")
     note = PageTemplateFile("zpt/envelope/note", globals())
@@ -185,7 +183,7 @@ class EnvelopeRemoteServicesManager:
         displayed in a temporary page or, in case 'return_inline' is not
         false, the result is a string
         """
-        l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()
+        l_qa_app = qa.get_qa_application(self)
         if not l_qa_app:
             if return_inline:
                 return "System error."
@@ -194,9 +192,7 @@ class EnvelopeRemoteServicesManager:
             REQUEST.SESSION.set("note_text", "The operation could not be completed.")
             REQUEST.RESPONSE.redirect("note")
         try:
-            l_file_id, l_tmp = getattr(self, QAREPOSITORY_ID)._runQAScript(
-                p_file_url, p_script_id
-            )
+            l_file_id, l_tmp = qa.run_qa_script(self, p_file_url, p_script_id)
             if not l_tmp:
                 REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)
                 REQUEST.SESSION.set("note_title", "Error")
@@ -255,7 +251,7 @@ class EnvelopeRemoteServicesManager:
         This function assumes that all qa results have the same
         content type: 'text/html'
         """
-        l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()
+        l_qa_app = qa.get_qa_application(self)
 
         # extract the file ids and scripts from the REQUEST
         l_files_dict = {}
@@ -276,9 +272,7 @@ class EnvelopeRemoteServicesManager:
                 l_file_id = l_file.split("/")[-1]
                 l_res.append("<h2>QA results for file %s</h2><hr />" % l_file_id)
                 for l_script in l_scripts:
-                    l_f, l_d = getattr(self, QAREPOSITORY_ID)._runQAScript(
-                        l_file, l_script
-                    )
+                    l_f, l_d = qa.run_qa_script(self, l_file, l_script)
                     l_res.append(l_d[1].data)
 
             REQUEST.SESSION.set("note_content_type", CONTENT_TYPE_HTML)

@@ -18,7 +18,6 @@
 # Contributor(s):
 # Cornel Nitu, Eau de Web
 
-import os
 import re
 from copy import deepcopy
 
@@ -27,13 +26,13 @@ from AccessControl import ClassSecurityInfo, Unauthorized, getSecurityManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.Permissions import view, view_management_screens
 from OFS.SimpleItem import SimpleItem
-from zExceptions import BadRequest, Redirect
+from zExceptions import BadRequest
 from ZODB.POSException import POSKeyError
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.blob import StorageError
 
-from . import RepUtils, blob, constants
+from . import RepUtils, blob
 from .conversion_registry import request_params
 
 __doc__ = """
@@ -84,37 +83,9 @@ def validate_file_url(file_url):
         raise BadRequest("External URLs are not allowed in the file parameter.")
 
 
-manage_addConverterForm = PageTemplateFile("zpt/converters/item_add.zpt", globals())
-
-
-def manage_addConverter(
-    self,
-    id,
-    title="",
-    convert_url="",
-    ct_input="",
-    ct_output="",
-    ct_schema="",
-    ct_extraparams="",
-    description="",
-    suffix="",
-    REQUEST=None,
-):
-    """add a new converter object"""
-    ob = Converter(
-        id,
-        title,
-        convert_url,
-        ct_input,
-        ct_output,
-        ct_schema,
-        RepUtils.utConvertLinesToList(ct_extraparams),
-        description,
-        suffix,
-    )
-    self._setObject(id, ob)
-    if REQUEST is not None:
-        return self.manage_main(self, REQUEST, update_menu=1)
+# Converter objects can no longer be added through the web: their convert_url
+# ran as a shell command on the Zope host. Local conversions come from the
+# local-converters service (Converters._get_local_converters).
 
 
 class Converter(SimpleItem):
@@ -205,58 +176,14 @@ class Converter(SimpleItem):
         return self.convert(*args)
 
     def convert(self, file_obj, converter_id="", output_file_name=""):
-        converter_obj = getattr(self, converter_id, None)
-
-        if file_obj is None or converter_obj is None:
-            self.REQUEST.RESPONSE.setHeader("Content-Type", "text/plain")
-            return "Converter error"
-        if file_obj.content_type[0:6] == "image/":
-            raise Redirect(file_obj.absolute_url())
-        if converter_obj.ct_output == "flash":
-            self.REQUEST.RESPONSE.redirect(
-                "%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url)
-            )
-        if converter_obj.ct_output and not converter_obj.ct_output == "flash":
-            self.REQUEST.RESPONSE.setHeader("Content-Type", converter_obj.ct_output)
-
-            # generate 'filename'
-            if not output_file_name:
-                if converter_obj.ct_output in list(constants.CONTENT_TYPES.keys()):
-                    output_file_name = "%s%s" % (
-                        file_obj.id[: file_obj.id.rfind(".")],
-                        constants.CONTENT_TYPES[converter_obj.ct_output],
-                    )
-                else:
-                    output_file_name = "convertDocument"
-
-            with file_obj.data_file.open() as doc_file:
-                tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-            with tmp_copy:
-                # generate extra-parameters
-                # the file path is set default as first parameter
-                params = [tmp_copy.name]
-                eval_map = {
-                    "file_obj": file_obj,
-                    "converter_obj": converter_obj,
-                    "REQUEST": self.REQUEST,
-                }
-                for k in converter_obj.ct_extraparams:
-                    code = compile(k, "<string>", "eval")
-                    eval_res = eval(code, {"__builtins__": {}}, eval_map)
-                    params.append(eval_res)
-
-                command = converter_obj.convert_url % tuple(params)
-                data = os.popen(command).read()
-
-            self.REQUEST.RESPONSE.setHeader(
-                "Content-Disposition", "inline; filename=%s" % output_file_name
-            )
-            return data
-
-        else:
-            self.REQUEST.RESPONSE.setHeader("Content-Type", "text/plain")
-            return "Converter error"
+        # This used to run convert_url as a shell command on the Zope host,
+        # with ct_extraparams evaluated as Python. Conversions now run only in
+        # the local-converters service (LocalHttpConverter) or remotely
+        # (RemoteConverter), which override this.
+        raise NotImplementedError(
+            "In-process conversion was removed; use the local-converters "
+            "service or a remote converter."
+        )
 
 
 class RemoteConverter(Converter):

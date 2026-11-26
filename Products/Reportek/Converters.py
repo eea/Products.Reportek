@@ -71,11 +71,10 @@ class Converters(Folder):
         + Folder.manage_options[3:-2]
     )
 
-    meta_types = ({"name": "Converter", "action": "manage_addConverterForm"},)
-    all_meta_types = meta_types
-
-    manage_addConverterForm = Converter.manage_addConverterForm
-    manage_addConverter = Converter.manage_addConverter
+    # Nothing can be added here: local conversions come from the
+    # local-converters service, remote ones from the converters API.
+    meta_types = ()
+    all_meta_types = ()
 
     security.declareProtected(view_management_screens, "index_html")
     index_html = PageTemplateFile("zpt/converters/index.zpt", globals())
