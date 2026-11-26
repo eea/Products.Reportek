@@ -1,9 +1,11 @@
 from .base_admin import BaseAdmin
 from operator import itemgetter
+from zExceptions import BadRequest
 from Products.Reportek.constants import (
     DEFAULT_CATALOG,
     ECAS_ID,
     ENGINE_ID,
+    METATYPE_COLLECTION,
     REPORTER_OWNER_ROLE,
 )
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
@@ -28,6 +30,18 @@ class ManageRoles(BaseAdmin):
 
         return self.index()
 
+    def _check_role(self, role):
+        """Only the roles the form offers can be given."""
+        if role not in self.get_roles():
+            raise BadRequest("This role cannot be assigned here.")
+
+    def _collection(self, path):
+        """The collection at path: the forms only list collections."""
+        obj = self.context.unrestrictedTraverse(path, None)
+        if getattr(obj, "meta_type", None) != METATYPE_COLLECTION:
+            raise BadRequest("Roles can only be changed on collections.")
+        return obj
+
     def get_all_country_codes(self):
         return [c.get("iso") for c in self.localities_rod]
 
@@ -51,6 +65,7 @@ class ManageRoles(BaseAdmin):
     def assign_role(self):
         collections = self.request.get("collections", [])
         role = self.request.get("role", "")
+        self._check_role(role)
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR and role == REPORTER_OWNER_ROLE:
             role = "Owner"
@@ -72,7 +87,7 @@ class ManageRoles(BaseAdmin):
         for collection in collections:
             cur_entity = entity
             path, matched = collection.split(",")
-            obj = self.context.unrestrictedTraverse(path)
+            obj = self._collection(path)
 
             if groups and (matched in match_groups):
                 cur_entity = matched
@@ -140,7 +155,7 @@ class ManageRoles(BaseAdmin):
 
         for collection in collections:
             path, matched = collection.split(",")
-            obj = self.context.unrestrictedTraverse(path)
+            obj = self._collection(path)
 
             if match_groups and matched:
                 if matched in match_groups:
@@ -324,7 +339,7 @@ class ManageRoles(BaseAdmin):
         for member in members:
             colls = self.request.get(member).split(",")
             for path in colls:
-                obj = self.context.unrestrictedTraverse(path)
+                obj = self._collection(path)
                 obj.manage_delLocalRoles([member])
                 obj.reindexObject()
                 results.append(

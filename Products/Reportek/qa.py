@@ -11,6 +11,7 @@ application mapped to the envelope process's AutomaticQA activity, otherwise
 the path in ReportekEngine's ``QA_application`` property.
 """
 
+import html
 import logging
 
 from Acquisition import aq_base
@@ -125,4 +126,4 @@ def run_qa_script(context, file_url, script_id):
     try:
         return file_id, qa_app.runQAScript(file_url, script_id)
     except Exception as e:
-        return file_id, ["", QAResult("QA error: {}".format(str(e)))]
+        return file_id, ["", QAResult("QA error: {}".format(html.escape(str(e))))]

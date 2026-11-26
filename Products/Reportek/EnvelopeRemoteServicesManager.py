@@ -27,6 +27,7 @@ remote systems (GDEM, UNS, etc.)
 
 """
 
+import html
 import logging
 import re
 
@@ -191,6 +192,7 @@ class EnvelopeRemoteServicesManager:
             REQUEST.SESSION.set("note_title", "Error")
             REQUEST.SESSION.set("note_text", "The operation could not be completed.")
             REQUEST.RESPONSE.redirect("note")
+            return
         try:
             l_file_id, l_tmp = qa.run_qa_script(self, p_file_url, p_script_id)
             if not l_tmp:
@@ -199,7 +201,9 @@ class EnvelopeRemoteServicesManager:
                 REQUEST.SESSION.set(
                     "note_text",
                     """QA Service returned an empty result running """
-                    """script_id: {}, for file: {}.""".format(p_script_id, p_file_url),
+                    """script_id: {}, for file: {}.""".format(
+                        html.escape(p_script_id), html.escape(p_file_url)
+                    ),
                 )
                 REQUEST.RESPONSE.redirect("note")
             else:
@@ -223,7 +227,7 @@ class EnvelopeRemoteServicesManager:
                 REQUEST.SESSION.set("note_text", l_tmp[1].data)
                 REQUEST.RESPONSE.redirect("note")
         except Exception as err:
-            l_err = str(err).replace("<", "&lt;")
+            l_err = html.escape(str(err))
             if return_inline:
                 msg = (
                     """The operation could not be completed because """
@@ -265,12 +269,15 @@ class EnvelopeRemoteServicesManager:
                 "The quality assessment operation could not be completed.",
             )
             REQUEST.RESPONSE.redirect("note")
+            return
 
         try:
             l_res = []
             for l_file, l_scripts in list(l_files_dict.items()):
                 l_file_id = l_file.split("/")[-1]
-                l_res.append("<h2>QA results for file %s</h2><hr />" % l_file_id)
+                l_res.append(
+                    "<h2>QA results for file %s</h2><hr />" % html.escape(l_file_id)
+                )
                 for l_script in l_scripts:
                     l_f, l_d = qa.run_qa_script(self, l_file, l_script)
                     l_res.append(l_d[1].data)

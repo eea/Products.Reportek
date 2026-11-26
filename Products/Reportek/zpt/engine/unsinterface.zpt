@@ -5,6 +5,8 @@
 
 <p style="color:red;" tal:condition="python:not here.uns_notifications_enabled()" i18n:translate="">UNS notifications are disabled for this server.</p>
 
+<p class="form-help" i18n:translate="">Leave the UNS server URL empty to stop using UNS.</p>
+
 <form action="manage_editUNSInterface" method="post">
 <table>
 	<tr>
@@ -17,11 +19,17 @@
 	</tr>
 	<tr>
 		<th><label for="UNS_password" i18n:translate="">UNS password</label></th>
-		<td><input type="password" size="20" id="UNS_password" name="UNS_password" tal:attributes="value here/UNS_password" /></td>
+		<td><input type="password" size="20" id="UNS_password" name="UNS_password" autocomplete="new-password" /><br />
+		<span class="form-help" i18n:translate="">Leave empty to keep the current password.</span></td>
 	</tr>
 	<tr>
 		<th><label for="UNS_password_confirmation" i18n:translate="">UNS password confirmation</label></th>
-		<td><input type="password" size="20" id="UNS_password_confirmation" name="UNS_password_confirmation" tal:attributes="value here/UNS_password" /></td>
+		<td><input type="password" size="20" id="UNS_password_confirmation" name="UNS_password_confirmation" autocomplete="new-password" /></td>
+	</tr>
+	<tr>
+		<th></th>
+		<td><input type="checkbox" id="UNS_password_clear" name="UNS_password_clear:boolean" />
+		<label for="UNS_password_clear" i18n:translate="">Remove the stored password</label></td>
 	</tr>
 	<tr>
 		<th><label for="UNS_channel_id" i18n:translate="">UNS channel ID</label></th>

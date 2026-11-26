@@ -285,7 +285,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         {"id": "webq_before_edit_page", "type": "string", "mode": "w"},
         {"id": "UNS_server", "type": "string", "mode": "w"},
         {"id": "UNS_username", "type": "string", "mode": "w"},
-        {"id": "UNS_password", "type": "string", "mode": "w"},
         {"id": "UNS_channel_id", "type": "string", "mode": "w"},
         {"id": "UNS_notification_types", "type": "lines", "mode": "w"},
         {"id": "QA_application", "type": "string", "mode": "w"},
@@ -1996,7 +1995,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         os.path.join(package_home(globals()), "zpt/engine/subscriptions.zpt")
     )
 
-    security.declareProtected("View", "uns_settings")
+    # a secret: not readable by URL or restricted code
+    security.declarePrivate("UNS_password")
+
+    security.declareProtected(view_management_screens, "uns_settings")
     uns_settings = PageTemplateFile(
         os.path.join(package_home(globals()), "zpt/engine/unsinterface.zpt")
     )
@@ -2357,9 +2359,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         UNS_password_confirmation,
         UNS_channel_id,
         UNS_notification_types,
+        UNS_password_clear=False,
         REQUEST=None,
     ):
-        """Edit the UNS related properties"""
+        """Edit the UNS related properties
+
+        The form never shows the stored password: leaving both password
+        fields empty keeps it, UNS_password_clear removes it. Emptying the
+        server URL stops the calls to UNS.
+        """
         if UNS_password != UNS_password_confirmation:
             if REQUEST is not None:
                 REQUEST.RESPONSE.redirect(
@@ -2369,7 +2377,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return 0
         self.UNS_server = UNS_server
         self.UNS_username = UNS_username
-        self.UNS_password = UNS_password  # betterleaks:allow (attribute assignment)
+        if UNS_password_clear:
+            self.UNS_password = ""
+        elif UNS_password:
+            self.UNS_password = UNS_password  # betterleaks:allow (attribute assignment)
         self.UNS_channel_id = UNS_channel_id
         self.UNS_notification_types = [x for x in UNS_notification_types if x != ""]
         if REQUEST is not None:
@@ -2755,7 +2766,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.redirect(self.REQUEST["HTTP_REFERER"])
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        security.declareProtected("View", "validate_auditor")
+        # called by the envelope methods, which check the permissions
+        security.declarePrivate("validate_auditor")
 
         def validate_auditor(self, **kwargs):
             """Validate auditor."""
@@ -2766,7 +2778,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             data.update(kwargs)
             return json.dumps(self.FGASRegistryAPI.check_auditor(**data))
 
-        security.declareProtected("View", "assign_for_audit")
+        # called by the envelope methods, which check the permissions
+        security.declarePrivate("assign_for_audit")
 
         def assign_for_audit(self, data):
             """Assign envelope for audit."""
@@ -2776,7 +2789,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(self.FGASRegistryAPI.assign(data))
 
-        security.declareProtected("View", "unassign_for_audit")
+        # called by the envelope methods, which check the permissions
+        security.declarePrivate("unassign_for_audit")
 
         def unassign_for_audit(self, data):
             """Unassign envelope for audit."""
@@ -2786,7 +2800,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.setStatus(200)
             return json.dumps(self.FGASRegistryAPI.unassign(data))
 
-        security.declareProtected("View", "get_ecr_audit_envelopes")
+        # called by the envelope methods, which check the permissions
+        security.declarePrivate("get_ecr_audit_envelopes")
 
         def get_ecr_audit_envelopes(self, src_env):
             """Get audit envelopes for ECR."""
