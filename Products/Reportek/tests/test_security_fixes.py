@@ -83,7 +83,7 @@ class UNSClientTest(unittest.TestCase):
         self.engine = ReportekEngine()
         self.engine.UNS_server = "http://127.0.0.1:1"
         self.engine.UNS_username = "uns_user"
-        self.engine.UNS_password = self.PASSWORD
+        self.engine.UNS_password = self.PASSWORD  # betterleaks:allow (test fixture)
         self.engine.UNS_channel_id = "1"
         patcher = patch.object(
             ReportekEngine, "uns_notifications_enabled", return_value=True
