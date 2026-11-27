@@ -387,6 +387,7 @@
                 <label for='clam_max_file_size' i18n:translate=""><strong>Maximum file size</strong></label>
                 <input type="text" size="50" id="clam_max_file_size" name="clam_max_file_size"
                        tal:attributes="value here/clam_max_file_size" />
+                <br />Bytes, as unpacked; bigger files are not scanned. Keep it at ClamAV's own limit (StreamMaxLength, 2 GB). A file that is not scanned, also when the scanner cannot be reached, is accepted or refused as the CLAMAV_FAIL_MODE environment variable says (open, the default, or closed), and logged.
             </p>
         </fieldset>
         <br/>

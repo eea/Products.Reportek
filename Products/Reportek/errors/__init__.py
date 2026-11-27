@@ -17,6 +17,7 @@ class ErrorView(object):
                 "Forbidden": 403,
                 "NotFound": 404,
                 "BadRequest": 400,
+                "UploadValidationException": 400,
             }
             self.request.response.setHeader("Content-Type", "application/json")
             self.request.response.setStatus(status.get(error_type))

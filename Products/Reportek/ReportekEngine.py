@@ -74,6 +74,7 @@ from Products.Reportek.BdrAuthorizationMiddleware import (
     BdrAuthorizationMiddleware,
 )
 from Products.Reportek.clamav import AVService
+from Products.Reportek.clamav import DEFAULT_MAX_FILE_SIZE as DEFAULT_CLAM_MAX_FILE_SIZE
 from Products.Reportek.constants import (
     CONTENT_TYPE_JSON,
     DEFAULT_CATALOG,
@@ -344,7 +345,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     clamd_host = ""
     clamd_port = 3310
     clamd_timeout = None
-    clam_max_file_size = None
+    # bytes; bigger files are not scanned (see CLAMAV_FAIL_MODE)
+    clam_max_file_size = DEFAULT_CLAM_MAX_FILE_SIZE
 
     def all_meta_types(self, interfaces=None):
         """
@@ -913,6 +915,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 self.clamd_host,
                 self.clamd_port,
                 self.clamd_timeout,
+                self.clam_max_file_size,
             )
         return self._AVService
 

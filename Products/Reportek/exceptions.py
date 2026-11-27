@@ -1,3 +1,6 @@
+from ZPublisher.HTTPResponse import status_codes
+
+
 class CannotPickProcess(Exception):
     """Used to replace deprecated raise 'CannotPickProcess'"""
 
@@ -25,4 +28,10 @@ class ApplicationException(Exception):
 
 
 class UploadValidationException(Exception):
-    """Raised when a file contains a virus"""
+    """Raised when an upload is refused: a virus, a file that could not be
+    scanned, a zip file bigger once unpacked than it says"""
+
+
+# Zope takes the status of an error from the name of its class: answer this
+# one with 400 (Bad Request), not 500
+status_codes[UploadValidationException.__name__.lower()] = 400

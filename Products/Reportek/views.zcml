@@ -362,4 +362,11 @@
     permission="zope.Public"
     />
 
+  <browser:page
+    for="Products.Reportek.exceptions.UploadValidationException"
+    name="index.html"
+    class=".errors.ErrorView"
+    permission="zope.Public"
+    />
+
 </configure>

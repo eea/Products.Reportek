@@ -3,6 +3,9 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: virus scan of uploads: CLAMAV_FAIL_MODE for files that could
+        not be scanned, scan feedback attachments, answer refused uploads
+        with 400; add tests
 * security: limit what uploaded zip archives unpack to (ZIP_UPLOAD_*
         settings); add tests
 * security: check TLS certificates on registry and QA calls; add tests

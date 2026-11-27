@@ -151,8 +151,11 @@ def manage_addFeedback(
         if not isinstance(file, list):
             file = [file]
 
+        engine = getattr(self, constants.ENGINE_ID, None)
         for f in file:
             filename = RepUtils.getFilename(f.filename)
+            if engine is not None:
+                engine.AVService.scan(f, filename=filename)
             add_OfsBlobFile(ob, filename, f)
 
     self._setObject(id, ob)
@@ -617,6 +620,7 @@ class ReportFeedback(
     def manage_uploadAttFeedback(self, file_id="", file="", REQUEST=None):
         """Replace the content of an existing attachment"""
         file_ob = self._getOb(file_id)
+        self.getEngine().AVService.scan(file, filename=file_id)
         with file_ob.data_file.open("wb") as f:
             for chunk in RepUtils.iter_file_data(file):
                 f.write(chunk)

@@ -1429,7 +1429,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 )
             engine = getattr(self, ENGINE_ID, None)
             if engine:
-                engine.AVService.scan(data_file_handle, filename=self.getId())
+                # the size unpacked: a file stored compressed cannot tell it
+                engine.AVService.scan(
+                    data_file_handle, filesize=orig_size, filename=self.getId()
+                )
             if self.content_type == CONTENT_TYPE_XML:
                 self.xml_schema_location = detect_schema(data_file_handle)
             else:
