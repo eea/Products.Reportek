@@ -81,7 +81,7 @@ from Products.Reportek.RepUtils import (
     refuse_when_frozen,
 )
 from Products.Reportek.XMLInfoParser import SchemaError, detect_schema
-from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
+from Products.Reportek.zip_content import SizeCappedReader, ZZipFile, ZZipFileRaw
 from Products.Reportek.permissions import change_envelopes
 
 __version__ = "$Rev$"[6:-2]
@@ -1363,13 +1363,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         self._hash = value
 
     @zpublish(False)
-    def generate_hash(self):
-        """Generate a sha256 hash for the file"""
+    def generate_hash(self, limit=None):
+        """Generate a sha256 hash for the file; with `limit`, refuse a file
+        bigger than that once unpacked"""
 
         BLOCK_SIZE = 65536  # The size of each read from the file
 
         file_hash = hashlib.sha256()
         with self.data_file.open("rb") as f:
+            if limit is not None:
+                f = SizeCappedReader(f, limit, name=self.getId())
             fb = f.read(BLOCK_SIZE)
             while len(fb) > 0:  # While there is still data being read
                 file_hash.update(fb)  # Update the hash
@@ -1416,7 +1419,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                     data = data.encode("utf-8")
                 data_file_handle.write(data)
 
+        # a file of a zip archive is unpacked as it is read: read no more of it
+        # than the archive said it holds
+        limit = orig_size if isinstance(file, ZZipFile) else None
         with self.data_file.open("rb") as data_file_handle:
+            if limit is not None:
+                data_file_handle = SizeCappedReader(
+                    data_file_handle, limit, name=self.getId()
+                )
             engine = getattr(self, ENGINE_ID, None)
             if engine:
                 engine.AVService.scan(data_file_handle, filename=self.getId())
@@ -1425,7 +1435,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             else:
                 self.xml_schema_location = ""
 
-        self.generate_hash()
+        self.generate_hash(limit)
         self.accept_time = None
         self.logUpload()
         # update ZCatalog

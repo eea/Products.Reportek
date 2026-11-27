@@ -91,6 +91,21 @@ def _listing_page_size(value):
 ENVELOPES_LISTING_PAGE_SIZE = _listing_page_size(
     _int_from_env("ENVELOPES_LISTING_PAGE_SIZE", 100)
 )
+# A zip archive uploaded to an envelope is unpacked into documents. An archive
+# with more files than this, or whose files would unpack to more than this
+# (in bytes), is refused before anything is added.
+ZIP_UPLOAD_MAX_FILES = _int_from_env("ZIP_UPLOAD_MAX_FILES", 1000)
+ZIP_UPLOAD_MAX_MEMBER_SIZE = _int_from_env(
+    "ZIP_UPLOAD_MAX_MEMBER_SIZE", 2 * 1024 * 1024 * 1024
+)
+ZIP_UPLOAD_MAX_TOTAL_SIZE = _int_from_env(
+    "ZIP_UPLOAD_MAX_TOTAL_SIZE", 5 * 1024 * 1024 * 1024
+)
+# A file of the archive bigger than ZIP_UPLOAD_RATIO_MIN_SIZE may unpack to at
+# most this many times its compressed size: data files compress about 10-30
+# times, archives made to exhaust the server about 1000 times
+ZIP_UPLOAD_MAX_RATIO = _int_from_env("ZIP_UPLOAD_MAX_RATIO", 200)
+ZIP_UPLOAD_RATIO_MIN_SIZE = 10 * 1024 * 1024
 ZIP_CACHE_ENABLED = os.environ.get("ZIP_CACHE_ENABLED", "True").lower() in (
     "true",
     "yes",

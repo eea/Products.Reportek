@@ -888,6 +888,17 @@ class EnvelopeCustomDataflows(Toolz):
                         return 0, msg
                     return 0
             zip_file_ids = files_only
+            try:
+                zip_content.check_upload_archive(zf)
+            except zip_content.ZipUploadRefused as refused:
+                msg = str(refused)
+                if REQUEST is not None:
+                    return error_message(
+                        self, msg, action="index_html", REQUEST=REQUEST
+                    )
+                if verbose:
+                    return 0, msg
+                return 0
 
             for name in zip_file_ids:
                 id = self.cook_file_id(name)
@@ -1204,7 +1215,8 @@ class EnvelopeCustomDataflows(Toolz):
 
             l_file_list = zf.namelist()
             l_mess = ""
-            l_extensions = ESRI_EXTRAEXTENSIONS
+            # a copy: the extensions found are removed from it
+            l_extensions = list(ESRI_EXTRAEXTENSIONS)
             for name in l_file_list:
                 # test that the archive is not hierarhical
                 if name[-1] == "/" or name[-1] == "\\":
@@ -1239,6 +1251,14 @@ class EnvelopeCustomDataflows(Toolz):
                     )
                 else:
                     return 0
+            try:
+                zip_content.check_upload_archive(zf)
+            except zip_content.ZipUploadRefused as refused:
+                if REQUEST is not None:
+                    return error_message(
+                        self, str(refused), action="./index_html", REQUEST=REQUEST
+                    )
+                return 0
             oids = []
             for name in zf.namelist():
                 zf.setcurrentfile(name)

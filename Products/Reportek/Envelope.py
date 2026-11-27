@@ -1809,6 +1809,10 @@ class Envelope(
                         ),
                         action="./index_html",
                     )
+            try:
+                zip_content.check_upload_archive(zf)
+            except zip_content.ZipUploadRefused as refused:
+                return self.messageDialog(message=str(refused), action="./index_html")
 
             for name in zf.namelist():
                 zf.setcurrentfile(name)

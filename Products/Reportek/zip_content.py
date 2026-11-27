@@ -610,6 +610,100 @@ class ZZipFile(ZipFile):
         return self.getinfo(self.currentFilename).file_size
 
 
+class ZipUploadRefused(Exception):
+    """An archive that cannot be unpacked into an envelope; the message says
+    why, for the user."""
+
+
+def _size(nbytes):
+    if nbytes < 1024:
+        return "%d bytes" % nbytes
+    for unit in ("KB", "MB", "GB"):
+        nbytes /= 1024.0
+        if nbytes < 1024 or unit == "GB":
+            return "%.1f %s" % (nbytes, unit)
+
+
+def check_upload_archive(archive):
+    """Refuse an archive that would unpack to too many or too big files, before
+    any of them is added (see the ZIP_UPLOAD_* settings). The sizes are the
+    ones the archive declares; what is read later is capped to them."""
+    from Products.Reportek import config
+
+    infos = archive.infolist()
+    if len(infos) > config.ZIP_UPLOAD_MAX_FILES:
+        raise ZipUploadRefused(
+            "The zip file contains %d files; at most %d can be uploaded at once."
+            % (len(infos), config.ZIP_UPLOAD_MAX_FILES)
+        )
+    total = 0
+    for info in infos:
+        if info.file_size > config.ZIP_UPLOAD_MAX_MEMBER_SIZE:
+            raise ZipUploadRefused(
+                "The file %s in the zip file is %s once unpacked; at most %s "
+                "per file can be uploaded."
+                % (
+                    info.filename,
+                    _size(info.file_size),
+                    _size(config.ZIP_UPLOAD_MAX_MEMBER_SIZE),
+                )
+            )
+        if info.file_size > config.ZIP_UPLOAD_RATIO_MIN_SIZE and (
+            info.file_size > config.ZIP_UPLOAD_MAX_RATIO * max(info.compress_size, 1)
+        ):
+            raise ZipUploadRefused(
+                "The file %s in the zip file unpacks to %d times its compressed "
+                "size; it cannot be uploaded."
+                % (info.filename, info.file_size // max(info.compress_size, 1))
+            )
+        total += info.file_size
+    if total > config.ZIP_UPLOAD_MAX_TOTAL_SIZE:
+        raise ZipUploadRefused(
+            "The files in the zip file are %s once unpacked; at most %s can be "
+            "uploaded at once."
+            % (_size(total), _size(config.ZIP_UPLOAD_MAX_TOTAL_SIZE))
+        )
+
+
+class SizeCappedReader:
+    """Reads a file, refusing it once more than `limit` bytes come out.
+
+    A file of a zip archive is stored as it is in the archive, compressed, and
+    the archive says how big it is unpacked; reading it unpacks all there is,
+    so the reads are capped to what the archive said."""
+
+    def __init__(self, fileobj, limit, name=""):
+        self._file = fileobj
+        self._limit = limit
+        self._name = name
+        self._pos = 0
+
+    def read(self, size=-1):
+        if size is None or size < 0:
+            size = self._limit - self._pos + 1
+        data = self._file.read(size)
+        self._pos += len(data)
+        if self._pos > self._limit:
+            from Products.Reportek.exceptions import UploadValidationException
+
+            raise UploadValidationException(
+                "The file %s is bigger once unpacked than the zip file says."
+                % self._name
+            )
+        return data
+
+    def seek(self, offset, whence=os.SEEK_SET):
+        # as the file does: a compressed one cannot seek from its end
+        self._pos = self._file.seek(offset, whence)
+        return self._pos
+
+    def tell(self):
+        return self._file.tell()
+
+    def __getattr__(self, name):
+        return getattr(self._file, name)
+
+
 def encode_zip_name(name, key):
     return urllib.parse.quote("%s-%s" % (name, key), "")
 

@@ -3,6 +3,8 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: limit what uploaded zip archives unpack to (ZIP_UPLOAD_*
+        settings); add tests
 * security: check TLS certificates on registry and QA calls; add tests
 * security: tighten request checks on the registry API and the LDAP role
         views; answer Forbidden with 403; add tests

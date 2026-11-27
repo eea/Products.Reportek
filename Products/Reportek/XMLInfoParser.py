@@ -63,6 +63,9 @@ def detect_schema(src):
         # Loop over the elements in order to make sure it's well-formed
         for event, element in iterparser:
             element.clear()
+            # and forget the elements already read: their parent keeps them
+            while element.getprevious() is not None:
+                del element.getparent()[0]
     except lxml.etree.XMLSyntaxError as e:
         raise SchemaError("XML Syntax Error", *e.args)
 
