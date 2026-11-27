@@ -12,7 +12,12 @@ class ErrorView(object):
         error_type = self.context.__class__.__name__
         error_message = str(self.context)
         if accept == "application/json":
-            status = {"Unauthorized": 401, "NotFound": 404, "BadRequest": 400}
+            status = {
+                "Unauthorized": 401,
+                "Forbidden": 403,
+                "NotFound": 404,
+                "BadRequest": 400,
+            }
             self.request.response.setHeader("Content-Type", "application/json")
             self.request.response.setStatus(status.get(error_type))
             error = {

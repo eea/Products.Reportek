@@ -355,4 +355,11 @@
     permission="zope.Public"
     />
 
+  <browser:page
+    for="zExceptions.Forbidden"
+    name="index.html"
+    class=".errors.ErrorView"
+    permission="zope.Public"
+    />
+
 </configure>

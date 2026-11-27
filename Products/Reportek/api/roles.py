@@ -1,8 +1,8 @@
 import json
 
 from Products.Five import BrowserView
-import plone.protect.interfaces
-from zope.interface import alsoProvides
+
+from .csrf import protect
 
 
 class RolesMGMTAPI(BrowserView):
@@ -27,10 +27,14 @@ class RolesMGMTAPI(BrowserView):
 
     def manage_ownership(self):
         """Manage the Owner role for a user on a collection"""
-        if "IDisableCSRFProtection" in dir(plone.protect.interfaces):
-            alsoProvides(self.request, plone.protect.interfaces.IDisableCSRFProtection)
+        protect(self.request)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         if self.request.method == "POST":
+            content_type = self.request.getHeader("Content-Type") or ""
+            if content_type.split(";")[0].strip().lower() != "application/json":
+                self.request.RESPONSE.setStatus(415)
+                error = {"title": "Error", "description": "Send JSON"}
+                return json.dumps({"message": "", "errors": [error]})
             data = json.loads(self.request.get("BODY") or "{}")
             uid = data.get("uid", "")
             obl_folder = data.get("obl_folder", "")

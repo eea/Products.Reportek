@@ -6,6 +6,7 @@ from AccessControl.class_init import InitializeClass
 from App.Common import package_home
 from OFS.SimpleItem import SimpleItem
 from persistent.mapping import PersistentMapping
+from plone.protect import CheckAuthenticator
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
@@ -290,6 +291,12 @@ class LDAPGroupRolesActionView(BrowserView):
 
     message = "Updated"
 
+    def check_token(self):
+        """The ZMI forms carry plone.protect's token; refuse a request
+        without it before changing anything, rather than have the change
+        silently undone after reporting success."""
+        CheckAuthenticator(self.request)
+
     def redirect(self):
         return self.request.RESPONSE.redirect(
             self.context.absolute_url()
@@ -302,6 +309,7 @@ class AddGroupRoleMappingView(LDAPGroupRolesActionView):
     message = "Mapping saved"
 
     def __call__(self):
+        self.check_token()
         self.context.manage_addGroupRoleMapping(
             self.request.get("group_id", ""),
             self.request.get("role_id", ""),
@@ -313,6 +321,7 @@ class DeleteGroupRoleMappingsView(LDAPGroupRolesActionView):
     message = "Mapping deleted"
 
     def __call__(self):
+        self.check_token()
         self.context.manage_deleteGroupRoleMappings(
             self.request.get("group_ids", ()),
         )
@@ -323,6 +332,7 @@ class SetImplicitMappingView(LDAPGroupRolesActionView):
     message = "Implicit mapping saved"
 
     def __call__(self):
+        self.check_token()
         self.context.manage_setImplicitMapping(
             self.request.get("enabled", False),
         )
@@ -333,6 +343,7 @@ class AssignRoleToPrincipalView(LDAPGroupRolesActionView):
     message = "Role assigned"
 
     def __call__(self):
+        self.check_token()
         self.context.manage_assignRoleToPrincipal(
             self.request.get("role_id", ""),
             self.request.get("principal_id", ""),
@@ -344,6 +355,7 @@ class RemoveRoleFromPrincipalView(LDAPGroupRolesActionView):
     message = "Role removed"
 
     def __call__(self):
+        self.check_token()
         self.context.manage_removeRoleFromPrincipal(
             self.request.get("role_id", ""),
             self.request.get("principal_id", ""),
@@ -355,6 +367,7 @@ class UpdatePrincipalRolesView(LDAPGroupRolesActionView):
     message = "Principal roles updated"
 
     def __call__(self):
+        self.check_token()
         self.context.manage_updatePrincipalRoles(
             self.request.get("principal_id", ""),
             self.request.get("role_ids", ()),
