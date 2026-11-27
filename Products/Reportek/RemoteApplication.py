@@ -902,7 +902,7 @@ class RemoteApplication(BaseRemoteApplication):
                 url,
                 headers={"Authorization": self.token},
                 timeout=timeout,
-                verify=False,
+                verify=True,
             )
             message = res.json().get("message")
             l_workitem.addEvent(

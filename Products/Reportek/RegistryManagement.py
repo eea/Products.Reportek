@@ -277,7 +277,6 @@ class BaseRegistryAPI(SimpleItem):
             cookies=cookies,
             headers=headers,
             params=params,
-            verify=False,
             timeout=timeout,
         )
 

@@ -629,3 +629,35 @@ class SafeToCompileTest(unittest.TestCase):
             started = time.time()
             self.check(html)
             self.assertLess(time.time() - started, 1, html[:20])
+
+
+class CertificateCheckTest(unittest.TestCase):
+    """Calls carrying a token check the certificate of the server they reach."""
+
+    def test_registry_requests(self):
+        from Products.Reportek.RegistryManagement import BaseRegistryAPI
+
+        api = BaseRegistryAPI("FGAS Registry", "https://registry.example", "token")
+        kwargs = api._request_kwargs(None, None, None, None, None, None)
+        # requests checks the certificate unless told not to
+        self.assertTrue(kwargs.get("verify", True))
+        url, kwargs = api.lookup_request("https://registry.example/x")
+        self.assertTrue(kwargs.get("verify", True))
+
+    @patch("Products.Reportek.RemoteApplication.requests.post")
+    def test_qa_job_cancellation(self, post):
+        from Products.Reportek.RemoteApplication import RemoteApplication
+
+        post.return_value = Mock(status_code=200, json=lambda: {"message": "ok"})
+        app = RemoteApplication(
+            "qa", "", "https://converters.example/RpcRouter", "", "QA"
+        )
+        app.token = "token"
+        app.wk = Mock()
+        app.REQUEST = {"AUTHENTICATED_USER": Mock()}
+        app.delete_job("1", "wk")
+        self.assertIs(post.call_args[1]["verify"], True)
+        self.assertEqual(
+            post.call_args[0][0],
+            "https://converters.example/restapi/asynctasks/qajobs/delete/1",
+        )

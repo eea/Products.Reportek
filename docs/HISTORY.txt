@@ -3,6 +3,7 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: check TLS certificates on registry and QA calls; add tests
 * security: tighten request checks on the registry API and the LDAP role
         views; answer Forbidden with 403; add tests
 * security: harden the UNS client; add tests
