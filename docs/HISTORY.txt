@@ -3,6 +3,7 @@ Changelog
 
 101.6-dev0 - (unreleased)
 ---------------------------
+* security: harden the UNS client; add tests
 * security: check the roles of users acting on workflow steps and the
         account delivering QA results (engine settings); add tests
 * security: harden the rendering of feedback text; add tests

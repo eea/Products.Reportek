@@ -72,6 +72,124 @@ class UNSSettingsTest(unittest.TestCase):
         self.assertEqual(self.engine.UNS_password, "old-secret")
 
 
+class UNSClientTest(unittest.TestCase):
+    """The UNS credentials never show in errors, logs or redirects."""
+
+    PASSWORD = "uns-s3cret"  # betterleaks:allow (test fixture)
+
+    def setUp(self):
+        from Products.Reportek.ReportekEngine import ReportekEngine
+
+        self.engine = ReportekEngine()
+        self.engine.UNS_server = "http://127.0.0.1:1"
+        self.engine.UNS_username = "uns_user"
+        self.engine.UNS_password = self.PASSWORD
+        self.engine.UNS_channel_id = "1"
+        patcher = patch.object(
+            ReportekEngine, "uns_notifications_enabled", return_value=True
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def serve(self, status):
+        """A UNS answering every call with ``status``; returns the
+        Authorization headers it received."""
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+
+        received = []
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                received.append(self.headers.get("Authorization"))
+                self.send_response(status)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        server = HTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        self.engine.UNS_server = "http://127.0.0.1:%d" % server.server_address[1]
+        return received
+
+    def test_errors_do_not_show_the_password(self):
+        import base64
+        import xmlrpc.client
+
+        received = self.serve(503)
+        proxy = self.engine.get_uns_xmlrpc_server()
+        with self.assertRaises(xmlrpc.client.ProtocolError) as cm:
+            proxy.UNSService.canSubscribe("1", "someone")
+        self.assertIn("503", str(cm.exception))
+        self.assertNotIn(self.PASSWORD, str(cm.exception))
+        self.assertNotIn(self.PASSWORD, repr(proxy))
+        # still authenticated, with a header
+        credentials = "uns_user:%s" % self.PASSWORD
+        self.assertEqual(
+            received, ["Basic " + base64.b64encode(credentials.encode()).decode()]
+        )
+
+    def test_https_and_no_username(self):
+        import xmlrpc.client
+
+        self.engine.UNS_server = "https://uns.example.com"
+        proxy = self.engine.get_uns_xmlrpc_server()
+        transport = proxy._ServerProxy__transport
+        self.assertIsInstance(transport, xmlrpc.client.SafeTransport)
+        self.assertEqual([name for name, _ in transport._headers], ["Authorization"])
+        # without a username, no credentials are sent
+        self.engine.UNS_username = ""
+        proxy = self.engine.get_uns_xmlrpc_server()
+        self.assertEqual(proxy._ServerProxy__transport._headers, [])
+
+    def test_failed_subscription_does_not_show_the_error(self):
+        self.serve(500)
+        user = Mock()
+        user.getUserName.return_value = "someone"
+        self.engine.REQUEST = {"AUTHENTICATED_USER": user}
+        request = Mock()
+        with patch("Products.Reportek.ReportekEngine.logger") as logger:
+            ok, message = self.engine.subscribeToUNS(REQUEST=request)
+        self.assertEqual(ok, 0)
+        [url] = request.RESPONSE.redirect.call_args[0]
+        self.assertIn("info_title=Error", url)
+        self.assertNotIn("ProtocolError", url)
+        self.assertNotIn("127.0.0.1", url)
+        self.assertNotIn(self.PASSWORD, url)
+        logged = str(logger.warning.call_args)
+        self.assertIn("500", logged)
+        self.assertNotIn(self.PASSWORD, logged)
+
+    def test_a_refusal_by_uns_is_shown(self):
+        import xmlrpc.client
+        from urllib.parse import parse_qs, urlparse
+
+        user = Mock()
+        user.getUserName.return_value = "someone"
+        self.engine.REQUEST = {"AUTHENTICATED_USER": user}
+        server = Mock()
+        server.UNSService.makeSubscription.side_effect = xmlrpc.client.Fault(
+            1, "Not allowed & <b>no</b>"
+        )
+        request = Mock()
+        with patch.object(
+            self.engine, "get_uns_xmlrpc_server", return_value=server
+        ), patch("Products.Reportek.ReportekEngine.logger"):
+            self.engine.subscribeToUNS(REQUEST=request)
+        [url] = request.RESPONSE.redirect.call_args[0]
+        query = parse_qs(urlparse(url).query)
+        self.assertEqual(query["info_title"], ["Error"])
+        self.assertEqual(
+            query["info_msg"],
+            ["Your subscription could not be made: Not allowed & <b>no</b>"],
+        )
+
+
 class EnginePropertiesUpdateTest(unittest.TestCase):
     def setUp(self):
         from Products.Reportek.ReportekEngine import ReportekEngine

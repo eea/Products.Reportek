@@ -20,6 +20,7 @@
 # Miruna Badescu, Eau de Web
 # Daniel Bărăgan, Eau de Web
 
+import base64
 import importlib
 import json
 import logging
@@ -32,7 +33,8 @@ from copy import copy, deepcopy
 from io import BytesIO
 from operator import itemgetter
 from time import localtime, strftime, time
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
+from xmlrpc.client import Fault as XMLRPCFault
 from zipfile import ZIP64_LIMIT, ZIP_DEFLATED, ZipFile, ZipInfo
 
 import plone.protect.interfaces
@@ -2444,11 +2446,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def get_uns_xmlrpc_server(self):
         if self.uns_notifications_enabled():
             url = self.UNS_server + "/rpcrouter"
-            if self.UNS_username:
-                frag = "%s:%s@" % (self.UNS_username, self.UNS_password)
-                url = url.replace("http://", "http://" + frag)
-                url = url.replace("https://", "https://" + frag)
-            return xmlrpc.client.Server(url)
+            if not self.UNS_username:
+                return xmlrpc.client.Server(url)
+            # the credentials go in a header: xmlrpc.client shows the URL,
+            # with any user:password in it, in its errors and repr
+            credentials = "%s:%s" % (self.UNS_username, self.UNS_password)
+            authorization = "Basic " + base64.b64encode(
+                credentials.encode("utf-8")
+            ).decode("ascii")
+            if url.lower().startswith("https://"):
+                transport_class = xmlrpc.client.SafeTransport
+            else:
+                transport_class = xmlrpc.client.Transport
+            transport = transport_class(headers=[("Authorization", authorization)])
+            return xmlrpc.client.Server(url, transport=transport)
 
     def get_ecas_userid(self, username):
         ecas_path = "/acl_users/" + ECAS_ID
@@ -2583,11 +2594,21 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     )
                 return (1, "")
         except Exception as err:
+            logger.warning("Unable to make the UNS subscription: %s", err)
             if REQUEST is not None:
+                if isinstance(err, XMLRPCFault):
+                    # UNS refused it and says why
+                    message = (
+                        "Your subscription could not be made: %s" % err.faultString
+                    )
+                else:
+                    # the details stay in the log
+                    message = (
+                        "Your subscription could not be made. Please try again later."
+                    )
                 REQUEST.RESPONSE.redirect(
-                    """subscriptions_html?info_title=Error&info_msg=Your """
-                    """subscription could not be made because of the """
-                    """following error: %s""" % str(err)
+                    "subscriptions_html?"
+                    + urlencode({"info_title": "Error", "info_msg": message})
                 )
             return (0, str(err))
 
